@@ -11,7 +11,7 @@ import java.util.Map;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.date.DateUtils;
-import com.github.paganini2008.devtools.jdbc.DBUtils;
+import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 /**
  * 
@@ -49,7 +49,7 @@ public class LogbackDbLoggingUtils {
 		}
 		sql.append(" order by e.timestmp desc limit ?");
 		arguments.add(limit);
-		Iterator<Tuple> iterator = DBUtils.executeQuery(connection, sql.toString(), arguments.toArray());
+		Iterator<Tuple> iterator = JdbcUtils.executeQuery(connection, sql.toString(), arguments.toArray());
 		List<Map<String, Object>> eventList = new ArrayList<Map<String, Object>>();
 		while (iterator.hasNext()) {
 			Tuple data = iterator.next();
@@ -64,7 +64,7 @@ public class LogbackDbLoggingUtils {
 	private static void processEventException(Connection connection, Tuple data) throws SQLException {
 		Number eventId = (Number) data.get("event_id");
 		String sql = "select trace_line from logging_event_exception where event_id=?";
-		Iterator<Tuple> iterator = DBUtils.executeQuery(connection, sql, new Object[] { eventId.intValue() });
+		Iterator<Tuple> iterator = JdbcUtils.executeQuery(connection, sql, new Object[] { eventId.intValue() });
 		List<String> traceLineList = new ArrayList<String>();
 		while (iterator.hasNext()) {
 			Tuple trace = iterator.next();

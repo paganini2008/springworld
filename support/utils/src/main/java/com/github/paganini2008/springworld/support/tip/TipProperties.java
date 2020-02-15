@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.collection.RefreshingProperties;
 import com.github.paganini2008.devtools.collection.Tuple;
-import com.github.paganini2008.devtools.jdbc.DBUtils;
+import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 /**
  * 
@@ -35,13 +35,13 @@ public class TipProperties extends RefreshingProperties {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			Iterator<Tuple> iterator = DBUtils.executeQuery(connection, SELECT_SQL);
+			Iterator<Tuple> iterator = JdbcUtils.executeQuery(connection, SELECT_SQL);
 			while (iterator.hasNext()) {
 				Tuple t = iterator.next();
 				p.setProperty((String) t.get("code"), (String) t.get("msg"));
 			}
 		} finally {
-			DBUtils.closeQuietly(connection);
+			JdbcUtils.closeQuietly(connection);
 		}
 		return p;
 	}

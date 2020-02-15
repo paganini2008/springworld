@@ -18,7 +18,7 @@ import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
-import com.github.paganini2008.devtools.jdbc.DBUtils;
+import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.devtools.scheduler.SchedulingException;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor.TaskDetail;
@@ -64,11 +64,11 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 				Connection connection = null;
 				try {
 					connection = dataSource.getConnection();
-					if (!DBUtils.existsTable(connection, null, "cron_job_detail")) {
-						DBUtils.executeUpdate(connection, DEF_DDL_CRON_JOB_DETAIL_SQL);
+					if (!JdbcUtils.existsTable(connection, null, "cron_job_detail")) {
+						JdbcUtils.executeUpdate(connection, DEF_DDL_CRON_JOB_DETAIL_SQL);
 					}
 				} finally {
-					DBUtils.closeQuietly(connection);
+					JdbcUtils.closeQuietly(connection);
 				}
 			}
 		}
@@ -79,12 +79,12 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 		List<Tuple> dataList = null;
 		try {
 			connection = dataSource.getConnection();
-			Iterator<Tuple> iterator = DBUtils.executeQuery(connection, DEF_SELECT_JOBS_SQL);
+			Iterator<Tuple> iterator = JdbcUtils.executeQuery(connection, DEF_SELECT_JOBS_SQL);
 			dataList = CollectionUtils.toList(iterator);
 		} catch (SQLException e) {
 			throw new SchedulingException(e.getMessage(), e);
 		} finally {
-			DBUtils.closeQuietly(connection);
+			JdbcUtils.closeQuietly(connection);
 		}
 		if (CollectionUtils.isNotCollection(dataList)) {
 			for (Tuple tuple : dataList) {
@@ -126,7 +126,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
-				DBUtils.executeUpdate(connection, DEF_INSERT_JOB_SQL, ps -> {
+				JdbcUtils.executeUpdate(connection, DEF_INSERT_JOB_SQL, ps -> {
 					ps.setString(1, job.getName());
 					ps.setString(2, job.getDescription());
 					ps.setString(3, job.getClass().getName());
@@ -137,7 +137,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			} catch (SQLException e) {
 				throw new SchedulingException("Failed to save job detail to database.", e);
 			} finally {
-				DBUtils.closeQuietly(connection);
+				JdbcUtils.closeQuietly(connection);
 			}
 		}
 	}
@@ -146,12 +146,12 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			Object result = DBUtils.executeOneResultQuery(connection, DEF_CHECK_JOB_EXISTS_SQL, new Object[] { job.getName() });
+			Object result = JdbcUtils.executeOneResultQuery(connection, DEF_CHECK_JOB_EXISTS_SQL, new Object[] { job.getName() });
 			return result instanceof Number ? ((Number) result).intValue() > 0 : false;
 		} catch (SQLException e) {
 			throw new SchedulingException(e.getMessage(), e);
 		} finally {
-			DBUtils.closeQuietly(connection);
+			JdbcUtils.closeQuietly(connection);
 		}
 	}
 
@@ -160,12 +160,12 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
-				DBUtils.executeUpdate(connection, DEF_DELETE_JOB_SQL, new Object[] { job.getName() });
+				JdbcUtils.executeUpdate(connection, DEF_DELETE_JOB_SQL, new Object[] { job.getName() });
 				log.info("Delete job '" + job.getName() + "' ok.");
 			} catch (SQLException e) {
 				throw new SchedulingException(e.getMessage(), e);
 			} finally {
-				DBUtils.closeQuietly(connection);
+				JdbcUtils.closeQuietly(connection);
 			}
 		}
 
@@ -189,7 +189,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
-				DBUtils.executeUpdate(connection, DEF_UPDATE_JOB_SQL, ps -> {
+				JdbcUtils.executeUpdate(connection, DEF_UPDATE_JOB_SQL, ps -> {
 					ps.setBoolean(1, taskDetail.isRunning());
 					ps.setBoolean(2, future.isPaused());
 					ps.setInt(3, taskDetail.completedCount());
@@ -201,7 +201,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			} catch (SQLException e) {
 				throw new SchedulingException("Failed to save job detail to database.", e);
 			} finally {
-				DBUtils.closeQuietly(connection);
+				JdbcUtils.closeQuietly(connection);
 			}
 		}
 	}
@@ -215,7 +215,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 	}
 
 	public ResultSetSlice<JobInfo> getJobInfos() {
-		final ResultSetSlice<Tuple> delegate = DBUtils.pagingQuery(dataSource, DEF_SELECT_JOBS_SQL, (Object[]) null);
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pagingQuery(dataSource, DEF_SELECT_JOBS_SQL, (Object[]) null);
 		return new ResultSetSlice<JobInfo>() {
 
 			@Override
