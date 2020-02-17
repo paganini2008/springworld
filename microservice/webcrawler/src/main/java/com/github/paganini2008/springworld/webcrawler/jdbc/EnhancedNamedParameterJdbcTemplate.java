@@ -16,7 +16,7 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * EnhancedNamedParameterJdbcTemplate
  *
  * @author Fred Feng
- * @created 2019-08
+ * 
  * @version 1.0
  */
 public class EnhancedNamedParameterJdbcTemplate extends NamedParameterJdbcTemplate {

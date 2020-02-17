@@ -12,7 +12,7 @@ import javax.persistence.criteria.Expression;
  * SimpleCaseExpression
  * 
  * @author Fred Feng
- * @created 2019-02
+ * 
  */
 public class SimpleCaseExpression<T, R> implements Field<R> {
 

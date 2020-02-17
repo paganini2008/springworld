@@ -20,8 +20,8 @@ import lombok.Setter;
  * ArticleCommentLike
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-03
+ * 
+ * 
  * @version 1.0
  */
 @Getter

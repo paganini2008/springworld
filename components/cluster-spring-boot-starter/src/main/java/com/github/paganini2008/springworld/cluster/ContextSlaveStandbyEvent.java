@@ -7,8 +7,8 @@ import org.springframework.context.ApplicationContext;
  * ContextSlaveStandbyEvent
  * 
  * @author Fred Feng
- * @created 2019-08
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 public class ContextSlaveStandbyEvent extends ContextClusterEvent {

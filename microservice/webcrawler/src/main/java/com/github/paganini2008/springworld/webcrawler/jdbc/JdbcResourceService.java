@@ -30,8 +30,8 @@ import lombok.extern.slf4j.Slf4j;
  * JdbcResourceService
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-10
+ * 
+ * 
  */
 @Slf4j
 @Component

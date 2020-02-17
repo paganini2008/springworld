@@ -31,7 +31,7 @@ import com.github.paganini2008.springworld.support.vo.ResultVO;
  * ValidationExceptionHanlder
  * 
  * @author Fred Feng
- * @revised 2019-06
+ * 
  * @version 1.0
  */
 @Order(100)

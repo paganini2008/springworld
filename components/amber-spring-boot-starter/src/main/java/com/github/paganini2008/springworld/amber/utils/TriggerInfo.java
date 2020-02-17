@@ -12,7 +12,7 @@ import com.github.paganini2008.devtools.date.DateUtils;
  * TriggerInfo
  * 
  * @author Fred Feng
- * @created 2019-04
+ * 
  */
 public class TriggerInfo {
 

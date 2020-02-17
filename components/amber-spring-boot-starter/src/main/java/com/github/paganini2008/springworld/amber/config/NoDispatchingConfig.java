@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Primary;
  * NoDispatchingConfig
  * 
  * @author Fred Feng
- * @created 2019-03
+ * 
  */
 @Configuration
 @ConditionalOnProperty(prefix = "amber.dispatcher", name = "type", havingValue = "none", matchIfMissing = true)

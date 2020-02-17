@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
  * TurbineMain
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2018-05
+ * 
+ * 
  * @version 1.0
  */
 @SpringBootApplication

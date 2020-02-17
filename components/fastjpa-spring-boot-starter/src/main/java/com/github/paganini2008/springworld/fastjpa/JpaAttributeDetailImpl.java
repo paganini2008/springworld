@@ -7,7 +7,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * 
  * JpaAttributeImpl
  * @author Fred Feng
- * @created 2019-02
+ * 
  */
 public class JpaAttributeDetailImpl<E> implements JpaAttributeDetail {
 

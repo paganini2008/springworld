@@ -22,8 +22,8 @@ import net.rubyeye.xmemcached.utils.AddrUtil;
  * MemcachedBufferZone
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-12
+ * 
+ * 
  * @version 1.0
  */
 @Slf4j

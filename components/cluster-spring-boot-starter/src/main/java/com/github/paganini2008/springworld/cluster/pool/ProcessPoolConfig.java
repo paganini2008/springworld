@@ -21,8 +21,8 @@ import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
  * ProcessPoolConfig
  *
  * @author Fred Feng
- * @created 2020-01
- * @revised 2020-02
+ * 
+ * 
  * @version 1.0
  */
 @Configuration

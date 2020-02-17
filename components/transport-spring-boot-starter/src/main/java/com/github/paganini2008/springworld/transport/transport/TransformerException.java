@@ -5,8 +5,8 @@ package com.github.paganini2008.springworld.transport.transport;
  * TransformerException
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-10
+ * 
+ * 
  * @version 1.0
  */
 public class TransformerException extends RuntimeException {

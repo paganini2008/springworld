@@ -40,7 +40,7 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
  * OAuth2ServerConfig
  * 
  * @author Fred Feng
- * @revised 2019-06
+ * 
  * @version 1.0
  */
 @Configuration

@@ -10,7 +10,7 @@ import com.github.paganini2008.devtools.enums.EnumUtils;
  * Gender
  * 
  * @author Fred Feng
- * @created 2019-06
+ * 
  * @version 2.0.0
  */
 public enum Gender implements EnumConstant {

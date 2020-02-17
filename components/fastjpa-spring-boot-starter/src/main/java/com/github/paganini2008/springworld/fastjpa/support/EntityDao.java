@@ -19,7 +19,7 @@ import com.github.paganini2008.springworld.fastjpa.JpaUpdate;
  * EntityDao
  * 
  * @author Fred Feng
- * @created 2019-02
+ * 
  */
 @NoRepositoryBean
 public interface EntityDao<E, ID> extends JpaRepositoryImplementation<E, ID>, NativeSqlOperations<E> {

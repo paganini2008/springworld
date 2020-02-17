@@ -5,8 +5,8 @@ package com.github.paganini2008.springworld.fastjpa;
  * JpaSubJoin
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-04
+ * 
+ * 
  */
 public interface JpaSubJoin<T> {
 

@@ -17,8 +17,8 @@ import javax.persistence.criteria.Subquery;
  * JpaQueryImpl
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public class JpaQueryImpl<E> implements JpaQuery<E> {
 

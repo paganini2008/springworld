@@ -22,8 +22,8 @@ import com.github.paganini2008.transport.RoundRobinPartitioner;
  * CrawlerConfig
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-10
+ * 
+ * 
  */
 @Configuration
 public class CrawlerConfig {

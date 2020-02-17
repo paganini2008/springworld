@@ -13,8 +13,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
  * SpringSchedulerConfig
  * 
  * @author Fred Feng
- * @created 2019-11
- * @revised 2019-12
+ * 
+ * 
  * @version 1.0
  */
 @Configuration

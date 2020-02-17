@@ -31,8 +31,8 @@ import lombok.extern.slf4j.Slf4j;
  * JdbcJobManager
  *
  * @author Fred Feng
- * @created 2018-03
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 @Slf4j

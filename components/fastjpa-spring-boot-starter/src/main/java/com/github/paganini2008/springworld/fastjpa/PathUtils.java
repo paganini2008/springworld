@@ -7,8 +7,8 @@ import javax.persistence.criteria.Path;
  * PathUtils
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public abstract class PathUtils {
 

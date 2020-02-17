@@ -13,8 +13,8 @@ import com.github.paganini2008.springworld.cluster.ClusterId;
  * ContextMulticastAware
  *
  * @author Fred Feng
- * @created 2019-08
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 public class ContextMulticastAware implements ApplicationListener<ContextRefreshedEvent> {

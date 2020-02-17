@@ -101,7 +101,7 @@ public class Swagger2 {
 	 * Swagger2RequestMatcher
 	 * 
 	 * @author Fred Feng
-	 * @revised 2019-06
+	 * 
 	 * @version 1.0
 	 */
 	public static class Swagger2RequestMatcher implements HttpRequestMatcher {

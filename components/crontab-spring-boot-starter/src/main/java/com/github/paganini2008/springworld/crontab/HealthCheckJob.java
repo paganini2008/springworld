@@ -14,8 +14,8 @@ import lombok.extern.slf4j.Slf4j;
  * HealthCheckJob
  *
  * @author Fred Feng
- * @created 2019-08
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 

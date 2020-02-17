@@ -9,8 +9,8 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * JobManager
  *
  * @author Fred Feng
- * @created 2018-03
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 public interface JobManager {

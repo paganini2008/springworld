@@ -9,8 +9,8 @@ import org.springframework.context.ApplicationContextAware;
  * RedisMessageEventPublisher
  * 
  * @author Fred Feng
- * @created 2019-07
- * @revised 2019-05
+ * 
+ * 
  * @version 1.0
  */
 public class RedisMessageEventPublisher implements ApplicationContextAware {

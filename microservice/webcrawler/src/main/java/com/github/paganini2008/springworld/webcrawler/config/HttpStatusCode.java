@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
  * HttpStatusCode
  * 
  * @author Fred Feng
- * @revised 2019-06
+ * 
  * @version 1.0
  */
 public enum HttpStatusCode {

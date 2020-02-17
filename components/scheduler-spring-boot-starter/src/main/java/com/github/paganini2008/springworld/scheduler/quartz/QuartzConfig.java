@@ -26,8 +26,8 @@ import com.github.paganini2008.springworld.scheduler.JobManager;
  * QuartzConfig
  * 
  * @author Fred Feng
- * @created 2018-03
- * @revised 2019-11
+ * 
+ * 
  */
 @Configuration
 @ConditionalOnProperty(prefix = "spring.task-scheduler", name = "engine", havingValue = "quartz")

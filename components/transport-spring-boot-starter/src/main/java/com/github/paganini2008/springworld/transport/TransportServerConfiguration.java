@@ -43,8 +43,8 @@ import io.netty.channel.Channel;
  * TransportServerConfiguration
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-10
+ * 
+ * 
  * @version 1.0
  */
 @ConditionalOnProperty(prefix = "spring.transport", name = "mode", havingValue = "server", matchIfMissing = true)

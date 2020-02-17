@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * JobBeanProxy
  * 
  * @author Fred Feng
- * @created 2019-11
+ * 
  * @version 1.0
  */
 @Slf4j

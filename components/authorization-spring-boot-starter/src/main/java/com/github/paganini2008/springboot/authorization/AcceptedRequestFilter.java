@@ -12,7 +12,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * AcceptedRequestFilter
  * 
  * @author Fred Feng
- * @revised 2019-06
+ * 
  * @version 1.0
  */
 public class AcceptedRequestFilter implements RequestMatcher {
@@ -22,7 +22,7 @@ public class AcceptedRequestFilter implements RequestMatcher {
 	 * RequestMatcher
 	 * 
 	 * @author Fred Feng
-	 * @revised 2019-06
+	 * 
 	 * @version 1.0
 	 */
 	public static interface HttpRequestMatcher {

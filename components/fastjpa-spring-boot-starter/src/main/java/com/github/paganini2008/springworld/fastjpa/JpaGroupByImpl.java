@@ -18,8 +18,8 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * JpaGroupByImpl
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public class JpaGroupByImpl<E> implements JpaGroupBy<E>, JpaResultSet<E> {
 

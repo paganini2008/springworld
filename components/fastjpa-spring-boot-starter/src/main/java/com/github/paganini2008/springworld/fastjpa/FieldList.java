@@ -8,8 +8,8 @@ import java.util.Arrays;
  * FieldList
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-07
+ * 
+ * 
  */
 public class FieldList extends ArrayList<Field<?>> {
 

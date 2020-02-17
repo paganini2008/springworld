@@ -8,8 +8,8 @@ import javax.persistence.criteria.Selection;
  * Column
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public interface Column {
 

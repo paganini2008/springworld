@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
  * Job
  * 
  * @author Fred Feng
- * @created 2019-11
- * @revised 2019-11
+ * 
+ * 
  * @version 1.0
  */
 @Target(ElementType.TYPE)

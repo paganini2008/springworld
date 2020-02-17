@@ -22,7 +22,7 @@ import com.github.paganini2008.springworld.amber.annotation.Job;
  * BaseConfiguredSchedulerStarter
  * 
  * @author Fred Feng
- * @created 2018-03
+ * 
  */
 public class BaseConfiguredSchedulerStarter extends LoggingSchedulerListener implements BeanPostProcessor {
 

@@ -11,7 +11,7 @@ import com.github.paganini2008.springworld.amber.config.JobParameter;
  * HealthJobBean
  * 
  * @author Fred Feng
- * @created 2018-03
+ * 
  */
 @CronJob(cron = "*/5 * * * * ?", description = "Health Checking.")
 public class HealthJobBean {

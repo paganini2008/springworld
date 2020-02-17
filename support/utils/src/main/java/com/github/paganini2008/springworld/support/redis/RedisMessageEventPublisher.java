@@ -11,8 +11,8 @@ import com.github.paganini2008.springworld.support.JacksonUtils;
  * RedisMessageEventPublisher
  * 
  * @author Fred Feng
- * @created 2019-07
- * @revised 2019-05
+ * 
+ * 
  * @version 1.0
  */
 public class RedisMessageEventPublisher implements ApplicationContextAware {

@@ -23,7 +23,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * SchedulerConfig
  * 
  * @author Fred Feng
- * @created 2018-03
+ * 
  */
 @Configuration
 public class SchedulerConfig {

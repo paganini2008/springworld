@@ -14,7 +14,7 @@ import lombok.Setter;
  * ResultVO
  * 
  * @author Fred Feng
- * @revised 2019-05
+ * 
  * @version 1.0
  */
 @Getter

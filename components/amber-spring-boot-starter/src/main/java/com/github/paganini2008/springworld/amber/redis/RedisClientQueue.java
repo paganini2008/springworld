@@ -10,7 +10,7 @@ import com.github.paganini2008.devtools.multithreads.AtomicUnsignedInteger;
  * RedisClientQueue
  * 
  * @author Fred Feng
- * @created 2018-03
+ * 
  */
 public class RedisClientQueue {
 

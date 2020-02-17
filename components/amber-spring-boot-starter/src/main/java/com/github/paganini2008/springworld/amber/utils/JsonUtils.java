@@ -21,7 +21,7 @@ import com.google.gson.JsonSerializer;
  * JsonUtils
  * 
  * @author Fred Feng
- * @created 2019-03
+ * 
  */
 public class JsonUtils {
 

@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Import;
  * EnableRedisAdvancedFeatures
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-05
+ * 
+ * 
  * @version 1.0
  */
 @Target(ElementType.TYPE)

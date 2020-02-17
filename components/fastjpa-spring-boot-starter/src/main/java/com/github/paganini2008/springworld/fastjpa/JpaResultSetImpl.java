@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * JpaResultSetImpl
  * 
  * @author Fred Feng
- * @created 2019-02
+ * 
  */
 public class JpaResultSetImpl<E> implements JpaResultSet<E> {
 

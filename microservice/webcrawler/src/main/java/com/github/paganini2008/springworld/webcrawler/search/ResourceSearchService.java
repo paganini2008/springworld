@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
  * ResourceSearchService
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-12
+ * 
+ * 
  * @version 1.0
  */
 /**
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
  * ResourceSearchService
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-12
+ * 
+ * 
  * @version 1.0
  */
 @Component

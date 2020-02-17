@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
  * NettyTransportFactory
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-10
+ * 
+ * 
  * @version 1.0
  */
 @Configuration

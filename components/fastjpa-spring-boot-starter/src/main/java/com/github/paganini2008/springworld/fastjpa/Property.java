@@ -10,8 +10,8 @@ import org.apache.commons.lang3.StringUtils;
  * Property
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public final class Property<T> implements Field<T> {
 

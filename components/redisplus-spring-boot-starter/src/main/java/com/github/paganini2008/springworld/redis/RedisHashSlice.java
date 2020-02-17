@@ -14,8 +14,8 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * RedisHashSlice
  *
  * @author Fred Feng
- * @created 2020-01
- * @revised 2020-02
+ * 
+ * 
  * @version 1.0
  */
 public class RedisHashSlice<T> implements ResultSetSlice<T> {

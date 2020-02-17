@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
  * Reply
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-10
+ * 
+ * 
  * @version 1.0
  */
 public class Reply extends LinkedHashMap<String, Object> {

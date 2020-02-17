@@ -17,8 +17,8 @@ import com.github.paganini2008.springworld.jdbc.EnhancedJdbcTemplate;
  * DaoScan
  *
  * @author Fred Feng
- * @created 2019-10
- * @revised 2020-01
+ * 
+ * 
  * @version 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)

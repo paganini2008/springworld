@@ -7,8 +7,8 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
  * Number
  * 
  * @author Fred Feng
- * @created 2019-08
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 public enum Number implements EnumConstant {

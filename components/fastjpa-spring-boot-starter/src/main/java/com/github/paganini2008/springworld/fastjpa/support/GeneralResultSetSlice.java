@@ -12,7 +12,7 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * GeneralResultSetSlice
  * 
  * @author Fred Feng
- * @created 2019-04
+ * 
  */
 public abstract class GeneralResultSetSlice<T> implements ResultSetSlice<T> {
 

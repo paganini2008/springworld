@@ -26,8 +26,8 @@ import com.github.paganini2008.springworld.fastjpa.support.EntityDao;
  * BaseService
  * 
  * @author Fred Feng
- * @created 2019-07
- * @revised 2018-10
+ * 
+ * 
  * @version 1.0
  */
 public abstract class BaseService<E extends BaseEntity, ID extends Serializable, DAO extends EntityDao<E, ID>> {

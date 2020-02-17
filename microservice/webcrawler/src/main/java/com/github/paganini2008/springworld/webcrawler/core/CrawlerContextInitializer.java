@@ -12,8 +12,8 @@ import com.github.paganini2008.springworld.webcrawler.utils.RedisIdentifier;
  * CrawlerContextInitializer
  * 
  * @author Fred Feng
- * @created 2019-10
- * @revised 2019-12
+ * 
+ * 
  * @version 1.0
  */
 public class CrawlerContextInitializer implements ApplicationListener<ContextMasterStandbyEvent> {

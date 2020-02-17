@@ -17,7 +17,7 @@ import com.github.paganini2008.springworld.fastjpa.support.RowMapperResultSetSli
  * HibernateRowMapperResultSetSlice
  * 
  * @author Fred Feng
- * @created 2019-04
+ * 
  */
 public class HibernateRowMapperResultSetSlice<T> extends RowMapperResultSetSlice<T> {
 

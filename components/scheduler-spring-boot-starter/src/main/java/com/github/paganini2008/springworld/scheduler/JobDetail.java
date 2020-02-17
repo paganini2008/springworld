@@ -5,7 +5,7 @@ package com.github.paganini2008.springworld.scheduler;
  * JobDetail
  * 
  * @author Fred Feng
- * @created 2019-11
+ * 
  * @version 1.0
  */
 public interface JobDetail {

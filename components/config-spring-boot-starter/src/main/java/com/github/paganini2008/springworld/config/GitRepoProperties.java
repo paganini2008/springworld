@@ -20,7 +20,7 @@ import com.github.paganini2008.devtools.io.IOUtils;
  * GitRepoProperties
  * 
  * @author Fred Feng
- * @created 2019-03
+ * 
  */
 public class GitRepoProperties extends ApplicationProperties {
 

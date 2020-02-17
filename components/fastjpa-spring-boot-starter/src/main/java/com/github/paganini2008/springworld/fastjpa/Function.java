@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
  * Function
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public class Function<T> implements Field<T> {
 

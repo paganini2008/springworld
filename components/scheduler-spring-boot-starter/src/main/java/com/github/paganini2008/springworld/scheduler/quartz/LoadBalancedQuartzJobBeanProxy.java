@@ -13,8 +13,8 @@ import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGro
  * LoadBalancedQuartzJobBeanProxy
  * 
  * @author Fred Feng
- * @created 2019-11
- * @revised 2019-11
+ * 
+ * 
  * @version 1.0
  */
 public class LoadBalancedQuartzJobBeanProxy implements Job {

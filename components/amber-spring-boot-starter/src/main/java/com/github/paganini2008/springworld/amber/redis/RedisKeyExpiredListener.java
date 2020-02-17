@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.amber.utils.JsonUtils;
  * RedisKeyExpiredListener
  * 
  * @author Fred Feng
- * @created 2018-03
+ * 
  */
 @SuppressWarnings("rawtypes")
 public class RedisKeyExpiredListener implements ApplicationListener<RedisKeyExpiredEvent> {

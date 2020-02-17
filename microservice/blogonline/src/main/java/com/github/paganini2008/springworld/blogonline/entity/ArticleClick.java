@@ -20,7 +20,7 @@ import lombok.Setter;
  * ArticleClick
  *
  * @author Fred Feng
- * @created 2019-07
+ * 
  * @version 1.0
  */
 @Getter

@@ -7,8 +7,8 @@ import org.springframework.context.ApplicationContext;
  * ContextMasterStandbyEvent
  * 
  * @author Fred Feng
- * @created 2019-08
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 public final class ContextMasterStandbyEvent extends ContextClusterEvent {

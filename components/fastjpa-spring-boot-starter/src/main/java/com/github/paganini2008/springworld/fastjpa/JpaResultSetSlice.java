@@ -14,8 +14,8 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * JpaResultSetSlice
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-04
+ * 
+ * 
  * @version 1.0
  */
 public class JpaResultSetSlice<E, T> implements ResultSetSlice<T> {

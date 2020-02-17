@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
  * EnableOAuth2Server
  * 
  * @author Fred Feng
- * @revised 2019-06
+ * 
  * @version 1.0
  */
 @Target(ElementType.TYPE)

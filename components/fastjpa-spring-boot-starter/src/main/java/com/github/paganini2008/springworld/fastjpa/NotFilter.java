@@ -8,8 +8,8 @@ import javax.persistence.criteria.Predicate;
  * NotFilter
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  * @version 1.0
  */
 public class NotFilter extends LogicalFilter {

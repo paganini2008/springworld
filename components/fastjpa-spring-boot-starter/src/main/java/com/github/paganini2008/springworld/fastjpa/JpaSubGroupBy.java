@@ -5,8 +5,8 @@ package com.github.paganini2008.springworld.fastjpa;
  * JpaSubGroupBy
  * 
  * @author Fred Feng
- * @created 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public interface JpaSubGroupBy<E, T> {
 

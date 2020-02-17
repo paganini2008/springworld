@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  * WebMvcConfig
  * 
  * @author Fred Feng
- * @created 2019-06
+ * 
  * @version 2.0.0
  */
 @Configuration
@@ -84,7 +84,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	 * SignHandlerInterceptor
 	 * 
 	 * @author Fred Feng
-	 * @revised 2019-06
+	 * 
 	 * @version 1.0
 	 */
 	@Slf4j

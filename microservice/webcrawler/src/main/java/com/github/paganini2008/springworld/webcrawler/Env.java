@@ -13,8 +13,6 @@ import com.github.paganini2008.devtools.StringUtils;
  * Env
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-03
  * @version 1.0
  */
 public class Env {

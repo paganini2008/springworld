@@ -18,8 +18,8 @@ import com.github.paganini2008.springworld.support.Env;
  * BlogOnlineMain
  *
  * @author Fred Feng
- * @created 2019-07
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 @EnableOAuth2ResourceServer

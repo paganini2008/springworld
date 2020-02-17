@@ -18,8 +18,8 @@ import com.github.paganini2008.devtools.io.FileUtils;
  * RegistryMain
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2018-05
+ * 
+ * 
  * @version 1.0
  */
 @RestController

@@ -13,8 +13,8 @@ import com.github.paganini2008.springworld.fastjpa.support.BeanTransformer;
  * Transformers
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  * @version 1.0
  */
 public abstract class Transformers {
@@ -40,8 +40,8 @@ public abstract class Transformers {
 	 * MapTransformer
 	 *
 	 * @author Fred Feng
-	 * @revised 2019-07
-	 * @created 2019-02
+	 * 
+	 * 
 	 * @version 1.0
 	 */
 	public static class MapTransformer<E> extends SimpleTransformerSupport<E, Map<String, Object>> {
@@ -64,8 +64,8 @@ public abstract class Transformers {
 	 * TupleTransformer
 	 *
 	 * @author Fred Feng
-	 * @revised 2019-07
-	 * @created 2019-03
+	 * 
+	 * 
 	 * @version 1.0
 	 */
 	public static class TupleTransformer<E> extends SimpleTransformerSupport<E, Tuple> {
@@ -88,8 +88,8 @@ public abstract class Transformers {
 	 * ListTransformer
 	 *
 	 * @author Fred Feng
-	 * @revised 2019-07
-	 * @created 2019-07
+	 * 
+	 * 
 	 * @version 1.0
 	 */
 	public static class ListTransformer<E> extends SimpleTransformerSupport<E, List<Object>> {

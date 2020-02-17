@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * RedirectUriController
  * 
  * @author Fred Feng
- * @revised 2019-06
+ * 
  * @version 1.0
  */
 @RestController

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * DelayedJob
  * 
  * @author Fred Feng
- * @created 2018-03
+ * 
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

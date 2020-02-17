@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * PageBean
  * @author Fred Feng
- * @created 2012-05
+ * 
  * @version 1.0
  */
 public class PageBean<T> implements Serializable {

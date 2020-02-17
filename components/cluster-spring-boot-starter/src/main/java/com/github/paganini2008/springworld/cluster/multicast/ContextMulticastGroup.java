@@ -18,8 +18,8 @@ import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
  * ContextMulticastGroup
  *
  * @author Fred Feng
- * @revised 2019-08
- * @created 2019-08
+ * 
+ * 
  * @version 1.0
  */
 public class ContextMulticastGroup {

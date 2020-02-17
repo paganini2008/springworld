@@ -16,7 +16,7 @@ import com.github.paganini2008.springworld.support.BaseEntity;
  * TopicFollower
  *
  * @author Fred Feng
- * @created 2019-07
+ * 
  * @version 1.0
  */
 @Entity

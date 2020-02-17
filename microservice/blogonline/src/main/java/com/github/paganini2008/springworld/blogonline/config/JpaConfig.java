@@ -26,7 +26,7 @@ import com.github.paganini2008.springworld.fastjpa.support.EntityDaoFactoryBean;
  * JpaConfig
  * 
  * @author Fred Feng
- * @revised 2019-06
+ * 
  * @version 1.0
  */
 @Configuration

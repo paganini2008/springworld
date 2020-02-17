@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * BugFixedRedisTokenStore
  * 
  * @author Fred Feng
- * @revised 2019-02
+ * 
  * @version 1.0
  */
 @Component

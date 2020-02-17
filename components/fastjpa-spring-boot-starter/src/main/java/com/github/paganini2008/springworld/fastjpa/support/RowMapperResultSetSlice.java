@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.collection.Tuple;
  * RowMapperResultSetSlice
  * 
  * @author Fred Feng
- * @created 2019-04
+ * 
  */
 public abstract class RowMapperResultSetSlice<T> extends GeneralResultSetSlice<T> {
 

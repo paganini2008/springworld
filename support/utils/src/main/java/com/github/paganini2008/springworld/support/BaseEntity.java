@@ -14,7 +14,7 @@ import javax.persistence.TemporalType;
  * BaseEntity
  * 
  * @author Fred Feng
- * @created 2019-05
+ * 
  */
 @MappedSuperclass
 @EntityListeners(BasicEntityListener.class)

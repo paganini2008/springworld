@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  * RedisMessageSenderTestController
  * 
  * @author Fred Feng
- * @revised 2019-05
+ * 
  * @version 1.0
  */
 @RequestMapping("/test/redis")

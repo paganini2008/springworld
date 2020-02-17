@@ -10,8 +10,8 @@ import com.github.paganini2008.springworld.support.vo.ResultVO;
  * IndexController
  * 
  * @author Fred Feng
- * @created 2019-07
- * @revised 2019-07
+ * 
+ * 
  * @version 1.0
  */
 @RestController

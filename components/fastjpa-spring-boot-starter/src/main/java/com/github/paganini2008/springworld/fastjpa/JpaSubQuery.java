@@ -5,8 +5,8 @@ package com.github.paganini2008.springworld.fastjpa;
  * JpaSubQuery
  * 
  * @author Fred Feng
- * @revised 2019-07
- * @created 2019-02
+ * 
+ * 
  */
 public interface JpaSubQuery<E, T> extends JpaSubJoin<T>, SubQueryBuilder<T> {
 

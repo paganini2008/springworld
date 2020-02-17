@@ -10,8 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * WebSecurityConfig
  *
  * @author Fred Feng
- * @revised 2019-07
- * @created 2018-05
+ * 
+ * 
  * @version 1.0
  */
 @Configuration

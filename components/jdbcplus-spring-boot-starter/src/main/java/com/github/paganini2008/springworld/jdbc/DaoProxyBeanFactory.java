@@ -9,8 +9,8 @@ import org.springframework.beans.factory.FactoryBean;
  * DaoProxyBeanFactory
  *
  * @author Fred Feng
- * @created 2019-10
- * @revised 2020-01
+ * 
+ * 
  * @version 1.0
  */
 public class DaoProxyBeanFactory<T> implements FactoryBean<T> {

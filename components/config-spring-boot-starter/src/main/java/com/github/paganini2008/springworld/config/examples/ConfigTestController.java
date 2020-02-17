@@ -23,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
  * ConfigTestController
  * 
  * @author Fred Feng
- * @created 2019-08
- * @revised 2019-08
+ * 
+ * 
  * @version 1.0
  */
 @Slf4j

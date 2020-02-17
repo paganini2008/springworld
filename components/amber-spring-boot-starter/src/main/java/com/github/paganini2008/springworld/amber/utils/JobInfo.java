@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * JobInfo
  * 
  * @author Fred Feng
- * @created 2019-04
+ * 
  */
 public class JobInfo {
 
