@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.scheduler.CancellationException;
 import com.github.paganini2008.springworld.scheduler.JobAnnotations.Executable;
 import com.github.paganini2008.springworld.scheduler.JobAnnotations.OnEnd;
 import com.github.paganini2008.springworld.scheduler.JobAnnotations.OnError;

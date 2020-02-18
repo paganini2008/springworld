@@ -16,8 +16,6 @@ import com.github.paganini2008.springworld.redis.RedisHashSlice;
  * MemoryJobManager
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class MemoryJobManager extends AbstractJobManager {
@@ -27,7 +25,7 @@ public class MemoryJobManager extends AbstractJobManager {
 
 	@Value("${spring.application.name}")
 	private String applicationName;
-	
+
 	public MemoryJobManager() {
 		this(8);
 	}
@@ -36,6 +34,7 @@ public class MemoryJobManager extends AbstractJobManager {
 		super(nThreads);
 	}
 
+	@Override
 	public void beforeJobExecution(TaskFuture future) {
 		final Job job = (Job) future.getDetail().getTaskObject();
 		final TaskDetail taskDetail = future.getDetail();
@@ -56,7 +55,8 @@ public class MemoryJobManager extends AbstractJobManager {
 		redisTemplate.opsForHash().put(key, jobInfo.getJobName(), jobInfo);
 	}
 
-	public void afterJobExecution(TaskFuture future) {
+	@Override
+	public void afterJobExecution(TaskFuture future, Throwable error) {
 		beforeJobExecution(future);
 	}
 

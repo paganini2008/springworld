@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;

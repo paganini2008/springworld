@@ -111,8 +111,6 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 		schedule(job);
 		log.info("Reload job '" + jobName + "' from database ok.");
 	}
-	
-	
 
 	@Override
 	public void schedule(Job job) {
@@ -141,7 +139,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			}
 		}
 	}
-	
+
 	public boolean hasJob(Job job) {
 		Connection connection = null;
 		try {
@@ -182,6 +180,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 		}
 	}
 
+	@Override
 	public void beforeJobExecution(TaskFuture future) {
 		final Job job = (Job) future.getDetail().getTaskObject();
 		final TaskDetail taskDetail = future.getDetail();
@@ -206,14 +205,17 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 		}
 	}
 
-	public void afterJobExecution(TaskFuture future) {
+	@Override
+	public void afterJobExecution(TaskFuture future, Throwable error) {
 		beforeJobExecution(future);
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.context = applicationContext;
 	}
 
+	@Override
 	public ResultSetSlice<JobInfo> getJobInfos() {
 		final ResultSetSlice<Tuple> delegate = JdbcUtils.pagingQuery(dataSource, DEF_SELECT_JOBS_SQL, (Object[]) null);
 		return new ResultSetSlice<JobInfo>() {
