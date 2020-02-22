@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>components</artifactId>
 		<groupId>com.github.paganini2008.springworld</groupId>
-		<version>1.0</version>
+		<version>1.0-RC2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -77,13 +77,13 @@
 		<dependency>
 			<groupId>com.github.paganini2008.springworld</groupId>
 			<artifactId>cluster-spring-boot-starter</artifactId>
-			<version>1.0</version>
+			<version>1.0-RC2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.github.paganini2008</groupId>
 			<artifactId>transport-client</artifactId>
-			<version>1.0</version>
+			<version>1.0-RC2</version>
 		</dependency>
 
 		<dependency>
