@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -65,7 +64,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 				try {
 					connection = dataSource.getConnection();
 					if (!JdbcUtils.existsTable(connection, null, "cron_job_detail")) {
-						JdbcUtils.executeUpdate(connection, DEF_DDL_CRON_JOB_DETAIL_SQL);
+						JdbcUtils.update(connection, DEF_DDL_CRON_JOB_DETAIL_SQL);
 					}
 				} finally {
 					JdbcUtils.closeQuietly(connection);
@@ -79,8 +78,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 		List<Tuple> dataList = null;
 		try {
 			connection = dataSource.getConnection();
-			Iterator<Tuple> iterator = JdbcUtils.executeQuery(connection, DEF_SELECT_JOBS_SQL);
-			dataList = CollectionUtils.toList(iterator);
+			dataList = JdbcUtils.fetchAll(connection, DEF_SELECT_JOBS_SQL);
 		} catch (SQLException e) {
 			throw new SchedulingException(e.getMessage(), e);
 		} finally {
@@ -124,7 +122,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
-				JdbcUtils.executeUpdate(connection, DEF_INSERT_JOB_SQL, ps -> {
+				JdbcUtils.update(connection, DEF_INSERT_JOB_SQL, ps -> {
 					ps.setString(1, job.getName());
 					ps.setString(2, job.getDescription());
 					ps.setString(3, job.getClass().getName());
@@ -144,8 +142,8 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			Object result = JdbcUtils.executeOneResultQuery(connection, DEF_CHECK_JOB_EXISTS_SQL, new Object[] { job.getName() });
-			return result instanceof Number ? ((Number) result).intValue() > 0 : false;
+			Integer result = JdbcUtils.fetchOne(connection, DEF_CHECK_JOB_EXISTS_SQL, new Object[] { job.getName() }, Integer.class);
+			return result != null && result.intValue() > 0;
 		} catch (SQLException e) {
 			throw new SchedulingException(e.getMessage(), e);
 		} finally {
@@ -158,7 +156,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
-				JdbcUtils.executeUpdate(connection, DEF_DELETE_JOB_SQL, new Object[] { job.getName() });
+				JdbcUtils.update(connection, DEF_DELETE_JOB_SQL, new Object[] { job.getName() });
 				log.info("Delete job '" + job.getName() + "' ok.");
 			} catch (SQLException e) {
 				throw new SchedulingException(e.getMessage(), e);
@@ -188,7 +186,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
-				JdbcUtils.executeUpdate(connection, DEF_UPDATE_JOB_SQL, ps -> {
+				JdbcUtils.update(connection, DEF_UPDATE_JOB_SQL, ps -> {
 					ps.setBoolean(1, taskDetail.isRunning());
 					ps.setBoolean(2, future.isPaused());
 					ps.setInt(3, taskDetail.completedCount());
@@ -217,7 +215,7 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 
 	@Override
 	public ResultSetSlice<JobInfo> getJobInfos() {
-		final ResultSetSlice<Tuple> delegate = JdbcUtils.pagingQuery(dataSource, DEF_SELECT_JOBS_SQL, (Object[]) null);
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, DEF_SELECT_JOBS_SQL, (Object[]) null);
 		return new ResultSetSlice<JobInfo>() {
 
 			@Override

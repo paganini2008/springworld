@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.provider.client.JdbcClientDetailsServ
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import com.github.paganini2008.devtools.collection.Tuple;
+import com.github.paganini2008.devtools.jdbc.Cursor;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 /**
@@ -58,9 +59,9 @@ public class OAuth2ServerConfig {
 		@Autowired
 		DataSource dataSource;
 
-		private Iterator<Tuple> getUserDetails() {
+		private Cursor<Tuple> getUserDetails() {
 			try {
-				return JdbcUtils.executeQuery(dataSource.getConnection(), SQL_SELECT_USER_DETAILS);
+				return JdbcUtils.cursor(dataSource.getConnection(), SQL_SELECT_USER_DETAILS);
 			} catch (SQLException e) {
 				throw new IllegalStateException(e.getMessage(), e);
 			}
