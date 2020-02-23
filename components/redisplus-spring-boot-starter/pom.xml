@@ -10,7 +10,7 @@
 	<artifactId>redisplus-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 	<name>redisplus-spring-boot-starter</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/paganini2008/springworld</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

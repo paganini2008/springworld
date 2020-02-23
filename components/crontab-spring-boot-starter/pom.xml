@@ -11,7 +11,7 @@
 	<artifactId>crontab-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 	<name>crontab-spring-boot-starter</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>
 	
