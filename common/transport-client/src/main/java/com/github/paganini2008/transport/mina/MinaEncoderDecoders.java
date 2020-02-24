@@ -36,6 +36,10 @@ public abstract class MinaEncoderDecoders {
 			this.charsetEncoder = charset.newEncoder();
 		}
 
+		public CharsetEncoder getCharsetEncoder() {
+			return charsetEncoder;
+		}
+
 		public int getMaxTextLength() {
 			return maxTextLength;
 		}
@@ -67,6 +71,10 @@ public abstract class MinaEncoderDecoders {
 
 		public JsonToTupleDecoder(Charset charset) {
 			this.charsetDecoder = charset.newDecoder();
+		}
+
+		public CharsetDecoder getCharsetDecoder() {
+			return charsetDecoder;
 		}
 
 		public int getMaxTextLength() {
