@@ -9,7 +9,6 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor;
 import com.github.paganini2008.devtools.scheduler.TaskInterceptorHandler;
-import com.github.paganini2008.devtools.scheduler.ThreadPoolTaskExecutor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,10 +26,10 @@ public abstract class AbstractJobManager implements JobManager, TaskInterceptorH
 	protected final Date startDate;
 	protected final TaskExecutor taskExecutor;
 
-	protected AbstractJobManager(int nThreads) {
-		taskExecutor = new ThreadPoolTaskExecutor(nThreads, "crontab");
-		taskExecutor.setTaskInterceptorHandler(this);
-		startDate = new Date();
+	protected AbstractJobManager(TaskExecutor taskExecutor) {
+		this.taskExecutor = taskExecutor;
+		this.taskExecutor.setTaskInterceptorHandler(this);
+		this.startDate = new Date();
 	}
 
 	public void schedule(final Job job) {

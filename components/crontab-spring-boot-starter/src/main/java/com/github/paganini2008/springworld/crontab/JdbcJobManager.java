@@ -20,8 +20,10 @@ import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.devtools.scheduler.SchedulingException;
+import com.github.paganini2008.devtools.scheduler.TaskExecutor;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor.TaskDetail;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor.TaskFuture;
+import com.github.paganini2008.devtools.scheduler.ThreadPoolTaskExecutor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,13 +49,13 @@ public class JdbcJobManager extends AbstractJobManager implements PersistentJobM
 
 	private DataSource dataSource;
 	private ApplicationContext context;
-
+	
 	public JdbcJobManager() {
-		this(8);
+		this(new ThreadPoolTaskExecutor());
 	}
 
-	public JdbcJobManager(int nThreads) {
-		super(nThreads);
+	public JdbcJobManager(TaskExecutor taskExecutor) {
+		super(taskExecutor);
 	}
 
 	public void setDataSource(DataSource dataSource, boolean autoDDL) throws SQLException {

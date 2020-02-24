@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
+import com.github.paganini2008.devtools.scheduler.TaskExecutor;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor.TaskDetail;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor.TaskFuture;
+import com.github.paganini2008.devtools.scheduler.ThreadPoolTaskExecutor;
 import com.github.paganini2008.springworld.redis.RedisHashSlice;
 
 /**
@@ -25,13 +27,13 @@ public class MemoryJobManager extends AbstractJobManager {
 
 	@Value("${spring.application.name}")
 	private String applicationName;
-
+	
 	public MemoryJobManager() {
-		this(8);
+		this(new ThreadPoolTaskExecutor());
 	}
 
-	public MemoryJobManager(int nThreads) {
-		super(nThreads);
+	public MemoryJobManager(TaskExecutor taskExecutor) {
+		super(taskExecutor);
 	}
 
 	@Override
