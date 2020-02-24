@@ -16,7 +16,7 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.ClusterId;
 import com.github.paganini2008.transport.netty.KeepAlivePolicy;
-import com.github.paganini2008.transport.netty.NettySerializationCodecFactory;
+import com.github.paganini2008.transport.netty.NettyTupleCodecFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -50,7 +50,7 @@ public class NettyServer implements NioServer {
 	private NettyServerHandler serverHandler;
 
 	@Autowired
-	private NettySerializationCodecFactory codecFactory;
+	private NettyTupleCodecFactory codecFactory;
 
 	@Value("${spring.transport.nioserver.threads:-1}")
 	private int threadCount;

@@ -5,8 +5,8 @@ import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
-import com.github.paganini2008.transport.mina.MinaSerializationEncoderDecoders.MinaSerializationDecoder;
-import com.github.paganini2008.transport.mina.MinaSerializationEncoderDecoders.MinaSerializationEncoder;
+import com.github.paganini2008.transport.mina.MinaEncoderDecoders.TupleDecoder;
+import com.github.paganini2008.transport.mina.MinaEncoderDecoders.TupleEncoder;
 import com.github.paganini2008.transport.serializer.KryoSerializer;
 import com.github.paganini2008.transport.serializer.Serializer;
 
@@ -15,22 +15,20 @@ import com.github.paganini2008.transport.serializer.Serializer;
  * MinaSerializationCodecFactory
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
-public class MinaSerializationCodecFactory implements ProtocolCodecFactory {
+public class MinaTupleCodecFactory implements ProtocolCodecFactory {
 
-	private final MinaSerializationEncoder encoder;
-	private final MinaSerializationDecoder decoder;
+	private final TupleEncoder encoder;
+	private final TupleDecoder decoder;
 
-	public MinaSerializationCodecFactory() {
+	public MinaTupleCodecFactory() {
 		this(new KryoSerializer());
 	}
 
-	public MinaSerializationCodecFactory(Serializer serializer) {
-		encoder = new MinaSerializationEncoder(serializer);
-		decoder = new MinaSerializationDecoder(serializer);
+	public MinaTupleCodecFactory(Serializer serializer) {
+		encoder = new TupleEncoder(serializer);
+		decoder = new TupleDecoder(serializer);
 	}
 
 	public ProtocolEncoder getEncoder(IoSession session) {
@@ -56,4 +54,6 @@ public class MinaSerializationCodecFactory implements ProtocolCodecFactory {
 	public void setDecoderMaxObjectSize(int maxObjectSize) {
 		decoder.setMaxObjectSize(maxObjectSize);
 	}
+	
+	
 }

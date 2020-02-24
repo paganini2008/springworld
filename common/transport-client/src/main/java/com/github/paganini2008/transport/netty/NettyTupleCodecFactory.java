@@ -7,31 +7,29 @@ import io.netty.channel.ChannelHandler;
 
 /**
  * 
- * NettySerializationCodecFactory
+ * TupleCodecFactory
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
-public class NettySerializationCodecFactory {
+public class NettyTupleCodecFactory implements MessageCodecFactory {
 
 	private final Serializer serializer;
 
-	public NettySerializationCodecFactory() {
+	public NettyTupleCodecFactory() {
 		this(new KryoSerializer());
 	}
 
-	public NettySerializationCodecFactory(Serializer serializer) {
+	public NettyTupleCodecFactory(Serializer serializer) {
 		this.serializer = serializer;
 	}
 
 	public ChannelHandler getEncoder() {
-		return new NettySerializationEncoderDecoders.NettySerializationEncoder(serializer);
+		return new NettyEncoderDecoders.TupleEncoder(serializer);
 	}
 
 	public ChannelHandler getDecoder() {
-		return new NettySerializationEncoderDecoders.NettySerializationDecorder(serializer);
+		return new NettyEncoderDecoders.TupleDecoder(serializer);
 	}
 
 	public Serializer getSerializer() {

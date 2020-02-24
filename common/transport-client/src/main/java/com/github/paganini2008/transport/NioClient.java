@@ -2,8 +2,6 @@ package com.github.paganini2008.transport;
 
 import java.util.concurrent.TimeUnit;
 
-import com.github.paganini2008.transport.serializer.Serializer;
-
 /**
  * 
  * NioClient
@@ -20,8 +18,6 @@ public interface NioClient extends LifeCycle, NioConnection {
 	void watchConnection(int interval, TimeUnit timeUnit);
 
 	void setIdleTimeout(int idleTime);
-
-	void setSerializer(Serializer serializer);
 
 	void send(Tuple tuple);
 

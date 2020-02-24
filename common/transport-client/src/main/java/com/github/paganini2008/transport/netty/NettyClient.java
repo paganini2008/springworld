@@ -11,7 +11,6 @@ import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.TransportClientException;
 import com.github.paganini2008.transport.Tuple;
-import com.github.paganini2008.transport.serializer.Serializer;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -42,7 +41,7 @@ public class NettyClient implements NioClient {
 	private final AtomicBoolean opened = new AtomicBoolean(false);
 	private EventLoopGroup workerGroup;
 	private Bootstrap bootstrap;
-	private NettySerializationCodecFactory codecFactory;
+	private MessageCodecFactory messageCodecFactory;
 	private int threadCount = Runtime.getRuntime().availableProcessors() * 2;
 	private int idleTimeout = 30;
 
@@ -54,14 +53,14 @@ public class NettyClient implements NioClient {
 		this.idleTimeout = idleTimeout;
 	}
 
-	public void setSerializer(Serializer serializer) {
-		this.codecFactory = new NettySerializationCodecFactory(serializer);
+	public void setMessageCodecFactory(MessageCodecFactory messageCodecFactory) {
+		this.messageCodecFactory = messageCodecFactory;
 	}
 
 	public void watchConnection(int interval, TimeUnit timeUnit) {
 		this.channelContext.setConnectionWatcher(new ConnectionWatcher(interval, timeUnit, this));
 	}
-	
+
 	public void setChannelEventListener(ChannelEventListener<Channel> channelEventListener) {
 		this.channelContext.setChannelEventListener(channelEventListener);
 	}
@@ -72,15 +71,15 @@ public class NettyClient implements NioClient {
 		bootstrap.group(workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true)
 				.option(ChannelOption.TCP_NODELAY, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
 				.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT).option(ChannelOption.SO_SNDBUF, 1024 * 1024);
-		if (codecFactory == null) {
-			codecFactory = new NettySerializationCodecFactory();
+		if (messageCodecFactory == null) {
+			messageCodecFactory = new NettyTupleCodecFactory();
 		}
 		bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 			public void initChannel(SocketChannel ch) throws Exception {
 				ChannelPipeline pipeline = ch.pipeline();
 				pipeline.addLast(new IdleStateHandler(0, idleTimeout, 0, TimeUnit.SECONDS));
 				pipeline.addLast(new NettyClientKeepAlivePolicy());
-				pipeline.addLast(codecFactory.getEncoder(), codecFactory.getDecoder());
+				pipeline.addLast(messageCodecFactory.getEncoder(), messageCodecFactory.getDecoder());
 				pipeline.addLast(channelContext);
 			}
 		});

@@ -30,7 +30,7 @@ import com.github.paganini2008.transport.ChannelEvent;
 import com.github.paganini2008.transport.ChannelEvent.EventType;
 import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.Tuple;
-import com.github.paganini2008.transport.mina.MinaSerializationCodecFactory;
+import com.github.paganini2008.transport.mina.MinaTupleCodecFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +62,7 @@ public class MinaServer implements NioServer {
 	private MinaServerHandler serverHandler;
 
 	@Autowired
-	private MinaSerializationCodecFactory codecFactory;
+	private MinaTupleCodecFactory codecFactory;
 
 	@Autowired(required = false)
 	private ChannelEventListener<IoSession> channelEventListener;

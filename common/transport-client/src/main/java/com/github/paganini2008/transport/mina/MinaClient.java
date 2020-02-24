@@ -10,6 +10,7 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.filter.keepalive.KeepAliveMessageFactory;
@@ -26,7 +27,6 @@ import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.TransportClientException;
 import com.github.paganini2008.transport.Tuple;
-import com.github.paganini2008.transport.serializer.Serializer;
 
 /**
  * 
@@ -49,7 +49,7 @@ public class MinaClient implements NioClient {
 
 	private final MinaChannelContext channelContext = new MinaChannelContext();
 	private final AtomicBoolean opened = new AtomicBoolean(false);
-	private MinaSerializationCodecFactory codecFactory;
+	private ProtocolCodecFactory protocolCodecFactory;
 	private NioSocketConnector connector;
 	private int idleTimeout = 30;
 	private int threadCount = Runtime.getRuntime().availableProcessors() * 2;
@@ -57,6 +57,10 @@ public class MinaClient implements NioClient {
 	@Override
 	public void setIdleTimeout(int idleTimeout) {
 		this.idleTimeout = idleTimeout;
+	}
+
+	public void setProtocolCodecFactory(ProtocolCodecFactory protocolCodecFactory) {
+		this.protocolCodecFactory = protocolCodecFactory;
 	}
 
 	@Override
@@ -81,15 +85,15 @@ public class MinaClient implements NioClient {
 		sessionConfig.setKeepAlive(true);
 		sessionConfig.setTcpNoDelay(true);
 		sessionConfig.setSendBufferSize(1024 * 1024);
-		if (codecFactory == null) {
-			codecFactory = new MinaSerializationCodecFactory();
+		if (protocolCodecFactory == null) {
+			protocolCodecFactory = new MinaTupleCodecFactory();
 		}
 
 		KeepAliveFilter heartBeat = new KeepAliveFilter(new ClientKeepAliveMessageFactory(), IdleStatus.WRITER_IDLE);
 		heartBeat.setForwardEvent(false);
 		heartBeat.setRequestTimeout(idleTimeout);
 		heartBeat.setRequestTimeoutHandler(KeepAliveRequestTimeoutHandler.LOG);
-		connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(codecFactory));
+		connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(protocolCodecFactory));
 		connector.getFilterChain().addLast("heartbeat", heartBeat);
 		connector.setHandler(channelContext);
 
@@ -149,11 +153,6 @@ public class MinaClient implements NioClient {
 	public boolean isConnected(SocketAddress remoteAddress) {
 		IoSession ioSession = channelContext.getChannel(remoteAddress);
 		return ioSession != null && ioSession.isConnected();
-	}
-
-	@Override
-	public void setSerializer(Serializer serializer) {
-		this.codecFactory = new MinaSerializationCodecFactory(serializer);
 	}
 
 	@Override

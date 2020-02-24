@@ -29,10 +29,10 @@ import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
 import com.github.paganini2008.transport.mina.MinaClient;
-import com.github.paganini2008.transport.mina.MinaSerializationCodecFactory;
+import com.github.paganini2008.transport.mina.MinaTupleCodecFactory;
 import com.github.paganini2008.transport.netty.KeepAlivePolicy;
 import com.github.paganini2008.transport.netty.NettyClient;
-import com.github.paganini2008.transport.netty.NettySerializationCodecFactory;
+import com.github.paganini2008.transport.netty.NettyTupleCodecFactory;
 import com.github.paganini2008.transport.serializer.KryoSerializer;
 import com.github.paganini2008.transport.serializer.Serializer;
 
@@ -118,7 +118,7 @@ public class TransportServerConfiguration {
 		@Bean(initMethod = "open", destroyMethod = "close")
 		public NioClient nioClient(Serializer serializer) {
 			NettyClient nioClient = new NettyClient();
-			nioClient.setSerializer(serializer);
+			nioClient.setMessageCodecFactory(new NettyTupleCodecFactory(serializer));
 			return nioClient;
 		}
 
@@ -134,8 +134,8 @@ public class TransportServerConfiguration {
 		}
 
 		@Bean
-		public NettySerializationCodecFactory codecFactory(Serializer serializer) {
-			return new NettySerializationCodecFactory(serializer);
+		public MinaTupleCodecFactory codecFactory(Serializer serializer) {
+			return new MinaTupleCodecFactory(serializer);
 		}
 
 		@Bean
@@ -157,7 +157,7 @@ public class TransportServerConfiguration {
 		@Bean(initMethod = "open", destroyMethod = "close")
 		public NioClient nioClient(Serializer serializer) {
 			MinaClient nioClient = new MinaClient();
-			nioClient.setSerializer(serializer);
+			nioClient.setProtocolCodecFactory(new MinaTupleCodecFactory(serializer));
 			return nioClient;
 		}
 
@@ -167,8 +167,8 @@ public class TransportServerConfiguration {
 		}
 
 		@Bean
-		public MinaSerializationCodecFactory codecFactory(Serializer serializer) {
-			return new MinaSerializationCodecFactory(serializer);
+		public MinaTupleCodecFactory codecFactory(Serializer serializer) {
+			return new MinaTupleCodecFactory(serializer);
 		}
 
 		@Bean
