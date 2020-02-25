@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.transport;
 
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,9 +32,10 @@ import com.github.paganini2008.transport.RoundRobinPartitioner;
 import com.github.paganini2008.transport.mina.MinaClient;
 import com.github.paganini2008.transport.mina.MinaTupleCodecFactory;
 import com.github.paganini2008.transport.netty.KeepAlivePolicy;
+import com.github.paganini2008.transport.netty.MessageCodecFactory;
 import com.github.paganini2008.transport.netty.NettyClient;
 import com.github.paganini2008.transport.netty.NettyTupleCodecFactory;
-import com.github.paganini2008.transport.serializer.KryoSerializer;
+import com.github.paganini2008.transport.serializer.JdkSerializer;
 import com.github.paganini2008.transport.serializer.Serializer;
 
 import io.netty.channel.Channel;
@@ -54,7 +56,7 @@ public class TransportServerConfiguration {
 	@ConditionalOnMissingBean(Serializer.class)
 	@Bean
 	public Serializer serializer() {
-		return new KryoSerializer();
+		return new JdkSerializer();
 	}
 
 	@Bean(destroyMethod = "stop")
@@ -116,9 +118,9 @@ public class TransportServerConfiguration {
 	public static class NettyTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
-		public NioClient nioClient(Serializer serializer) {
+		public NioClient nioClient(MessageCodecFactory codecFactory) {
 			NettyClient nioClient = new NettyClient();
-			nioClient.setMessageCodecFactory(new NettyTupleCodecFactory(serializer));
+			nioClient.setMessageCodecFactory(codecFactory);
 			return nioClient;
 		}
 
@@ -133,9 +135,10 @@ public class TransportServerConfiguration {
 			return new NettyServerKeepAlivePolicy();
 		}
 
+		@ConditionalOnMissingBean(MessageCodecFactory.class)
 		@Bean
-		public MinaTupleCodecFactory codecFactory(Serializer serializer) {
-			return new MinaTupleCodecFactory(serializer);
+		public MessageCodecFactory codecFactory(Serializer serializer) {
+			return new NettyTupleCodecFactory(serializer);
 		}
 
 		@Bean
@@ -155,9 +158,9 @@ public class TransportServerConfiguration {
 	public static class MinaTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
-		public NioClient nioClient(Serializer serializer) {
+		public NioClient nioClient(ProtocolCodecFactory codecFactory) {
 			MinaClient nioClient = new MinaClient();
-			nioClient.setProtocolCodecFactory(new MinaTupleCodecFactory(serializer));
+			nioClient.setProtocolCodecFactory(codecFactory);
 			return nioClient;
 		}
 
@@ -166,8 +169,9 @@ public class TransportServerConfiguration {
 			return new MinaServer();
 		}
 
+		@ConditionalOnMissingBean(ProtocolCodecFactory.class)
 		@Bean
-		public MinaTupleCodecFactory codecFactory(Serializer serializer) {
+		public ProtocolCodecFactory codecFactory(Serializer serializer) {
 			return new MinaTupleCodecFactory(serializer);
 		}
 

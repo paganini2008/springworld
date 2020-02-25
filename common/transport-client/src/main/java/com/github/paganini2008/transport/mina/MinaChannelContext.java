@@ -9,7 +9,6 @@ import org.apache.mina.core.session.IoSession;
 
 import com.github.paganini2008.transport.ChannelContext;
 import com.github.paganini2008.transport.Partitioner;
-import com.github.paganini2008.transport.Tuple;
 
 /**
  * 
@@ -51,8 +50,8 @@ public class MinaChannelContext extends MinaChannelContextAware implements Chann
 		return holder.size();
 	}
 
-	public IoSession selectChannel(Tuple tuple, Partitioner partitioner) {
-		return holder.isEmpty() ? null : partitioner.selectChannel(tuple, holder);
+	public IoSession selectChannel(Object data, Partitioner partitioner) {
+		return holder.isEmpty() ? null : partitioner.selectChannel(data, holder);
 	}
 
 	public Collection<IoSession> getChannels() {

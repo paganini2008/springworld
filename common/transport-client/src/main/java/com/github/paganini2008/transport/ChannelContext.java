@@ -26,7 +26,7 @@ public interface ChannelContext<T> {
 
 	int countOfChannels();
 
-	T selectChannel(Tuple tuple, Partitioner partitioner);
+	T selectChannel(Object data, Partitioner partitioner);
 
 	Collection<T> getChannels();
 

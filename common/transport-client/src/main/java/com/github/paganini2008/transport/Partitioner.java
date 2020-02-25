@@ -13,6 +13,6 @@ import java.util.List;
  */
 public interface Partitioner {
 
-	<T> T selectChannel(Tuple tuple, List<T> channels);
+	<T> T selectChannel(Object data, List<T> channels);
 
 }

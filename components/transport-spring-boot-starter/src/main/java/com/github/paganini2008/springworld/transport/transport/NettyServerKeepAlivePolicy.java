@@ -51,7 +51,7 @@ public class NettyServerKeepAlivePolicy extends KeepAlivePolicy {
 				channelEventListener.fireChannelEvent(new ChannelEvent<Channel>(ctx.channel(), EventType.PING, null));
 			}
 			if (keepaliveResposne) {
-				ctx.writeAndFlush(Tuple.by(PONG));
+				ctx.writeAndFlush(Tuple.byString(PONG));
 			}
 		} else {
 			ctx.fireChannelRead(data);

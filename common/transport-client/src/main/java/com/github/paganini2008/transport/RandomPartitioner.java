@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RandomPartitioner implements Partitioner {
 
-	public <T> T selectChannel(Tuple tuple, List<T> channels) {
+	public <T> T selectChannel(Object data, List<T> channels) {
 		try {
 			return channels.get(ThreadLocalRandom.current().nextInt(channels.size()));
 		} catch (RuntimeException e) {

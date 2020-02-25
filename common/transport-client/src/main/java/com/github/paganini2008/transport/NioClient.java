@@ -19,8 +19,8 @@ public interface NioClient extends LifeCycle, NioConnection {
 
 	void setIdleTimeout(int idleTime);
 
-	void send(Tuple tuple);
+	void send(Object data);
 
-	void send(Tuple tuple, Partitioner partitioner);
+	void send(Object data, Partitioner partitioner);
 
 }

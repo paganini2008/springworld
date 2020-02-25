@@ -7,7 +7,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.github.paganini2008.transport.ChannelContext;
 import com.github.paganini2008.transport.Partitioner;
-import com.github.paganini2008.transport.Tuple;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -53,8 +52,8 @@ public class NettyChannelContext extends NettyChannelContextAware implements Cha
 		return holder.size();
 	}
 
-	public Channel selectChannel(Tuple tuple, Partitioner partitioner) {
-		return holder.isEmpty() ? null : partitioner.selectChannel(tuple, holder);
+	public Channel selectChannel(Object data, Partitioner partitioner) {
+		return holder.isEmpty() ? null : partitioner.selectChannel(data, holder);
 	}
 
 	public Collection<Channel> getChannels() {

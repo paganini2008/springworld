@@ -20,7 +20,7 @@ public class NettyClientKeepAlivePolicy extends KeepAlivePolicy {
 	private final AtomicLong serial = new AtomicLong(0);
 
 	protected void whenWriterIdle(ChannelHandlerContext ctx) {
-		Tuple ping = Tuple.by("PING");
+		Tuple ping = Tuple.byString("PING");
 		ping.setField("serial", serial.incrementAndGet());
 		ctx.channel().writeAndFlush(ping);
 	}

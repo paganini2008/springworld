@@ -12,6 +12,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.buffer.SimpleBufferAllocator;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
@@ -30,7 +31,6 @@ import com.github.paganini2008.transport.ChannelEvent;
 import com.github.paganini2008.transport.ChannelEvent.EventType;
 import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.Tuple;
-import com.github.paganini2008.transport.mina.MinaTupleCodecFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +62,7 @@ public class MinaServer implements NioServer {
 	private MinaServerHandler serverHandler;
 
 	@Autowired
-	private MinaTupleCodecFactory codecFactory;
+	private ProtocolCodecFactory codecFactory;
 
 	@Autowired(required = false)
 	private ChannelEventListener<IoSession> channelEventListener;
@@ -172,7 +172,7 @@ public class MinaServer implements NioServer {
 			if (channelEventListener != null) {
 				channelEventListener.fireChannelEvent(new ChannelEvent<IoSession>(session, EventType.PING, null));
 			}
-			return keepaliveResposne ? Tuple.by(PONG) : null;
+			return keepaliveResposne ? Tuple.byString(PONG) : null;
 		}
 	}
 

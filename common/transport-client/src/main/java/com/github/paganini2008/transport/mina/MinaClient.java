@@ -156,23 +156,27 @@ public class MinaClient implements NioClient {
 	}
 
 	@Override
-	public void send(Tuple tuple) {
+	public void send(Object data) {
 		channelContext.getChannels().forEach(ioSession -> {
-			doSend(ioSession, tuple);
+			doSend(ioSession, data);
 		});
 	}
 
 	@Override
-	public void send(Tuple tuple, Partitioner partitioner) {
-		IoSession ioSession = channelContext.selectChannel(tuple, partitioner);
+	public void send(Object data, Partitioner partitioner) {
+		IoSession ioSession = channelContext.selectChannel(data, partitioner);
 		if (ioSession != null) {
-			doSend(ioSession, tuple);
+			doSend(ioSession, data);
 		}
 	}
 
-	protected void doSend(IoSession ioSession, Tuple tuple) {
+	protected void doSend(IoSession ioSession, Object data) {
 		try {
-			ioSession.write(tuple);
+			if (data instanceof CharSequence) {
+				ioSession.write(Tuple.byString(((CharSequence) data).toString()));
+			} else {
+				ioSession.write(data);
+			}
 		} catch (Exception e) {
 			throw new TransportClientException(e.getMessage(), e);
 		}
@@ -189,7 +193,7 @@ public class MinaClient implements NioClient {
 		}
 
 		public Object getRequest(IoSession session) {
-			return Tuple.by(PING);
+			return Tuple.byString(PING);
 		}
 
 		public Object getResponse(IoSession session, Object request) {

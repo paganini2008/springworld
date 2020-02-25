@@ -17,7 +17,7 @@ public class RoundRobinPartitioner implements Partitioner {
 
 	private final AtomicUnsignedLong sequence = new AtomicUnsignedLong();
 
-	public <T> T selectChannel(Tuple tuple, List<T> channels) {
+	public <T> T selectChannel(Object data, List<T> channels) {
 		try {
 			int index = (int) (sequence.getAndIncrement() % channels.size());
 			return channels.get(index);

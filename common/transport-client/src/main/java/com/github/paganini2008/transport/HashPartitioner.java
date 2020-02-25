@@ -35,7 +35,8 @@ public class HashPartitioner implements Partitioner {
 		}
 	}
 
-	public <T> T selectChannel(Tuple tuple, List<T> channels) {
+	public <T> T selectChannel(Object msg, List<T> channels) {
+		Tuple tuple = (Tuple) msg;
 		Object[] data = new Object[fieldNames.size()];
 		int i = 0;
 		for (String fieldName : fieldNames) {

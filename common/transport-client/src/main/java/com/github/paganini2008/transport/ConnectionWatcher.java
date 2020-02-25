@@ -35,11 +35,10 @@ public final class ConnectionWatcher {
 
 	public void watch(final SocketAddress remoteAddress, final HandshakeCallback callback) {
 		observable.addObserver((ob, arg) -> {
-			connection.connect(remoteAddress, callback);
-			while (!connection.isConnected(remoteAddress)) {
+			do {
 				ThreadUtils.sleep(interval, timeUnit);
 				connection.connect(remoteAddress, callback);
-			}
+			} while (!connection.isConnected(remoteAddress));
 		});
 	}
 

@@ -17,7 +17,7 @@ public class JdkSerializer implements Serializer {
 	private final boolean compress;
 
 	public JdkSerializer() {
-		this(false);
+		this(true);
 	}
 
 	public JdkSerializer(boolean compress) {

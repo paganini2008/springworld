@@ -112,22 +112,26 @@ public class NettyClient implements NioClient {
 
 	}
 
-	public void send(Tuple tuple) {
+	public void send(Object data) {
 		channelContext.getChannels().forEach(channel -> {
-			doSend(channel, tuple);
+			doSend(channel, data);
 		});
 	}
 
-	public void send(Tuple tuple, Partitioner partitioner) {
-		Channel channel = channelContext.selectChannel(tuple, partitioner);
+	public void send(Object data, Partitioner partitioner) {
+		Channel channel = channelContext.selectChannel(data, partitioner);
 		if (channel != null) {
-			doSend(channel, tuple);
+			doSend(channel, data);
 		}
 	}
 
-	protected void doSend(Channel channel, Tuple tuple) {
+	protected void doSend(Channel channel, Object data) {
 		try {
-			channel.writeAndFlush(tuple);
+			if (data instanceof CharSequence) {
+				channel.writeAndFlush(Tuple.byString(((CharSequence) data).toString()));
+			} else {
+				channel.writeAndFlush(data);
+			}
 		} catch (Exception e) {
 			throw new TransportClientException(e.getMessage(), e);
 		}
