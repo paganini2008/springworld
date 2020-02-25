@@ -24,7 +24,7 @@ import com.github.paganini2008.transport.TupleImpl;
  */
 public class KryoSerializer implements Serializer {
 
-	private static final int DEFAULT_POOL_SIZE = 128;
+	public static final int DEFAULT_POOL_SIZE = 128;
 
 	private final Pool<Kryo> pool;
 	private final Pool<Output> outputPool;
