@@ -45,7 +45,7 @@ public abstract class MinaEncoderDecoders {
 				return;
 			}
 			byte[] data = serializer.serialize((Tuple) message);
-			IoBuffer buf = IoBuffer.allocate(data.length + 4);
+			IoBuffer buf = IoBuffer.allocate(128).setAutoExpand(true);
 			buf.putInt(data.length);
 			buf.put(data);
 

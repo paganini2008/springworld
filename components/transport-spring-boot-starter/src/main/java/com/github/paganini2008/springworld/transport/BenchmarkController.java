@@ -53,7 +53,7 @@ public class BenchmarkController {
 				str.append(UUID.randomUUID().toString());
 			}
 			Tuple data = Tuple.byString(str.toString());
-			nioClient.send(JacksonUtils.toJsonString(data), partitioner);
+			nioClient.send(data, partitioner);
 		}
 
 		Map<String, Object> result = new HashMap<String, Object>();

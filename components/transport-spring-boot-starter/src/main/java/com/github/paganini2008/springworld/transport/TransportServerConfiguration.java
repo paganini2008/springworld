@@ -35,7 +35,7 @@ import com.github.paganini2008.transport.netty.KeepAlivePolicy;
 import com.github.paganini2008.transport.netty.MessageCodecFactory;
 import com.github.paganini2008.transport.netty.NettyClient;
 import com.github.paganini2008.transport.netty.NettyTupleCodecFactory;
-import com.github.paganini2008.transport.serializer.JdkSerializer;
+import com.github.paganini2008.transport.serializer.KryoSerializer;
 import com.github.paganini2008.transport.serializer.Serializer;
 
 import io.netty.channel.Channel;
@@ -56,7 +56,7 @@ public class TransportServerConfiguration {
 	@ConditionalOnMissingBean(Serializer.class)
 	@Bean
 	public Serializer serializer() {
-		return new JdkSerializer();
+		return new KryoSerializer();
 	}
 
 	@Bean(destroyMethod = "stop")
