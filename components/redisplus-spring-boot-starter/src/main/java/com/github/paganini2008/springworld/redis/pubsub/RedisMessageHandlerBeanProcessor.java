@@ -37,8 +37,6 @@ public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
 	 * ReflectiveRedisMessageHandler
 	 *
 	 * @author Fred Feng
-	 * 
-	 * 
 	 * @version 1.0
 	 */
 	private static class ReflectiveRedisMessageHandler implements RedisMessageHandler {
@@ -57,8 +55,8 @@ public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
 		}
 
 		@Override
-		public void onMessage(Object message) {
-			MethodUtils.invokeMethodsWithAnnotation(targetBean, OnMessage.class, message);
+		public void onMessage(String channel, Object message) {
+			MethodUtils.invokeMethodsWithAnnotation(targetBean, OnMessage.class, channel, message);
 		}
 
 		@Override

@@ -17,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
  * ContextClusterHeartbeatThread
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Slf4j

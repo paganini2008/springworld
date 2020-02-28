@@ -26,7 +26,7 @@ public class MulticastEventProcessor implements RedisMessageHandler {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void onMessage(Object received) {
+	public void onMessage(String channel, Object received) {
 		if (received instanceof Map) {
 			Map<String, Object> data = (Map<String, Object>) received;
 			String topic = (String) data.get("topic");

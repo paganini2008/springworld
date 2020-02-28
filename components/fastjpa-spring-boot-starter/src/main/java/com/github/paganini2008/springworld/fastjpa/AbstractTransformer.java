@@ -7,11 +7,10 @@ import javax.persistence.criteria.Selection;
 
 /**
  * 
- * AbstractTransformer
- * 
+ * AbstractTransformer 
+ *
  * @author Fred Feng
- * 
- * 
+ * @version 1.0
  */
 public abstract class AbstractTransformer<E, T> implements Transformer<E, T> {
 

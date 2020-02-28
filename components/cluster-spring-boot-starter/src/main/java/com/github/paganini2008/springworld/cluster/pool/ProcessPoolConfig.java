@@ -77,8 +77,8 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public ProcessPoolBackgroundProcessor processPoolBackgroundProcessor() {
-		return new ProcessPoolBackgroundProcessor();
+	public ProcessPoolProcessor processPoolBackgroundProcessor() {
+		return new ProcessPoolProcessor();
 	}
 
 	@Bean

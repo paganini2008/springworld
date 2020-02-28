@@ -52,7 +52,7 @@ public class RedisEphemeralMessageListener implements ApplicationListener<RedisK
 			if (handlers != null) {
 				for (RedisMessageHandler handler : handlers.values()) {
 					try {
-						handler.onMessage(expiredValue);
+						handler.onMessage(channel, expiredValue);
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
 					}
@@ -64,7 +64,7 @@ public class RedisEphemeralMessageListener implements ApplicationListener<RedisK
 					if (handlers != null) {
 						for (RedisMessageHandler handler : handlers.values()) {
 							try {
-								handler.onMessage(expiredValue);
+								handler.onMessage(channel, expiredValue);
 							} catch (Exception e) {
 								log.error(e.getMessage(), e);
 							}
@@ -99,7 +99,16 @@ public class RedisEphemeralMessageListener implements ApplicationListener<RedisK
 		return channel.replaceAll("[\\*]+", "*");
 	}
 
-	public void addHandler(String name, RedisMessageHandler handler) {
+	public void removeHandler(String beanName) {
+		for (Map<String, RedisMessageHandler> handlers : channelHandlers.values()) {
+			handlers.remove(beanName);
+		}
+		for (Map<String, RedisMessageHandler> handlers : channelPatternHandlers.values()) {
+			handlers.remove(beanName);
+		}
+	}
+
+	public void addHandler(String beanName, RedisMessageHandler handler) {
 		Map<String, RedisMessageHandler> handlers;
 		String channel = handler.getChannel();
 		if (channel.contains("*")) {
@@ -112,7 +121,7 @@ public class RedisEphemeralMessageListener implements ApplicationListener<RedisK
 				return new ConcurrentHashMap<String, RedisMessageHandler>();
 			});
 		}
-		handlers.putIfAbsent(name, handler);
+		handlers.putIfAbsent(beanName, handler);
 	}
 
 	private Object getExpiredValue(String expiredKey) {

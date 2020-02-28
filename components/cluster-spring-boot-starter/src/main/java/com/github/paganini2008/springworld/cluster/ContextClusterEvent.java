@@ -8,8 +8,6 @@ import org.springframework.context.event.ApplicationContextEvent;
  * ContextClusterEvent
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public abstract class ContextClusterEvent extends ApplicationContextEvent {

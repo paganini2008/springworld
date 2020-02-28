@@ -42,14 +42,15 @@ public class ContextClusterAware implements ApplicationListener<ContextRefreshed
 		final ApplicationContext context = event.getApplicationContext();
 		final String id = clusterId.get();
 		redisTemplate.opsForList().leftPush(key, id);
-		if (id.equals(redisTemplate.opsForList().index(key, -1))) {
+		String masterId;
+		if (id.equals(masterId = redisTemplate.opsForList().index(key, -1))) {
 			clusterId.setMaster(true);
 			heartbeatThread.start();
 			context.publishEvent(new ContextMasterStandbyEvent(context));
 			log.info("Master of context cluster '{}' is you. You can also implement ApplicationListener to listen the event type {}",
 					configProperties.getApplicationName(), ContextMasterStandbyEvent.class.getName());
 		} else {
-			context.publishEvent(new ContextSlaveStandbyEvent(context));
+			context.publishEvent(new ContextSlaveStandbyEvent(context, masterId));
 			log.info("Slave of context cluster '{}' is you. You can also implement ApplicationListener to listen the event type {}",
 					configProperties.getApplicationName(), ContextSlaveStandbyEvent.class.getName());
 		}

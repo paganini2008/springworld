@@ -12,8 +12,6 @@ import org.springframework.data.redis.core.RedisTemplate;
  * RedisMessageSender
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class RedisMessageSender {
@@ -60,12 +58,17 @@ public class RedisMessageSender {
 		redisTemplate.opsForValue().set(key, value);
 	}
 
-	public void subscribeChannel(String name, RedisMessageHandler messageHandler) {
+	public void subscribeChannel(String beanName, RedisMessageHandler messageHandler) {
 		if (messageHandler.isEphemeral()) {
-			redisEphemeralMessageListener.addHandler(name, messageHandler);
+			redisEphemeralMessageListener.addHandler(beanName, messageHandler);
 		} else {
-			redisMessageListener.addHandler(name, messageHandler);
+			redisMessageListener.addHandler(beanName, messageHandler);
 		}
+	}
+
+	public void unsubscribeChannel(String beanName) {
+		redisMessageListener.removeHandler(beanName);
+		redisEphemeralMessageListener.removeHandler(beanName);
 	}
 
 }

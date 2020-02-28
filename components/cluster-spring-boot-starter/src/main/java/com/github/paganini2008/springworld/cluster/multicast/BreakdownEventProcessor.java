@@ -26,7 +26,7 @@ public class BreakdownEventProcessor implements RedisMessageHandler {
 	private ContextClusterConfigProperties configProperties;
 
 	@Override
-	public void onMessage(Object message) {
+	public void onMessage(String channel, Object message) {
 		final String clusterId = (String) message;
 		multicastGroup.removeChannel(clusterId);
 		multicastEventListener.fireOnLeave(clusterId);

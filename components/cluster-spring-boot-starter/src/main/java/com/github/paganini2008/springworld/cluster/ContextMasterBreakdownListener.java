@@ -45,14 +45,15 @@ public class ContextMasterBreakdownListener implements ApplicationListener<Redis
 			log.info("The master of application '" + configProperties.getApplicationName() + "' is breakdown.");
 			final String key = heartbeatKey;
 			redisTemplate.opsForList().leftPush(key, clusterId.get());
-			if (clusterId.get().equals(redisTemplate.opsForList().index(key, -1))) {
+			String masterId;
+			if (clusterId.get().equals(masterId = redisTemplate.opsForList().index(key, -1))) {
 				clusterId.setMaster(true);
 				heartbeatThread.start();
 				context.publishEvent(new ContextMasterStandbyEvent(context));
 				log.info("Master of context cluster '{}' is you. You can also implement ApplicationListener to listen the event type {}",
 						configProperties.getApplicationName(), ContextMasterStandbyEvent.class.getName());
 			} else {
-				context.publishEvent(new ContextSlaveStandbyEvent(context));
+				context.publishEvent(new ContextSlaveStandbyEvent(context, masterId));
 				log.info("Slave of context cluster '{}' is you. You can also implement ApplicationListener to listen the event type {}",
 						configProperties.getApplicationName(), ContextSlaveStandbyEvent.class.getName());
 			}

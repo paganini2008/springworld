@@ -7,8 +7,6 @@ import java.util.concurrent.TimeUnit;
  * SimpleJob
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public interface SimpleJob extends Job {

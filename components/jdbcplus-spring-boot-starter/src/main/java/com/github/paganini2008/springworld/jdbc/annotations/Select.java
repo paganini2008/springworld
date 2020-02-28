@@ -12,8 +12,6 @@ import java.util.Map;
  * Select
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Documented
