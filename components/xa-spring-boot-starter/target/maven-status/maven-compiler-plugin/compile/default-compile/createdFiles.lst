@@ -5,6 +5,7 @@ com\github\paganini2008\springworld\xa\DefaultXaTransactionManager.class
 com\github\paganini2008\springworld\xa\XaTransactionResponse.class
 com\github\paganini2008\springworld\xa\ApplicationContextUtils$SpringContextHolder.class
 com\github\paganini2008\springworld\xa\XaTransactionContext.class
+com\github\paganini2008\springworld\xa\XaAutoConfiguration.class
 com\github\paganini2008\springworld\xa\XaTransactionConfirmation.class
 com\github\paganini2008\springworld\xa\XaTransactionManager.class
 com\github\paganini2008\springworld\xa\XaTransaction.class
