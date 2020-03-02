@@ -1,11 +1,22 @@
 package com.github.paganini2008.springworld.xa;
 
+import static com.github.paganini2008.springworld.xa.XaTransactionManager.XA_HTTP_REQUEST_IDENTITY;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +38,11 @@ public class XaTransactionManagerProcessor {
 	@Autowired
 	private RedisMessageSender redisMessageSender;
 
+	@Autowired
+	private StringRedisTemplate redisTemplate;
+
+	private final ThreadLocalInteger nestable = new ThreadLocalInteger(0);
+
 	@Pointcut("execution(public * *(..))")
 	public void signature() {
 	}
@@ -35,6 +51,7 @@ public class XaTransactionManagerProcessor {
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
 		boolean ok = true;
 		XaTransaction transaction = transactionManager.openTransaction();
+		nestable.incrementAndGet();
 		try {
 			return pjp.proceed();
 		} catch (Throwable e) {
@@ -42,24 +59,57 @@ public class XaTransactionManagerProcessor {
 			ok = false;
 			throw e;
 		} finally {
-			redisMessageSender.subscribeChannel(transaction.getId(),
-					new XaTransactionConfirmation(transaction, transactionManager, redisMessageSender));
-
-			XaTransactionContext context = null;
-			if (transaction.isStarter()) {
-				redisMessageSender.subscribeChannel(transaction.getXaId(), new XaTransactionCompletion());
-				context = XaTransactionContext.current();
-				context.setOk(ok);
-				context.await(transaction);
-				redisMessageSender.unsubscribeChannel(transaction.getXaId());
+			XaTransactionResponse response;
+			if (hasXaHeader()) {
+				XaTransactionalBarrier barrier = new XaTransactionalBarrier(transaction.getXaId(), redisMessageSender, redisTemplate);
+				barrier.join(transaction.getId());
+				if (!isNestable()) {
+					if (ok) {
+						response = transaction.commit();
+					} else {
+						response = transaction.rollback();
+					}
+					if (response.isCompleted()) {
+						redisMessageSender.sendMessage("completion:" + transaction.getXaId(), response);
+					}
+					transactionManager.closeTransaction();
+				}
+			} else {
+				if (!isNestable()) {
+					if (ok) {
+						response = transaction.commit();
+					} else {
+						response = transaction.rollback();
+					}
+					if (response.isCompleted()) {
+						if (redisTemplate.hasKey(transaction.getXaId())) {
+							List<String> transactionIds = redisTemplate.opsForList().range(transaction.getXaId(), 0, -1);
+							if (CollectionUtils.isNotCollection(transactionIds)) {
+								for (String transactionId : transactionIds) {
+									redisMessageSender.sendMessage("commitment:" + transaction.getXaId(), transactionId);
+								}
+							}
+						}
+					}
+					transactionManager.closeTransaction();
+				}
 			}
-
-			if (context != null) {
-				context.destroy();
-			}
-			transactionManager.closeTransaction();
-
 		}
+	}
+
+	protected boolean hasXaHeader() {
+		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		return httpServletRequest.getParameter(XA_HTTP_REQUEST_IDENTITY) != null
+				|| httpServletRequest.getHeader(XA_HTTP_REQUEST_IDENTITY) != null;
+	}
+
+	private boolean isNestable() {
+		if (nestable.get() == 1) {
+			nestable.set(0);
+			return false;
+		}
+		nestable.decrementAndGet();
+		return true;
 	}
 
 }

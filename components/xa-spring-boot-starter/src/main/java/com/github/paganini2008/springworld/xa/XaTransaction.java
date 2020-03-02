@@ -19,7 +19,5 @@ public interface XaTransaction {
 
 	String getId();
 
-	boolean isStarter();
-
-	long getElapsedTime();
+	long getStartTime();
 }

@@ -11,8 +11,6 @@ import java.lang.annotation.Target;
  * Dao
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Documented

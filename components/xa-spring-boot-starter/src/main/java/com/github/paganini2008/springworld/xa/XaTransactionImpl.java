@@ -5,6 +5,9 @@ import java.util.UUID;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
+import com.github.paganini2008.devtools.ExceptionUtils;
+import com.github.paganini2008.devtools.beans.ToStringBuilder;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,15 +22,13 @@ public class XaTransactionImpl implements XaTransaction {
 
 	private final String xaId;
 	private final String id;
-	private final boolean starter;
 	private final PlatformTransactionManager transactionManager;
 	private final TransactionStatus transactionStatus;
 	private final long startTime;
 
-	XaTransactionImpl(String xaId, boolean starter, PlatformTransactionManager transactionManager, TransactionStatus transactionStatus) {
+	XaTransactionImpl(String xaId, PlatformTransactionManager transactionManager, TransactionStatus transactionStatus) {
 		this.xaId = xaId;
 		this.id = UUID.randomUUID().toString().replace("-", "");
-		this.starter = starter;
 		this.transactionManager = transactionManager;
 		this.transactionStatus = transactionStatus;
 		this.startTime = System.currentTimeMillis();
@@ -36,32 +37,40 @@ public class XaTransactionImpl implements XaTransaction {
 	public XaTransactionResponse commit() {
 		DefaultXaTransactionResponse response;
 		try {
-			transactionManager.commit(transactionStatus);
+			if (isCompleted()) {
+				log.warn("Current transaction has been completed.");
+			} else {
+				transactionManager.commit(transactionStatus);
+			}
 			response = DefaultXaTransactionResponse.commit(xaId, id);
 			response.setCompleted(true);
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
 			response = DefaultXaTransactionResponse.commit(xaId, id);
-			response.setReason(e);
+			response.setReason(ExceptionUtils.toArray(e));
 			response.setCompleted(false);
 		}
-		response.setElapsedTime(getElapsedTime());
+		response.setElapsedTime(System.currentTimeMillis() - startTime);
 		return response;
 	}
 
 	public XaTransactionResponse rollback() {
 		DefaultXaTransactionResponse response;
 		try {
-			transactionManager.rollback(transactionStatus);
+			if (isCompleted()) {
+				log.warn("Current transaction has been completed.");
+			} else {
+				transactionManager.rollback(transactionStatus);
+			}
 			response = DefaultXaTransactionResponse.rollback(xaId, id);
 			response.setCompleted(true);
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
 			response = DefaultXaTransactionResponse.rollback(xaId, id);
-			response.setReason(e);
+			response.setReason(ExceptionUtils.toArray(e));
 			response.setCompleted(false);
 		}
-		response.setElapsedTime(getElapsedTime());
+		response.setElapsedTime(System.currentTimeMillis() - startTime);
 		return response;
 	}
 
@@ -77,12 +86,12 @@ public class XaTransactionImpl implements XaTransaction {
 		return id;
 	}
 
-	public boolean isStarter() {
-		return starter;
+	public long getStartTime() {
+		return startTime;
 	}
 
-	public long getElapsedTime() {
-		return System.currentTimeMillis() - startTime;
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

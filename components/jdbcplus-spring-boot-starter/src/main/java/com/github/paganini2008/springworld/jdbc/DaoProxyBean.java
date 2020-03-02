@@ -1,15 +1,15 @@
 package com.github.paganini2008.springworld.jdbc;
 
-import java.awt.List;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -18,10 +18,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.NotImplementedException;
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.beans.PropertyUtils;
+import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.devtools.converter.ConvertUtils;
+import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.jdbc.annotations.Arg;
@@ -37,8 +40,6 @@ import com.github.paganini2008.springworld.jdbc.annotations.Update;
  * DaoProxyBean
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @SuppressWarnings("all")
@@ -47,13 +48,14 @@ public class DaoProxyBean<T> implements InvocationHandler {
 	private final Class<T> interfaceClass;
 	protected final Logger log;
 
-	public DaoProxyBean(Class<T> interfaceClass) {
+	public DaoProxyBean(Class<T> interfaceClass, EnhancedJdbcTemplate jdbcTemplate) {
+		Assert.isNull(jdbcTemplate, "EnhancedJdbcTemplate must be required.");
 		this.interfaceClass = interfaceClass;
 		this.log = LoggerFactory.getLogger(interfaceClass);
+		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	@Autowired
-	private EnhancedJdbcTemplate jdbcTemplate;
+	private final EnhancedJdbcTemplate jdbcTemplate;
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -81,9 +83,9 @@ public class DaoProxyBean<T> implements InvocationHandler {
 			log.trace("Execute sql: " + sql);
 		}
 
-		Class<?> resultClass = method.getReturnType();
-		if (!List.class.isAssignableFrom(resultClass)) {
-			throw new UnsupportedOperationException("Only for List Type");
+		Class<?> returnType = method.getReturnType();
+		if (!List.class.isAssignableFrom(returnType)) {
+			throw new IllegalArgumentException("Only for List Type");
 		}
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		Class<?> elementType = select.elementType();
@@ -101,31 +103,20 @@ public class DaoProxyBean<T> implements InvocationHandler {
 	private Object doSlice(Method method, Object[] args) {
 		final Slice slice = method.getAnnotation(Slice.class);
 		PageableSql pageableSql;
-		if (StringUtils.isNotBlank(slice.name())) {
-			pageableSql = ApplicationContextUtils.getBean(slice.name(), PageableSql.class);
+		if (slice.pageableSql() != null && slice.pageableSql() != Void.class) {
+			try {
+				Object bean = ApplicationContextUtils.getBean(slice.pageableSql());
+				pageableSql = PageableSql.class.cast(bean);
+			} catch (RuntimeException e) {
+				throw new IllegalArgumentException(e.getMessage(), e);
+			}
 		} else {
-			pageableSql = new PageableSql() {
-
-				public String countableSql() {
-					if (log.isTraceEnabled()) {
-						log.trace("Execute sql: " + slice.countableSql());
-					}
-					return slice.countableSql();
-				}
-
-				public String pageableSql(int maxResults, int firstResult) {
-					if (log.isTraceEnabled()) {
-						log.trace("Execute sql: " + slice.pageableSql());
-					}
-					return slice.pageableSql();
-				}
-
-			};
+			pageableSql = new DefaultPageableSql(slice.value());
 		}
 
-		Class<?> resultClass = method.getReturnType();
-		if (!ResultSetSlice.class.isAssignableFrom(resultClass)) {
-			throw new UnsupportedOperationException("Only for ResultSetSlice Type");
+		Class<?> resultType = method.getReturnType();
+		if (!ResultSetSlice.class.isAssignableFrom(resultType)) {
+			throw new IllegalArgumentException("Only for ResultSetSlice Type");
 		}
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		Class<?> elementType = slice.elementType();
@@ -146,16 +137,18 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		if (log.isTraceEnabled()) {
 			log.trace("Execute sql: " + sql);
 		}
-
-		Class<?> resultClass = method.getReturnType();
+		Class<?> returnType = method.getReturnType();
+		if (returnType == void.class || returnType == Void.class) {
+			return null;
+		}
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		if (getter.javaType()) {
-			return jdbcTemplate.queryForObject(sql, sqlParameterSource, resultClass);
+			return jdbcTemplate.queryForObject(sql, sqlParameterSource, returnType);
 		} else {
-			if (Map.class.isAssignableFrom(resultClass)) {
+			if (Map.class.isAssignableFrom(returnType)) {
 				return jdbcTemplate.queryForObject(sql, sqlParameterSource, new ColumnMapRowMapper());
 			} else {
-				return jdbcTemplate.queryForObject(sql, sqlParameterSource, new BeanPropertyRowMapper<>(resultClass));
+				return jdbcTemplate.queryForObject(sql, sqlParameterSource, new BeanPropertyRowMapper<>(returnType));
 			}
 		}
 	}
@@ -167,12 +160,23 @@ public class DaoProxyBean<T> implements InvocationHandler {
 			log.trace("Execute sql: " + sql);
 		}
 
-		String keyProperty = insert.keyProperty();
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcTemplate.update(sql, sqlParameterSource, keyHolder);
+		int effected = jdbcTemplate.update(sql, sqlParameterSource, keyHolder);
+		if (effected == 0) {
+			throw new InvalidDataAccessResourceUsageException("Failed to insert a new record by sql: " + sql);
+		}
+		Class<?> returnType = method.getReturnType();
+		if (returnType == void.class || returnType == Void.class) {
+			return null;
+		}
 		Map<String, Object> keys = keyHolder.getKeys();
-		return keys.get(keyProperty);
+		Object value = CollectionUtils.getFirst(keys.values());
+		try {
+			return returnType.cast(value);
+		} catch (RuntimeException e) {
+			return ConvertUtils.convertValue(value, returnType);
+		}
 	}
 
 	private Object doUpdate(Method method, Object[] args) {
@@ -183,7 +187,16 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
-		return jdbcTemplate.update(sql, sqlParameterSource);
+		int effectedRows = jdbcTemplate.update(sql, sqlParameterSource);
+		Class<?> returnType = method.getReturnType();
+		if (returnType == void.class || returnType == Void.class) {
+			return null;
+		}
+		try {
+			return returnType.cast(effectedRows);
+		} catch (RuntimeException e) {
+			return ConvertUtils.convertValue(effectedRows, returnType);
+		}
 	}
 
 	private boolean acceptedMethod(Method method) {
@@ -236,10 +249,10 @@ public class DaoProxyBean<T> implements InvocationHandler {
 			if (annotation instanceof Arg) {
 				parameters.put(((Arg) annotation).value(), args[0]);
 			} else if (annotation instanceof Example) {
-				if (args[i] instanceof Map) {
-					parameters.putAll((Map<String, Object>) args[i]);
+				if (args[0] instanceof Map) {
+					parameters.putAll((Map<String, Object>) args[0]);
 				} else {
-					parameters.putAll(PropertyUtils.convertToMap(args[i]));
+					parameters.putAll(PropertyUtils.convertToMap(args[0]));
 				}
 				String[] excludedProperties = ((Example) annotation).excludedProperties();
 				if (ArrayUtils.isNotEmpty(excludedProperties)) {

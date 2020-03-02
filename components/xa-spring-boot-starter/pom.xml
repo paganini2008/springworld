@@ -36,6 +36,12 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.paganini2008</groupId>
+			<artifactId>devtools-lang</artifactId>
+			<version>2.0-RC2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

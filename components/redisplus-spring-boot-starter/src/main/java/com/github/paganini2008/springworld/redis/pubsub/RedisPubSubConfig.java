@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.redis.pubsub;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,8 +27,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * RedisPubSubConfig
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Configuration
@@ -69,9 +68,9 @@ public class RedisPubSubConfig {
 		return new StringRedisTemplate(redisConnectionFactory);
 	}
 
-	@Bean
+	@Bean("key-expiration-event-message-listener")
 	public KeyExpirationEventMessageListener keyExpirationEventMessageListener(
-			RedisMessageListenerContainer redisMessageListenerContainer) {
+			@Qualifier("redis-message-listener-container") RedisMessageListenerContainer redisMessageListenerContainer) {
 		KeyExpirationEventMessageListener listener = new KeyExpirationEventMessageListener(redisMessageListenerContainer);
 		listener.setKeyspaceNotificationsConfigParameter("Ex");
 		return listener;
@@ -83,7 +82,7 @@ public class RedisPubSubConfig {
 	}
 
 	@DependsOn("redis-message-event-publisher")
-	@Bean
+	@Bean("redis-message-listener-adapter")
 	public MessageListenerAdapter messageListenerAdapter(RedisSerializer<Object> redisSerializer) {
 		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "publish");
 		adapter.setSerializer(redisSerializer);
@@ -91,9 +90,9 @@ public class RedisPubSubConfig {
 		return adapter;
 	}
 
-	@Bean
+	@Bean("redis-message-listener-container")
 	public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
-			MessageListenerAdapter messageListenerAdapter) {
+			@Qualifier("redis-message-listener-adapter") MessageListenerAdapter messageListenerAdapter) {
 		RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
 		redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
 		redisMessageListenerContainer.addMessageListener(messageListenerAdapter, new ChannelTopic(channel));

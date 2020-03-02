@@ -14,6 +14,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.github.paganini2008.devtools.StringUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * DefaultXaTransactionManager
@@ -21,9 +23,8 @@ import com.github.paganini2008.devtools.StringUtils;
  * @author Fred Feng
  * @version 1.0
  */
+@Slf4j
 public class DefaultXaTransactionManager extends ThreadLocal<XaTransaction> implements XaTransactionManager {
-
-	private static final String XA_HTTP_REQUEST_IDENTITY = "xaid";
 
 	@Autowired
 	private PlatformTransactionManager transactionManager;
@@ -34,7 +35,9 @@ public class DefaultXaTransactionManager extends ThreadLocal<XaTransaction> impl
 	@Override
 	public XaTransaction openTransaction() {
 		XaTransaction transaction = get();
-		redisTemplate.opsForList().rightPush(transaction.getXaId(), transaction.getId());
+		if (log.isTraceEnabled()) {
+			log.trace("Open transaction: " + transaction.toString());
+		}
 		return transaction;
 	}
 
@@ -44,6 +47,9 @@ public class DefaultXaTransactionManager extends ThreadLocal<XaTransaction> impl
 		if (transaction.isCompleted()) {
 			redisTemplate.delete(transaction.getXaId());
 			remove();
+			if (log.isTraceEnabled()) {
+				log.trace("Close transaction: " + transaction.toString());
+			}
 		}
 	}
 
@@ -56,8 +62,9 @@ public class DefaultXaTransactionManager extends ThreadLocal<XaTransaction> impl
 	protected final XaTransaction initialValue() {
 		DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
 		transactionDefinition.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		transactionDefinition.setReadOnly(false);
 		TransactionStatus transactionStatus = transactionManager.getTransaction(transactionDefinition);
-		return new XaTransactionImpl(getXaId(), isStarter(), transactionManager, transactionStatus);
+		return new XaTransactionImpl(getXaId(), transactionManager, transactionStatus);
 	}
 
 	private String getXaId() {
@@ -70,12 +77,6 @@ public class DefaultXaTransactionManager extends ThreadLocal<XaTransaction> impl
 			xaid = createXaId();
 		}
 		return xaid;
-	}
-
-	private boolean isStarter() {
-		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-		return httpServletRequest.getParameter(XA_HTTP_REQUEST_IDENTITY) == null
-				&& httpServletRequest.getHeader(XA_HTTP_REQUEST_IDENTITY) == null;
 	}
 
 	protected String createXaId() {

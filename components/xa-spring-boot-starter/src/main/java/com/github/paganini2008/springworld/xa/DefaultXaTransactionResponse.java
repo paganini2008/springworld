@@ -16,12 +16,15 @@ public class DefaultXaTransactionResponse implements Serializable, XaTransaction
 
 	private static final long serialVersionUID = 8610702260165090624L;
 
-	private final String xaId;
-	private final String id;
-	private final boolean ok;
+	private String xaId;
+	private String id;
+	private boolean ok;
 	private boolean completed;
-	private Throwable reason;
+	private String[] reason;
 	private long elapsedTime;
+
+	public DefaultXaTransactionResponse() {
+	}
 
 	DefaultXaTransactionResponse(String xaId, String id, boolean ok) {
 		this.xaId = xaId;
@@ -37,10 +40,6 @@ public class DefaultXaTransactionResponse implements Serializable, XaTransaction
 		return id;
 	}
 
-	public void setReason(Throwable reason) {
-		this.reason = reason;
-	}
-
 	public boolean isOk() {
 		return ok;
 	}
@@ -53,8 +52,12 @@ public class DefaultXaTransactionResponse implements Serializable, XaTransaction
 		this.elapsedTime = elapsedTime;
 	}
 
-	public Throwable getReason() {
+	public String[] getReason() {
 		return reason;
+	}
+
+	public void setReason(String[] reason) {
+		this.reason = reason;
 	}
 
 	public void setCompleted(boolean completed) {

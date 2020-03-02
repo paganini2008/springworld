@@ -19,11 +19,9 @@ import java.util.Map;
 @Target(ElementType.METHOD)
 public @interface Slice {
 
-	String name() default "";
-
-	String pageableSql() default "";
-
-	String countableSql() default "";
+	Class<?> pageableSql() default Void.class;
+	
+	String value();
 
 	Class<?> elementType() default Map.class;
 

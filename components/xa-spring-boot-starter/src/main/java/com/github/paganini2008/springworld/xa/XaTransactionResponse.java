@@ -12,13 +12,11 @@ public interface XaTransactionResponse {
 	String getXaId();
 
 	String getId();
-
-	boolean isOk();
 	
 	boolean isCompleted();
 
 	long getElapsedTime();
 
-	Throwable getReason();
+	String[] getReason();
 
 }

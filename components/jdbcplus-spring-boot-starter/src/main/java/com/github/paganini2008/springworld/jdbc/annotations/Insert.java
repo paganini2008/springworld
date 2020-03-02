@@ -21,6 +21,5 @@ import java.lang.annotation.Target;
 public @interface Insert {
 
 	String value();
-
-	String keyProperty() default "id";
+	
 }

@@ -25,4 +25,8 @@ public class XaAutoConfiguration {
 		return new XaTransactionManagerProcessor();
 	}
 	
+	public XaTransactionCompletionHandler xaTransactionCompletionHandler() {
+		return new XaTransactionCompletionHandler();
+	}
+	
 }
