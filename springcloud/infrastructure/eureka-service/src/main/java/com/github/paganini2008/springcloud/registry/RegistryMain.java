@@ -15,11 +15,9 @@ import com.github.paganini2008.devtools.io.FileUtils;
 
 /**
  * 
- * RegistryMain
+ * RegistryMain 
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @RestController

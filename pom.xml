@@ -8,6 +8,7 @@
     <modules>
 	    <module>components</module>
 		<module>common</module>
+		<module>springcloud</module>
     </modules>
 	
     <packaging>pom</packaging>

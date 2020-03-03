@@ -1,0 +1,71 @@
+server:
+   port: 7001
+spring:
+  profiles: peer-1
+  application:
+    name: eureka-service
+  security:
+    basic:
+      enabled: true
+    user:
+      name: dev
+      password: dev
+eureka:
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 5000
+    useReadOnlyResponseCache: false
+    peer-node-read-timeout-ms: 10000
+  instance:
+    prefer-ip-address: false
+    status-page-url-path: /actuator/info
+    health-check-url-path: /actuator/health
+    hostname: peer-1
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 10
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    region: shanghai
+    availability-zones:
+      shanghai: zone-1,zone-2
+    service-url:
+      zone-1: http://dev:dev@peer-1:7001/eureka/
+      zone-2: http://dev:dev@peer-2:7002/eureka/
+
+---
+
+server:
+   port: 7002
+spring:
+  profiles: peer-2
+  application:
+    name: eureka-service
+  security:
+    basic:
+      enabled: true
+    user:
+      name: dev
+      password: dev
+eureka:
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 5000
+    useReadOnlyResponseCache: false
+    peer-node-read-timeout-ms: 10000
+  instance:
+    prefer-ip-address: false
+    status-page-url-path: /actuator/info
+    health-check-url-path: /actuator/health
+    hostname: peer-2
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 10
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    region: shanghai
+    availability-zones:
+      shanghai: zone-2,zone-1
+    service-url:
+      zone-1: http://dev:dev@peer-1:7001/eureka/
+      zone-2: http://dev:dev@peer-2:7002/eureka/
