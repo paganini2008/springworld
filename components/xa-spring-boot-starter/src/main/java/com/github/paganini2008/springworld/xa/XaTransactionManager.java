@@ -13,6 +13,6 @@ public interface XaTransactionManager {
 
 	XaTransaction openTransaction();
 
-	void closeTransaction();
+	void closeTransaction(String xaId);
 
 }

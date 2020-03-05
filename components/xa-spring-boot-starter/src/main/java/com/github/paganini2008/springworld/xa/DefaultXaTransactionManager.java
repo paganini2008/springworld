@@ -1,18 +1,17 @@
 package com.github.paganini2008.springworld.xa;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.devtools.collection.MapUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,59 +23,57 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class DefaultXaTransactionManager extends ThreadLocal<XaTransaction> implements XaTransactionManager {
+public class DefaultXaTransactionManager implements XaTransactionManager {
+
+	private final Map<String, XaTransaction> cache = new ConcurrentHashMap<String, XaTransaction>();
 
 	@Autowired
-	private PlatformTransactionManager transactionManager;
-
-	@Autowired
-	private StringRedisTemplate redisTemplate;
+	private XaTransactionFactory xaTransactionFactory;
 
 	@Override
 	public XaTransaction openTransaction() {
-		XaTransaction transaction = get();
+		final String xaId = getXaId();
+		XaTransaction transaction = MapUtils.get(cache, xaId, () -> {
+			return xaTransactionFactory.createTransaction(xaId);
+		});
 		if (log.isTraceEnabled()) {
-			log.trace("Open transaction: " + transaction.toString());
+			log.trace("Current transaction: " + transaction.toString());
 		}
 		return transaction;
 	}
 
 	@Override
-	public void closeTransaction() {
-		XaTransaction transaction = get();
-		if (transaction.isCompleted()) {
-			redisTemplate.delete(transaction.getXaId());
-			remove();
-			if (log.isTraceEnabled()) {
-				log.trace("Close transaction: " + transaction.toString());
+	public void closeTransaction(String xaId) {
+		XaTransaction transaction = cache.get(xaId);
+		if (transaction != null) {
+			try {
+				if (!transaction.isCompleted()) {
+					transaction.rollback();
+				}
+			} finally {
+				cache.remove(xaId);
+				if (log.isTraceEnabled()) {
+					log.trace("Close transaction: " + transaction.toString());
+				}
 			}
 		}
 	}
 
-	@Override
-	public void set(XaTransaction transaction) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	protected final XaTransaction initialValue() {
-		DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
-		transactionDefinition.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		transactionDefinition.setReadOnly(false);
-		TransactionStatus transactionStatus = transactionManager.getTransaction(transactionDefinition);
-		return new XaTransactionImpl(getXaId(), transactionManager, transactionStatus);
-	}
-
 	private String getXaId() {
 		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-		String xaid = httpServletRequest.getParameter(XA_HTTP_REQUEST_IDENTITY);
-		if (StringUtils.isBlank(xaid)) {
-			xaid = httpServletRequest.getHeader(XA_HTTP_REQUEST_IDENTITY);
+		String xaId = (String) httpServletRequest.getAttribute(XA_HTTP_REQUEST_IDENTITY);
+		if (StringUtils.isNotBlank(xaId)) {
+			return xaId;
 		}
-		if (StringUtils.isBlank(xaid)) {
-			xaid = createXaId();
+		xaId = httpServletRequest.getParameter(XA_HTTP_REQUEST_IDENTITY);
+		if (StringUtils.isBlank(xaId)) {
+			xaId = httpServletRequest.getHeader(XA_HTTP_REQUEST_IDENTITY);
 		}
-		return xaid;
+		if (StringUtils.isBlank(xaId)) {
+			xaId = createXaId();
+		}
+		httpServletRequest.setAttribute(XA_HTTP_REQUEST_IDENTITY, xaId);
+		return xaId;
 	}
 
 	protected String createXaId() {

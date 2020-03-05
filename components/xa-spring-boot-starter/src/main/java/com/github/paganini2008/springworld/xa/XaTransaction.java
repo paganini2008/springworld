@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.xa;
 
+import com.github.paganini2008.devtools.db4j.JdbcOperations;
+
 /**
  * 
  * XaTransaction
@@ -20,4 +22,6 @@ public interface XaTransaction {
 	String getId();
 
 	long getStartTime();
+	
+	JdbcOperations getJdbcOperations();
 }

@@ -23,14 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * XaTransactionManagerProcessor
+ * XaTransactionalProcessor
  *
  * @author Fred Feng
  * @version 1.0
  */
 @Slf4j
 @Aspect
-public class XaTransactionManagerProcessor {
+public class XaTransactionalProcessor {
 
 	@Autowired
 	private XaTransactionManager transactionManager;
@@ -61,18 +61,11 @@ public class XaTransactionManagerProcessor {
 		} finally {
 			XaTransactionResponse response;
 			if (hasXaHeader()) {
-				XaTransactionalBarrier barrier = new XaTransactionalBarrier(transaction.getXaId(), redisMessageSender, redisTemplate);
-				barrier.join(transaction.getId());
 				if (!isNestable()) {
-					if (ok) {
-						response = transaction.commit();
-					} else {
-						response = transaction.rollback();
-					}
-					if (response.isCompleted()) {
-						redisMessageSender.sendMessage("completion:" + transaction.getXaId(), response);
-					}
-					transactionManager.closeTransaction();
+					redisTemplate.opsForList().rightPush(transaction.getXaId(), transaction.getId());
+
+					XaTransactionCommitment commitment = new XaTransactionCommitment(transaction, transactionManager, redisMessageSender);
+					redisMessageSender.subscribeChannel(transaction.getId(), commitment);
 				}
 			} else {
 				if (!isNestable()) {
@@ -86,12 +79,13 @@ public class XaTransactionManagerProcessor {
 							List<String> transactionIds = redisTemplate.opsForList().range(transaction.getXaId(), 0, -1);
 							if (CollectionUtils.isNotCollection(transactionIds)) {
 								for (String transactionId : transactionIds) {
-									redisMessageSender.sendMessage("commitment:" + transaction.getXaId(), transactionId);
+									redisMessageSender.sendMessage("commitment:" + transaction.getXaId() + ":" + transactionId, ok);
 								}
 							}
+							redisTemplate.delete(transaction.getXaId());
 						}
 					}
-					transactionManager.closeTransaction();
+					transactionManager.closeTransaction(transaction.getXaId());
 				}
 			}
 		}
@@ -105,7 +99,7 @@ public class XaTransactionManagerProcessor {
 
 	private boolean isNestable() {
 		if (nestable.get() == 1) {
-			nestable.set(0);
+			nestable.reset();
 			return false;
 		}
 		nestable.decrementAndGet();
