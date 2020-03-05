@@ -8,7 +8,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<version>2.0-RC2</version>
 	<artifactId>xa-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 

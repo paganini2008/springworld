@@ -18,6 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
+import com.github.paganini2008.springworld.xa.jdbc.JdbcOperationsHolder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +42,9 @@ public class XaTransactionalProcessor {
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 
+	@Autowired(required = false)
+	private JdbcOperationsHolder jdbcOperationsHolder;
+
 	private final ThreadLocalInteger nestable = new ThreadLocalInteger(0);
 
 	@Pointcut("execution(public * *(..))")
@@ -53,6 +57,9 @@ public class XaTransactionalProcessor {
 		XaTransaction transaction = transactionManager.openTransaction();
 		nestable.incrementAndGet();
 		try {
+			if (jdbcOperationsHolder != null && transaction instanceof JdbcXaTransaction) {
+				jdbcOperationsHolder.set(transaction.getJdbcOperations());
+			}
 			return pjp.proceed();
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
@@ -86,6 +93,10 @@ public class XaTransactionalProcessor {
 						}
 					}
 					transactionManager.closeTransaction(transaction.getXaId());
+
+					if (jdbcOperationsHolder != null) {
+						jdbcOperationsHolder.reset();
+					}
 				}
 			}
 		}

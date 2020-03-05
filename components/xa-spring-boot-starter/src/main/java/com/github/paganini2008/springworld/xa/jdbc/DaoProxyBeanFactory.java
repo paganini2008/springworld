@@ -5,8 +5,6 @@ import java.lang.reflect.Proxy;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.xa.XaTransactionManager;
-
 /**
  * 
  * DaoProxyBeanFactory
@@ -23,13 +21,13 @@ public class DaoProxyBeanFactory<T> implements FactoryBean<T> {
 	}
 
 	@Autowired
-	private XaTransactionManager transactionManager;
+	private JdbcOperationsHolder jdbcOperationsHolder;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject() throws Exception {
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] { interfaceClass },
-				new DaoProxyBean<T>(interfaceClass, transactionManager));
+				new DaoProxyBean<T>(interfaceClass, jdbcOperationsHolder));
 	}
 
 	@Override

@@ -30,7 +30,6 @@ import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.xa.ApplicationContextUtils;
-import com.github.paganini2008.springworld.xa.XaTransactionManager;
 
 /**
  * 
@@ -45,14 +44,14 @@ public class DaoProxyBean<T> implements InvocationHandler {
 	private final Class<T> interfaceClass;
 	protected final Logger log;
 
-	public DaoProxyBean(Class<T> interfaceClass, XaTransactionManager transactionManager) {
-		Assert.isNull(transactionManager, "XaTransactionManager must be required.");
+	public DaoProxyBean(Class<T> interfaceClass, JdbcOperationsHolder holder) {
+		Assert.isNull(holder, "JdbcOperationsHolder must be required.");
 		this.interfaceClass = interfaceClass;
 		this.log = LoggerFactory.getLogger(interfaceClass);
-		this.transactionManager = transactionManager;
+		this.holder = holder;
 	}
 
-	private final XaTransactionManager transactionManager;
+	private final JdbcOperationsHolder holder;
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -86,7 +85,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 		SqlParameter sqlParameter = getSqlParameter(method, args);
 		Class<?> elementType = select.elementType();
-		JdbcOperations jdbcOperations = transactionManager.openTransaction().getJdbcOperations();
+		JdbcOperations jdbcOperations = holder.get();
 		if (select.javaType()) {
 			return jdbcOperations.queryForList(sql, sqlParameter, new ColumnIndexRowMapper<>(elementType));
 		} else {
@@ -118,7 +117,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 		SqlParameter sqlParameter = getSqlParameter(method, args);
 		Class<?> elementType = slice.elementType();
-		JdbcOperations jdbcOperations = transactionManager.openTransaction().getJdbcOperations();
+		JdbcOperations jdbcOperations = holder.get();
 		if (slice.javaType()) {
 			return jdbcOperations.queryForPage(pageableSql, sqlParameter, new ColumnIndexRowMapper<>(elementType));
 		} else {
@@ -141,7 +140,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 			return null;
 		}
 		SqlParameter sqlParameter = getSqlParameter(method, args);
-		JdbcOperations jdbcOperations = transactionManager.openTransaction().getJdbcOperations();
+		JdbcOperations jdbcOperations = holder.get();
 		if (getter.javaType()) {
 			return jdbcOperations.queryForObject(sql, sqlParameter, new ColumnIndexRowMapper<>(returnType));
 		} else {
@@ -161,7 +160,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 
 		SqlParameter sqlParameter = getSqlParameter(method, args);
-		JdbcOperations jdbcOperations = transactionManager.openTransaction().getJdbcOperations();
+		JdbcOperations jdbcOperations = holder.get();
 		GeneratedKey generatedKey = GeneratedKey.auto();
 		int effected = jdbcOperations.update(sql, sqlParameter, generatedKey);
 		if (effected == 0) {
@@ -171,7 +170,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		if (returnType == void.class || returnType == Void.class) {
 			return null;
 		}
-		Map<String, Object> keys = generatedKey.keys();
+		Map<String, Object> keys = generatedKey.getKeys();
 		Object value = CollectionUtils.getFirst(keys.values());
 		try {
 			return returnType.cast(value);
@@ -188,7 +187,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 
 		SqlParameter sqlParameter = getSqlParameter(method, args);
-		JdbcOperations jdbcOperations = transactionManager.openTransaction().getJdbcOperations();
+		JdbcOperations jdbcOperations = holder.get();
 		int effectedRows = jdbcOperations.update(sql, sqlParameter);
 		Class<?> returnType = method.getReturnType();
 		if (returnType == void.class || returnType == Void.class) {

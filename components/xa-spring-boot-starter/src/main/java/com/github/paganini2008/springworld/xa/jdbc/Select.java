@@ -5,7 +5,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
+
+import com.github.paganini2008.devtools.collection.Tuple;
 
 /**
  * 
@@ -21,7 +22,7 @@ public @interface Select {
 
 	String value();
 
-	Class<?> elementType() default Map.class;
+	Class<?> elementType() default Tuple.class;
 
 	boolean javaType() default false;
 

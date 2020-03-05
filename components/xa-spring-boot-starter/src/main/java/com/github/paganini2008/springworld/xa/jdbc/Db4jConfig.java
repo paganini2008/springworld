@@ -23,5 +23,10 @@ public class Db4jConfig {
 	public SqlPlus sqlPlus(DataSource dataSource) {
 		return new SqlPlus(dataSource);
 	}
+	
+	@Bean
+	public JdbcOperationsHolder jdbcOperationsHolder() {
+		return new JdbcOperationsHolder();
+	}
 
 }
