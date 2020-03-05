@@ -48,10 +48,10 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		Assert.isNull(holder, "JdbcOperationsHolder must be required.");
 		this.interfaceClass = interfaceClass;
 		this.log = LoggerFactory.getLogger(interfaceClass);
-		this.holder = holder;
+		this.jdbcOperationsHolder = holder;
 	}
 
-	private final JdbcOperationsHolder holder;
+	private final JdbcOperationsHolder jdbcOperationsHolder;
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -85,7 +85,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 		SqlParameter sqlParameter = getSqlParameter(method, args);
 		Class<?> elementType = select.elementType();
-		JdbcOperations jdbcOperations = holder.get();
+		JdbcOperations jdbcOperations = getJdbcOperations();
 		if (select.javaType()) {
 			return jdbcOperations.queryForList(sql, sqlParameter, new ColumnIndexRowMapper<>(elementType));
 		} else {
@@ -117,7 +117,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 		SqlParameter sqlParameter = getSqlParameter(method, args);
 		Class<?> elementType = slice.elementType();
-		JdbcOperations jdbcOperations = holder.get();
+		JdbcOperations jdbcOperations = getJdbcOperations();
 		if (slice.javaType()) {
 			return jdbcOperations.queryForPage(pageableSql, sqlParameter, new ColumnIndexRowMapper<>(elementType));
 		} else {
@@ -140,7 +140,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 			return null;
 		}
 		SqlParameter sqlParameter = getSqlParameter(method, args);
-		JdbcOperations jdbcOperations = holder.get();
+		JdbcOperations jdbcOperations = getJdbcOperations();
 		if (getter.javaType()) {
 			return jdbcOperations.queryForObject(sql, sqlParameter, new ColumnIndexRowMapper<>(returnType));
 		} else {
@@ -160,7 +160,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 
 		SqlParameter sqlParameter = getSqlParameter(method, args);
-		JdbcOperations jdbcOperations = holder.get();
+		JdbcOperations jdbcOperations = getJdbcOperations();
 		GeneratedKey generatedKey = GeneratedKey.auto();
 		int effected = jdbcOperations.update(sql, sqlParameter, generatedKey);
 		if (effected == 0) {
@@ -187,7 +187,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 
 		SqlParameter sqlParameter = getSqlParameter(method, args);
-		JdbcOperations jdbcOperations = holder.get();
+		JdbcOperations jdbcOperations = getJdbcOperations();
 		int effectedRows = jdbcOperations.update(sql, sqlParameter);
 		Class<?> returnType = method.getReturnType();
 		if (returnType == void.class || returnType == Void.class) {
@@ -262,6 +262,14 @@ public class DaoProxyBean<T> implements InvocationHandler {
 			}
 		}
 		return new MapSqlParameter(parameters);
+	}
+
+	private JdbcOperations getJdbcOperations() {
+		JdbcOperations jdbcOperations = jdbcOperationsHolder.get();
+		if (log.isTraceEnabled()) {
+			log.trace(jdbcOperations.toString());
+		}
+		return jdbcOperations;
 	}
 
 	public Class<T> getInterfaceClass() {

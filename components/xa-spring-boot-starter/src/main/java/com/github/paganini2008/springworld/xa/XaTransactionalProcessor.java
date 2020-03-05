@@ -81,6 +81,7 @@ public class XaTransactionalProcessor {
 					} else {
 						response = transaction.rollback();
 					}
+					log.info(response.toString());
 					if (response.isCompleted()) {
 						if (redisTemplate.hasKey(transaction.getXaId())) {
 							List<String> transactionIds = redisTemplate.opsForList().range(transaction.getXaId(), 0, -1);
@@ -92,11 +93,11 @@ public class XaTransactionalProcessor {
 							redisTemplate.delete(transaction.getXaId());
 						}
 					}
-					transactionManager.closeTransaction(transaction.getXaId());
 
 					if (jdbcOperationsHolder != null) {
 						jdbcOperationsHolder.reset();
 					}
+					transactionManager.closeTransaction(transaction.getXaId());
 				}
 			}
 		}

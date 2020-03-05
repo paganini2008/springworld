@@ -45,7 +45,7 @@ public class XaTransactionAutoConfiguration {
 
 	@Bean
 	@ConditionalOnBean(SqlPlus.class)
-	public XaTransactionFactory platformXaTransactionFactory() {
+	public XaTransactionFactory jdbcXaTransactionFactory() {
 		return new JdbcXaTransactionFactory();
 	}
 
