@@ -17,13 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * DefaultXaTransactionManager
+ * LocalXaTransactionManager
  *
  * @author Fred Feng
  * @version 1.0
  */
 @Slf4j
-public class DefaultXaTransactionManager implements XaTransactionManager {
+public class LocalXaTransactionManager implements XaTransactionManager {
 
 	private final Map<String, XaTransaction> cache = new ConcurrentHashMap<String, XaTransaction>();
 

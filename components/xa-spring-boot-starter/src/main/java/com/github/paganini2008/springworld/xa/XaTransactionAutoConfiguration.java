@@ -24,7 +24,7 @@ public class XaTransactionAutoConfiguration {
 
 	@Bean
 	public XaTransactionManager xaTransactionManager() {
-		return new DefaultXaTransactionManager();
+		return new LocalXaTransactionManager();
 	}
 
 	@Bean

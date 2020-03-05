@@ -73,6 +73,10 @@ public class XaTransactionalProcessor {
 
 					XaTransactionCommitment commitment = new XaTransactionCommitment(transaction, transactionManager, redisMessageSender);
 					redisMessageSender.subscribeChannel(transaction.getId(), commitment);
+					
+					if (jdbcOperationsHolder != null) {
+						jdbcOperationsHolder.reset();
+					}
 				}
 			} else {
 				if (!isNestable()) {
