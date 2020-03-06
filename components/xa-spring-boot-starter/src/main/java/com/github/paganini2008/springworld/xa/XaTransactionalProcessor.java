@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -69,29 +70,38 @@ public class XaTransactionalProcessor {
 			XaTransactionResponse response;
 			if (hasXaHeader()) {
 				if (!isNestable()) {
+					Signature signature = pjp.getSignature();
+					log.info("[Follower] XaTransaction type: " + transaction.getClass());
+					log.info("[Follower] Invoke: " + signature.getDeclaringTypeName() + "\t" + signature.getName());
 					redisTemplate.opsForList().rightPush(transaction.getXaId(), transaction.getId());
 
 					XaTransactionCommitment commitment = new XaTransactionCommitment(transaction, transactionManager, redisMessageSender);
 					redisMessageSender.subscribeChannel(transaction.getId(), commitment);
-					
+
 					if (jdbcOperationsHolder != null) {
 						jdbcOperationsHolder.reset();
 					}
 				}
 			} else {
 				if (!isNestable()) {
+					Signature signature = pjp.getSignature();
+					log.info("[Starter] XaTransaction type: " + transaction.getClass());
+					log.info("[Starter] Invoke: " + signature.getDeclaringTypeName() + "\t" + signature.getName());
 					if (ok) {
 						response = transaction.commit();
 					} else {
 						response = transaction.rollback();
 					}
-					log.info(response.toString());
+					log.info("[Starter] " + response.toString());
 					if (response.isCompleted()) {
+						log.info("[Starter] Has redis xaId key: " + (redisTemplate.hasKey(transaction.getXaId())));
 						if (redisTemplate.hasKey(transaction.getXaId())) {
 							List<String> transactionIds = redisTemplate.opsForList().range(transaction.getXaId(), 0, -1);
-							if (CollectionUtils.isNotCollection(transactionIds)) {
+							log.info("[Starter] transactionIds: " + transactionIds);
+							if (CollectionUtils.isNotEmpty(transactionIds)) {
 								for (String transactionId : transactionIds) {
 									redisMessageSender.sendMessage("commitment:" + transaction.getXaId() + ":" + transactionId, ok);
+									log.info("[Starter] sendMessage: " + "commitment:" + transaction.getXaId() + ":" + transactionId);
 								}
 							}
 							redisTemplate.delete(transaction.getXaId());

@@ -3,6 +3,8 @@ package com.github.paganini2008.springworld.xa;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * XaTransactionCommitment
@@ -10,6 +12,7 @@ import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
  * @author Fred Feng
  * @version 1.0
  */
+@Slf4j
 public class XaTransactionCommitment implements RedisMessageHandler {
 
 	private final XaTransaction transaction;
@@ -30,6 +33,7 @@ public class XaTransactionCommitment implements RedisMessageHandler {
 
 	@Override
 	public void onMessage(String channel, Object message) {
+		log.info(">>> XaTransactionCommitment accept: " + message);
 		boolean ok = (Boolean) message;
 		XaTransactionResponse response;
 		if (ok) {
@@ -37,6 +41,7 @@ public class XaTransactionCommitment implements RedisMessageHandler {
 		} else {
 			response = transaction.rollback();
 		}
+		log.info(">>> XaTransactionCommitment response: " + response);
 		redisMessageSender.sendMessage("completion:" + transaction.getXaId() + ":" + transaction.getId(), response);
 		redisMessageSender.unsubscribeChannel(transaction.getId());
 

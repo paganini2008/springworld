@@ -69,7 +69,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		} else if (method.isAnnotationPresent(Slice.class)) {
 			return doSlice(method, args);
 		}
-		throw new NotImplementedException("Unkown operation in interface: " + interfaceClass.getName());
+		throw new NotImplementedException("Unkown method: " + interfaceClass.getName() + "." + method.getName());
 	}
 
 	private Object doSelect(Method method, Object[] args) throws SQLException {
@@ -171,6 +171,9 @@ public class DaoProxyBean<T> implements InvocationHandler {
 			return null;
 		}
 		Map<String, Object> keys = generatedKey.getKeys();
+		if (keys.isEmpty()) {
+			throw new NoGeneratedKeyException();
+		}
 		Object value = CollectionUtils.getFirst(keys.values());
 		try {
 			return returnType.cast(value);
