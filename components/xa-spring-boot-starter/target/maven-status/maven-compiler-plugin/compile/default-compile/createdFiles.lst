@@ -16,7 +16,6 @@ com\github\paganini2008\springworld\xa\jdbc\Update.class
 com\github\paganini2008\springworld\xa\XaTransactionCompletionHandler.class
 com\github\paganini2008\springworld\xa\XaTransactional.class
 com\github\paganini2008\springworld\xa\jdbc\DaoScannerRegistrar.class
-com\github\paganini2008\springworld\xa\XaTransactionalProcessor.class
 com\github\paganini2008\springworld\xa\XaTransactionCommitment.class
 com\github\paganini2008\springworld\xa\JdbcXaTransaction.class
 com\github\paganini2008\springworld\xa\jdbc\JdbcOperationsHolder.class
@@ -36,3 +35,4 @@ com\github\paganini2008\springworld\xa\openfeign\OpenFeignConfig$XaRequestInterc
 com\github\paganini2008\springworld\xa\jdbc\DaoScan.class
 com\github\paganini2008\springworld\xa\WrappedXaTransaction.class
 com\github\paganini2008\springworld\xa\JdbcXaTransactionFactory.class
+com\github\paganini2008\springworld\xa\XaTransactionalJoinPointProcessor.class

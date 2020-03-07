@@ -7,11 +7,11 @@ F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\jdbc\ClassPathDaoScanner.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\JdbcXaTransaction.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\jdbc\DaoScannerRegistrar.java
-F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\XaTransactionalProcessor.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\JdbcXaTransactionFactory.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\openfeign\OpenFeignConfig.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\jdbc\JdbcOperationsHolder.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\XaTransactionManager.java
+F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\XaTransactionalJoinPointProcessor.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\XaTransactionFactory.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\jdbc\Example.java
 F:\github_store\springworld\components\xa-spring-boot-starter\src\main\java\com\github\paganini2008\springworld\xa\DefaultXaTransactionResponse.java
