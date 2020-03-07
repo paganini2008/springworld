@@ -31,6 +31,8 @@ import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.tx.ApplicationContextUtils;
+import com.github.paganini2008.springworld.tx.Session;
+import com.github.paganini2008.springworld.tx.SessionManager;
 
 /**
  * 

@@ -8,10 +8,10 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>xa-spring-boot-starter</artifactId>
+	<artifactId>tx-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 
-	<name>xa-spring-boot-starter</name>
+	<name>tx-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>

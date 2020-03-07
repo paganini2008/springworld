@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -21,11 +22,6 @@ import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
-import com.github.paganini2008.springworld.tx.jdbc.JdbcTransaction;
-import com.github.paganini2008.springworld.tx.jdbc.SessionManager;
-import com.github.paganini2008.springworld.tx.jdbc.TransactionManager;
-import com.github.paganini2008.springworld.tx.jdbc.TransactionalSession;
-import com.github.paganini2008.springworld.tx.jdbc.XaTransaction;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,6 +58,9 @@ public class XaTransactionalJoinPointProcessor {
 	@SuppressWarnings("unchecked")
 	@Around("signature() && @annotation(com.github.paganini2008.springworld.tx.XaTransactional)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
+		if (log.isTraceEnabled()) {
+			log.trace(pjp.getSignature().toString());
+		}
 		final XaTransactional transactionDefinition = (XaTransactional) pjp.getSignature().getDeclaringType()
 				.getAnnotation(XaTransactional.class);
 		nestable.incrementAndGet();
@@ -79,8 +78,7 @@ public class XaTransactionalJoinPointProcessor {
 		} finally {
 			if (hasXaHeader()) {
 				if (!isNestable()) {
-
-					lazyCommit(transaction, transactionDefinition, cause);
+					lazyCommit(transaction, transactionDefinition, pjp.getSignature(), cause);
 					sessionManager.reset();
 				}
 			} else {
@@ -90,6 +88,9 @@ public class XaTransactionalJoinPointProcessor {
 						completed = transaction.commit();
 					} else {
 						completed = transaction.rollback();
+					}
+					if (log.isTraceEnabled()) {
+						log.trace("{}, ok? {}, completed? {}", pjp.getSignature().toString(), ok, completed);
 					}
 					if (completed) {
 						if (redisTemplate.hasKey(transaction.getXaId())) {
@@ -102,15 +103,15 @@ public class XaTransactionalJoinPointProcessor {
 							redisTemplate.delete(transaction.getXaId());
 						}
 					}
-
-					sessionManager.reset();
 					transactionManager.closeTransaction(transaction.getXaId());
+					sessionManager.reset();
 				}
 			}
 		}
 	}
 
-	private void lazyCommit(final XaTransaction transaction, XaTransactional transactionDefinition, Throwable cause) {
+	private void lazyCommit(final XaTransaction transaction, final XaTransactional transactionDefinition, final Signature signature,
+			final Throwable cause) {
 		redisTemplate.opsForList().rightPush(transaction.getXaId(), transaction.getId());
 		redisMessageSender.subscribeChannel(transaction.getId(), new RedisMessageHandler() {
 
@@ -123,7 +124,9 @@ public class XaTransactionalJoinPointProcessor {
 				} else {
 					completed = transaction.rollback();
 				}
-				
+				if (log.isTraceEnabled()) {
+					log.trace("{}, ok? {}, completed? {}", signature.toString(), ok, completed);
+				}
 				XaTransactionResponse response = new XaTransactionResponse();
 				response.setId(transaction.getId());
 				response.setXaId(transaction.getXaId());

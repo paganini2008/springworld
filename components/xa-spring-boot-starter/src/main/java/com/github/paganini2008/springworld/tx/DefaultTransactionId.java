@@ -1,8 +1,6 @@
-package com.github.paganini2008.springworld.tx.jdbc;
+package com.github.paganini2008.springworld.tx;
 
 import java.util.UUID;
-
-import com.github.paganini2008.springworld.tx.TransactionId;
 
 /**
  * 

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.tx.jdbc;
+package com.github.paganini2008.springworld.tx;
 
 /**
  * 

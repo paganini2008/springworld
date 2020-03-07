@@ -11,11 +11,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.springworld.tx.jdbc.Transaction;
-import com.github.paganini2008.springworld.tx.jdbc.TransactionFactory;
-import com.github.paganini2008.springworld.tx.jdbc.TransactionManager;
-import com.github.paganini2008.springworld.tx.jdbc.XaTransaction;
-import com.github.paganini2008.springworld.tx.jdbc.XaTransactionImpl;
 
 import lombok.extern.slf4j.Slf4j;
 

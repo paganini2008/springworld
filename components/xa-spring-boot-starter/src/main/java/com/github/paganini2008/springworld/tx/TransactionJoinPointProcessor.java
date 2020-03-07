@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.tx.jdbc;
+package com.github.paganini2008.springworld.tx;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
-import com.github.paganini2008.springworld.tx.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 

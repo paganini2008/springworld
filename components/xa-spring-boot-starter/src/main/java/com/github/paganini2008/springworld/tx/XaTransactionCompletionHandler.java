@@ -18,8 +18,9 @@ public class XaTransactionCompletionHandler {
 
 	@OnMessage
 	public void onMessage(String channel, Object message) {
-		log.info(message.toString());
-		// XaTransactionContext.current().complete((XaTransactionResponse) message);
+		if (log.isTraceEnabled()) {
+			log.trace(message.toString());
+		}
 	}
 
 }
