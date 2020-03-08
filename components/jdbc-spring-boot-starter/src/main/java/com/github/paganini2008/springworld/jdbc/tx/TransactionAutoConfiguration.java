@@ -1,13 +1,10 @@
 package com.github.paganini2008.springworld.jdbc.tx;
 
-import java.util.concurrent.ThreadPoolExecutor;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.db4j.SqlPlus;
 import com.github.paganini2008.springworld.jdbc.tx.openfeign.OpenFeignConfig;
@@ -46,15 +43,6 @@ public class TransactionAutoConfiguration {
 	@Bean
 	public TransactionEventListenerContainer transactionEventListenerContainer() {
 		return new TransactionEventListenerContainer();
-	}
-
-	@Bean("threadPoolBean")
-	public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
-		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-		taskExecutor.setCorePoolSize(threadCount);
-		taskExecutor.setMaxPoolSize(threadCount);
-		taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
-		return taskExecutor;
 	}
 
 }
