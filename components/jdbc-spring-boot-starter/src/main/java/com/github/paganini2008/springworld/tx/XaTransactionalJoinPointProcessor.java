@@ -115,6 +115,9 @@ public class XaTransactionalJoinPointProcessor {
 						if (redisTemplate.hasKey(transaction.getXaId())) {
 							List<String> transactionIds = redisTemplate.opsForList().range(transaction.getXaId(), 0, -1);
 							if (CollectionUtils.isNotEmpty(transactionIds)) {
+								if (log.isTraceEnabled()) {
+									log.trace("Call XA transactionIds: " + transactionIds);
+								}
 								for (String transactionId : transactionIds) {
 									redisMessageSender.sendMessage("commitment:" + transaction.getXaId() + ":" + transactionId, ok);
 								}
@@ -165,6 +168,10 @@ public class XaTransactionalJoinPointProcessor {
 				return "commitment:" + transaction.getXaId() + ":" + transaction.getId();
 			}
 		});
+		
+		if (log.isTraceEnabled()) {
+			log.trace("Asynchronously waiting for committment to finish this transaction.");
+		}
 	}
 
 	private boolean hasXaHeader() {
