@@ -8,8 +8,6 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
-import com.github.paganini2008.springworld.tx.ApplicationContextUtils;
-
 /**
  * 
  * DaoScan

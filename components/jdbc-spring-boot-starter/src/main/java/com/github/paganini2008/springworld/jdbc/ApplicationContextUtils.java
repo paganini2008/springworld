@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.tx;
+package com.github.paganini2008.springworld.jdbc;
 
 import java.util.HashMap;
 import java.util.Map;
