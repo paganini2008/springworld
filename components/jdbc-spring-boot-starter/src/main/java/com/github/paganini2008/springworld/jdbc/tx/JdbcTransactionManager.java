@@ -57,6 +57,8 @@ public class JdbcTransactionManager implements TransactionManager {
 
 	@Override
 	public void closeTransaction(String id) {
+		transactionEventPublisher.beforeClose(id);
+		
 		Transaction transaction = threadLocal.get();
 		if (transaction != null) {
 			if (!transaction.isCompleted()) {
@@ -66,7 +68,6 @@ public class JdbcTransactionManager implements TransactionManager {
 			if (log.isTraceEnabled()) {
 				log.trace("Close transaction: " + transaction.toString());
 			}
-			transactionEventPublisher.beforeClose(id);
 		}
 	}
 

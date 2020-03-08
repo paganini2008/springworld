@@ -3,6 +3,9 @@ package com.github.paganini2008.springworld.jdbc.tx;
 import static com.github.paganini2008.springworld.jdbc.tx.XaTransactionManager.XA_HTTP_REQUEST_IDENTITY;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,12 +18,14 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.devtools.db4j.TransactionException;
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
@@ -55,6 +60,9 @@ public class XaTransactionalJoinPointProcessor {
 	@Autowired
 	private TransactionEventListenerContainer listenerContainer;
 
+	@Autowired
+	private ThreadPoolTaskExecutor taskExecutor;
+
 	private final ThreadLocalInteger nestable = new ThreadLocalInteger(0);
 
 	@Pointcut("execution(public * *(..))")
@@ -88,12 +96,32 @@ public class XaTransactionalJoinPointProcessor {
 		boolean ok = true;
 		Throwable cause = null;
 		try {
-			return pjp.proceed();
+			if (nestable.get() == 1) {
+				Future<Object> future = taskExecutor.submit(new Callable<Object>() {
+					@Override
+					public Object call() throws Exception {
+						try {
+							return pjp.proceed();
+						} catch (Throwable e) {
+							if (e instanceof XaTransactionException) {
+								throw (XaTransactionException) e;
+							}
+							throw new XaTransactionException(e);
+						}
+					}
+				});
+				return future.get(transactionDefinition.timeout(), TimeUnit.SECONDS);
+			} else {
+				return pjp.proceed();
+			}
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
 			ok = false;
 			cause = e;
-			throw e;
+			if (e instanceof XaTransactionException) {
+				throw (XaTransactionException) e;
+			}
+			throw new XaTransactionException(e);
 		} finally {
 			if (hasXaHeader()) {
 				if (!isNestable()) {
@@ -168,7 +196,7 @@ public class XaTransactionalJoinPointProcessor {
 				return "commitment:" + transaction.getXaId() + ":" + transaction.getId();
 			}
 		});
-		
+
 		if (log.isTraceEnabled()) {
 			log.trace("Asynchronously waiting for committment to finish this transaction.");
 		}

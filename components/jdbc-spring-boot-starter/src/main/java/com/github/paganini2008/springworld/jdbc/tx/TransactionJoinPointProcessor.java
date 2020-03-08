@@ -1,5 +1,9 @@
 package com.github.paganini2008.springworld.jdbc.tx;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -7,8 +11,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.devtools.db4j.TransactionException;
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 
@@ -34,6 +40,9 @@ public class TransactionJoinPointProcessor {
 
 	@Autowired
 	private TransactionEventListenerContainer listenerContainer;
+
+	@Autowired
+	private ThreadPoolTaskExecutor taskExecutor;
 
 	private final ThreadLocalInteger nestable = new ThreadLocalInteger(0);
 
@@ -66,12 +75,32 @@ public class TransactionJoinPointProcessor {
 		boolean ok = true;
 		Throwable cause = null;
 		try {
-			return pjp.proceed();
+			if (nestable.get() == 1) {
+				Future<Object> future = taskExecutor.submit(new Callable<Object>() {
+					@Override
+					public Object call() throws Exception {
+						try {
+							return pjp.proceed();
+						} catch (Throwable e) {
+							if (e instanceof TransactionException) {
+								throw (TransactionException) e;
+							}
+							throw new TransactionException(e);
+						}
+					}
+				});
+				return future.get(transactionDefinition.timeout(), TimeUnit.SECONDS);
+			} else {
+				return pjp.proceed();
+			}
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
 			ok = false;
 			cause = e;
-			throw e;
+			if (e instanceof TransactionException) {
+				throw (TransactionException) e;
+			}
+			throw new TransactionException(e);
 		} finally {
 			if (!isNestable()) {
 				boolean completed;

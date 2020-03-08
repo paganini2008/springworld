@@ -66,6 +66,7 @@ public class XaTransactionManager implements TransactionManager {
 
 	@Override
 	public void closeTransaction(String xaId) {
+		transactionEventPublisher.beforeClose(xaId);
 		XaTransaction transaction = holder.remove(xaId);
 		if (transaction != null) {
 			if (!transaction.isCompleted()) {
@@ -74,8 +75,6 @@ public class XaTransactionManager implements TransactionManager {
 			if (log.isTraceEnabled()) {
 				log.trace("Close transaction: " + transaction.toString());
 			}
-			transactionEventPublisher.beforeClose(xaId);
-
 		}
 	}
 
