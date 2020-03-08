@@ -62,6 +62,8 @@ public class OpenFeignConfig {
 					}
 					template.header(XA_HTTP_REQUEST_IDENTITY, xaId);
 				}
+			} else {
+				log.warn("Can not get HttpServletRequest from RequestContextHolder for running XA Request, please check it.");
 			}
 		}
 
