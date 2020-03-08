@@ -11,6 +11,7 @@ import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -60,7 +61,6 @@ public class XaTransactionalJoinPointProcessor {
 	public void signature() {
 	}
 
-	@SuppressWarnings("unchecked")
 	@Around("signature() && @annotation(com.github.paganini2008.springworld.tx.XaTransactional)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
 		if (log.isTraceEnabled()) {
@@ -72,8 +72,8 @@ public class XaTransactionalJoinPointProcessor {
 				sessionManager.set(new TransactionalSession((JdbcTransaction) transaction));
 			}
 		}
-		XaTransactional transactionDefinition = (XaTransactional) pjp.getSignature().getDeclaringType()
-				.getAnnotation(XaTransactional.class);
+		MethodSignature signature = (MethodSignature) pjp.getSignature();
+		XaTransactional transactionDefinition = signature.getMethod().getAnnotation(XaTransactional.class);
 		if (transactionDefinition.subscribeEvent() != null) {
 			if (StringUtils.isNotBlank(transactionDefinition.eventHandler())) {
 				listenerContainer.registerEventListener(transactionDefinition.subscribeEvent(), transaction.getXaId(), event -> {

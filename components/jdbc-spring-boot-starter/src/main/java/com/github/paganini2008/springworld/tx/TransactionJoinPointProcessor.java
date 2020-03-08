@@ -86,6 +86,7 @@ public class TransactionJoinPointProcessor {
 					}
 				}
 				transactionManager.closeTransaction(transaction.getId());
+				sessionManager.reset();
 			}
 		}
 	}
