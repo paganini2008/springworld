@@ -4,12 +4,12 @@ import java.util.UUID;
 
 /**
  * 
- * UuidTransactionId
+ * UuidIdGenerator
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class UuidTransactionId implements IdGenerator {
+public class UuidIdGenerator implements IdGenerator {
 
 	@Override
 	public String generateTransactionId() {

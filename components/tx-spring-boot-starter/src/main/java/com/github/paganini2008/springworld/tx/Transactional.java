@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Transactional {
 
-	Class<? extends Throwable>[] rollbackFor() default {};
+	Class<? extends Throwable>[] rollbackFor() default Throwable.class;
 
 	TransactionPhase subscribeEvent() default TransactionPhase.BEFORE_CLOSE;
 

@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -40,7 +41,6 @@ public class TransactionJoinPointProcessor {
 	public void signature() {
 	}
 
-	@SuppressWarnings("unchecked")
 	@Around("signature() && @annotation(com.github.paganini2008.springworld.tx.Transactional)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
 		if (log.isTraceEnabled()) {
@@ -50,7 +50,8 @@ public class TransactionJoinPointProcessor {
 		if (nestable.incrementAndGet() == 1) {
 			sessionManager.set(new TransactionalSession((JdbcTransaction) transaction));
 		}
-		Transactional transactionDefinition = (Transactional) pjp.getSignature().getDeclaringType().getAnnotation(Transactional.class);
+		MethodSignature signature = (MethodSignature) pjp.getSignature();
+		Transactional transactionDefinition = signature.getMethod().getAnnotation(Transactional.class);
 		if (transactionDefinition.subscribeEvent() != null) {
 			if (StringUtils.isNotBlank(transactionDefinition.eventHandler())) {
 				listenerContainer.registerEventListener(transactionDefinition.subscribeEvent(), transaction.getId(), event -> {

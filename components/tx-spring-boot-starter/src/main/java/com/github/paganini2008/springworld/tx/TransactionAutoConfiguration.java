@@ -16,8 +16,14 @@ import com.github.paganini2008.springworld.tx.openfeign.OpenFeignConfig;
  * @version 1.0
  */
 @Configuration
-@Import({ JdbcTransactionConfig.class, XaTransactionConfig.class, ApplicationContextUtils.class, OpenFeignConfig.class })
+@Import({ JdbcTransactionConfig.class, XaTransactionConfig.class, OpenFeignConfig.class })
 public class TransactionAutoConfiguration {
+	
+	@Bean
+	@ConditionalOnMissingBean(IdGenerator.class)
+	public IdGenerator uuidIdGenerator() {
+		return new UuidIdGenerator();
+	}
 
 	@Bean
 	@ConditionalOnMissingBean(SqlPlus.class)
