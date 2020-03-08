@@ -6,8 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.github.paganini2008.devtools.jdbc.TransactionIsolationLevel;
-
 /**
  * 
  * XaTransactional
@@ -21,9 +19,11 @@ import com.github.paganini2008.devtools.jdbc.TransactionIsolationLevel;
 public @interface XaTransactional {
 
 	Class<? extends Throwable>[] rollbackFor() default {};
+	
+	TransactionPhase subscribeEvent() default TransactionPhase.BEFORE_CLOSE;
+
+	String eventHandler() default "";
 
 	int timeout() default 10;
-
-	TransactionIsolationLevel transactionIsolationLevel() default TransactionIsolationLevel.NONE;
 
 }

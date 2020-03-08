@@ -18,8 +18,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.github.paganini2008.devtools.ExceptionUtils;
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
+import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
@@ -49,6 +51,9 @@ public class XaTransactionalJoinPointProcessor {
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 
+	@Autowired
+	private TransactionEventListenerContainer listenerContainer;
+
 	private final ThreadLocalInteger nestable = new ThreadLocalInteger(0);
 
 	@Pointcut("execution(public * *(..))")
@@ -61,13 +66,27 @@ public class XaTransactionalJoinPointProcessor {
 		if (log.isTraceEnabled()) {
 			log.trace(pjp.getSignature().toString());
 		}
-		final XaTransactional transactionDefinition = (XaTransactional) pjp.getSignature().getDeclaringType()
+		XaTransaction transaction = (XaTransaction) transactionManager.currentTransaction();
+		if (nestable.incrementAndGet() == 1) {
+			if (transaction instanceof JdbcTransaction) {
+				sessionManager.set(new TransactionalSession((JdbcTransaction) transaction));
+			}
+		}
+		XaTransactional transactionDefinition = (XaTransactional) pjp.getSignature().getDeclaringType()
 				.getAnnotation(XaTransactional.class);
-		nestable.incrementAndGet();
+		if (transactionDefinition.subscribeEvent() != null) {
+			if (StringUtils.isNotBlank(transactionDefinition.eventHandler())) {
+				listenerContainer.registerEventListener(transactionDefinition.subscribeEvent(), transaction.getXaId(), event -> {
+					try {
+						MethodUtils.invokeMethod(pjp.getTarget(), transactionDefinition.eventHandler(), event);
+					} catch (RuntimeException ignored) {
+						log.warn(ignored.getMessage(), ignored);
+					}
+				});
+			}
+		}
 		boolean ok = true;
 		Throwable cause = null;
-		XaTransaction transaction = (XaTransaction) transactionManager.openTransaction();
-		bindSession(transaction);
 		try {
 			return pjp.proceed();
 		} catch (Throwable e) {
@@ -148,12 +167,6 @@ public class XaTransactionalJoinPointProcessor {
 		});
 	}
 
-	private void bindSession(XaTransaction transaction) {
-		if (transaction.getTransaction() instanceof JdbcTransaction) {
-			sessionManager.set(new TransactionalSession((JdbcTransaction) transaction.getTransaction()));
-		}
-	}
-
 	private boolean hasXaHeader() {
 		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 		return httpServletRequest.getParameter(XA_HTTP_REQUEST_IDENTITY) != null
@@ -171,7 +184,7 @@ public class XaTransactionalJoinPointProcessor {
 
 	private boolean dontRollback(Throwable cause, XaTransactional transactionDefinition) {
 		if (cause == null) {
-			return true;
+			return false;
 		}
 		Class<?>[] exceptionClasses = transactionDefinition.rollbackFor();
 		if (exceptionClasses != null) {

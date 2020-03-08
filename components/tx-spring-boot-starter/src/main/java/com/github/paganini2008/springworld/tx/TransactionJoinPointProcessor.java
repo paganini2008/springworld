@@ -7,7 +7,9 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
+import com.github.paganini2008.devtools.reflection.MethodUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,12 +24,15 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 public class TransactionJoinPointProcessor {
 
-	@Qualifier("local-transaction-manager")
+	@Qualifier("jdbc-transaction-manager")
 	@Autowired
 	private TransactionManager transactionManager;
 
 	@Autowired
 	private SessionManager sessionManager;
+
+	@Autowired
+	private TransactionEventListenerContainer listenerContainer;
 
 	private final ThreadLocalInteger nestable = new ThreadLocalInteger(0);
 
@@ -38,11 +43,24 @@ public class TransactionJoinPointProcessor {
 	@SuppressWarnings("unchecked")
 	@Around("signature() && @annotation(com.github.paganini2008.springworld.tx.Transactional)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
-		final Transactional transactionDefinition = (Transactional) pjp.getSignature().getDeclaringType()
-				.getAnnotation(Transactional.class);
-		Transaction transaction = transactionManager.openTransaction();
+		if (log.isTraceEnabled()) {
+			log.trace(pjp.getSignature().toString());
+		}
+		Transaction transaction = transactionManager.currentTransaction();
 		if (nestable.incrementAndGet() == 1) {
 			sessionManager.set(new TransactionalSession((JdbcTransaction) transaction));
+		}
+		Transactional transactionDefinition = (Transactional) pjp.getSignature().getDeclaringType().getAnnotation(Transactional.class);
+		if (transactionDefinition.subscribeEvent() != null) {
+			if (StringUtils.isNotBlank(transactionDefinition.eventHandler())) {
+				listenerContainer.registerEventListener(transactionDefinition.subscribeEvent(), transaction.getId(), event -> {
+					try {
+						MethodUtils.invokeMethod(pjp.getTarget(), transactionDefinition.eventHandler(), event);
+					} catch (RuntimeException ignored) {
+						log.warn(ignored.getMessage(), ignored);
+					}
+				});
+			}
 		}
 		boolean ok = true;
 		Throwable cause = null;
@@ -55,11 +73,18 @@ public class TransactionJoinPointProcessor {
 			throw e;
 		} finally {
 			if (!isNestable()) {
+				boolean completed;
 				if (ok || dontRollback(cause, transactionDefinition)) {
-					transaction.commit();
+					completed = transaction.commit();
 				} else {
-					transaction.rollback();
+					completed = transaction.rollback();
 				}
+				if (!completed) {
+					if (log.isTraceEnabled()) {
+						log.trace("The transaction: {} is not completed.", transaction);
+					}
+				}
+				transactionManager.closeTransaction(transaction.getId());
 			}
 		}
 	}

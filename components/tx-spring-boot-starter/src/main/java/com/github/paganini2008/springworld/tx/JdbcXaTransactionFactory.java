@@ -10,12 +10,12 @@ import com.github.paganini2008.devtools.db4j.TransactionException;
 
 /**
  * 
- * JdbcTransactionFactory
+ * JdbcXaTransactionFactory
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class JdbcTransactionFactory implements TransactionFactory {
+public class JdbcXaTransactionFactory implements XaTransactionFactory {
 
 	@Autowired
 	private SqlPlus sqlPlus;
@@ -23,15 +23,18 @@ public class JdbcTransactionFactory implements TransactionFactory {
 	@Autowired
 	private TransactionEventPublisher transactionEventPublisher;
 
+	@Autowired
+	private IdGenerator idGenerator;
+
 	@Override
-	public JdbcTransaction createTransaction(String id) {
+	public XaTransaction newTransaction(String xaId) {
 		Transaction transaction;
 		try {
 			transaction = sqlPlus.beginTransaction();
 		} catch (SQLException e) {
 			throw new TransactionException(e);
 		}
-		return new JdbcTransaction(id, transaction, transactionEventPublisher);
+		return new JdbcXaTransaction(xaId, idGenerator.generateTransactionId(), transaction, transactionEventPublisher);
 	}
 
 }

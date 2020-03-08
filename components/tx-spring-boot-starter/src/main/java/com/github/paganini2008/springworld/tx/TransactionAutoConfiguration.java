@@ -21,14 +21,18 @@ public class TransactionAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(SqlPlus.class)
-	public TransactionFactory noopTransactionFactory() {
-		return new NoopTransactionFactory();
+	public XaTransactionFactory noopXaTransactionFactory() {
+		return new NoopXaTransactionFactory();
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(TransactionEventListener.class)
-	public TransactionEventListener transactionEventListener() {
-		return new DefaultTransactionEventListener();
+	public TransactionEventPublisher transactionEventPublisher() {
+		return new TransactionEventPublisher();
+	}
+	
+	@Bean
+	public TransactionEventListenerContainer transactionEventListenerContainer() {
+		return new TransactionEventListenerContainer();
 	}
 
 }

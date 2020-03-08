@@ -9,8 +9,14 @@ package com.github.paganini2008.springworld.tx;
  */
 public interface TransactionManager {
 
-	Transaction openTransaction();
+	Transaction currentTransaction();
 	
+	default String currentTransactionId() {
+		return currentTransaction().getId();
+	}
+
 	void closeTransaction(String id);
-	
+
+	void registerEventListener(TransactionPhase transactionPhase, String id, TransactionEventListener eventListener);
+
 }

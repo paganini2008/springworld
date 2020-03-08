@@ -10,7 +10,5 @@ package com.github.paganini2008.springworld.tx;
 public interface XaTransaction extends Transaction {
 
 	String getXaId();
-	
-	Transaction getTransaction();
 
 }

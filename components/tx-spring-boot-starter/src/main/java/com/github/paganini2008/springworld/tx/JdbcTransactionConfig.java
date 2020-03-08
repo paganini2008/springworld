@@ -32,9 +32,9 @@ public class JdbcTransactionConfig {
 		return new SessionManager();
 	}
 
-	@Bean("local-transaction-manager")
-	public TransactionManager localTransactionManager() {
-		return new LocalTransactionManager();
+	@Bean("jdbc-transaction-manager")
+	public TransactionManager jdbcTransactionManager() {
+		return new JdbcTransactionManager();
 	}
 
 }

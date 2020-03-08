@@ -29,37 +29,53 @@ public class XaTransactionManager implements TransactionManager {
 	private final Map<String, XaTransaction> holder = new ConcurrentHashMap<String, XaTransaction>();
 
 	@Autowired
-	private TransactionFactory transactionFactory;
+	private XaTransactionFactory xaTransactionFactory;
 
 	@Autowired
-	private TransactionId transactionId;
+	private IdGenerator idGenerator;
+
+	@Autowired
+	private TransactionEventPublisher transactionEventPublisher;
+
+	@Autowired
+	private TransactionEventListenerContainer eventListenerContainer;
 
 	@Override
-	public Transaction openTransaction() {
+	public Transaction currentTransaction() {
 		final String xaId = getXaId();
 		XaTransaction xaTansaction = MapUtils.get(holder, xaId, () -> {
-			Transaction transaction = transactionFactory.createTransaction(transactionId.generateId());
-			return new XaTransactionImpl(xaId, transaction);
+			XaTransaction newTransaction = xaTransactionFactory.newTransaction(xaId);
+			if (log.isTraceEnabled()) {
+				log.trace("New XaTransaction: " + newTransaction.toString());
+			}
+			transactionEventPublisher.afterCreate(xaId);
+			return newTransaction;
 		});
-		if (log.isTraceEnabled()) {
-			log.trace("Current transaction: " + xaTansaction.toString());
-		}
 		return xaTansaction;
 	}
 
 	@Override
+	public void registerEventListener(TransactionPhase transactionPhase, String id, TransactionEventListener eventListener) {
+		eventListenerContainer.registerEventListener(transactionPhase, id, eventListener);
+	}
+
+	@Override
+	public String currentTransactionId() {
+		return ((XaTransaction) currentTransaction()).getXaId();
+	}
+
+	@Override
 	public void closeTransaction(String xaId) {
-		Transaction transaction = holder.remove(xaId);
+		XaTransaction transaction = holder.remove(xaId);
 		if (transaction != null) {
-			try {
-				if (!transaction.isCompleted()) {
-					transaction.rollback();
-				}
-			} finally {
-				if (log.isTraceEnabled()) {
-					log.trace("Close transaction: " + transaction.toString());
-				}
+			if (!transaction.isCompleted()) {
+				transaction.rollback();
 			}
+			if (log.isTraceEnabled()) {
+				log.trace("Close transaction: " + transaction.toString());
+			}
+			transactionEventPublisher.beforeClose(xaId);
+
 		}
 	}
 
@@ -74,7 +90,7 @@ public class XaTransactionManager implements TransactionManager {
 			xaId = httpServletRequest.getHeader(XA_HTTP_REQUEST_IDENTITY);
 		}
 		if (StringUtils.isBlank(xaId)) {
-			xaId = transactionId.generateXaId();
+			xaId = idGenerator.generateXaTransactionId();
 		}
 		httpServletRequest.setAttribute(XA_HTTP_REQUEST_IDENTITY, xaId);
 		return xaId;

@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.tx;
 
+import java.util.EventListener;
+
 /**
  * 
  * TransactionEventListener
@@ -7,14 +9,8 @@ package com.github.paganini2008.springworld.tx;
  * @author Fred Feng
  * @version 1.0
  */
-public interface TransactionEventListener {
+public interface TransactionEventListener extends EventListener {
 
-	void beforeCommit(String id);
-
-	void afterCommit(String id, Throwable cause);
-
-	void beforeRollback(String id);
-
-	void afterRollback(String id, Throwable cause);
+	void fireTransactionEvent(TransactionEvent event);
 
 }

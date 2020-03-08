@@ -8,6 +8,8 @@ package com.github.paganini2008.springworld.tx;
  * @version 1.0
  */
 public enum TransactionPhase {
+	
+	AFTER_CREATE,
 
 	BEFORE_COMMIT,
 
@@ -15,6 +17,8 @@ public enum TransactionPhase {
 	
 	BEFORE_ROLLBACK,
 
-	AFTER_ROLLBACK;
+	AFTER_ROLLBACK,
+	
+	BEFORE_CLOSE;
 	
 }

@@ -4,20 +4,20 @@ import java.util.UUID;
 
 /**
  * 
- * DefaultTransactionId
+ * UuidTransactionId
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class DefaultTransactionId implements TransactionId {
+public class UuidTransactionId implements IdGenerator {
 
 	@Override
-	public String generateId() {
+	public String generateTransactionId() {
 		return UUID.randomUUID().toString().replace("-", "");
 	}
 
 	@Override
-	public String generateXaId() {
+	public String generateXaTransactionId() {
 		return "XA-" + UUID.randomUUID().toString().replace("-", "");
 	}
 
