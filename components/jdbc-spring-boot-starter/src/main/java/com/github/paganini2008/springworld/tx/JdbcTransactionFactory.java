@@ -24,7 +24,7 @@ public class JdbcTransactionFactory implements TransactionFactory {
 	private TransactionEventPublisher transactionEventPublisher;
 
 	@Override
-	public JdbcTransaction createTransaction(String id) {
+	public JdbcTransaction newTransaction(String id) {
 		Transaction transaction;
 		try {
 			transaction = sqlPlus.beginTransaction();

@@ -9,6 +9,6 @@ package com.github.paganini2008.springworld.tx;
  */
 public interface TransactionFactory {
 
-	Transaction createTransaction(String id);
+	Transaction newTransaction(String id);
 
 }

@@ -19,7 +19,7 @@ public class JdbcTransactionManager implements TransactionManager {
 		@Override
 		protected Transaction initialValue() {
 			final String id = idGenerator.generateTransactionId();
-			Transaction newTransaction = transactionFactory.createTransaction(id);
+			Transaction newTransaction = transactionFactory.newTransaction(id);
 			if (log.isTraceEnabled()) {
 				log.trace("New transaction: " + newTransaction.toString());
 			}
