@@ -5,7 +5,7 @@ import java.lang.reflect.Proxy;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.tx.SessionManager;
+import com.github.paganini2008.springworld.jdbc.tx.SessionManager;
 
 /**
  * 
