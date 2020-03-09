@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.tx;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,12 @@ public class XaTransactionConfig {
 	@ConditionalOnBean(SqlPlus.class)
 	public XaTransactionFactory jdbcXaTransactionFactory() {
 		return new JdbcXaTransactionFactory();
+	}
+	
+	@Bean
+	@ConditionalOnMissingBean(SqlPlus.class)
+	public XaTransactionFactory noopXaTransactionFactory() {
+		return new NoopXaTransactionFactory();
 	}
 
 	@Bean("xa-transaction-manager")

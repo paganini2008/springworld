@@ -2,6 +2,8 @@ package com.github.paganini2008.springworld.jdbc.optional;
 
 import java.lang.reflect.Proxy;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,13 +23,13 @@ public class SpringDaoProxyBeanFactory<T> implements FactoryBean<T> {
 	}
 
 	@Autowired
-	private EnhancedJdbcTemplate jdbcTemplate;
+	private DataSource dataSource;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject() throws Exception {
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] { interfaceClass },
-				new SpringDaoProxyBean<T>(interfaceClass, jdbcTemplate));
+				new SpringDaoProxyBean<T>(interfaceClass, dataSource));
 	}
 
 	@Override

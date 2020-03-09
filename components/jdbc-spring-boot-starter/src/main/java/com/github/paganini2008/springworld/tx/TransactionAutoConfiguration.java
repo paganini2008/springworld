@@ -1,14 +1,8 @@
 package com.github.paganini2008.springworld.tx;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.github.paganini2008.devtools.db4j.SqlPlus;
-import com.github.paganini2008.springworld.jdbc.Db4jConfig;
-import com.github.paganini2008.springworld.jdbc.optional.SpringDaoConfig;
 import com.github.paganini2008.springworld.tx.openfeign.OpenFeignConfig;
 
 /**
@@ -19,37 +13,6 @@ import com.github.paganini2008.springworld.tx.openfeign.OpenFeignConfig;
  * @version 1.0
  */
 @Configuration
-@Import({ Db4jConfig.class, SpringDaoConfig.class, JdbcTransactionConfig.class, XaTransactionConfig.class, OpenFeignConfig.class })
+@Import({ JdbcTransactionConfig.class, XaTransactionConfig.class, OpenFeignConfig.class })
 public class TransactionAutoConfiguration {
-
-	@Value("${spring.application.transaction.executor.threadCount:8}")
-	private int threadCount;
-
-	@Bean
-	@ConditionalOnMissingBean(IdGenerator.class)
-	public IdGenerator uuidIdGenerator() {
-		return new UuidIdGenerator();
-	}
-	
-	@Bean
-	public SessionManager sessionManager() {
-		return new SessionManager();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(SqlPlus.class)
-	public XaTransactionFactory noopXaTransactionFactory() {
-		return new NoopXaTransactionFactory();
-	}
-
-	@Bean
-	public TransactionEventPublisher transactionEventPublisher() {
-		return new TransactionEventPublisher();
-	}
-
-	@Bean
-	public TransactionEventListenerContainer transactionEventListenerContainer() {
-		return new TransactionEventListenerContainer();
-	}
-
 }

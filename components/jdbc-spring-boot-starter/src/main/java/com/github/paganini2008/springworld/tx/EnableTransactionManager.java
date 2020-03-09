@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbc;
+package com.github.paganini2008.springworld.tx;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -10,19 +10,15 @@ import org.springframework.context.annotation.Import;
 
 /**
  * 
- * DaoScan
+ * EnableTransactionManager
  *
  * @author Fred Feng
  * @version 1.0
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({ DaoScannerRegistrar.class, DaoConfig.class, ApplicationContextUtils.class })
-public @interface DaoScan {
-
-	String[] basePackages();
-
-	boolean springSupported() default false;
+@Import({ TransactionAutoConfiguration.class })
+public @interface EnableTransactionManager {
 
 }
