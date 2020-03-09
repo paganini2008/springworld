@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
@@ -43,19 +45,17 @@ import com.github.paganini2008.springworld.jdbcplus.annotations.Update;
  * @version 1.0
  */
 @SuppressWarnings("all")
-public class DaoProxyBean<T> implements InvocationHandler {
+public class DaoProxyBean<T> extends EnhancedJdbcDaoSupport implements InvocationHandler {
 
 	private final Class<T> interfaceClass;
 	protected final Logger log;
 
-	public DaoProxyBean(Class<T> interfaceClass, EnhancedJdbcTemplate jdbcTemplate) {
-		Assert.isNull(jdbcTemplate, "EnhancedJdbcTemplate must be required.");
+	public DaoProxyBean(Class<T> interfaceClass, DataSource dataSource) {
+		Assert.isNull(dataSource, "DataSource must be required.");
 		this.interfaceClass = interfaceClass;
 		this.log = LoggerFactory.getLogger(interfaceClass);
-		this.jdbcTemplate = jdbcTemplate;
+		this.setDataSource(dataSource);
 	}
-
-	private final EnhancedJdbcTemplate jdbcTemplate;
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -90,12 +90,12 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		Class<?> elementType = select.elementType();
 		if (select.javaType()) {
-			return jdbcTemplate.queryForList(sql, sqlParameterSource, elementType);
+			return getNamedParameterJdbcTemplate().queryForList(sql, sqlParameterSource, elementType);
 		} else {
 			if (Map.class.isAssignableFrom(elementType)) {
-				return jdbcTemplate.queryForList(sql, sqlParameterSource);
+				return getNamedParameterJdbcTemplate().queryForList(sql, sqlParameterSource);
 			} else {
-				return jdbcTemplate.query(sql, sqlParameterSource, new BeanPropertyRowMapper<>(elementType));
+				return getNamedParameterJdbcTemplate().query(sql, sqlParameterSource, new BeanPropertyRowMapper<>(elementType));
 			}
 		}
 	}
@@ -121,12 +121,12 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		Class<?> elementType = slice.elementType();
 		if (slice.javaType()) {
-			return jdbcTemplate.slice(pageableSql, sqlParameterSource, elementType);
+			return getNamedParameterJdbcTemplate().slice(pageableSql, sqlParameterSource, elementType);
 		} else {
 			if (Map.class.isAssignableFrom(elementType)) {
-				return jdbcTemplate.slice(pageableSql, sqlParameterSource);
+				return getNamedParameterJdbcTemplate().slice(pageableSql, sqlParameterSource);
 			} else {
-				return jdbcTemplate.slice(pageableSql, sqlParameterSource, new BeanPropertyRowMapper<>(elementType));
+				return getNamedParameterJdbcTemplate().slice(pageableSql, sqlParameterSource, new BeanPropertyRowMapper<>(elementType));
 			}
 		}
 	}
@@ -143,12 +143,12 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		if (getter.javaType()) {
-			return jdbcTemplate.queryForObject(sql, sqlParameterSource, returnType);
+			return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource, returnType);
 		} else {
 			if (Map.class.isAssignableFrom(returnType)) {
-				return jdbcTemplate.queryForObject(sql, sqlParameterSource, new ColumnMapRowMapper());
+				return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource, new ColumnMapRowMapper());
 			} else {
-				return jdbcTemplate.queryForObject(sql, sqlParameterSource, new BeanPropertyRowMapper<>(returnType));
+				return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource, new BeanPropertyRowMapper<>(returnType));
 			}
 		}
 	}
@@ -162,7 +162,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		int effected = jdbcTemplate.update(sql, sqlParameterSource, keyHolder);
+		int effected = getNamedParameterJdbcTemplate().update(sql, sqlParameterSource, keyHolder);
 		if (effected == 0) {
 			throw new InvalidDataAccessResourceUsageException("Failed to insert a new record by sql: " + sql);
 		}
@@ -187,7 +187,7 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		}
 
 		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
-		int effectedRows = jdbcTemplate.update(sql, sqlParameterSource);
+		int effectedRows = getNamedParameterJdbcTemplate().update(sql, sqlParameterSource);
 		Class<?> returnType = method.getReturnType();
 		if (returnType == void.class || returnType == Void.class) {
 			return null;
