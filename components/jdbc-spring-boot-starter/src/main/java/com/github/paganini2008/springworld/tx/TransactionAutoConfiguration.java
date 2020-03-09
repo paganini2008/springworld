@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
 
 import com.github.paganini2008.devtools.db4j.SqlPlus;
 import com.github.paganini2008.springworld.jdbc.Db4jConfig;
-import com.github.paganini2008.springworld.jdbcplus.SpringDaoConfig;
+import com.github.paganini2008.springworld.jdbc.optional.SpringDaoConfig;
 import com.github.paganini2008.springworld.tx.openfeign.OpenFeignConfig;
 
 /**

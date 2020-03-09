@@ -25,6 +25,7 @@ import com.github.paganini2008.devtools.db4j.MapSqlParameter;
 import com.github.paganini2008.devtools.db4j.SqlParameter;
 import com.github.paganini2008.devtools.db4j.mapper.BeanPropertyRowMapper;
 import com.github.paganini2008.devtools.db4j.mapper.ColumnIndexRowMapper;
+import com.github.paganini2008.devtools.db4j.mapper.MapRowMapper;
 import com.github.paganini2008.devtools.db4j.mapper.TupleRowMapper;
 import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
@@ -92,6 +93,8 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		} else {
 			if (Tuple.class.isAssignableFrom(elementType)) {
 				return jdbcOperations.queryForList(sql, sqlParameter);
+			} else if (Map.class.isAssignableFrom(elementType)) {
+				return jdbcOperations.queryForList(sql, sqlParameter, new MapRowMapper());
 			} else {
 				return jdbcOperations.queryForList(sql, sqlParameter, new BeanPropertyRowMapper<>(elementType));
 			}
@@ -124,6 +127,8 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		} else {
 			if (Tuple.class.isAssignableFrom(elementType)) {
 				return jdbcOperations.queryForPage(pageableSql, sqlParameter);
+			} else if (Map.class.isAssignableFrom(elementType)) {
+				return jdbcOperations.queryForPage(pageableSql, sqlParameter, new MapRowMapper());
 			} else {
 				return jdbcOperations.queryForPage(pageableSql, sqlParameter, new BeanPropertyRowMapper<>(elementType));
 			}
@@ -147,6 +152,8 @@ public class DaoProxyBean<T> implements InvocationHandler {
 		} else {
 			if (Tuple.class.isAssignableFrom(returnType)) {
 				return jdbcOperations.queryForObject(sql, sqlParameter, new TupleRowMapper());
+			} else if (Map.class.isAssignableFrom(returnType)) {
+				return jdbcOperations.queryForObject(sql, sqlParameter, new MapRowMapper());
 			} else {
 				return jdbcOperations.queryForObject(sql, sqlParameter, new BeanPropertyRowMapper<>(returnType));
 			}

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import com.github.paganini2008.springworld.jdbcplus.SpringDaoProxyBeanFactory;
+import com.github.paganini2008.springworld.jdbc.optional.SpringDaoProxyBeanFactory;
 
 /**
  * 
