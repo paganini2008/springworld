@@ -29,19 +29,20 @@ public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar, Resou
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-		ClassPathDaoScanner scanner = new ClassPathDaoScanner(registry);
-		if (resourceLoader != null) {
-			scanner.setResourceLoader(resourceLoader);
-		}
 		AnnotationAttributes annotationAttributes = AnnotationAttributes
 				.fromMap(importingClassMetadata.getAnnotationAttributes(DaoScan.class.getName()));
 		List<String> basePackages = new ArrayList<String>();
 		if (annotationAttributes.containsKey("basePackages")) {
-			for (String pkg : annotationAttributes.getStringArray("basePackages")) {
-				if (StringUtils.hasText(pkg)) {
-					basePackages.add(pkg);
+			for (String basePackage : annotationAttributes.getStringArray("basePackages")) {
+				if (StringUtils.hasText(basePackage)) {
+					basePackages.add(basePackage);
 				}
 			}
+		}
+		boolean springSupported = annotationAttributes.getBoolean("springSupported");
+		ClassPathDaoScanner scanner = new ClassPathDaoScanner(registry, springSupported);
+		if (resourceLoader != null) {
+			scanner.setResourceLoader(resourceLoader);
 		}
 		scanner.scan(StringUtils.toStringArray(basePackages));
 	}

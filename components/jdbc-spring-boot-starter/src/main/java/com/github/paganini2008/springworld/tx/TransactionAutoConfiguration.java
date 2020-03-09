@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.github.paganini2008.devtools.db4j.SqlPlus;
+import com.github.paganini2008.springworld.jdbc.Db4jConfig;
+import com.github.paganini2008.springworld.jdbcplus.SpringDaoConfig;
 import com.github.paganini2008.springworld.tx.openfeign.OpenFeignConfig;
 
 /**
@@ -17,7 +19,7 @@ import com.github.paganini2008.springworld.tx.openfeign.OpenFeignConfig;
  * @version 1.0
  */
 @Configuration
-@Import({ JdbcTransactionConfig.class, XaTransactionConfig.class, OpenFeignConfig.class })
+@Import({ Db4jConfig.class, SpringDaoConfig.class, JdbcTransactionConfig.class, XaTransactionConfig.class, OpenFeignConfig.class })
 public class TransactionAutoConfiguration {
 
 	@Value("${spring.application.transaction.executor.threadCount:8}")
@@ -27,6 +29,11 @@ public class TransactionAutoConfiguration {
 	@ConditionalOnMissingBean(IdGenerator.class)
 	public IdGenerator uuidIdGenerator() {
 		return new UuidIdGenerator();
+	}
+	
+	@Bean
+	public SessionManager sessionManager() {
+		return new SessionManager();
 	}
 
 	@Bean

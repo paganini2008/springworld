@@ -27,11 +27,6 @@ public class JdbcTransactionConfig {
 		return new TransactionJoinPointProcessor();
 	}
 
-	@Bean
-	public SessionManager sessionManager() {
-		return new SessionManager();
-	}
-
 	@Bean("jdbc-transaction-manager")
 	public TransactionManager jdbcTransactionManager() {
 		return new JdbcTransactionManager();

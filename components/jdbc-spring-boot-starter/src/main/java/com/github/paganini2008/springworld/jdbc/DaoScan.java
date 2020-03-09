@@ -18,9 +18,11 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ DaoScannerRegistrar.class, Db4jConfig.class, ApplicationContextUtils.class })
+@Import({ DaoScannerRegistrar.class, ApplicationContextUtils.class })
 public @interface DaoScan {
 
 	String[] basePackages();
+
+	boolean springSupported() default false;
 
 }

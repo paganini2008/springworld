@@ -2,7 +2,7 @@ package com.github.paganini2008.springworld.jdbc;
 
 import javax.sql.DataSource;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,7 +16,7 @@ import com.github.paganini2008.devtools.db4j.SqlPlus;
  * @version 1.0
  */
 @Configuration
-@ConditionalOnBean(DataSource.class)
+@ConditionalOnClass(DaoProxyBeanFactory.class)
 public class Db4jConfig {
 
 	@Bean
