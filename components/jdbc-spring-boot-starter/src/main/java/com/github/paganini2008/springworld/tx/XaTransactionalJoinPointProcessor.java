@@ -43,7 +43,7 @@ public class XaTransactionalJoinPointProcessor {
 	@Autowired
 	private TransactionManager transactionManager;
 
-	@Autowired
+	@Autowired(required = false)
 	private SessionManager sessionManager;
 
 	@Autowired
@@ -70,7 +70,7 @@ public class XaTransactionalJoinPointProcessor {
 		}
 		XaTransaction transaction = (XaTransaction) transactionManager.currentTransaction();
 		if (nestable.incrementAndGet() == 1) {
-			if (transaction instanceof JdbcTransaction) {
+			if (transaction instanceof JdbcTransaction && sessionManager != null) {
 				sessionManager.bindTransaction((JdbcTransaction) transaction, transactionDefinition.timeout());
 			}
 			if (transactionDefinition.subscribeEvent() != null) {
@@ -101,7 +101,9 @@ public class XaTransactionalJoinPointProcessor {
 			if (!isNestable()) {
 				if (hasXaHeader()) {
 					lazyCommit(transaction, transactionDefinition, pjp.getSignature(), cause);
-					sessionManager.reset();
+					if (sessionManager != null) {
+						sessionManager.reset();
+					}
 				} else {
 					boolean completed;
 					if (ok || dontRollback(cause, transactionDefinition)) {
@@ -127,7 +129,9 @@ public class XaTransactionalJoinPointProcessor {
 						}
 					}
 					transactionManager.closeTransaction(transaction.getXaId());
-					sessionManager.reset();
+					if (sessionManager != null) {
+						sessionManager.reset();
+					}
 				}
 			}
 		}
