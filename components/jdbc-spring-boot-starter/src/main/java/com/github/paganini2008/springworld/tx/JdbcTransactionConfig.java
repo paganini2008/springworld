@@ -1,7 +1,6 @@
 package com.github.paganini2008.springworld.tx;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,22 +30,6 @@ public class JdbcTransactionConfig {
 	@Bean("jdbc-transaction-manager")
 	public TransactionManager jdbcTransactionManager() {
 		return new JdbcTransactionManager();
-	}
-	
-	@Bean
-	@ConditionalOnMissingBean(IdGenerator.class)
-	public IdGenerator uuidIdGenerator() {
-		return new UuidIdGenerator();
-	}
-
-	@Bean
-	public TransactionEventPublisher transactionEventPublisher() {
-		return new TransactionEventPublisher();
-	}
-
-	@Bean
-	public TransactionEventListenerContainer transactionEventListenerContainer() {
-		return new TransactionEventListenerContainer();
 	}
 
 }
