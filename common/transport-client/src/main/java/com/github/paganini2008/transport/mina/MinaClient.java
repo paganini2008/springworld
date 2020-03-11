@@ -33,8 +33,6 @@ import com.github.paganini2008.transport.Tuple;
  * MinaClient
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class MinaClient implements NioClient {
@@ -52,7 +50,7 @@ public class MinaClient implements NioClient {
 	private ProtocolCodecFactory protocolCodecFactory;
 	private NioSocketConnector connector;
 	private int idleTimeout = 30;
-	private int threadCount = Runtime.getRuntime().availableProcessors() * 2;
+	private int threadCount = -1;
 
 	@Override
 	public void setIdleTimeout(int idleTimeout) {
@@ -79,7 +77,8 @@ public class MinaClient implements NioClient {
 
 	@Override
 	public void open() {
-		connector = new NioSocketConnector(threadCount);
+		int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
+		connector = new NioSocketConnector(nThreads);
 		connector.setConnectTimeoutMillis(60000);
 		SocketSessionConfig sessionConfig = connector.getSessionConfig();
 		sessionConfig.setKeepAlive(true);
@@ -135,12 +134,14 @@ public class MinaClient implements NioClient {
 		try {
 			connector.connect(remoteAddress).addListener(new IoFutureListener<IoFuture>() {
 				public void operationComplete(IoFuture future) {
-					ConnectionWatcher connectionWatcher = channelContext.getConnectionWatcher();
-					if (connectionWatcher != null) {
-						connectionWatcher.watch(remoteAddress, handshakeCallback);
-					}
-					if (handshakeCallback != null) {
-						handshakeCallback.operationComplete(remoteAddress);
+					if (future.isDone()) {
+						ConnectionWatcher connectionWatcher = channelContext.getConnectionWatcher();
+						if (connectionWatcher != null) {
+							connectionWatcher.watch(remoteAddress, handshakeCallback);
+						}
+						if (handshakeCallback != null) {
+							handshakeCallback.operationComplete(remoteAddress);
+						}
 					}
 				}
 			}).awaitUninterruptibly();
@@ -174,7 +175,7 @@ public class MinaClient implements NioClient {
 		try {
 			if (data instanceof CharSequence) {
 				ioSession.write(Tuple.byString(((CharSequence) data).toString()));
-			} else {
+			} else if (data instanceof Tuple) {
 				ioSession.write(data);
 			}
 		} catch (Exception e) {

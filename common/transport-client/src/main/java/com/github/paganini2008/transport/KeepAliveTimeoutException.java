@@ -5,8 +5,6 @@ package com.github.paganini2008.transport;
  * KeepAliveTimeoutException
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class KeepAliveTimeoutException extends RuntimeException {

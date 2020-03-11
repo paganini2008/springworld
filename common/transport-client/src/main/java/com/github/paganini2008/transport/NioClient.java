@@ -7,17 +7,15 @@ import java.util.concurrent.TimeUnit;
  * NioClient
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public interface NioClient extends LifeCycle, NioConnection {
 
-	void setThreadCount(int nThreads);
+	void setThreadCount(int threadCount);
 
 	void watchConnection(int interval, TimeUnit timeUnit);
 
-	void setIdleTimeout(int idleTime);
+	void setIdleTimeout(int idleTimeout);
 
 	void send(Object data);
 

@@ -12,8 +12,6 @@ import com.github.paganini2008.devtools.converter.ConvertUtils;
  * TupleImpl
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class TupleImpl extends HashMap<String, Object> implements Tuple {

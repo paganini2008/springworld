@@ -29,8 +29,11 @@ public abstract class NettyEncoderDecoders {
 		}
 
 		@Override
-		protected void encode(ChannelHandlerContext ctx, Tuple tuple, ByteBuf out) throws Exception {
-			byte[] data = serializer.serialize(tuple);
+		protected void encode(ChannelHandlerContext ctx, Tuple input, ByteBuf out) throws Exception {
+			if (input == null) {
+				throw new TransportClientException("Input could not be null");
+			}
+			byte[] data = serializer.serialize(input);
 			out.writeInt(data.length);
 			out.writeBytes(data);
 		}

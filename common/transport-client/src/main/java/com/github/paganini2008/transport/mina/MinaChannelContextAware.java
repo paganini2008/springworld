@@ -16,8 +16,6 @@ import com.github.paganini2008.transport.ConnectionWatcher;
  * MinaChannelContextAware
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public abstract class MinaChannelContextAware extends IoHandlerAdapter implements ChannelContext<IoSession> {

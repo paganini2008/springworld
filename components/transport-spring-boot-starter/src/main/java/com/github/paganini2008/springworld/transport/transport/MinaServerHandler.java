@@ -11,15 +11,16 @@ import com.github.paganini2008.transport.ChannelEvent.EventType;
 import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.Tuple;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * MinaServerHandler
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
+@Slf4j
 public class MinaServerHandler extends IoHandlerAdapter {
 
 	@Autowired
@@ -43,7 +44,7 @@ public class MinaServerHandler extends IoHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-		cause.printStackTrace();
+		log.error(cause.getMessage(), cause);
 		fireChannelEvent(session, EventType.FAULTY, cause);
 	}
 

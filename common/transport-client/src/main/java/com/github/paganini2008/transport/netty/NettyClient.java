@@ -31,8 +31,6 @@ import io.netty.util.concurrent.GenericFutureListener;
  * NettyClient
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class NettyClient implements NioClient {
@@ -42,7 +40,7 @@ public class NettyClient implements NioClient {
 	private EventLoopGroup workerGroup;
 	private Bootstrap bootstrap;
 	private MessageCodecFactory messageCodecFactory;
-	private int threadCount = Runtime.getRuntime().availableProcessors() * 2;
+	private int threadCount = -1;
 	private int idleTimeout = 30;
 
 	public void setThreadCount(int nThreads) {
@@ -66,7 +64,8 @@ public class NettyClient implements NioClient {
 	}
 
 	public void open() {
-		workerGroup = new NioEventLoopGroup(threadCount);
+		int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
+		workerGroup = new NioEventLoopGroup(nThreads);
 		bootstrap = new Bootstrap();
 		bootstrap.group(workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true)
 				.option(ChannelOption.TCP_NODELAY, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
@@ -97,12 +96,14 @@ public class NettyClient implements NioClient {
 		try {
 			bootstrap.connect(remoteAddress).addListener(new GenericFutureListener<ChannelFuture>() {
 				public void operationComplete(ChannelFuture future) throws Exception {
-					ConnectionWatcher connectionWatcher = channelContext.getConnectionWatcher();
-					if (connectionWatcher != null) {
-						connectionWatcher.watch(remoteAddress, handshakeCallback);
-					}
-					if (handshakeCallback != null) {
-						handshakeCallback.operationComplete(remoteAddress);
+					if (future.isSuccess()) {
+						ConnectionWatcher connectionWatcher = channelContext.getConnectionWatcher();
+						if (connectionWatcher != null) {
+							connectionWatcher.watch(remoteAddress, handshakeCallback);
+						}
+						if (handshakeCallback != null) {
+							handshakeCallback.operationComplete(remoteAddress);
+						}
 					}
 				}
 			}).sync();
@@ -129,7 +130,7 @@ public class NettyClient implements NioClient {
 		try {
 			if (data instanceof CharSequence) {
 				channel.writeAndFlush(Tuple.byString(((CharSequence) data).toString()));
-			} else {
+			} else if (data instanceof Tuple) {
 				channel.writeAndFlush(data);
 			}
 		} catch (Exception e) {

@@ -39,8 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  * MinaServer
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Slf4j
@@ -93,7 +91,7 @@ public class MinaServer implements NioServer {
 		if (isStarted()) {
 			throw new IllegalStateException("MinaServer has been started.");
 		}
-		final int nThreads = threadCount <= 0 ? Runtime.getRuntime().availableProcessors() * 2 : threadCount;
+		int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
 		ioAcceptor = new NioSocketAcceptor(nThreads);
 		ioAcceptor.setBacklog(1024);
 		SocketSessionConfig sessionConfig = ioAcceptor.getSessionConfig();

@@ -5,9 +5,8 @@ import com.github.paganini2008.transport.Tuple;
 /**
  * 
  * Serializer
+ *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public interface Serializer {
