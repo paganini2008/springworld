@@ -38,7 +38,7 @@ public class GrizzlyClient implements NioClient {
 	private int threadCount = -1;
 	private TCPNIOTransport transport;
 	private DelayedExecutor delayedExecutor;
-	private MessageCodecFactory messageCodecFactory;
+	private TupleCodecFactory codecFactory;
 
 	@Override
 	public void open() {
@@ -48,10 +48,10 @@ public class GrizzlyClient implements NioClient {
 		delayedExecutor.start();
 		IdleTimeoutFilter timeoutFilter = new IdleTimeoutFilter(delayedExecutor, idleTimeout, TimeUnit.SECONDS, IdleTimeoutHandlers.PING);
 		filterChainBuilder.add(timeoutFilter);
-		if (messageCodecFactory == null) {
-			messageCodecFactory = new GrizzlyTupleCodecFactory();
+		if (codecFactory == null) {
+			codecFactory = new GrizzlyTupleCodecFactory();
 		}
-		filterChainBuilder.add(new TupleFilter(messageCodecFactory));
+		filterChainBuilder.add(new TupleFilter(codecFactory));
 		filterChainBuilder.add(channelContext);
 		TCPNIOTransportBuilder builder = TCPNIOTransportBuilder.newInstance();
 		ThreadPoolConfig tpConfig = ThreadPoolConfig.defaultConfig();
@@ -147,8 +147,8 @@ public class GrizzlyClient implements NioClient {
 		return connection != null && connection.isOpen();
 	}
 
-	public void setMessageCodecFactory(MessageCodecFactory messageCodecFactory) {
-		this.messageCodecFactory = messageCodecFactory;
+	public void setTupleCodecFactory(TupleCodecFactory codecFactory) {
+		this.codecFactory = codecFactory;
 	}
 
 	@Override

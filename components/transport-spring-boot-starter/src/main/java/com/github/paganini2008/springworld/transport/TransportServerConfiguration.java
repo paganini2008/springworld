@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.transport;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
+import org.glassfish.grizzly.Connection;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,6 +18,9 @@ import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
 import com.github.paganini2008.springworld.transport.buffer.RedisBufferZone;
+import com.github.paganini2008.springworld.transport.transport.GrizzlyChannelEventListener;
+import com.github.paganini2008.springworld.transport.transport.GrizzlyServer;
+import com.github.paganini2008.springworld.transport.transport.GrizzlyServerHandler;
 import com.github.paganini2008.springworld.transport.transport.MinaChannelEventListener;
 import com.github.paganini2008.springworld.transport.transport.MinaServer;
 import com.github.paganini2008.springworld.transport.transport.MinaServerHandler;
@@ -29,6 +33,9 @@ import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
+import com.github.paganini2008.transport.grizzly.GrizzlyClient;
+import com.github.paganini2008.transport.grizzly.GrizzlyTupleCodecFactory;
+import com.github.paganini2008.transport.grizzly.TupleCodecFactory;
 import com.github.paganini2008.transport.mina.MinaClient;
 import com.github.paganini2008.transport.mina.MinaTupleCodecFactory;
 import com.github.paganini2008.transport.netty.KeepAlivePolicy;
@@ -45,11 +52,8 @@ import io.netty.channel.Channel;
  * TransportServerConfiguration
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
-@ConditionalOnProperty(prefix = "spring.transport", name = "mode", havingValue = "server", matchIfMissing = true)
 @Configuration
 public class TransportServerConfiguration {
 
@@ -92,7 +96,7 @@ public class TransportServerConfiguration {
 		return new HandlerBeanPostProcessor();
 	}
 
-	@Bean("redistemplate-bigint")
+	@Bean("redis-template-bigint")
 	public RedisTemplate<String, Long> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<String, Long> redisTemplate = new RedisTemplate<String, Long>();
 		redisTemplate.setKeySerializer(RedisSerializer.string());
@@ -104,7 +108,7 @@ public class TransportServerConfiguration {
 	}
 
 	@Bean("counter-bigint")
-	public RedisAtomicLong redisAtomicLong(@Qualifier("redistemplate-bigint") RedisTemplate<String, Long> redisTemplate) {
+	public RedisAtomicLong redisAtomicLong(@Qualifier("redis-template-bigint") RedisTemplate<String, Long> redisTemplate) {
 		return new RedisAtomicLong("transport:counter", redisTemplate);
 	}
 
@@ -184,6 +188,40 @@ public class TransportServerConfiguration {
 		@Bean
 		public ChannelEventListener<IoSession> channelEventListener() {
 			return new MinaChannelEventListener();
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty(name = "spring.transport.nioserver", havingValue = "grizzly")
+	public static class GrizzlyTransportConfiguration {
+
+		@Bean(initMethod = "open", destroyMethod = "close")
+		public NioClient nioClient(TupleCodecFactory codecFactory) {
+			GrizzlyClient nioClient = new GrizzlyClient();
+			nioClient.setTupleCodecFactory(codecFactory);
+			return nioClient;
+		}
+
+		@Bean(initMethod = "start", destroyMethod = "stop")
+		public NioServer nioServer() {
+			return new GrizzlyServer();
+		}
+
+		@ConditionalOnMissingBean(TupleCodecFactory.class)
+		@Bean
+		public TupleCodecFactory codecFactory(Serializer serializer) {
+			return new GrizzlyTupleCodecFactory(serializer);
+		}
+
+		@Bean
+		public GrizzlyServerHandler serverHandler() {
+			return new GrizzlyServerHandler();
+		}
+
+		@ConditionalOnMissingBean(ChannelEventListener.class)
+		@Bean
+		public ChannelEventListener<Connection<?>> channelEventListener() {
+			return new GrizzlyChannelEventListener();
 		}
 	}
 

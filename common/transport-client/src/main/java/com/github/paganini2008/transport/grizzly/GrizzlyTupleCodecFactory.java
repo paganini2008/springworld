@@ -12,7 +12,7 @@ import com.github.paganini2008.transport.serializer.Serializer;
  * @author Fred Feng
  * @version 1.0
  */
-public class GrizzlyTupleCodecFactory implements MessageCodecFactory {
+public class GrizzlyTupleCodecFactory implements TupleCodecFactory {
 
 	private final Serializer serializer;
 	

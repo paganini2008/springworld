@@ -7,12 +7,12 @@ import com.github.paganini2008.transport.Tuple;
 
 /**
  * 
- * MessageCodecFactory
+ * TupleCodecFactory
  *
  * @author Fred Feng
  * @version 1.0
  */
-public interface MessageCodecFactory {
+public interface TupleCodecFactory {
 
 	Transformer<Tuple, Buffer> getEncoder();
 

@@ -24,7 +24,7 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.ClusterId;
 import com.github.paganini2008.transport.grizzly.IdleTimeoutHandlers;
-import com.github.paganini2008.transport.grizzly.MessageCodecFactory;
+import com.github.paganini2008.transport.grizzly.TupleCodecFactory;
 import com.github.paganini2008.transport.grizzly.TupleFilter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +60,7 @@ public class GrizzlyServer implements NioServer {
 	private GrizzlyServerHandler serverHandler;
 
 	@Autowired
-	private MessageCodecFactory codecFactory;
+	private TupleCodecFactory codecFactory;
 
 	@Autowired
 	private ClusterId clusterId;
@@ -71,7 +71,7 @@ public class GrizzlyServer implements NioServer {
 	@Override
 	public int start() {
 		if (isStarted()) {
-			throw new IllegalStateException("MinaServer has been started.");
+			throw new IllegalStateException("GrizzlyServer has been started.");
 		}
 		FilterChainBuilder filterChainBuilder = FilterChainBuilder.stateless();
 		filterChainBuilder.add(new TransportFilter());

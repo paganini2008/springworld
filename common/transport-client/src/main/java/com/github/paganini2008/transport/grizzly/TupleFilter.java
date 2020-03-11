@@ -24,7 +24,7 @@ public class TupleFilter extends AbstractCodecFilter<Buffer, Tuple> {
 		this(new GrizzlyTupleCodecFactory(serializer));
 	}
 
-	public TupleFilter(MessageCodecFactory codecFactory) {
+	public TupleFilter(TupleCodecFactory codecFactory) {
 		super(codecFactory.getDecoder(), codecFactory.getEncoder());
 	}
 
