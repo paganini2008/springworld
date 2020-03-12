@@ -13,7 +13,7 @@ public interface NioClient extends LifeCycle, NioConnection {
 
 	void setThreadCount(int threadCount);
 
-	void watchConnection(int interval, TimeUnit timeUnit);
+	void watchConnection(int checkInterval, TimeUnit timeUnit);
 
 	void setIdleTimeout(int idleTimeout);
 

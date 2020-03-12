@@ -156,8 +156,8 @@ public class GrizzlyClient implements NioClient {
 	}
 
 	@Override
-	public void watchConnection(int interval, TimeUnit timeUnit) {
-		this.channelContext.setConnectionWatcher(new ConnectionWatcher(interval, timeUnit, this));
+	public void watchConnection(int checkInterval, TimeUnit timeUnit) {
+		this.channelContext.setConnectionWatcher(new ConnectionWatcher(checkInterval, timeUnit, this));
 	}
 
 	@Override

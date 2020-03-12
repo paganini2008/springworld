@@ -15,12 +15,12 @@ import com.github.paganini2008.devtools.multithreads.ThreadUtils;
  */
 public final class ConnectionWatcher {
 
-	private final int interval;
+	private final int checkInterval;
 	private final TimeUnit timeUnit;
 	private final NioConnection connection;
 
-	public ConnectionWatcher(int interval, TimeUnit timeUnit, NioConnection connection) {
-		this.interval = interval;
+	public ConnectionWatcher(int checkInterval, TimeUnit timeUnit, NioConnection connection) {
+		this.checkInterval = checkInterval;
 		this.timeUnit = timeUnit;
 		this.connection = connection;
 	}
@@ -34,7 +34,7 @@ public final class ConnectionWatcher {
 	public void watch(final SocketAddress remoteAddress, final HandshakeCallback callback) {
 		observable.addObserver((ob, arg) -> {
 			do {
-				ThreadUtils.sleep(interval, timeUnit);
+				ThreadUtils.sleep(checkInterval, timeUnit);
 				connection.connect(remoteAddress, callback);
 			} while (!connection.isConnected(remoteAddress));
 		});

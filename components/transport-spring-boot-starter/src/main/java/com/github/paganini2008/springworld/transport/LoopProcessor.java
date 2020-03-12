@@ -96,7 +96,7 @@ public class LoopProcessor implements Runnable {
 			}
 			if (tuple != null) {
 				for (Handler handler : handlers) {
-					Tuple copy = tuple.clone();
+					Tuple copy = tuple.copy();
 					if (threadPool != null) {
 						threadPool.apply(() -> {
 							handler.onData(copy);

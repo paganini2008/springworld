@@ -12,8 +12,6 @@ import com.github.paganini2008.transport.Tuple;
  * RedisBufferZone
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class RedisBufferZone implements BufferZone {
@@ -27,8 +25,8 @@ public class RedisBufferZone implements BufferZone {
 	@Value("${spring.application.name}")
 	private String applicationName;
 
-	@Value("${spring.transport.bufferzone.reused:true}")
-	private boolean reused;
+	@Value("${spring.transport.bufferzone.cooperative:true}")
+	private boolean cooperative;
 
 	@Override
 	public void set(String name, Tuple tuple) {
@@ -45,8 +43,8 @@ public class RedisBufferZone implements BufferZone {
 		return template.opsForList().size(getKey(name)).intValue();
 	}
 
-	protected String getKey(String name) {
-		return "transport:bufferzone:" + name + ":" + applicationName + (reused ? ":" + clusterId.get() : "");
+	private String getKey(String name) {
+		return "transport:bufferzone:" + name + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
 	}
 
 }

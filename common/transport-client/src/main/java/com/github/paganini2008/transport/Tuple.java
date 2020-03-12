@@ -25,7 +25,7 @@ public interface Tuple extends Cloneable {
 
 	Map<String, Object> toMap();
 
-	Tuple clone();
+	Tuple copy();
 
 	public static Tuple newTuple() {
 		return new TupleImpl();

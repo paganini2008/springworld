@@ -17,7 +17,7 @@ import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
-import com.github.paganini2008.springworld.transport.buffer.RedisBufferZone;
+import com.github.paganini2008.springworld.transport.buffer.MemcachedBufferZone;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyChannelEventListener;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyServer;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyServerHandler;
@@ -71,7 +71,7 @@ public class TransportServerConfiguration {
 	@ConditionalOnMissingBean(BufferZone.class)
 	@Bean(initMethod = "configure", destroyMethod = "destroy")
 	public BufferZone bufferZone() {
-		return new RedisBufferZone();
+		return new MemcachedBufferZone();
 	}
 
 	@ConditionalOnMissingBean(Partitioner.class)

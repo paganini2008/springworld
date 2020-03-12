@@ -16,13 +16,14 @@ import com.github.paganini2008.devtools.converter.ConvertUtils;
  */
 public class TupleImpl extends HashMap<String, Object> implements Tuple {
 
-	private static final long serialVersionUID = -3458553128530299260L;
+	private static final long serialVersionUID = -5823311842766255439L;
 
 	public TupleImpl() {
+		super();
 		setField("timestamp", System.currentTimeMillis());
 	}
 
-	TupleImpl(Map<String, ?> kwargs) {
+	public TupleImpl(Map<String, ?> kwargs) {
 		super(kwargs);
 		setField("timestamp", System.currentTimeMillis());
 	}
@@ -59,10 +60,9 @@ public class TupleImpl extends HashMap<String, Object> implements Tuple {
 		return Collections.unmodifiableMap(this);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Tuple clone() {
-		return Tuple.wrap((Map<String, Object>) super.clone());
+	public Tuple copy() {
+		return Tuple.wrap(toMap());
 	}
 
 }
