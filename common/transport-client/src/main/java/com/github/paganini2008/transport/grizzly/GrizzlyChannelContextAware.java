@@ -65,7 +65,6 @@ public abstract class GrizzlyChannelContextAware extends BaseFilter implements C
 
 	@Override
 	public void exceptionOccurred(FilterChainContext ctx, Throwable error) {
-		error.printStackTrace();
 		ctx.getConnection().close();
 
 		SocketAddress address = (SocketAddress) ctx.getConnection().getPeerAddress();

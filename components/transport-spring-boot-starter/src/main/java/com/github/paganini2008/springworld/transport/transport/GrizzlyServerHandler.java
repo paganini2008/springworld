@@ -40,9 +40,8 @@ public class GrizzlyServerHandler extends BaseFilter {
 	private String collectionName;
 
 	@Autowired(required = false)
-	private ChannelEventListener<Connection<?>> channelEventListener;
+	private ChannelEventListener<Connection<?>> channelEventListener; 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public NextAction handleRead(FilterChainContext ctx) throws IOException {
 		Tuple message = ctx.getMessage();
@@ -51,7 +50,7 @@ public class GrizzlyServerHandler extends BaseFilter {
 				channelEventListener.fireChannelEvent(new ChannelEvent<Connection<?>>(ctx.getConnection(), EventType.PING, null));
 			}
 			if (keepaliveResposne) {
-				ctx.getConnection().write(Tuple.byString(PONG));
+				ctx.write(Tuple.byString(PONG));
 			}
 			return ctx.getInvokeAction();
 		} else {

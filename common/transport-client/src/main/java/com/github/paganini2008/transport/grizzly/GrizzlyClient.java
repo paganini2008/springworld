@@ -14,7 +14,6 @@ import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
 import org.glassfish.grizzly.strategies.WorkerThreadIOStrategy;
 import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
 import org.glassfish.grizzly.utils.DelayedExecutor;
-import org.glassfish.grizzly.utils.IdleTimeoutFilter;
 
 import com.github.paganini2008.transport.ConnectionWatcher;
 import com.github.paganini2008.transport.HandshakeCallback;
@@ -46,7 +45,7 @@ public class GrizzlyClient implements NioClient {
 		filterChainBuilder.add(new TransportFilter());
 		delayedExecutor = IdleTimeoutFilter.createDefaultIdleDelayedExecutor(5, TimeUnit.SECONDS);
 		delayedExecutor.start();
-		IdleTimeoutFilter timeoutFilter = new IdleTimeoutFilter(delayedExecutor, idleTimeout, TimeUnit.SECONDS, IdleTimeoutHandlers.PING);
+		IdleTimeoutFilter timeoutFilter = new IdleTimeoutFilter(delayedExecutor, idleTimeout, TimeUnit.SECONDS, IdleTimeoutPolicies.PING);
 		filterChainBuilder.add(timeoutFilter);
 		if (codecFactory == null) {
 			codecFactory = new GrizzlyTupleCodecFactory();

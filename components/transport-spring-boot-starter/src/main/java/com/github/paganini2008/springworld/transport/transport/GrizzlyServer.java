@@ -15,7 +15,6 @@ import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
 import org.glassfish.grizzly.strategies.WorkerThreadIOStrategy;
 import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
 import org.glassfish.grizzly.utils.DelayedExecutor;
-import org.glassfish.grizzly.utils.IdleTimeoutFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,7 +22,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.ClusterId;
-import com.github.paganini2008.transport.grizzly.IdleTimeoutHandlers;
+import com.github.paganini2008.transport.grizzly.IdleTimeoutFilter;
+import com.github.paganini2008.transport.grizzly.IdleTimeoutPolicies;
 import com.github.paganini2008.transport.grizzly.TupleCodecFactory;
 import com.github.paganini2008.transport.grizzly.TupleFilter;
 
@@ -77,7 +77,8 @@ public class GrizzlyServer implements NioServer {
 		filterChainBuilder.add(new TransportFilter());
 		delayedExecutor = IdleTimeoutFilter.createDefaultIdleDelayedExecutor(5, TimeUnit.SECONDS);
 		delayedExecutor.start();
-		IdleTimeoutFilter timeoutFilter = new IdleTimeoutFilter(delayedExecutor, idleTimeout, TimeUnit.SECONDS, IdleTimeoutHandlers.LOG);
+		IdleTimeoutFilter timeoutFilter = new IdleTimeoutFilter(delayedExecutor, idleTimeout, TimeUnit.SECONDS,
+				IdleTimeoutPolicies.READER_IDLE_LOG);
 		filterChainBuilder.add(timeoutFilter);
 		filterChainBuilder.add(new TupleFilter(codecFactory));
 		filterChainBuilder.add(serverHandler);
