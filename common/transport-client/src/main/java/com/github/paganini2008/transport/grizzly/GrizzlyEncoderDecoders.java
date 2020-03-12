@@ -39,24 +39,31 @@ public abstract class GrizzlyEncoderDecoders {
 
 		@Override
 		protected TransformationResult<Buffer, Tuple> transformImpl(AttributeStorage storage, Buffer input) throws TransformationException {
-			if (input.remaining() < 4) {
+			Integer objectSize = (Integer) storage.getAttributes().getAttribute("objectSize");
+			if (objectSize == null) {
+				if (input.remaining() < 4) {
+					return TransformationResult.createIncompletedResult(input);
+				}
+				objectSize = input.getInt();
+				storage.getAttributes().setAttribute("objectSize", objectSize);
+			}
+			if (input.remaining() < objectSize) {
 				return TransformationResult.createIncompletedResult(input);
 			}
-			int dataLength = input.getInt();
-			if (dataLength < 4) {
-				throw new TransportClientException("Data length should be greater than 4: " + dataLength);
-			}
-			if (input.remaining() < dataLength) {
-				return TransformationResult.createIncompletedResult(input);
-			}
-			byte[] data = new byte[dataLength];
+			final int limit = input.limit();
+			input.limit(input.position() + objectSize);
+			byte[] data = new byte[input.remaining()];
 			input.get(data);
 			Tuple tuple = serializer.deserialize(data);
+			
+			input.position(input.limit());
+			input.limit(limit);
+			storage.getAttributes().removeAttribute("objectSize");
 			return TransformationResult.createCompletedResult(tuple, input);
 		}
 
 	}
-	
+
 	public static class TupleEncoder extends AbstractTransformer<Tuple, Buffer> {
 
 		private final Serializer serializer;
@@ -92,5 +99,5 @@ public abstract class GrizzlyEncoderDecoders {
 		}
 
 	}
-	
+
 }

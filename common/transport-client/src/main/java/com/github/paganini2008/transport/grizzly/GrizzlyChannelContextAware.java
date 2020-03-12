@@ -36,7 +36,7 @@ public abstract class GrizzlyChannelContextAware extends BaseFilter implements C
 	}
 
 	@Override
-	public NextAction handleAccept(FilterChainContext ctx) throws IOException {
+	public NextAction handleConnect(FilterChainContext ctx) throws IOException {
 		addChannel(ctx.getConnection());
 
 		fireChannelEvent(ctx.getConnection(), EventType.CONNECTED, null);
@@ -65,6 +65,7 @@ public abstract class GrizzlyChannelContextAware extends BaseFilter implements C
 
 	@Override
 	public void exceptionOccurred(FilterChainContext ctx, Throwable error) {
+		error.printStackTrace();
 		ctx.getConnection().close();
 
 		SocketAddress address = (SocketAddress) ctx.getConnection().getPeerAddress();

@@ -37,7 +37,11 @@ public class BenchmarkController {
 
 	@GetMapping("/echo")
 	public Map<String, Object> echo(@RequestParam("q") String content) {
-		Tuple data = Tuple.byString(content);
+		StringBuilder str = new StringBuilder();
+		for (int j = 0, l = ThreadLocalRandom.current().nextInt(100, 1000); j < l; j++) {
+			str.append(UUID.randomUUID().toString());
+		}
+		Tuple data = Tuple.byString(str.toString());
 		nioClient.send(data, partitioner);
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("q", content);
