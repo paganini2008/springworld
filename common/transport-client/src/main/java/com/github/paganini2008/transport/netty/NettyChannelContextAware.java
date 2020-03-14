@@ -64,7 +64,6 @@ public abstract class NettyChannelContextAware extends ChannelInboundHandlerAdap
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object data) throws Exception {
 		if (isPong(data)) {
-			System.out.println("Pong data: " + data);
 			fireChannelEvent(ctx.channel(), EventType.PONG, null);
 		}
 	}
