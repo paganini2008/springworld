@@ -3,15 +3,18 @@ package com.github.paganini2008.springworld.transport.buffer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ClusterId;
 import com.github.paganini2008.transport.Tuple;
 import com.github.paganini2008.transport.serializer.Serializer;
 import com.google.code.yanf4j.core.impl.StandardSocketOption;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.rubyeye.xmemcached.Counter;
 import net.rubyeye.xmemcached.MemcachedClient;
@@ -28,6 +31,7 @@ import net.rubyeye.xmemcached.utils.AddrUtil;
 @Slf4j
 public class MemcachedBufferZone implements BufferZone {
 
+	private static final int DEFAULT_EXPIRATION = 60;
 	private static final String PUSHING_KEY = ":pushing";
 	private static final String POPPING_KEY = ":popping";
 
@@ -51,9 +55,26 @@ public class MemcachedBufferZone implements BufferZone {
 
 	private MemcachedClient client;
 
-	private String rootKey;
-	private Counter pushing;
-	private Counter popping;
+	private final Map<String, QueueCounter> counters = new ConcurrentHashMap<String, QueueCounter>();
+
+	@Getter
+	class QueueCounter {
+
+		private final String key;
+		private Counter pushing;
+		private Counter popping;
+
+		QueueCounter(String collectionName) {
+			this.key = keyFor(collectionName);
+			pushing = client.getCounter(key + PUSHING_KEY, 0);
+			popping = client.getCounter(key + POPPING_KEY, 0);
+		}
+
+		private String keyFor(String collectionName) {
+			return "transport:bufferzone:" + collectionName + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
+		}
+
+	}
 
 	@Override
 	public void configure() throws Exception {
@@ -66,9 +87,6 @@ public class MemcachedBufferZone implements BufferZone {
 		configureClient(clientBuilder);
 		client = clientBuilder.build();
 
-		rootKey = getKey(collectionName);
-		pushing = client.getCounter(rootKey + PUSHING_KEY, 0);
-		popping = client.getCounter(rootKey + POPPING_KEY, 0);
 	}
 
 	protected void configureClient(XMemcachedClientBuilder clientBuilder) {
@@ -85,19 +103,29 @@ public class MemcachedBufferZone implements BufferZone {
 
 	@Override
 	public void set(String name, Tuple tuple) throws Exception {
+		QueueCounter counter = MapUtils.get(counters, name, () -> {
+			return new QueueCounter(name);
+		});
+		Counter pushing = counter.getPushing();
+		Counter popping = counter.getPopping();
 		if (popping.get() > pushing.get()) {
 			pushing.set(popping.get());
 		}
-		String key = rootKey + ":" + pushing.incrementAndGet();
-		client.set(key, 0, serializer.serialize(tuple));
+		String key = counter.getKey() + ":" + pushing.incrementAndGet();
+		client.set(key, DEFAULT_EXPIRATION, serializer.serialize(tuple));
 	}
 
 	@Override
 	public Tuple get(String name) throws Exception {
+		QueueCounter counter = MapUtils.get(counters, name, () -> {
+			return new QueueCounter(name);
+		});
+		Counter pushing = counter.getPushing();
+		Counter popping = counter.getPopping();
 		if (pushing.get() <= popping.get()) {
 			return null;
 		}
-		String key = rootKey + ":" + popping.incrementAndGet();
+		String key = counter.getKey() + ":" + popping.incrementAndGet();
 		byte[] bytes;
 		if ((bytes = (byte[]) client.get(key)) != null) {
 			client.deleteWithNoReply(key);
@@ -116,10 +144,6 @@ public class MemcachedBufferZone implements BufferZone {
 			}
 		}
 		return total;
-	}
-
-	private String getKey(String name) {
-		return "transport:bufferzone:" + name + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
 	}
 
 }
