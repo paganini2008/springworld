@@ -193,7 +193,7 @@ public class Log4j2TransportClientAppender extends AbstractAppender {
 			return;
 		}
 
-		Tuple tuple = Tuple.newTuple();
+		Tuple tuple = Tuple.newOne();
 		tuple.setField("loggerName", eventObject.getLoggerName());
 		tuple.setField("message", eventObject.getMessage());
 		tuple.setField("level", eventObject.getLevel().name());

@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
@@ -21,8 +22,6 @@ import lombok.extern.slf4j.Slf4j;
  * LoopProcessor
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Slf4j
@@ -31,8 +30,13 @@ public class LoopProcessor implements Runnable {
 	@Autowired
 	private BufferZone bufferZone;
 
+	@Qualifier("global-counter")
 	@Autowired
 	private Counter counter;
+
+	@Qualifier("local-counter")
+	@Autowired
+	private Counter localCounter;
 
 	@Autowired(required = false)
 	private ThreadPool threadPool;
@@ -89,12 +93,14 @@ public class LoopProcessor implements Runnable {
 			Tuple tuple = null;
 			try {
 				tuple = bufferZone.get(collectionName);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				if (log.isTraceEnabled()) {
 					log.trace(e.getMessage(), e);
 				}
 			}
 			if (tuple != null) {
+				counter.incrementAndGet();
+				
 				for (Handler handler : handlers) {
 					Tuple copy = tuple.copy();
 					if (threadPool != null) {
@@ -105,9 +111,7 @@ public class LoopProcessor implements Runnable {
 						handler.onData(copy);
 					}
 				}
-
 				tuple = null;
-				counter.incrementCount();
 			} else {
 				ThreadUtils.randomSleep(1000L);
 			}
@@ -125,8 +129,8 @@ public class LoopProcessor implements Runnable {
 		public boolean execute() {
 			if (log.isTraceEnabled()) {
 				try {
-					log.trace("[Snapshot] count=" + counter.getLocal() + "/" + counter.get() + ", tps=" + counter.getLocalTps() + "/"
-							+ counter.getTps() + ", buffer=" + bufferZone.size(collectionName));
+					log.trace("[Snapshot] count=" + counter.get() + "/" + localCounter.get() + ", tps=" + counter.tps() + "/"
+							+ localCounter.get() + ", buffer=" + bufferZone.size(collectionName));
 				} catch (Exception ignored) {
 				}
 			}

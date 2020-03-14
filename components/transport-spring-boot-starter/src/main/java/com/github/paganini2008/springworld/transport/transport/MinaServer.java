@@ -44,9 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MinaServer implements NioServer {
 
-	private static final String PING = "PING";
-	private static final String PONG = "PONG";
-
 	static {
 		IoBuffer.setUseDirectBuffer(false);
 		IoBuffer.setAllocator(new SimpleBufferAllocator());
@@ -155,7 +152,7 @@ public class MinaServer implements NioServer {
 	class ServerKeepAliveMessageFactory implements KeepAliveMessageFactory {
 
 		public boolean isRequest(IoSession session, Object message) {
-			return (message instanceof Tuple) && (PING.equals(((Tuple) message).getField("content")));
+			return (message instanceof Tuple) && ((Tuple) message).isPing();
 		}
 
 		public boolean isResponse(IoSession session, Object message) {
@@ -170,7 +167,7 @@ public class MinaServer implements NioServer {
 			if (channelEventListener != null) {
 				channelEventListener.fireChannelEvent(new ChannelEvent<IoSession>(session, EventType.PING, null));
 			}
-			return keepaliveResposne ? Tuple.byString(PONG) : null;
+			return keepaliveResposne ? Tuple.PONG : null;
 		}
 	}
 

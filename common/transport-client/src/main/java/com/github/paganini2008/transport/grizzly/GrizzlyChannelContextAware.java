@@ -95,7 +95,7 @@ public abstract class GrizzlyChannelContextAware extends BaseFilter implements C
 	}
 
 	private boolean isPong(Object data) {
-		return (data instanceof Tuple) && "PONG".equals(((Tuple) data).getField("content"));
+		return (data instanceof Tuple) && ((Tuple) data).isPong();
 	}
 
 }

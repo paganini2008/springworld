@@ -7,8 +7,6 @@ import com.github.paganini2008.transport.Tuple;
  * Handler
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public interface Handler {

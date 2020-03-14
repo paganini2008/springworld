@@ -23,9 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyServerKeepAlivePolicy extends KeepAlivePolicy {
 
-	private static final String PING = "PING";
-	private static final String PONG = "PONG";
-
 	@Value("${spring.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
@@ -49,7 +46,7 @@ public class NettyServerKeepAlivePolicy extends KeepAlivePolicy {
 				channelEventListener.fireChannelEvent(new ChannelEvent<Channel>(ctx.channel(), EventType.PING, null));
 			}
 			if (keepaliveResposne) {
-				ctx.writeAndFlush(Tuple.byString(PONG));
+				ctx.writeAndFlush(Tuple.PONG);
 			}
 		} else {
 			ctx.fireChannelRead(data);
@@ -57,7 +54,7 @@ public class NettyServerKeepAlivePolicy extends KeepAlivePolicy {
 	}
 
 	protected boolean isPing(Object data) {
-		return (data instanceof Tuple) && (PING.equals(((Tuple) data).getField("content")));
+		return (data instanceof Tuple) && ((Tuple) data).isPing();
 	}
 
 }

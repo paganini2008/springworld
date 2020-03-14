@@ -7,17 +7,28 @@ import java.util.Map;
  * Tuple
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
-public interface Tuple extends Cloneable {
+public interface Tuple {
+
+	static final String KEYWORD_CONTENT = "content";
+	static final String KEYWORD_COLLECTION = "collection";
+	static final Tuple PING = Tuple.byString("PING");
+	static final Tuple PONG = Tuple.byString("PONG");
 
 	boolean hasField(String fieldName);
 
 	void setField(String fieldName, Object value);
 
 	Object getField(String fieldName);
+
+	default Object getField(String fieldName, Object defaultValue) {
+		Object value;
+		if ((value = getField(fieldName)) == null) {
+			value = defaultValue;
+		}
+		return value;
+	}
 
 	<T> T getField(String fieldName, Class<T> requiredType);
 
@@ -27,13 +38,21 @@ public interface Tuple extends Cloneable {
 
 	Tuple copy();
 
-	public static Tuple newTuple() {
+	default boolean isPing() {
+		return "PING".equals(getField(KEYWORD_CONTENT));
+	}
+
+	default boolean isPong() {
+		return "PONG".equals(getField(KEYWORD_CONTENT));
+	}
+
+	public static Tuple newOne() {
 		return new TupleImpl();
 	}
 
 	public static Tuple byString(String content) {
 		Tuple tuple = new TupleImpl();
-		tuple.setField("content", content);
+		tuple.setField(KEYWORD_CONTENT, content);
 		return tuple;
 	}
 

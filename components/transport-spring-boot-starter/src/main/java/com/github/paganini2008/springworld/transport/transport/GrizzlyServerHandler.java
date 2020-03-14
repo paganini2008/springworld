@@ -7,8 +7,10 @@ import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springworld.transport.Counter;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
 import com.github.paganini2008.transport.ChannelEvent;
 import com.github.paganini2008.transport.ChannelEvent.EventType;
@@ -27,20 +29,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GrizzlyServerHandler extends BaseFilter {
 
-	private static final String PING = "PING";
-	private static final String PONG = "PONG";
-
 	@Value("${spring.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
 	@Autowired
 	private BufferZone store;
+	
+	@Qualifier("local-counter")
+	@Autowired
+	private Counter counter;
 
 	@Value("${spring.transport.bufferzone.collectionName:default}")
 	private String collectionName;
 
 	@Autowired(required = false)
-	private ChannelEventListener<Connection<?>> channelEventListener; 
+	private ChannelEventListener<Connection<?>> channelEventListener;
 
 	@Override
 	public NextAction handleRead(FilterChainContext ctx) throws IOException {
@@ -50,11 +53,13 @@ public class GrizzlyServerHandler extends BaseFilter {
 				channelEventListener.fireChannelEvent(new ChannelEvent<Connection<?>>(ctx.getConnection(), EventType.PING, null));
 			}
 			if (keepaliveResposne) {
-				ctx.write(Tuple.byString(PONG));
+				ctx.write(Tuple.PONG);
 			}
-			return ctx.getInvokeAction();
+			return ctx.getStopAction();
 		} else {
+			counter.incrementAndGet();
 			try {
+				String collectionName = (String) message.getField(Tuple.KEYWORD_COLLECTION, this.collectionName);
 				store.set(collectionName, message);
 			} catch (Exception e) {
 				if (e instanceof IOException) {
@@ -62,12 +67,12 @@ public class GrizzlyServerHandler extends BaseFilter {
 				}
 				throw new IOException(e);
 			}
-			return ctx.getStopAction();
+			return ctx.getInvokeAction();
 		}
 	}
 
 	protected boolean isPing(Object data) {
-		return (data instanceof Tuple) && (PING.equals(((Tuple) data).getField("content")));
+		return (data instanceof Tuple) && ((Tuple) data).isPing();
 	}
 
 	@Override

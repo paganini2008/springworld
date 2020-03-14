@@ -1,7 +1,6 @@
 package com.github.paganini2008.transport.grizzly;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.glassfish.grizzly.Connection;
 
@@ -23,12 +22,8 @@ public abstract class IdleTimeoutPolicies {
 
 	public static IdleTimeoutFilter.TimeoutHandler PING = new IdleTimeoutFilter.TimeoutHandler() {
 
-		private final AtomicLong serial = new AtomicLong(0);
-
 		public void onTimeout(Connection connection) {
-			Tuple ping = Tuple.byString("PING");
-			ping.setField("serial", serial.incrementAndGet());
-			connection.write(ping);
+			connection.write(Tuple.PING);
 			throw new KeepAliveTimeoutException();
 		}
 

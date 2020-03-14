@@ -128,7 +128,7 @@ public class Log4jTransportClientAppender extends AppenderSkeleton {
 			return;
 		}
 
-		Tuple tuple = Tuple.newTuple();
+		Tuple tuple = Tuple.newOne();
 		tuple.setField("loggerName", eventObject.getLoggerName());
 		tuple.setField("message", eventObject.getRenderedMessage());
 		tuple.setField("level", eventObject.getLevel().toString());

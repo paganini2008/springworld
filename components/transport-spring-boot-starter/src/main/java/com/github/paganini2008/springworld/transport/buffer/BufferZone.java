@@ -17,10 +17,10 @@ public interface BufferZone {
 	default void destroy() {
 	}
 
-	void set(String name, Tuple tuple) throws Exception;
+	void set(String collectionName, Tuple tuple) throws Exception;
 
-	Tuple get(String name) throws Exception;
+	Tuple get(String collectionName) throws Exception;
 
-	int size(String name) throws Exception;
+	int size(String collectionName) throws Exception;
 
 }

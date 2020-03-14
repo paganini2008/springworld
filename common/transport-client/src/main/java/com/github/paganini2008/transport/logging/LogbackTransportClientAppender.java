@@ -85,7 +85,7 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 			return;
 		}
 
-		Tuple tuple = Tuple.newTuple();
+		Tuple tuple = Tuple.newOne();
 		tuple.setField("loggerName", eventObject.getLoggerName());
 		tuple.setField("message", eventObject.getFormattedMessage());
 		tuple.setField("level", eventObject.getLevel().levelStr);

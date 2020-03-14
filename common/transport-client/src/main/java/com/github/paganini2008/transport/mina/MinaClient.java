@@ -37,9 +37,6 @@ import com.github.paganini2008.transport.Tuple;
  */
 public class MinaClient implements NioClient {
 
-	private static final String PING = "PING";
-	private static final String PONG = "PONG";
-
 	static {
 		IoBuffer.setUseDirectBuffer(false);
 		IoBuffer.setAllocator(new SimpleBufferAllocator());
@@ -190,11 +187,11 @@ public class MinaClient implements NioClient {
 		}
 
 		public boolean isResponse(IoSession session, Object message) {
-			return (message instanceof Tuple) && PONG.equals(((Tuple) message).getField("content"));
+			return (message instanceof Tuple) && ((Tuple) message).isPong();
 		}
 
 		public Object getRequest(IoSession session) {
-			return Tuple.byString(PING);
+			return Tuple.PING;
 		}
 
 		public Object getResponse(IoSession session, Object request) {

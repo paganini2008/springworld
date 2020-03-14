@@ -107,14 +107,19 @@ public class TransportServerConfiguration {
 		return redisTemplate;
 	}
 
-	@Bean("counter-bigint")
+	@Bean("redis-counter-bigint")
 	public RedisAtomicLong redisAtomicLong(@Qualifier("redis-template-bigint") RedisTemplate<String, Long> redisTemplate) {
 		return new RedisAtomicLong("transport:counter", redisTemplate);
 	}
 
-	@Bean(initMethod = "start", destroyMethod = "stop")
-	public Counter counter(@Qualifier("counter-bigint") RedisAtomicLong redisAtomicLong) {
-		return new Counter(redisAtomicLong);
+	@Bean(name = "local-counter", initMethod = "start", destroyMethod = "stop")
+	public Counter counter() {
+		return new LocalCounter();
+	}
+
+	@Bean(name = "global-counter", initMethod = "start", destroyMethod = "stop")
+	public Counter counter(@Qualifier("redis-counter-bigint") RedisAtomicLong redisAtomicLong) {
+		return new GlobalCounter(redisAtomicLong);
 	}
 
 	@Configuration
