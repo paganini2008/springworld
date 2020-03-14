@@ -1,7 +1,6 @@
 package com.github.paganini2008.transport.serializer;
 
 import java.io.InputStream;
-import java.util.HashMap;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
@@ -40,7 +39,8 @@ public class KryoSerializer implements Serializer {
 				Kryo kryo = new Kryo();
 				kryo.setReferences(false);
 				kryo.setRegistrationRequired(false);
-				kryo.register(Tuple.class, new MapSerializer<HashMap<String, Object>>());
+				MapSerializer<TupleImpl> mapSerializer = new MapSerializer<TupleImpl>();
+				kryo.register(TupleImpl.class, mapSerializer);
 				kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 				return kryo;
 			}
