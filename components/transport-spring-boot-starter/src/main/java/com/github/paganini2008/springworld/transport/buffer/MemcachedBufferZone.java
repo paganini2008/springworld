@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ClusterId;
 import com.github.paganini2008.transport.Tuple;
-import com.github.paganini2008.transport.serializer.Serializer;
 import com.google.code.yanf4j.core.impl.StandardSocketOption;
 
 import lombok.Getter;
@@ -49,9 +48,6 @@ public class MemcachedBufferZone implements BufferZone {
 
 	@Autowired
 	private ClusterId clusterId;
-
-	@Autowired
-	private Serializer serializer;
 
 	private MemcachedClient client;
 
@@ -112,7 +108,7 @@ public class MemcachedBufferZone implements BufferZone {
 			pushing.set(popping.get());
 		}
 		String key = counter.getKey() + ":" + pushing.incrementAndGet();
-		client.set(key, DEFAULT_EXPIRATION, serializer.serialize(tuple));
+		client.set(key, DEFAULT_EXPIRATION, tuple);
 	}
 
 	@Override
@@ -126,10 +122,10 @@ public class MemcachedBufferZone implements BufferZone {
 			return null;
 		}
 		String key = counter.getKey() + ":" + popping.incrementAndGet();
-		byte[] bytes;
-		if ((bytes = (byte[]) client.get(key)) != null) {
+		Tuple tuple;
+		if ((tuple = (Tuple) client.get(key)) != null) {
 			client.deleteWithNoReply(key);
-			return (Tuple) serializer.deserialize(bytes);
+			return tuple;
 		}
 		return null;
 	}

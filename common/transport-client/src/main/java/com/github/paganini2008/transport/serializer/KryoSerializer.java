@@ -40,8 +40,8 @@ public class KryoSerializer implements Serializer {
 				Kryo kryo = new Kryo();
 				kryo.setReferences(false);
 				kryo.setRegistrationRequired(false);
-				kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 				kryo.register(Tuple.class, new MapSerializer<HashMap<String, Object>>());
+				kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 				return kryo;
 			}
 

@@ -3,7 +3,6 @@ package com.github.paganini2008.springworld.transport.transport;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.transport.Counter;
@@ -28,7 +27,6 @@ public class MinaServerHandler extends IoHandlerAdapter {
 	@Autowired
 	private BufferZone store;
 	
-	@Qualifier("local-counter")
 	@Autowired
 	private Counter counter;
 
@@ -56,11 +54,8 @@ public class MinaServerHandler extends IoHandlerAdapter {
 
 	@Override
 	public void messageReceived(IoSession session, Object message) throws Exception {
-		counter.incrementAndGet();
-		
-		Tuple data = (Tuple) message;
-		String collectionName = (String) data.getField(Tuple.KEYWORD_COLLECTION, this.collectionName);
-		store.set(collectionName, data);
+		counter.increment();
+		store.set(collectionName, (Tuple) message);
 	}
 
 	private void fireChannelEvent(IoSession channel, EventType eventType, Throwable cause) {

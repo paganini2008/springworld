@@ -7,7 +7,6 @@ import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.transport.Counter;
@@ -35,7 +34,6 @@ public class GrizzlyServerHandler extends BaseFilter {
 	@Autowired
 	private BufferZone store;
 	
-	@Qualifier("local-counter")
 	@Autowired
 	private Counter counter;
 
@@ -57,9 +55,8 @@ public class GrizzlyServerHandler extends BaseFilter {
 			}
 			return ctx.getStopAction();
 		} else {
-			counter.incrementAndGet();
+			counter.increment();
 			try {
-				String collectionName = (String) message.getField(Tuple.KEYWORD_COLLECTION, this.collectionName);
 				store.set(collectionName, message);
 			} catch (Exception e) {
 				if (e instanceof IOException) {

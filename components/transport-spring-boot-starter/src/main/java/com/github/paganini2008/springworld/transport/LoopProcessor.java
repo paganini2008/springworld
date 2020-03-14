@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
@@ -30,13 +29,8 @@ public class LoopProcessor implements Runnable {
 	@Autowired
 	private BufferZone bufferZone;
 
-	@Qualifier("global-counter")
 	@Autowired
 	private Counter counter;
-
-	@Qualifier("local-counter")
-	@Autowired
-	private Counter localCounter;
 
 	@Autowired(required = false)
 	private ThreadPool threadPool;
@@ -99,7 +93,6 @@ public class LoopProcessor implements Runnable {
 				}
 			}
 			if (tuple != null) {
-				counter.incrementAndGet();
 
 				for (Handler handler : handlers) {
 					Tuple copy = tuple.copy();
@@ -129,8 +122,8 @@ public class LoopProcessor implements Runnable {
 		public boolean execute() {
 			if (log.isTraceEnabled()) {
 				try {
-					log.trace("[Snapshot] count=" + counter.get() + "/" + localCounter.get() + ", tps=" + counter.tps() + "/"
-							+ localCounter.tps() + ", buffer=" + bufferZone.size(collectionName));
+					log.trace("[Snapshot] count=" + counter.local() + "/" + counter.global() + ", tps=" + counter.localTps() + "/"
+							+ counter.globalTps() + ", buffer=" + bufferZone.size(collectionName));
 				} catch (Exception ignored) {
 				}
 			}

@@ -1,7 +1,6 @@
 package com.github.paganini2008.springworld.transport.transport;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.transport.Counter;
@@ -31,7 +30,6 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private BufferZone store;
 	
-	@Qualifier("local-counter")
 	@Autowired
 	private Counter counter;
 
@@ -62,11 +60,8 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object message) throws Exception {
-		counter.incrementAndGet();
-		
-		Tuple data = (Tuple) message;
-		String collectionName = (String) data.getField(Tuple.KEYWORD_COLLECTION, this.collectionName);
-		store.set(collectionName, data);
+		counter.increment();
+		store.set(collectionName, (Tuple) message);
 	}
 
 	private void fireChannelEvent(Channel channel, EventType eventType, Throwable cause) {

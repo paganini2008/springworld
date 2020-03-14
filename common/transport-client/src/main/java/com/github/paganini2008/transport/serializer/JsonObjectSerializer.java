@@ -3,7 +3,9 @@ package com.github.paganini2008.transport.serializer;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.devtools.io.SerializationException;
 import com.github.paganini2008.transport.Tuple;
@@ -22,6 +24,11 @@ public class JsonObjectSerializer implements Serializer {
 	private static final String PONG = "PONG";
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final Charset charset;
+	
+	{
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}
 
 	public JsonObjectSerializer() {
 		this(CharsetUtils.UTF_8);
