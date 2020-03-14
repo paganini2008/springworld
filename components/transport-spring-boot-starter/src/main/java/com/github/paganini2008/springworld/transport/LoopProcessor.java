@@ -100,7 +100,7 @@ public class LoopProcessor implements Runnable {
 			}
 			if (tuple != null) {
 				counter.incrementAndGet();
-				
+
 				for (Handler handler : handlers) {
 					Tuple copy = tuple.copy();
 					if (threadPool != null) {
@@ -130,7 +130,7 @@ public class LoopProcessor implements Runnable {
 			if (log.isTraceEnabled()) {
 				try {
 					log.trace("[Snapshot] count=" + counter.get() + "/" + localCounter.get() + ", tps=" + counter.tps() + "/"
-							+ localCounter.get() + ", buffer=" + bufferZone.size(collectionName));
+							+ localCounter.tps() + ", buffer=" + bufferZone.size(collectionName));
 				} catch (Exception ignored) {
 				}
 			}

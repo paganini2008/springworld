@@ -49,13 +49,13 @@ public class KryoSerializer implements Serializer {
 
 		outputPool = new Pool<Output>(true, false, outputSize) {
 			protected Output create() {
-				return new Output(1024, -1);
+				return new Output(8192, -1);
 			}
 		};
 
 		inputPool = new Pool<Input>(true, false, inputSize) {
 			protected Input create() {
-				return new Input(1024);
+				return new Input(4096);
 			}
 		};
 

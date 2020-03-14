@@ -3,6 +3,7 @@ package com.github.paganini2008.springworld.transport;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.glassfish.grizzly.Connection;
+import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -112,12 +113,12 @@ public class TransportServerConfiguration {
 		return new RedisAtomicLong("transport:counter", redisTemplate);
 	}
 
-	@Bean(name = "local-counter", initMethod = "start", destroyMethod = "stop")
+	@Bean(value = "local-counter", initMethod = "start", destroyMethod = "stop", autowire = Autowire.BY_NAME)
 	public Counter counter() {
 		return new LocalCounter();
 	}
 
-	@Bean(name = "global-counter", initMethod = "start", destroyMethod = "stop")
+	@Bean(value = "global-counter", initMethod = "start", destroyMethod = "stop", autowire = Autowire.BY_NAME)
 	public Counter counter(@Qualifier("redis-counter-bigint") RedisAtomicLong redisAtomicLong) {
 		return new GlobalCounter(redisAtomicLong);
 	}
