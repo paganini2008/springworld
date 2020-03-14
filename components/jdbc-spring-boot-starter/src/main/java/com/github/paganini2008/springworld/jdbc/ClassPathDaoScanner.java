@@ -10,7 +10,7 @@ import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import com.github.paganini2008.springworld.jdbc.optional.SpringDaoProxyBeanFactory;
+import com.github.paganini2008.springworld.jdbc.annotations.Dao;
 
 /**
  * 
@@ -21,12 +21,9 @@ import com.github.paganini2008.springworld.jdbc.optional.SpringDaoProxyBeanFacto
  */
 public class ClassPathDaoScanner extends ClassPathBeanDefinitionScanner {
 
-	public ClassPathDaoScanner(BeanDefinitionRegistry registry, boolean springSupported) {
+	public ClassPathDaoScanner(BeanDefinitionRegistry registry) {
 		super(registry, false);
-		this.springSupported = springSupported;
 	}
-
-	private boolean springSupported;
 
 	@Override
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
@@ -50,7 +47,7 @@ public class ClassPathDaoScanner extends ClassPathBeanDefinitionScanner {
 		for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
 			beanDefinition = ((GenericBeanDefinition) beanDefinitionHolder.getBeanDefinition());
 			beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-			beanDefinition.setBeanClass(springSupported ? SpringDaoProxyBeanFactory.class : DaoProxyBeanFactory.class);
+			beanDefinition.setBeanClass(DaoProxyBeanFactory.class);
 			beanDefinition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
 		}
 	}

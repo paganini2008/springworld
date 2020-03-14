@@ -11,6 +11,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
+import com.github.paganini2008.springworld.jdbc.annotations.DaoScan;
+
 /**
  * 
  * DaoScannerRegistrar
@@ -39,8 +41,7 @@ public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar, Resou
 				}
 			}
 		}
-		boolean springSupported = annotationAttributes.getBoolean("springSupported");
-		ClassPathDaoScanner scanner = new ClassPathDaoScanner(registry, springSupported);
+		ClassPathDaoScanner scanner = new ClassPathDaoScanner(registry);
 		if (resourceLoader != null) {
 			scanner.setResourceLoader(resourceLoader);
 		}

@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
- * DaoProxyBeanFactory
+ * DaoSupportProxyBeanFactory
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class DaoProxyBeanFactory<T> implements FactoryBean<T> {
+public class DaoSupportProxyBeanFactory<T> implements FactoryBean<T> {
 
 	private final Class<T> interfaceClass;
 
-	public DaoProxyBeanFactory(Class<T> interfaceClass) {
+	public DaoSupportProxyBeanFactory(Class<T> interfaceClass) {
 		this.interfaceClass = interfaceClass;
 	}
 
@@ -29,7 +29,7 @@ public class DaoProxyBeanFactory<T> implements FactoryBean<T> {
 	@Override
 	public T getObject() throws Exception {
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] { interfaceClass },
-				new DaoProxyBean<T>(interfaceClass, dataSource));
+				new DaoSupportProxyBean<T>(interfaceClass, dataSource));
 	}
 
 	@Override

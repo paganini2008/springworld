@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbc;
+package com.github.paganini2008.springworld.jdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,16 +8,18 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Dao
+ * Insert
  *
  * @author Fred Feng
+ * 
+ * 
  * @version 1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Dao {
-	
-	String value() default "";
+@Target(ElementType.METHOD)
+public @interface Insert {
+
+	String value();
 	
 }

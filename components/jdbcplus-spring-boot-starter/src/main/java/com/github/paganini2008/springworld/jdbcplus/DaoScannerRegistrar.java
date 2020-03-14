@@ -31,10 +31,6 @@ public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar, Resou
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-		ClassPathDaoScanner scanner = new ClassPathDaoScanner(registry);
-		if (resourceLoader != null) {
-			scanner.setResourceLoader(resourceLoader);
-		}
 		AnnotationAttributes annotationAttributes = AnnotationAttributes
 				.fromMap(importingClassMetadata.getAnnotationAttributes(DaoScan.class.getName()));
 		List<String> basePackages = new ArrayList<String>();
@@ -44,6 +40,10 @@ public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar, Resou
 					basePackages.add(pkg);
 				}
 			}
+		}
+		ClassPathDaoScanner scanner = new ClassPathDaoScanner(registry);
+		if (resourceLoader != null) {
+			scanner.setResourceLoader(resourceLoader);
 		}
 		scanner.scan(StringUtils.toStringArray(basePackages));
 	}

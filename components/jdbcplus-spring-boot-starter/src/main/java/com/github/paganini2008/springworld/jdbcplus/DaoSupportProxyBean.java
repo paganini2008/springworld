@@ -39,18 +39,18 @@ import com.github.paganini2008.springworld.jdbcplus.annotations.Update;
 
 /**
  * 
- * DaoProxyBean
+ * DaoSupportProxyBean
  *
  * @author Fred Feng
  * @version 1.0
  */
 @SuppressWarnings("all")
-public class DaoProxyBean<T> extends EnhancedJdbcDaoSupport implements InvocationHandler {
+public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements InvocationHandler {
 
 	private final Class<T> interfaceClass;
 	protected final Logger log;
 
-	public DaoProxyBean(Class<T> interfaceClass, DataSource dataSource) {
+	public DaoSupportProxyBean(Class<T> interfaceClass, DataSource dataSource) {
 		Assert.isNull(dataSource, "DataSource must be required.");
 		this.interfaceClass = interfaceClass;
 		this.log = LoggerFactory.getLogger(interfaceClass);

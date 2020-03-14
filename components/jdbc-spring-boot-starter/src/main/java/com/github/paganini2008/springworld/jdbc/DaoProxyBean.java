@@ -30,6 +30,13 @@ import com.github.paganini2008.devtools.db4j.mapper.TupleRowMapper;
 import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
+import com.github.paganini2008.springworld.jdbc.annotations.Arg;
+import com.github.paganini2008.springworld.jdbc.annotations.Example;
+import com.github.paganini2008.springworld.jdbc.annotations.Get;
+import com.github.paganini2008.springworld.jdbc.annotations.Insert;
+import com.github.paganini2008.springworld.jdbc.annotations.Select;
+import com.github.paganini2008.springworld.jdbc.annotations.Slice;
+import com.github.paganini2008.springworld.jdbc.annotations.Update;
 import com.github.paganini2008.springworld.tx.Session;
 import com.github.paganini2008.springworld.tx.SessionManager;
 

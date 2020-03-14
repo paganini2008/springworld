@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbc;
+package com.github.paganini2008.springworld.jdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Insert
+ * Get
  *
  * @author Fred Feng
  * 
@@ -18,8 +18,10 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Insert {
+public @interface Get {
 
 	String value();
-	
+
+	boolean javaType() default true;
+
 }

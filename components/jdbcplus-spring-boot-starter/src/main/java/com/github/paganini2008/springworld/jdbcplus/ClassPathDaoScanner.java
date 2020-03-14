@@ -47,7 +47,7 @@ public class ClassPathDaoScanner extends ClassPathBeanDefinitionScanner {
 		for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
 			beanDefinition = ((GenericBeanDefinition) beanDefinitionHolder.getBeanDefinition());
 			beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-			beanDefinition.setBeanClass(DaoProxyBeanFactory.class);
+			beanDefinition.setBeanClass(DaoSupportProxyBeanFactory.class);
 			beanDefinition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
 		}
 	}

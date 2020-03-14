@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbc;
+package com.github.paganini2008.springworld.jdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -7,6 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
+
+import com.github.paganini2008.springworld.jdbc.ApplicationContextUtils;
+import com.github.paganini2008.springworld.jdbc.DaoConfig;
+import com.github.paganini2008.springworld.jdbc.DaoScannerRegistrar;
 
 /**
  * 
@@ -22,7 +26,5 @@ import org.springframework.context.annotation.Import;
 public @interface DaoScan {
 
 	String[] basePackages();
-
-	boolean springSupported() default false;
 
 }
