@@ -39,8 +39,7 @@ public class KryoSerializer implements Serializer {
 				Kryo kryo = new Kryo();
 				kryo.setReferences(false);
 				kryo.setRegistrationRequired(false);
-				MapSerializer<TupleImpl> mapSerializer = new MapSerializer<TupleImpl>();
-				kryo.register(TupleImpl.class, mapSerializer);
+				kryo.register(Tuple.class, new MapSerializer<TupleImpl>());
 				kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 				return kryo;
 			}
@@ -49,7 +48,7 @@ public class KryoSerializer implements Serializer {
 
 		outputPool = new Pool<Output>(true, false, outputSize) {
 			protected Output create() {
-				return new Output(8192, -1);
+				return new Output(4096, -1);
 			}
 		};
 
