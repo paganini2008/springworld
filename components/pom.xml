@@ -24,6 +24,7 @@
 		<module>scheduler-spring-boot-starter</module>
 		<module>jdbcplus-spring-boot-starter</module>
 		<module>jdbc-spring-boot-starter</module>
+		<module>xmemcached-spring-boot-starter</module>
     </modules>
 	
     <packaging>pom</packaging>

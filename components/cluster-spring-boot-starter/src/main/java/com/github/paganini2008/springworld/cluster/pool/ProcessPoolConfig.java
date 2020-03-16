@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastConfig;
+import com.github.paganini2008.springworld.redis.BeanNames;
 import com.github.paganini2008.springworld.redis.concurrents.Lifespan;
 import com.github.paganini2008.springworld.redis.concurrents.RedisKeyLifespan;
 import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
@@ -39,10 +41,10 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public Lifespan lifespan(RedisTemplate<String, Object> redisOperations) {
+	public Lifespan lifespan(@Qualifier(BeanNames.REDIS_TEMPLATE) RedisTemplate<String, Object> redisOperations) {
 		return new RedisKeyLifespan(threadPoolTaskScheduler(), redisOperations);
 	}
-	
+
 	@ConditionalOnMissingBean(TaskScheduler.class)
 	@Bean
 	public TaskScheduler threadPoolTaskScheduler() {

@@ -5,10 +5,12 @@ import static com.github.paganini2008.springworld.cluster.pool.ProcessPool.TOPIC
 import java.util.concurrent.RejectedExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springworld.redis.BeanNames;
 
 /**
  * 
@@ -22,6 +24,7 @@ import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 public class RedisWorkQueue implements WorkQueue {
 
 	@Autowired
+	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
@@ -49,7 +52,7 @@ public class RedisWorkQueue implements WorkQueue {
 			ThreadUtils.randomSleep(1000L);
 		}
 	}
-	
+
 	public int size() {
 		return redisTemplate.opsForList().size(getKey()).intValue();
 	}

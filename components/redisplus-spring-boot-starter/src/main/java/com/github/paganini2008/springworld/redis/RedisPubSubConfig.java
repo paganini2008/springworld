@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis.pubsub;
+package com.github.paganini2008.springworld.redis;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +21,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.paganini2008.springworld.redis.pubsub.RedisEphemeralMessageListener;
+import com.github.paganini2008.springworld.redis.pubsub.RedisMessageEventPublisher;
+import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandlerBeanProcessor;
+import com.github.paganini2008.springworld.redis.pubsub.RedisMessageListener;
+import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
 /**
  * 
@@ -36,8 +41,7 @@ public class RedisPubSubConfig {
 	@Value("${spring.redis.pubsub.channel:pubsub}")
 	private String channel;
 
-	@Bean
-	@ConditionalOnMissingBean(RedisSerializer.class)
+	@Bean(BeanNames.REDIS_SERIALIZER)
 	public RedisSerializer<Object> redisSerializer() {
 		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
 		ObjectMapper om = new ObjectMapper();
@@ -47,10 +51,9 @@ public class RedisPubSubConfig {
 		return jackson2JsonRedisSerializer;
 	}
 
-	@Bean
-	@ConditionalOnMissingBean(RedisTemplate.class)
+	@Bean(BeanNames.REDIS_TEMPLATE)
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
-			RedisSerializer<Object> redisSerializer) {
+			@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
 		redisTemplate.setConnectionFactory(redisConnectionFactory);
 		StringRedisSerializer stringSerializer = new StringRedisSerializer();
@@ -68,48 +71,47 @@ public class RedisPubSubConfig {
 		return new StringRedisTemplate(redisConnectionFactory);
 	}
 
-	@Bean("key-expiration-event-message-listener")
 	public KeyExpirationEventMessageListener keyExpirationEventMessageListener(
-			@Qualifier("redis-message-listener-container") RedisMessageListenerContainer redisMessageListenerContainer) {
+			@Qualifier(BeanNames.REDIS_MESSAGE_LISTENER_CONTAINER) RedisMessageListenerContainer redisMessageListenerContainer) {
 		KeyExpirationEventMessageListener listener = new KeyExpirationEventMessageListener(redisMessageListenerContainer);
 		listener.setKeyspaceNotificationsConfigParameter("Ex");
 		return listener;
 	}
 
-	@Bean("redis-message-event-publisher")
+	@Bean(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
 	public RedisMessageEventPublisher redisMessageEventPublisher() {
 		return new RedisMessageEventPublisher();
 	}
 
-	@DependsOn("redis-message-event-publisher")
-	@Bean("redis-message-listener-adapter")
-	public MessageListenerAdapter messageListenerAdapter(RedisSerializer<Object> redisSerializer) {
+	@DependsOn(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
+	@Bean(BeanNames.MESSAGE_LISTENER_ADAPTER)
+	public MessageListenerAdapter messageListenerAdapter(@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
 		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "publish");
 		adapter.setSerializer(redisSerializer);
 		adapter.afterPropertiesSet();
 		return adapter;
 	}
 
-	@Bean("redis-message-listener-container")
+	@Bean(BeanNames.REDIS_MESSAGE_LISTENER_CONTAINER)
 	public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
-			@Qualifier("redis-message-listener-adapter") MessageListenerAdapter messageListenerAdapter) {
+			@Qualifier(BeanNames.MESSAGE_LISTENER_ADAPTER) MessageListenerAdapter messageListenerAdapter) {
 		RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
 		redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
 		redisMessageListenerContainer.addMessageListener(messageListenerAdapter, new ChannelTopic(channel));
 		return redisMessageListenerContainer;
 	}
 
-	@Bean("redis-message-listener")
+	@Bean(BeanNames.REDIS_MESSAGE_LISTENER)
 	public RedisMessageListener redisMessageListener() {
 		return new RedisMessageListener();
 	}
 
-	@Bean("redis-ephemeral-message-listener")
+	@Bean(BeanNames.REDIS_EPHEMERAL_MESSAGE_LISTENER)
 	public RedisEphemeralMessageListener redisEphemeralMessageListener() {
 		return new RedisEphemeralMessageListener();
 	}
 
-	@Bean("redis-message-sender")
+	@Bean(BeanNames.REDIS_MESSAGE_SENDER)
 	public RedisMessageSender redisMessageSender() {
 		return new RedisMessageSender();
 	}

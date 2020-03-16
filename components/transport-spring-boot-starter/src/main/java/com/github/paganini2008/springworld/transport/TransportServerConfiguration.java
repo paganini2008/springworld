@@ -4,6 +4,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.glassfish.grizzly.Connection;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -13,10 +14,14 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
+import org.springframework.lang.Nullable;
 
 import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
+import com.github.paganini2008.springworld.redis.KryoRedisSerializer;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
+import com.github.paganini2008.springworld.transport.buffer.MemcachedBufferZone;
 import com.github.paganini2008.springworld.transport.buffer.RedisBufferZone;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyChannelEventListener;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyServer;
@@ -29,10 +34,14 @@ import com.github.paganini2008.springworld.transport.transport.NettyServer;
 import com.github.paganini2008.springworld.transport.transport.NettyServerHandler;
 import com.github.paganini2008.springworld.transport.transport.NettyServerKeepAlivePolicy;
 import com.github.paganini2008.springworld.transport.transport.NioServer;
+import com.github.paganini2008.springworld.xmemcached.MemcachedSerializer;
+import com.github.paganini2008.springworld.xmemcached.MemcachedTemplate;
+import com.github.paganini2008.springworld.xmemcached.MemcachedTemplateBuilder;
 import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
+import com.github.paganini2008.transport.TupleImpl;
 import com.github.paganini2008.transport.grizzly.GrizzlyClient;
 import com.github.paganini2008.transport.grizzly.GrizzlyTupleCodecFactory;
 import com.github.paganini2008.transport.grizzly.TupleCodecFactory;
@@ -66,12 +75,6 @@ public class TransportServerConfiguration {
 	@Bean(destroyMethod = "stop")
 	public LoopProcessor loopProcessor() {
 		return new LoopProcessor();
-	}
-
-	@ConditionalOnMissingBean(BufferZone.class)
-	@Bean(initMethod = "configure", destroyMethod = "destroy")
-	public BufferZone bufferZone() {
-		return new RedisBufferZone();
 	}
 
 	@ConditionalOnMissingBean(Partitioner.class)
@@ -115,6 +118,57 @@ public class TransportServerConfiguration {
 	@Bean(initMethod = "start", destroyMethod = "stop")
 	public Counter counter(@Qualifier("redis-counter-bigint") RedisAtomicLong redisAtomicLong) {
 		return new Counter(redisAtomicLong);
+	}
+
+	@Configuration
+	@ConditionalOnProperty(name = "spring.transport.bufferzone", havingValue = "redis", matchIfMissing = true)
+	public static class RedisBufferZoneConfiguration {
+
+		@Bean("bufferzone-redis-serializer")
+		public RedisSerializer<Object> redisSerializer() {
+			return new KryoRedisSerializer(TupleImpl.class);
+		}
+
+		@Bean("bufferzone-redis-template")
+		public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
+				@Qualifier("bufferzone-redis-serializer") RedisSerializer<Object> redisSerializer) {
+			RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
+			redisTemplate.setConnectionFactory(redisConnectionFactory);
+			StringRedisSerializer stringSerializer = new StringRedisSerializer();
+			redisTemplate.setKeySerializer(stringSerializer);
+			redisTemplate.setValueSerializer(redisSerializer);
+			redisTemplate.setHashKeySerializer(stringSerializer);
+			redisTemplate.setHashValueSerializer(redisSerializer);
+			redisTemplate.afterPropertiesSet();
+			return redisTemplate;
+		}
+
+		@Bean(initMethod = "configure", destroyMethod = "destroy")
+		public BufferZone bufferZone() {
+			return new RedisBufferZone();
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty(name = "spring.transport.bufferzone", havingValue = "memcached")
+	public static class MemcachedBufferZoneConfiguration {
+
+		@Value("${spring.memcached.address:localhost:11211}")
+		private String address;
+
+		@ConditionalOnMissingBean(MemcachedTemplate.class)
+		@Bean
+		public MemcachedTemplate memcachedTemplate(@Nullable MemcachedSerializer memcachedSerializer) throws Exception {
+			MemcachedTemplateBuilder builder = new MemcachedTemplateBuilder();
+			builder.setAddress(address);
+			builder.setSerializer(memcachedSerializer);
+			return builder.build();
+		}
+
+		@Bean(initMethod = "configure", destroyMethod = "destroy")
+		public BufferZone bufferZone() {
+			return new MemcachedBufferZone();
+		}
 	}
 
 	@Configuration

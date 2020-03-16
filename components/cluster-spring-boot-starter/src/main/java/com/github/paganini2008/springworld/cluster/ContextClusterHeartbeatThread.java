@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
@@ -32,7 +32,7 @@ public class ContextClusterHeartbeatThread implements Executable {
 	private ContextClusterConfigProperties configProperties;
 
 	@Autowired
-	private RedisTemplate<String, Object> redisTemplate;
+	private StringRedisTemplate redisTemplate;
 
 	@Override
 	public boolean execute() {

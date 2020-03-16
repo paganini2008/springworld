@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import com.github.paganini2008.springworld.redis.BeanNames;
+
 /**
  * 
  * RedisMessageSender
@@ -25,14 +27,15 @@ public class RedisMessageSender {
 	private String namespace;
 
 	@Autowired
+	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
-	@Qualifier("redis-message-listener")
+	@Qualifier(BeanNames.REDIS_MESSAGE_LISTENER)
 	private RedisMessageListener redisMessageListener;
 
 	@Autowired
-	@Qualifier("redis-ephemeral-message-listener")
+	@Qualifier(BeanNames.REDIS_EPHEMERAL_MESSAGE_LISTENER)
 	private RedisEphemeralMessageListener redisEphemeralMessageListener;
 
 	public void sendMessage(String channel, Object message) {

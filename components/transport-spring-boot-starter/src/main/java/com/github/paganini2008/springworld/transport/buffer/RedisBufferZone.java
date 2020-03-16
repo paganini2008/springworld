@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.transport.buffer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -16,6 +17,7 @@ import com.github.paganini2008.transport.Tuple;
  */
 public class RedisBufferZone implements BufferZone {
 
+	@Qualifier("bufferzone-redis-template")
 	@Autowired
 	private RedisTemplate<String, Object> template;
 
