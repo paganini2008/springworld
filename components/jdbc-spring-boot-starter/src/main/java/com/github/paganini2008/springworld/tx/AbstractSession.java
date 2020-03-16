@@ -27,7 +27,7 @@ public abstract class AbstractSession implements Session {
 
 	@Override
 	public long getTimeout() {
-		return -1;
+		return -1L;
 	}
 
 	@Override
