@@ -24,10 +24,10 @@ public class KryoMemcachedSerializer implements MemcachedSerializer {
 	private final Pool<Input> inputPool;
 
 	public KryoMemcachedSerializer() {
-		this(16, DEFAULT_POOL_SIZE, DEFAULT_POOL_SIZE);
+		this(16, DEFAULT_POOL_SIZE, DEFAULT_POOL_SIZE, 4096);
 	}
 
-	public KryoMemcachedSerializer(int poolSize, int outputSize, int inputSize) {
+	public KryoMemcachedSerializer(int poolSize, int outputSize, int inputSize, int bufferSize) {
 		pool = new Pool<Kryo>(true, false, poolSize) {
 
 			@Override
@@ -43,13 +43,13 @@ public class KryoMemcachedSerializer implements MemcachedSerializer {
 
 		outputPool = new Pool<Output>(true, false, outputSize) {
 			protected Output create() {
-				return new Output(4096, -1);
+				return new Output(bufferSize, -1);
 			}
 		};
 
 		inputPool = new Pool<Input>(true, false, inputSize) {
 			protected Input create() {
-				return new Input(4096);
+				return new Input(bufferSize);
 			}
 		};
 	}

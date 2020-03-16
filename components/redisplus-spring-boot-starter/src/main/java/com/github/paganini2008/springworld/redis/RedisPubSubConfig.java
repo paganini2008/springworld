@@ -71,6 +71,7 @@ public class RedisPubSubConfig {
 		return new StringRedisTemplate(redisConnectionFactory);
 	}
 
+	@Bean
 	public KeyExpirationEventMessageListener keyExpirationEventMessageListener(
 			@Qualifier(BeanNames.REDIS_MESSAGE_LISTENER_CONTAINER) RedisMessageListenerContainer redisMessageListenerContainer) {
 		KeyExpirationEventMessageListener listener = new KeyExpirationEventMessageListener(redisMessageListenerContainer);

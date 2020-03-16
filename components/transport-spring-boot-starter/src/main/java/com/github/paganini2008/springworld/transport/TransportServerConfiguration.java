@@ -16,7 +16,6 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
-import org.springframework.lang.Nullable;
 
 import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
 import com.github.paganini2008.springworld.redis.KryoRedisSerializer;
@@ -34,6 +33,7 @@ import com.github.paganini2008.springworld.transport.transport.NettyServer;
 import com.github.paganini2008.springworld.transport.transport.NettyServerHandler;
 import com.github.paganini2008.springworld.transport.transport.NettyServerKeepAlivePolicy;
 import com.github.paganini2008.springworld.transport.transport.NioServer;
+import com.github.paganini2008.springworld.xmemcached.KryoMemcachedSerializer;
 import com.github.paganini2008.springworld.xmemcached.MemcachedSerializer;
 import com.github.paganini2008.springworld.xmemcached.MemcachedTemplate;
 import com.github.paganini2008.springworld.xmemcached.MemcachedTemplateBuilder;
@@ -156,9 +156,15 @@ public class TransportServerConfiguration {
 		@Value("${spring.memcached.address:localhost:11211}")
 		private String address;
 
+		@ConditionalOnMissingBean(MemcachedSerializer.class)
+		@Bean
+		public MemcachedSerializer memcachedSerializer() {
+			return new KryoMemcachedSerializer();
+		}
+
 		@ConditionalOnMissingBean(MemcachedTemplate.class)
 		@Bean
-		public MemcachedTemplate memcachedTemplate(@Nullable MemcachedSerializer memcachedSerializer) throws Exception {
+		public MemcachedTemplate memcachedTemplate(MemcachedSerializer memcachedSerializer) throws Exception {
 			MemcachedTemplateBuilder builder = new MemcachedTemplateBuilder();
 			builder.setAddress(address);
 			builder.setSerializer(memcachedSerializer);
