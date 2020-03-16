@@ -24,7 +24,7 @@ public class JsonObjectSerializer implements Serializer {
 	private static final String PONG = "PONG";
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final Charset charset;
-	
+
 	{
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -41,7 +41,7 @@ public class JsonObjectSerializer implements Serializer {
 	@Override
 	public byte[] serialize(Tuple tuple) {
 		try {
-			String content = (String) tuple.getField("content");
+			String content = (String) tuple.getField(Tuple.KEYWORD_CONTENT);
 			return content.getBytes(charset);
 		} catch (Exception e) {
 			throw new SerializationException(e);
