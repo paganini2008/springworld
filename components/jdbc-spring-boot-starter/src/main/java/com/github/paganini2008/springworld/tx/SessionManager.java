@@ -34,7 +34,7 @@ public final class SessionManager {
 
 		@Override
 		protected Session initialValue() {
-			return new NoTransactionSession(sqlPlus, allocateCache());
+			return new NotTransactionalSession(sqlPlus, allocateCache());
 		}
 
 	};

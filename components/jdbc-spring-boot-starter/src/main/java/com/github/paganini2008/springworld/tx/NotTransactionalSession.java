@@ -5,14 +5,14 @@ import com.github.paganini2008.devtools.db4j.JdbcOperations;
 
 /**
  * 
- * NoTransactionSession
+ * NotTransactionalSession
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class NoTransactionSession extends AbstractSession {
+public class NotTransactionalSession extends AbstractSession {
 
-	public NoTransactionSession(JdbcOperations jdbcOperations, Cache cache) {
+	public NotTransactionalSession(JdbcOperations jdbcOperations, Cache cache) {
 		super(jdbcOperations, cache);
 	}
 

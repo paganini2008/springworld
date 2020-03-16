@@ -32,20 +32,20 @@ public class RedisBufferZone implements BufferZone {
 
 	@Override
 	public void set(String name, Tuple tuple) {
-		template.opsForList().leftPush(getKey(name), tuple);
+		template.opsForList().leftPush(keyFor(name), tuple);
 	}
 
 	@Override
 	public Tuple get(String name) {
-		return (Tuple) template.opsForList().leftPop(getKey(name));
+		return (Tuple) template.opsForList().leftPop(keyFor(name));
 	}
 
 	@Override
 	public int size(String name) {
-		return template.opsForList().size(getKey(name)).intValue();
+		return template.opsForList().size(keyFor(name)).intValue();
 	}
 
-	private String getKey(String name) {
+	private String keyFor(String name) {
 		return "transport:bufferzone:" + name + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
 	}
 
