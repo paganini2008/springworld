@@ -1,13 +1,17 @@
 package com.github.paganini2008.springworld.transport;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadPool;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
@@ -38,25 +42,35 @@ public class LoopProcessor implements Runnable {
 	@Value("${spring.transport.bufferzone.collectionName:default}")
 	private String collectionName;
 
-	private final Queue<Handler> handlers = new ConcurrentLinkedQueue<Handler>();
+	private final Map<String, List<Handler>> topicAndHandlers = new ConcurrentHashMap<String, List<Handler>>();
 	private final AtomicBoolean running = new AtomicBoolean(false);
 	private Thread runner;
 	private LoggingThread loggingThread = new LoggingThread();
 
 	public void addHandler(Handler handler) {
 		if (handler != null) {
-			handlers.add(handler);
+			List<Handler> handlers = MapUtils.get(topicAndHandlers, handler.getTopic(), () -> {
+				return new CopyOnWriteArrayList<Handler>();
+			});
+			if (!handlers.contains(handler)) {
+				handlers.add(handler);
+			}
 		}
 	}
 
 	public void removeHandler(Handler handler) {
-		while (handlers.contains(handler)) {
-			handlers.remove(handler);
+		if (handler != null) {
+			List<Handler> handlers = topicAndHandlers.get(handler.getTopic());
+			if (handlers != null) {
+				while (handlers.contains(handler)) {
+					handlers.remove(handler);
+				}
+			}
 		}
 	}
 
 	public int countOfHandlers() {
-		return handlers.size();
+		return topicAndHandlers.size();
 	}
 
 	public void startDaemon() {
@@ -81,9 +95,7 @@ public class LoopProcessor implements Runnable {
 	@Override
 	public void run() {
 		while (running.get()) {
-			if (bufferZone == null) {
-				break;
-			}
+
 			Tuple tuple = null;
 			try {
 				tuple = bufferZone.get(collectionName);
@@ -93,15 +105,17 @@ public class LoopProcessor implements Runnable {
 				}
 			}
 			if (tuple != null) {
-
-				for (Handler handler : handlers) {
-					Tuple copy = tuple.copy();
-					if (threadPool != null) {
-						threadPool.apply(() -> {
+				List<Handler> handlers = topicAndHandlers.get(tuple.getTopic());
+				if (CollectionUtils.isNotCollection(handlers)) {
+					for (Handler handler : handlers) {
+						Tuple copy = tuple.copy();
+						if (threadPool != null) {
+							threadPool.apply(() -> {
+								handler.onData(copy);
+							});
+						} else {
 							handler.onData(copy);
-						});
-					} else {
-						handler.onData(copy);
+						}
 					}
 				}
 				tuple = null;

@@ -29,15 +29,15 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
 	@Autowired
 	private BufferZone store;
-	
+
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.transport.bufferzone.collectionName:default}")
-	private String collectionName;
-
 	@Autowired(required = false)
 	private ChannelEventListener<Channel> channelEventListener;
+	
+	@Value("${spring.transport.bufferzone.collectionName:default}")
+	private String collectionName;
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {

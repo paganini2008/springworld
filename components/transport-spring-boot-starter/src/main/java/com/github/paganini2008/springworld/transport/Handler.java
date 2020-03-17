@@ -13,4 +13,8 @@ public interface Handler {
 
 	void onData(Tuple tuple);
 
+	default String getTopic() {
+		return Tuple.DEFAULT_TOPIC;
+	}
+
 }

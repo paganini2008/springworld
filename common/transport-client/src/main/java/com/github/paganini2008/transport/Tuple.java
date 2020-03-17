@@ -11,8 +11,9 @@ import java.util.Map;
  */
 public interface Tuple {
 
+	static final String DEFAULT_TOPIC = "default";
 	static final String KEYWORD_CONTENT = "content";
-	static final String KEYWORD_COLLECTION = "collection";
+	static final String KEYWORD_TOPIC = "topic";
 	static final Tuple PING = Tuple.byString("PING");
 	static final Tuple PONG = Tuple.byString("PONG");
 
@@ -37,6 +38,14 @@ public interface Tuple {
 	Map<String, Object> toMap();
 
 	Tuple copy();
+
+	default String getTopic() {
+		try {
+			return (String) getField(KEYWORD_TOPIC, DEFAULT_TOPIC);
+		} catch (RuntimeException e) {
+			throw new TransportClientException("Don't use topic as key to put into Tuple because it is a keyword.");
+		}
+	}
 
 	default boolean isPing() {
 		return "PING".equals(getField(KEYWORD_CONTENT));
