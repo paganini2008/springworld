@@ -35,23 +35,14 @@ public class TransportClient implements Executable {
 		this.lookupAddress = lookupAddress;
 		this.nioClient = nioClient;
 		this.partitioner = partitioner;
-
-		if (startupDelay > 0) {
-			ThreadUtils.schedule(() -> {
-				start();
-			}, startupDelay, TimeUnit.SECONDS);
-		} else if (startupDelay == 0) {
-			start();
-		} else {
-			logger.warn("Please startup the TransportClient manually later.");
-		}
-
+		this.startupDelay = startupDelay;
 	}
 
 	private final String clusterName;
 	private final LookupAddress lookupAddress;
 	private final NioClient nioClient;
 	private final Partitioner partitioner;
+	private final int startupDelay;
 	private boolean started;
 
 	public void setGroupingFieldName(String groupingFieldName) {
@@ -81,6 +72,18 @@ public class TransportClient implements Executable {
 		if (StringUtils.isBlank(clusterName)) {
 			throw new TransportClientException("ClusterName must be required.");
 		}
+		if (startupDelay > 0) {
+			ThreadUtils.schedule(() -> {
+				doStart();
+			}, startupDelay, TimeUnit.SECONDS);
+		} else {
+			doStart();
+		}
+
+	}
+
+	private void doStart() {
+		nioClient.open();
 		doConnect();
 		ThreadUtils.scheduleAtFixedRate(this, 1, TimeUnit.MINUTES);
 		started = true;

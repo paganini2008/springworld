@@ -106,7 +106,7 @@ public class LoopProcessor implements Runnable {
 			}
 			if (tuple != null) {
 				List<Handler> handlers = topicAndHandlers.get(tuple.getTopic());
-				if (CollectionUtils.isNotCollection(handlers)) {
+				if (CollectionUtils.isNotEmpty(handlers)) {
 					for (Handler handler : handlers) {
 						Tuple copy = tuple.copy();
 						if (threadPool != null) {

@@ -31,22 +31,22 @@ public class RedisBufferZone implements BufferZone {
 	private boolean cooperative;
 
 	@Override
-	public void set(String name, Tuple tuple) {
-		template.opsForList().leftPush(keyFor(name), tuple);
+	public void set(String collectionName, Tuple tuple) {
+		template.opsForList().leftPush(keyFor(collectionName), tuple);
 	}
 
 	@Override
-	public Tuple get(String name) {
-		return (Tuple) template.opsForList().leftPop(keyFor(name));
+	public Tuple get(String collectionName) {
+		return (Tuple) template.opsForList().leftPop(keyFor(collectionName));
 	}
 
 	@Override
-	public int size(String name) {
-		return template.opsForList().size(keyFor(name)).intValue();
+	public int size(String collectionName) {
+		return template.opsForList().size(keyFor(collectionName)).intValue();
 	}
 
-	private String keyFor(String name) {
-		return "transport:bufferzone:" + name + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
+	private String keyFor(String collectionName) {
+		return "transport:bufferzone:" + collectionName + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
 	}
 
 }

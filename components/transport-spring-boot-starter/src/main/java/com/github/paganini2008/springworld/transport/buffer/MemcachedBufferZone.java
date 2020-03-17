@@ -38,21 +38,21 @@ public class MemcachedBufferZone implements BufferZone {
 	private MemcachedTemplate memcachedOperations;
 
 	@Override
-	public void set(String name, Tuple tuple) throws Exception {
-		memcachedOperations.push(keyFor(name), DEFAULT_EXPIRATION, tuple);
+	public void set(String collectionName, Tuple tuple) throws Exception {
+		memcachedOperations.push(keyFor(collectionName), DEFAULT_EXPIRATION, tuple);
 	}
 
 	@Override
-	public Tuple get(String name) throws Exception {
-		return memcachedOperations.pop(keyFor(name), TupleImpl.class);
+	public Tuple get(String collectionName) throws Exception {
+		return memcachedOperations.pop(keyFor(collectionName), TupleImpl.class);
 	}
 
-	private String keyFor(String name) {
-		return "transport:bufferzone:" + name + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
+	private String keyFor(String collectionName) {
+		return "transport:bufferzone:" + collectionName + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
 	}
 
 	@Override
-	public int size(String name) throws Exception {
+	public int size(String collectionName) throws Exception {
 		Map<InetSocketAddress, Map<String, String>> result = memcachedOperations.getClient().getStats();
 		int total = 0;
 		if (result != null) {

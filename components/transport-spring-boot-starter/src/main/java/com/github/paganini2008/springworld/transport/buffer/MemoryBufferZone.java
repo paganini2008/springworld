@@ -28,24 +28,24 @@ public class MemoryBufferZone implements BufferZone {
 	}
 
 	@Override
-	public void set(String name, Tuple tuple) {
-		LruQueue<Tuple> q = cache.get(name);
+	public void set(String collectionName, Tuple tuple) {
+		LruQueue<Tuple> q = cache.get(collectionName);
 		if (q == null) {
-			cache.putIfAbsent(name, new LruQueue<Tuple>(maxSize));
-			q = cache.get(name);
+			cache.putIfAbsent(collectionName, new LruQueue<Tuple>(maxSize));
+			q = cache.get(collectionName);
 		}
 		q.offer(tuple);
 	}
 
 	@Override
-	public Tuple get(String name) {
-		LruQueue<Tuple> q = cache.get(name);
+	public Tuple get(String collectionName) {
+		LruQueue<Tuple> q = cache.get(collectionName);
 		return q != null ? q.poll() : null;
 	}
 
 	@Override
-	public int size(String name) {
-		LruQueue<Tuple> q = cache.get(name);
+	public int size(String collectionName) {
+		LruQueue<Tuple> q = cache.get(collectionName);
 		return q != null ? q.size() : 0;
 	}
 

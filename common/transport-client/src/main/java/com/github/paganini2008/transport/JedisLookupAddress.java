@@ -28,16 +28,18 @@ public class JedisLookupAddress implements LookupAddress {
 		this.port = port;
 		this.password = password;
 		this.dbIndex = dbIndex;
-		this.jedisPool = getPool();
 	}
 
 	private JedisPool jedisPool;
 
 	@Override
-	public String[] getAddresses(String clusterName) throws Exception{
+	public String[] getAddresses(String clusterName) throws Exception {
 		List<String> addresses = new ArrayList<String>();
 		Jedis jedis = null;
 		try {
+			if (jedisPool == null) {
+				jedisPool = getPool();
+			}
 			jedis = jedisPool.getResource();
 			String fullName = CLUSTER_NAMESPACE + clusterName;
 			List<String> clusterIds = jedis.lrange(fullName, 0, -1);
@@ -55,7 +57,9 @@ public class JedisLookupAddress implements LookupAddress {
 
 	@Override
 	public void releaseExternalResources() {
-		jedisPool.close();
+		if (jedisPool != null) {
+			jedisPool.close();
+		}
 	}
 
 	public String getHost() {

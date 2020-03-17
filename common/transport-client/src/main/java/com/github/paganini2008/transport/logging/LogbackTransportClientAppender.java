@@ -126,6 +126,7 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 		if (StringUtils.isNotBlank(groupingFieldName)) {
 			this.transportClient.setGroupingFieldName(groupingFieldName);
 		}
+		this.transportClient.start();
 		super.start();
 	}
 
