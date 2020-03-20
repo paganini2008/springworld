@@ -53,11 +53,16 @@ public class RedisEphemeralMessageListener implements ApplicationListener<RedisK
 			final Object expiredValue = getExpiredValue(expiredKey);
 			Map<String, RedisMessageHandler> handlers = channelHandlers.get(channel);
 			if (handlers != null) {
-				for (RedisMessageHandler handler : handlers.values()) {
+				RedisMessageHandler handler;
+				for (Map.Entry<String, RedisMessageHandler> entry : handlers.entrySet()) {
+					handler = entry.getValue();
 					try {
 						handler.onMessage(channel, expiredValue);
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
+					}
+					if (!handler.isRepeatable()) {
+						handlers.remove(entry.getKey());
 					}
 				}
 			}
@@ -65,11 +70,16 @@ public class RedisEphemeralMessageListener implements ApplicationListener<RedisK
 				if (matchesChannel(keyPattern, channel)) {
 					handlers = channelPatternHandlers.get(keyPattern);
 					if (handlers != null) {
-						for (RedisMessageHandler handler : handlers.values()) {
+						RedisMessageHandler handler;
+						for (Map.Entry<String, RedisMessageHandler> entry : handlers.entrySet()) {
+							handler = entry.getValue();
 							try {
 								handler.onMessage(channel, expiredValue);
 							} catch (Exception e) {
 								log.error(e.getMessage(), e);
+							}
+							if (!handler.isRepeatable()) {
+								handlers.remove(entry.getKey());
 							}
 						}
 					}

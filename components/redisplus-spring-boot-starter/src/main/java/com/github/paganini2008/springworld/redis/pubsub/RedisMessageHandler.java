@@ -17,4 +17,8 @@ public interface RedisMessageHandler {
 		return false;
 	}
 
+	default boolean isRepeatable() {
+		return true;
+	}
+
 }

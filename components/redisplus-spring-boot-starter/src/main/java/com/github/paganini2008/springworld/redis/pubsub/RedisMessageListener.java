@@ -22,7 +22,7 @@ public class RedisMessageListener implements ApplicationListener<RedisMessageEve
 
 	private final Map<String, Map<String, RedisMessageHandler>> channelHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
 	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelPatternHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
-	
+
 	public void onApplicationEvent(RedisMessageEvent event) {
 		final String channel = event.getChannel();
 		if (log.isTraceEnabled()) {
@@ -31,11 +31,16 @@ public class RedisMessageListener implements ApplicationListener<RedisMessageEve
 		final Object message = event.getMessage();
 		Map<String, RedisMessageHandler> handlers = channelHandlers.get(channel);
 		if (handlers != null) {
-			for (RedisMessageHandler handler : handlers.values()) {
+			RedisMessageHandler handler;
+			for (Map.Entry<String, RedisMessageHandler> entry : handlers.entrySet()) {
+				handler = entry.getValue();
 				try {
 					handler.onMessage(channel, message);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
+				}
+				if (!handler.isRepeatable()) {
+					handlers.remove(entry.getKey());
 				}
 			}
 		}
@@ -43,18 +48,23 @@ public class RedisMessageListener implements ApplicationListener<RedisMessageEve
 			if (matchesChannel(keyPattern, channel)) {
 				handlers = channelPatternHandlers.get(keyPattern);
 				if (handlers != null) {
-					for (RedisMessageHandler handler : handlers.values()) {
+					RedisMessageHandler handler;
+					for (Map.Entry<String, RedisMessageHandler> entry : handlers.entrySet()) {
+						handler = entry.getValue();
 						try {
 							handler.onMessage(channel, message);
 						} catch (Exception e) {
 							log.error(e.getMessage(), e);
+						}
+						if (!handler.isRepeatable()) {
+							handlers.remove(entry.getKey());
 						}
 					}
 				}
 			}
 		}
 	}
-	
+
 	private boolean matchesChannel(String keyPattern, String channel) {
 		String key;
 		int index = keyPattern.lastIndexOf('*');
@@ -74,7 +84,7 @@ public class RedisMessageListener implements ApplicationListener<RedisMessageEve
 			return true;
 		}
 	}
-	
+
 	public void removeHandler(String beanName) {
 		for (Map<String, RedisMessageHandler> handlers : channelHandlers.values()) {
 			handlers.remove(beanName);
@@ -99,7 +109,7 @@ public class RedisMessageListener implements ApplicationListener<RedisMessageEve
 		}
 		handlers.putIfAbsent(beanName, handler);
 	}
-	
+
 	private String getCheckedChannel(String channel) {
 		return channel.replaceAll("[\\*]+", "*");
 	}
