@@ -10,8 +10,6 @@ import lombok.Setter;
  * ContextClusterConfigProperties
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Getter

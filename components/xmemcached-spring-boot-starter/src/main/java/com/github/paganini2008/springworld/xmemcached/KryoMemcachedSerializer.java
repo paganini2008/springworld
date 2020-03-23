@@ -56,6 +56,9 @@ public class KryoMemcachedSerializer implements MemcachedSerializer {
 
 	@Override
 	public byte[] serialize(Object object) {
+		if (object == null) {
+			return null;
+		}
 		Kryo kryo = pool.obtain();
 		Output output = outputPool.obtain();
 		try {

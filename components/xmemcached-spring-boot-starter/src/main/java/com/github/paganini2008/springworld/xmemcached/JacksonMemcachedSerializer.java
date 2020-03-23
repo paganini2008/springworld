@@ -26,6 +26,9 @@ public class JacksonMemcachedSerializer implements MemcachedSerializer {
 
 	@Override
 	public byte[] serialize(Object object) {
+		if (object == null) {
+			return null;
+		}
 		try {
 			return objectMapper.writeValueAsBytes(object);
 		} catch (IOException e) {

@@ -19,7 +19,8 @@ import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils
  * @version 1.0
  */
 @Configuration
-@Import({ ContextClusterConfig.class, ContextMulticastConfig.class, ContextMulticastEventHandlerBeanProcessor.class,
-		ProcessPoolConfig.class, ContextClusterController.class, ContextMulticastController.class, ApplicationContextUtils.class })
+@Import({ ContextClusterSupportConfig.class, ContextClusterConfig.class, ContextMulticastConfig.class,
+		ContextMulticastEventHandlerBeanProcessor.class, ProcessPoolConfig.class, ContextClusterController.class,
+		ContextMulticastController.class, ApplicationContextUtils.class })
 public class ContextClusterAutoConfiguration {
 }
