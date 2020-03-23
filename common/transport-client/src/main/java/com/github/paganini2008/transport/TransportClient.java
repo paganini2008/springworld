@@ -43,7 +43,7 @@ public class TransportClient implements Executable {
 	private final NioClient nioClient;
 	private final Partitioner partitioner;
 	private final int startupDelay;
-	private boolean started;
+	private volatile boolean started;
 
 	public void setGroupingFieldName(String groupingFieldName) {
 		if (partitioner instanceof HashPartitioner && StringUtils.isNotBlank(groupingFieldName)) {

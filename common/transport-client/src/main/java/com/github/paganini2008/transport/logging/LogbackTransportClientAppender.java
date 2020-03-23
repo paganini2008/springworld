@@ -78,16 +78,23 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 		Tuple tuple = Tuple.newOne();
 		tuple.setField("loggerName", eventObject.getLoggerName());
 		tuple.setField("message", eventObject.getFormattedMessage());
-		tuple.setField("level", eventObject.getLevel().levelStr);
+		tuple.setField("level", eventObject.getLevel().toString());
 		tuple.setField("error", ThrowableProxyUtil.asString(eventObject.getThrowableProxy()));
 		tuple.setField("mdc", eventObject.getMDCPropertyMap());
-		tuple.setField("marker", eventObject.getMarker().getName());
+		tuple.setField("marker", eventObject.getMarker() != null ? eventObject.getMarker().getName() : "");
 		tuple.setField("timestamp", eventObject.getTimeStamp());
 		transportClient.send(tuple);
 	}
 
 	@Override
 	public void start() {
+		if (isStarted()) {
+			return;
+		}
+		if (transportClient != null) {
+			super.start();
+			return;
+		}
 		NioClient nioClient;
 		switch (transporter.toLowerCase()) {
 		case "netty":
@@ -120,22 +127,18 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 		default:
 			throw new IllegalArgumentException("Unknown partitioner: " + this.partitioner);
 		}
-
-		this.transportClient = new TransportClient(clusterName, new JedisLookupAddress(redisHost, redisPort, password, redisDbIndex),
-				nioClient, partitioner, startupDelay);
+		transportClient = new TransportClient(clusterName, new JedisLookupAddress(redisHost, redisPort, password, redisDbIndex), nioClient,
+				partitioner, startupDelay);
 		if (StringUtils.isNotBlank(groupingFieldName)) {
-			this.transportClient.setGroupingFieldName(groupingFieldName);
+			transportClient.setGroupingFieldName(groupingFieldName);
 		}
-		this.transportClient.start();
+		transportClient.start();
 		super.start();
 	}
 
 	@Override
 	public void stop() {
 		super.stop();
-		if (transportClient != null) {
-			transportClient.close();
-		}
 	}
 
 }
