@@ -11,7 +11,7 @@ package com.github.paganini2008.springworld.transport.transport;
  */
 public interface NioServer {
 
-	int start();
+	int start() throws Exception;
 
 	void stop();
 
