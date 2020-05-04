@@ -13,6 +13,7 @@
 	
     <modules>
 		<module>transport-client</module>
+		<module>embedded-io</module>
     </modules>
 	
     <packaging>pom</packaging>
