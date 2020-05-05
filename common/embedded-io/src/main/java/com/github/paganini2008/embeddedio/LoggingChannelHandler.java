@@ -41,7 +41,8 @@ public class LoggingChannelHandler implements ChannelHandler {
 		packet.getMessages().forEach(data -> {
 			log.info("[" + counter.incrementAndGet() + "]: " + data);
 			if ("server".equals(side)) {
-				//channel.write("ok", batchSize)
+				channel.write("ok", 1);
+				System.out.println("我写ok 了");
 			}
 		});
 	}

@@ -17,8 +17,8 @@ public interface Transformer {
 
 	void setSerialization(Serialization encoder, Serialization decoder);
 
-	void transferTo(Object value, AppendableByteBuffer byteBuffer);
+	void transferTo(Object value, IoBuffer buffer);
 
-	void transferFrom(AppendableByteBuffer byteBuffer, List<Object> output);
+	void transferFrom(IoBuffer buffer, List<Object> output);
 
 }

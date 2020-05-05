@@ -11,6 +11,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
@@ -30,6 +33,9 @@ public class AioChannel implements Channel, Executable {
 	private final ChannelEventPublisher eventPublisher;
 	private final AsynchronousSocketChannel channel;
 	private final Transformer transformer;
+	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+	private final WriteLock writerLock = lock.writeLock();
+	private final ReadLock readerLock = lock.readLock();
 
 	AioChannel(ChannelEventPublisher eventPublisher, AsynchronousSocketChannel channel, Transformer transformer, int autoFlushInterval) {
 		this.eventPublisher = eventPublisher;
@@ -43,15 +49,18 @@ public class AioChannel implements Channel, Executable {
 	@Override
 	public long writeAndFlush(Object message) {
 		long length = 0;
-		AppendableByteBuffer byteBuffer = new AppendableByteBuffer();
+		IoBuffer byteBuffer = new AppendableByteBuffer();
 		transformer.transferTo(message, byteBuffer);
 		ByteBuffer data = byteBuffer.get();
 		data.flip();
+		writerLock.lock();
 		try {
 			length += channel.write(data).get();
 		} catch (Exception e) {
 			eventPublisher.publishChannelEvent(new ChannelEvent(AioChannel.this, EventType.FATAL, null, e));
 			close();
+		} finally {
+			writerLock.unlock();
 		}
 		return length;
 	}
@@ -74,7 +83,7 @@ public class AioChannel implements Channel, Executable {
 	@Override
 	public long flush() {
 		long length = 0;
-		AppendableByteBuffer byteBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
+		IoBuffer byteBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
 		List<Object> list = new ArrayList<Object>();
 		if (writerQueue.drainTo(list) > 0) {
 			for (Object object : list) {
@@ -82,11 +91,14 @@ public class AioChannel implements Channel, Executable {
 			}
 			ByteBuffer data = byteBuffer.get();
 			data.flip();
+			writerLock.lock();
 			try {
 				length += channel.write(data).get();
 			} catch (Exception e) {
 				eventPublisher.publishChannelEvent(new ChannelEvent(AioChannel.this, EventType.FATAL, null, e));
 				close();
+			} finally {
+				writerLock.unlock();
 			}
 		}
 		return length;
@@ -101,7 +113,14 @@ public class AioChannel implements Channel, Executable {
 			throw new IllegalStateException(e);
 		}
 		AtomicLong total = new AtomicLong(0);
-		AppendableByteBuffer cachedReaderBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
+		IoBuffer cachedReaderBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
+		readerLock.lock();
+		doRead(readerBuffer, cachedReaderBuffer, total);
+		readerLock.unlock();
+		return total.get();
+	}
+
+	private void doRead(ByteBuffer readerBuffer, IoBuffer cachedReaderBuffer, AtomicLong total) {
 		channel.read(readerBuffer, null, new CompletionHandler<Integer, Object>() {
 
 			@Override
@@ -126,7 +145,7 @@ public class AioChannel implements Channel, Executable {
 								new ChannelEvent(AioChannel.this, EventType.READABLE, MessagePacket.of(output, total.get()), null));
 					}
 				}
-				channel.read(readerBuffer, null, this);
+				doRead(readerBuffer, cachedReaderBuffer, total);
 			}
 
 			@Override
@@ -135,7 +154,6 @@ public class AioChannel implements Channel, Executable {
 				close();
 			}
 		});
-		return total.get();
 	}
 
 	@Override

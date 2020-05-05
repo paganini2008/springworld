@@ -12,7 +12,6 @@ import java.nio.channels.SelectionKey;
 public class NioReader extends NioReactor {
 
 	NioReader() {
-		super();
 	}
 
 	@Override

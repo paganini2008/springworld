@@ -18,7 +18,7 @@ import com.github.paganini2008.embeddedio.examples.Item;
  * @author Fred Feng
  * @version 1.0
  */
-public class AppendableByteBuffer {
+public class AppendableByteBuffer implements IoBuffer {
 
 	public static final AtomicLong increment = new AtomicLong();
 	private final AtomicLong length = new AtomicLong(0);

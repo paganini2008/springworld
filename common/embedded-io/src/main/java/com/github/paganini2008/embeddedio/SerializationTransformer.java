@@ -20,16 +20,16 @@ public class SerializationTransformer implements Transformer {
 	}
 
 	@Override
-	public void transferTo(Object value, AppendableByteBuffer byteBuffer) {
+	public void transferTo(Object value, IoBuffer buffer) {
 		byte[] bytes = encoder.serialize(value);
-		byteBuffer.append(bytes);
+		buffer.append(bytes);
 	}
 
 	@Override
-	public void transferFrom(AppendableByteBuffer byteBuffer, List<Object> output) {
+	public void transferFrom(IoBuffer buffer, List<Object> output) {
 		Object object;
-		while (byteBuffer.hasRemaining(4)) {
-			byte[] bytes = byteBuffer.getBytes();
+		while (buffer.hasRemaining(4)) {
+			byte[] bytes = buffer.getBytes();
 			if (bytes != null) {
 				object = decoder.deserialize(bytes);
 				output.add(object);

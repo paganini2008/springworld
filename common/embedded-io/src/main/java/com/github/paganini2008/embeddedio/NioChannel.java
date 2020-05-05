@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
@@ -27,7 +30,10 @@ public class NioChannel implements Channel, Executable {
 	private final ChannelEventPublisher eventPublisher;
 	private final SocketChannel channel;
 	private final Transformer transformer;
-	private final AppendableByteBuffer cachedReaderBuffer;
+	private final IoBuffer cachedReaderBuffer;
+	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+	private final WriteLock writerLock = lock.writeLock();
+	private final ReadLock readerLock = lock.readLock();
 
 	NioChannel(ChannelEventPublisher eventPublisher, SocketChannel channel, Transformer transformer, int autoFlushInterval) {
 		this.eventPublisher = eventPublisher;
@@ -40,33 +46,22 @@ public class NioChannel implements Channel, Executable {
 	}
 
 	@Override
-	public void close() {
-		if (isActive()) {
-			try {
-				channel.close();
-				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.INACTIVE));
-			} catch (IOException e) {
-				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
-			}
-		}
-	}
-
-	@Override
 	public long writeAndFlush(Object message) {
 		long length = 0;
-		AppendableByteBuffer byteBuffer = new AppendableByteBuffer();
+		IoBuffer byteBuffer = new AppendableByteBuffer();
 		transformer.transferTo(message, byteBuffer);
 		ByteBuffer data = byteBuffer.get();
-		synchronized (channel) {
-			data.flip();
-			try {
-				while (data.hasRemaining()) {
-					length += channel.write(data);
-				}
-			} catch (IOException e) {
-				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
-				close();
+		data.flip();
+		writerLock.lock();
+		try {
+			while (data.hasRemaining()) {
+				length += channel.write(data);
 			}
+		} catch (IOException e) {
+			eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
+			close();
+		} finally {
+			writerLock.unlock();
 		}
 		return length;
 	}
@@ -95,18 +90,19 @@ public class NioChannel implements Channel, Executable {
 			throw new IllegalStateException(e);
 		}
 		long length, total = 0;
-		synchronized (channel) {
-			try {
-				while ((length = channel.read(readerBuffer)) > 0) {
-					readerBuffer.flip();
-					cachedReaderBuffer.append(readerBuffer);
-					readerBuffer.clear();
-					total += length;
-				}
-			} catch (IOException e) {
-				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
-				close();
+		readerLock.lock();
+		try {
+			while ((length = channel.read(readerBuffer)) > 0) {
+				readerBuffer.flip();
+				cachedReaderBuffer.append(readerBuffer);
+				readerBuffer.clear();
+				total += length;
 			}
+		} catch (IOException e) {
+			eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
+			close();
+		} finally {
+			readerLock.unlock();
 		}
 		if (cachedReaderBuffer.hasRemaining()) {
 			List<Object> output = new ArrayList<Object>();
@@ -145,7 +141,7 @@ public class NioChannel implements Channel, Executable {
 	@Override
 	public long flush() {
 		long length = 0;
-		AppendableByteBuffer byteBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
+		IoBuffer byteBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
 		List<Object> list = new ArrayList<Object>();
 		if (writerQueue.drainTo(list) > 0) {
 			for (Object object : list) {
@@ -153,18 +149,31 @@ public class NioChannel implements Channel, Executable {
 			}
 			ByteBuffer data = byteBuffer.get();
 			data.flip();
-			synchronized (channel) {
-				try {
-					while (data.hasRemaining()) {
-						length += channel.write(data);
-					}
-				} catch (IOException e) {
-					eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
-					close();
+			writerLock.lock();
+			try {
+				while (data.hasRemaining()) {
+					length += channel.write(data);
 				}
+			} catch (IOException e) {
+				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
+				close();
+			} finally {
+				writerLock.unlock();
 			}
 		}
 		return length;
+	}
+
+	@Override
+	public void close() {
+		if (isActive()) {
+			try {
+				channel.close();
+				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.INACTIVE));
+			} catch (IOException e) {
+				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
+			}
+		}
 	}
 
 	public String toString() {

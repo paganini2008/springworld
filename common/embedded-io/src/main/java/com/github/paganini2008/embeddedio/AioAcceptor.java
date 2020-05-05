@@ -28,6 +28,7 @@ import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
  */
 public class AioAcceptor implements IoAcceptor {
 
+	private static final int processorCount = Runtime.getRuntime().availableProcessors();
 	private static final Log logger = LogFactory.getLog(AioAcceptor.class);
 	private final ExecutorService bossExecutor;
 	private final ChannelEventPublisher channelEventPublisher;
@@ -42,7 +43,7 @@ public class AioAcceptor implements IoAcceptor {
 	private final Map<AsynchronousSocketChannel, Channel> channelHolder = new ConcurrentHashMap<AsynchronousSocketChannel, Channel>();
 
 	public AioAcceptor() {
-		this(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2));
+		this(Executors.newFixedThreadPool(processorCount * 2));
 	}
 
 	public AioAcceptor(ExecutorService executor) {
@@ -110,7 +111,6 @@ public class AioAcceptor implements IoAcceptor {
 					new AioChannel(channelEventPublisher, socketChannel, transformer, autoFlushInterval));
 			channelEventPublisher.publishChannelEvent(new ChannelEvent(channelWrapper, ChannelEvent.EventType.ACTIVE));
 			channelWrapper.read();
-
 		}
 
 		@Override

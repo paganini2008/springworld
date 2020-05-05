@@ -5,10 +5,11 @@ import java.net.SocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import com.github.paganini2008.devtools.logging.Log;
 import com.github.paganini2008.devtools.logging.LogFactory;
-import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
 import com.github.paganini2008.embeddedio.ChannelEvent.EventType;
 
 /**
@@ -29,7 +30,11 @@ public class AioConnector implements IoConnector {
 	private int autoFlushInterval = 0;
 
 	public AioConnector() {
-		this.channelEventPublisher = new DefaultChannelEventPublisher(ExecutorUtils.directExecutor());
+		this(Executors.newCachedThreadPool());
+	}
+
+	public AioConnector(Executor executor) {
+		this.channelEventPublisher = new DefaultChannelEventPublisher(executor);
 	}
 
 	public Transformer getTransformer() {
@@ -81,15 +86,16 @@ public class AioConnector implements IoConnector {
 			logger.warn(e.getMessage());
 		}
 		channel = new AioChannel(channelEventPublisher, socketChannel, transformer, autoFlushInterval);
-		socketChannel.connect(remoteAddress, channel, new CompletionHandler<Void, Channel>() {
+		socketChannel.connect(remoteAddress, null, new CompletionHandler<Void, Object>() {
 
 			@Override
-			public void completed(Void result, Channel channel) {
+			public void completed(Void result, Object attr) {
 				channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, EventType.ACTIVE));
+				channel.read();
 			}
 
 			@Override
-			public void failed(Throwable e, Channel channel) {
+			public void failed(Throwable e, Object attr) {
 				channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, EventType.FATAL, null, e));
 			}
 		});
