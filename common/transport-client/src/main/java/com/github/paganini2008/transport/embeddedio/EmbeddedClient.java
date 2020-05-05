@@ -47,7 +47,7 @@ public class EmbeddedClient implements NioClient {
 		connector.setWriterBufferSize(1024 * 1024);
 		connector.setAutoFlushInterval(3);
 		if (idleTimeout > 0) {
-			connector.addHandler(IdleChannelHandler.writerIdle(idleTimeout, 1, TimeUnit.SECONDS, new PingIdleTimeoutListener()));
+			connector.addHandler(IdleChannelHandler.writerIdle(idleTimeout, 60, TimeUnit.SECONDS, new PingIdleTimeoutListener()));
 		}
 		connector.addHandler(channelContext);
 		opened.set(true);

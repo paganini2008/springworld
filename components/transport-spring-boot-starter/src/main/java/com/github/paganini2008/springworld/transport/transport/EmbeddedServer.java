@@ -85,7 +85,7 @@ public class EmbeddedServer implements NioServer {
 		transformer.setSerialization(serializationFactory.getEncoder(), serializationFactory.getDecoder());
 		acceptor.setTransformer(transformer);
 		if (idleTimeout > 0) {
-			acceptor.addHandler(IdleChannelHandler.readerIdle(idleTimeout, 1, TimeUnit.SECONDS, IdleTimeoutListener.LOG));
+			acceptor.addHandler(IdleChannelHandler.readerIdle(idleTimeout, 60, TimeUnit.SECONDS, IdleTimeoutListener.LOG));
 		}
 		acceptor.addHandler(serverHandler);
 
