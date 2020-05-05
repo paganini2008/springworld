@@ -40,7 +40,7 @@ public class DefaultChannelEventPublisher implements ChannelEventPublisher {
 			}
 		});
 	}
-	
+
 	@Override
 	public void destroy() {
 		delegate.close();
@@ -74,6 +74,9 @@ public class DefaultChannelEventPublisher implements ChannelEventPublisher {
 					break;
 				case READABLE:
 					handler.fireChannelReadable(channel, event.getMessagePacket());
+					break;
+				case WRITEABLE:
+					handler.fireChannelWriteable(channel, event.getMessagePacket());
 					break;
 				case FATAL:
 					handler.fireChannelFatal(channel, event.getCause());

@@ -42,9 +42,13 @@ public class LoggingChannelHandler implements ChannelHandler {
 			log.info("[" + counter.incrementAndGet() + "]: " + data);
 			if ("server".equals(side)) {
 				channel.write("ok", 1);
-				System.out.println("我写ok 了");
 			}
 		});
+	}
+
+	@Override
+	public void fireChannelWriteable(Channel channel, MessagePacket packet) throws IOException {
+		log.info("Channel write length: " + packet.getLength() + ", size: " + packet.getMessages().size());
 	}
 
 	@Override

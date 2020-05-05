@@ -154,6 +154,7 @@ public class NioChannel implements Channel, Executable {
 				while (data.hasRemaining()) {
 					length += channel.write(data);
 				}
+				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.WRITEABLE, MessagePacket.of(list, length), null));
 			} catch (IOException e) {
 				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
 				close();

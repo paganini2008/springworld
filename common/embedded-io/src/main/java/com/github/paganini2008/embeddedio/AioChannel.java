@@ -94,6 +94,8 @@ public class AioChannel implements Channel, Executable {
 			writerLock.lock();
 			try {
 				length += channel.write(data).get();
+				eventPublisher
+						.publishChannelEvent(new ChannelEvent(AioChannel.this, EventType.WRITEABLE, MessagePacket.of(list, length), null));
 			} catch (Exception e) {
 				eventPublisher.publishChannelEvent(new ChannelEvent(AioChannel.this, EventType.FATAL, null, e));
 				close();
@@ -129,7 +131,7 @@ public class AioChannel implements Channel, Executable {
 					readerBuffer.flip();
 					cachedReaderBuffer.append(readerBuffer);
 					readerBuffer.clear();
-					total.addAndGet(readBytes);
+					total.getAndSet(readBytes);
 				}
 				if (cachedReaderBuffer.hasRemaining()) {
 					List<Object> output = new ArrayList<Object>();

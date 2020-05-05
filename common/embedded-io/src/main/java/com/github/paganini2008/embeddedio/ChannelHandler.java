@@ -19,6 +19,9 @@ public interface ChannelHandler {
 
 	default void fireChannelReadable(Channel channel, MessagePacket packet) throws IOException {
 	}
+	
+	default void fireChannelWriteable(Channel channel, MessagePacket packet) throws IOException {
+	}
 
 	default void fireChannelFatal(Channel channel, Throwable e) {
 	}
