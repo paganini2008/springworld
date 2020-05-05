@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.embeddedio.AioConnector;
 import com.github.paganini2008.embeddedio.Channel;
 import com.github.paganini2008.embeddedio.ChannelHandler;
@@ -39,11 +40,12 @@ public class EmbeddedClient implements NioClient {
 
 	@Override
 	public void open() {
-		int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
-		Executor threadPool = Executors.newFixedThreadPool(nThreads);
+		final int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
+		Executor threadPool = Executors.newFixedThreadPool(nThreads, new PooledThreadFactory("transport-embedded-client-threads-"));
 		connector = useAio ? new AioConnector(threadPool) : new NioConnector(threadPool);
 		connector.setWriterBatchSize(100);
 		connector.setWriterBufferSize(1024 * 1024);
+		connector.setAutoFlushInterval(3);
 		if (idleTimeout > 0) {
 			connector.addHandler(IdleChannelHandler.writerIdle(idleTimeout, 1, TimeUnit.SECONDS, new PingIdleTimeoutListener()));
 		}

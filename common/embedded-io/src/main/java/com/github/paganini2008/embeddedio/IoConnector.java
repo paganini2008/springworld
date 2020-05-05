@@ -16,6 +16,8 @@ public interface IoConnector {
 
 	void setWriterBufferSize(int bufferSize);
 
+	void setAutoFlushInterval(int autoFlushInterval);
+
 	void setTransformer(Transformer transformer);
 
 	void addHandler(ChannelHandler channelHandler);
