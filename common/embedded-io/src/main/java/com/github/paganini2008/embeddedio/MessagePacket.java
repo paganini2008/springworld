@@ -3,6 +3,8 @@ package com.github.paganini2008.embeddedio;
 import java.io.Serializable;
 import java.util.List;
 
+import com.github.paganini2008.devtools.collection.CollectionUtils;
+
 /**
  * 
  * MessagePacket
@@ -31,6 +33,10 @@ public class MessagePacket implements Serializable {
 
 	public List<Object> getMessages() {
 		return messages;
+	}
+
+	public Object getMessage() {
+		return CollectionUtils.isNotEmpty(messages) ? messages.get(0) : null;
 	}
 
 	public static MessagePacket of(List<Object> messages, long length) {

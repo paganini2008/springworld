@@ -12,6 +12,10 @@ import java.net.SocketAddress;
  */
 public interface IoConnector {
 
+	void setWriterBatchSize(int batchSize);
+
+	void setWriterBufferSize(int bufferSize);
+
 	void setTransformer(Transformer transformer);
 
 	void addHandler(ChannelHandler channelHandler);

@@ -1,6 +1,7 @@
 package com.github.paganini2008.embeddedio;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 
 /**
  * 
@@ -10,6 +11,16 @@ import java.io.IOException;
  * @since 1.0
  */
 public interface IoAcceptor {
+
+	void setBacklog(int backlog);
+
+	void setLocalAddress(SocketAddress localAddress);
+
+	void setTransformer(Transformer transformer);
+
+	void setReaderBufferSize(int readerBufferSize);
+
+	void addHandler(ChannelHandler channelHandler);
 
 	void start() throws IOException;
 

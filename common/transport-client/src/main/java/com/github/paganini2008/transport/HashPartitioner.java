@@ -10,8 +10,6 @@ import java.util.Set;
  * HashPartitioner
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class HashPartitioner implements Partitioner {

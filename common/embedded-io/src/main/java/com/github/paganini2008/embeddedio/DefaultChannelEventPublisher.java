@@ -21,14 +21,17 @@ public class DefaultChannelEventPublisher implements ChannelEventPublisher {
 		this.delegate = new EventBus<>(executor, true);
 	}
 
+	@Override
 	public void publishChannelEvent(ChannelEvent event) {
 		delegate.publish(event);
 	}
 
+	@Override
 	public void subscribeChannelEvent(ChannelHandler channelHandler) {
 		subscribeChannelEvent(new ChannelEventListenerAdaptor(channelHandler));
 	}
 
+	@Override
 	public void subscribeChannelEvent(final ChannelEventListener listener) {
 
 		delegate.subscribe(new EventSubscriber<ChannelEvent, Object>() {

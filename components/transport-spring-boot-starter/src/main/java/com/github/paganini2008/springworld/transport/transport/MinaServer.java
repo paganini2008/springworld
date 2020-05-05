@@ -88,9 +88,9 @@ public class MinaServer implements NioServer {
 		if (isStarted()) {
 			throw new IllegalStateException("MinaServer has been started.");
 		}
-		int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
+		final int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
 		ioAcceptor = new NioSocketAcceptor(nThreads);
-		ioAcceptor.setBacklog(1024);
+		ioAcceptor.setBacklog(128);
 		SocketSessionConfig sessionConfig = ioAcceptor.getSessionConfig();
 		sessionConfig.setKeepAlive(true);
 		sessionConfig.setReuseAddress(true);

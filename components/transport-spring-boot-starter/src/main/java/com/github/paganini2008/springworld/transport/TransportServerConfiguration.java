@@ -22,6 +22,9 @@ import com.github.paganini2008.springworld.redis.KryoRedisSerializer;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
 import com.github.paganini2008.springworld.transport.buffer.MemcachedBufferZone;
 import com.github.paganini2008.springworld.transport.buffer.RedisBufferZone;
+import com.github.paganini2008.springworld.transport.transport.EmbeddedChannelEventListener;
+import com.github.paganini2008.springworld.transport.transport.EmbeddedServer;
+import com.github.paganini2008.springworld.transport.transport.EmbeddedServerHandler;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyChannelEventListener;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyServer;
 import com.github.paganini2008.springworld.transport.transport.GrizzlyServerHandler;
@@ -42,6 +45,9 @@ import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
 import com.github.paganini2008.transport.TupleImpl;
+import com.github.paganini2008.transport.embeddedio.EmbeddedClient;
+import com.github.paganini2008.transport.embeddedio.EmbeddedSerializationFactory;
+import com.github.paganini2008.transport.embeddedio.SerializationFactory;
 import com.github.paganini2008.transport.grizzly.GrizzlyClient;
 import com.github.paganini2008.transport.grizzly.GrizzlyTupleCodecFactory;
 import com.github.paganini2008.transport.grizzly.TupleCodecFactory;
@@ -282,6 +288,40 @@ public class TransportServerConfiguration {
 		@Bean
 		public ChannelEventListener<Connection<?>> channelEventListener() {
 			return new GrizzlyChannelEventListener();
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty(name = "spring.transport.nioserver", havingValue = "embedded-io")
+	public static class EmbeddedIOTransportConfiguration {
+
+		@Bean(initMethod = "open", destroyMethod = "close")
+		public NioClient nioClient(SerializationFactory serializationFactory) {
+			EmbeddedClient nioClient = new EmbeddedClient();
+			nioClient.setSerializationFactory(serializationFactory);
+			return nioClient;
+		}
+
+		@Bean(initMethod = "start", destroyMethod = "stop")
+		public NioServer nioServer() {
+			return new EmbeddedServer();
+		}
+
+		@ConditionalOnMissingBean(SerializationFactory.class)
+		@Bean
+		public SerializationFactory serializationFactory(Serializer serializer) {
+			return new EmbeddedSerializationFactory(serializer);
+		}
+
+		@Bean
+		public EmbeddedServerHandler serverHandler() {
+			return new EmbeddedServerHandler();
+		}
+
+		@ConditionalOnMissingBean(ChannelEventListener.class)
+		@Bean
+		public ChannelEventListener<com.github.paganini2008.embeddedio.Channel> channelEventListener() {
+			return new EmbeddedChannelEventListener();
 		}
 	}
 

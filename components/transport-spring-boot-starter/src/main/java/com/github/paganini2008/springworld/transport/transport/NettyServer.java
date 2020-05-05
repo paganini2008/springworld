@@ -75,11 +75,11 @@ public class NettyServer implements NioServer {
 		if (isStarted()) {
 			throw new IllegalStateException("NettyServer has been started.");
 		}
-		int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
+		final int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
 		bossGroup = new NioEventLoopGroup(nThreads);
 		workerGroup = new NioEventLoopGroup(nThreads);
 		ServerBootstrap bootstrap = new ServerBootstrap();
-		bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 1024);
+		bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 128);
 		bootstrap.childOption(ChannelOption.TCP_NODELAY, true).childOption(ChannelOption.SO_REUSEADDR, true)
 				.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 		bootstrap.childOption(ChannelOption.SO_RCVBUF, 2 * 1024 * 1024);

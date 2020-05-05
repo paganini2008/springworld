@@ -1,6 +1,7 @@
 package com.github.paganini2008.embeddedio;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -173,6 +174,24 @@ public class AioChannel implements Channel, Executable {
 	@Override
 	public boolean isActive() {
 		return channel.isOpen();
+	}
+
+	@Override
+	public SocketAddress getLocalAddr() {
+		try {
+			return channel.getLocalAddress();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	@Override
+	public SocketAddress getRemoteAddr() {
+		try {
+			return channel.getRemoteAddress();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	@Override

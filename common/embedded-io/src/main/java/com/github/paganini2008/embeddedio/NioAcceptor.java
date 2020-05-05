@@ -23,6 +23,7 @@ import com.github.paganini2008.devtools.multithreads.AtomicUnsignedInteger;
  */
 public class NioAcceptor extends NioReactor implements IoAcceptor {
 
+	private static final int processorCount = Runtime.getRuntime().availableProcessors();
 	private ServerSocketChannel serverChannel;
 	private int backlog = 128;
 	private Transformer transformer = new SerializationTransformer();
@@ -34,12 +35,12 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	private final ConcurrentMap<Integer, NioReader> readers = new ConcurrentHashMap<Integer, NioReader>();
 
 	public NioAcceptor() {
-		this(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2));
+		this(Executors.newFixedThreadPool(processorCount * 2));
 	}
 
 	public NioAcceptor(Executor executor) {
 		this.channelEventPublisher = new DefaultChannelEventPublisher(executor);
-		this.readerIndex = new AtomicUnsignedInteger(1, Runtime.getRuntime().availableProcessors());
+		this.readerIndex = new AtomicUnsignedInteger(1, processorCount);
 	}
 
 	public int getBacklog() {

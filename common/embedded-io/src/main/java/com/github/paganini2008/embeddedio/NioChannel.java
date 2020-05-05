@@ -1,6 +1,7 @@
 package com.github.paganini2008.embeddedio;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -174,6 +175,24 @@ public class NioChannel implements Channel, Executable {
 			} catch (IOException e) {
 				eventPublisher.publishChannelEvent(new ChannelEvent(this, EventType.FATAL, null, e));
 			}
+		}
+	}
+
+	@Override
+	public SocketAddress getLocalAddr() {
+		try {
+			return channel.getLocalAddress();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	@Override
+	public SocketAddress getRemoteAddr() {
+		try {
+			return channel.getRemoteAddress();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 

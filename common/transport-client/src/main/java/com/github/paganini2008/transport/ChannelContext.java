@@ -8,8 +8,6 @@ import java.util.Collection;
  * ChannelContext
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public interface ChannelContext<T> {

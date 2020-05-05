@@ -10,7 +10,7 @@ public class TestServer {
 	public static void main(String[] args) throws Exception {
 		NioAcceptor server = new NioAcceptor();
 		server.getTransformer().setSerialization(new StringSerialization(), new ObjectSerialization());
-		server.setReaderBufferSize(10 * 1024);
+		//server.setReaderBufferSize(10 * 1024);
 		LoggingChannelHandler handler = new LoggingChannelHandler("server");
 		server.addHandler(handler);
 		server.start();

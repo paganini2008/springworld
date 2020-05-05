@@ -20,7 +20,7 @@ import com.github.paganini2008.embeddedio.ChannelEvent.EventType;
 public class NioConnector extends NioReactor implements IoConnector {
 
 	public NioConnector() {
-		this(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2));
+		this(Executors.newCachedThreadPool());
 	}
 
 	public NioConnector(Executor executor) {

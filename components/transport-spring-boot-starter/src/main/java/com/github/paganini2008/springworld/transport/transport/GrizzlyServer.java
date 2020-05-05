@@ -83,14 +83,14 @@ public class GrizzlyServer implements NioServer {
 		filterChainBuilder.add(new TupleFilter(codecFactory));
 		filterChainBuilder.add(serverHandler);
 		TCPNIOTransportBuilder builder = TCPNIOTransportBuilder.newInstance();
-		int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
+		final int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
 		ThreadPoolConfig tpConfig = ThreadPoolConfig.defaultConfig();
 		tpConfig.setPoolName("GrizzlyServerHandler").setQueueLimit(-1).setCorePoolSize(nThreads).setMaxPoolSize(nThreads)
 				.setKeepAliveTime(60L, TimeUnit.SECONDS);
 		builder.setWorkerThreadPoolConfig(tpConfig);
 		builder.setKeepAlive(true).setReuseAddress(true).setReadBufferSize(2 * 1024 * 1024);
 		builder.setIOStrategy(WorkerThreadIOStrategy.getInstance());
-		builder.setServerConnectionBackLog(1024);
+		builder.setServerConnectionBackLog(128);
 		transport = builder.build();
 		transport.setProcessor(filterChainBuilder.build());
 		int port = NetUtils.getRandomPort(PORT_RANGE_START, PORT_RANGE_END);
@@ -120,7 +120,7 @@ public class GrizzlyServer implements NioServer {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		started.set(true);
+		started.set(false);
 		log.info("GrizzlyServer is shutdown.");
 	}
 

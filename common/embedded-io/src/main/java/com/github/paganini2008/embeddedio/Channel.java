@@ -1,5 +1,7 @@
 package com.github.paganini2008.embeddedio;
 
+import java.net.SocketAddress;
+
 /**
  * 
  * Channel
@@ -17,8 +19,12 @@ public interface Channel {
 
 	long read();
 
-	void close();
-
 	boolean isActive();
+	
+	SocketAddress getLocalAddr();
+	
+	SocketAddress getRemoteAddr();
+	
+	void close();
 
 }
