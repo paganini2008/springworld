@@ -101,6 +101,9 @@ public class EmbeddedClient implements NioClient {
 				}
 			});
 		} catch (Exception e) {
+			if (e instanceof TransportClientException) {
+				throw (TransportClientException) e;
+			}
 			throw new TransportClientException(e.getMessage(), e);
 		}
 	}
