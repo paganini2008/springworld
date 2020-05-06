@@ -75,7 +75,7 @@ public class AioConnector implements IoConnector {
 	public void addHandler(ChannelHandler channelHandler) {
 		this.channelEventPublisher.subscribeChannelEvent(channelHandler);
 	}
-	
+
 	protected void initialize() {
 		addHandler(new ChannelFutureHandler());
 	}
@@ -91,7 +91,7 @@ public class AioConnector implements IoConnector {
 		} catch (RuntimeException e) {
 			logger.warn(e.getMessage());
 		}
-		Channel channel = new AioChannel(channelEventPublisher, socketChannel, transformer, writerBatchSize, autoFlushInterval);
+		Channel channel = new AioChannel(socketChannel, channelEventPublisher, transformer, writerBatchSize, autoFlushInterval);
 		socketChannel.connect(remoteAddress, null, new CompletionHandler<Void, Object>() {
 
 			@Override
@@ -121,7 +121,7 @@ public class AioConnector implements IoConnector {
 	public void close() {
 		channelEventPublisher.destroy();
 	}
-	
+
 	private class ChannelFutureHandler implements ChannelHandler {
 
 		@Override

@@ -98,7 +98,7 @@ public class NioConnector extends NioReactor implements IoConnector {
 				}
 			});
 		}
-		Channel channel = new NioChannel(channelEventPublisher, socketChannel, transformer, writerBatchSize, autoFlushInterval);
+		Channel channel = new NioChannel(socketChannel, channelEventPublisher, transformer, writerBatchSize, autoFlushInterval);
 		register(socketChannel, SelectionKey.OP_CONNECT, channel);
 		return channel;
 	}

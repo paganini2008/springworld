@@ -37,9 +37,9 @@ public class NioChannel implements Channel, Executable {
 	private final WriteLock writerLock = lock.writeLock();
 	private final ReadLock readerLock = lock.readLock();
 
-	NioChannel(ChannelEventPublisher eventPublisher, SocketChannel channel, Transformer transformer, int batchSize, int autoFlushInterval) {
-		this.eventPublisher = eventPublisher;
+	NioChannel(SocketChannel channel, ChannelEventPublisher eventPublisher, Transformer transformer, int batchSize, int autoFlushInterval) {
 		this.channel = channel;
+		this.eventPublisher = eventPublisher;
 		this.transformer = transformer;
 		this.cachedReaderBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
 		this.batchSize = batchSize;

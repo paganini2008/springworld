@@ -115,7 +115,7 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	protected void process(SelectionKey selectionKey) throws IOException {
 		SocketChannel socketChannel = ((ServerSocketChannel) selectionKey.channel()).accept();
 		socketChannel.configureBlocking(false);
-		Channel channel = new NioChannel(channelEventPublisher, socketChannel, transformer, 1, 0);
+		Channel channel = new NioChannel(socketChannel, channelEventPublisher, transformer, 1, 0);
 		NioReader nextReactor = readers.getOrDefault(readerIndex.getAndIncrement(), new NioReader());
 		nextReactor.register(socketChannel, SelectionKey.OP_READ, channel);
 		channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, ChannelEvent.EventType.ACTIVE));

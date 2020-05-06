@@ -99,7 +99,7 @@ public class AioAcceptor implements IoAcceptor {
 			}
 			channel.accept(null, this);
 			Channel channelWrapper = channelHolder.getOrDefault(socketChannel,
-					new AioChannel(channelEventPublisher, socketChannel, transformer, 1, 0));
+					new AioChannel(socketChannel, channelEventPublisher, transformer, 1, 0));
 			channelEventPublisher.publishChannelEvent(new ChannelEvent(channelWrapper, ChannelEvent.EventType.ACTIVE));
 			channelWrapper.read();
 		}

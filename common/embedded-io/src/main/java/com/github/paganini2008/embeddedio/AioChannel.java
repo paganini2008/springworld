@@ -39,10 +39,10 @@ public class AioChannel implements Channel, Executable {
 	private final WriteLock writerLock = lock.writeLock();
 	private final ReadLock readerLock = lock.readLock();
 
-	AioChannel(ChannelEventPublisher eventPublisher, AsynchronousSocketChannel channel, Transformer transformer, int batchSize,
+	AioChannel(AsynchronousSocketChannel channel, ChannelEventPublisher eventPublisher, Transformer transformer, int batchSize,
 			int autoFlushInterval) {
-		this.eventPublisher = eventPublisher;
 		this.channel = channel;
+		this.eventPublisher = eventPublisher;
 		this.transformer = transformer;
 		this.batchSize = batchSize;
 		if (autoFlushInterval > 0) {
