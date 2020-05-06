@@ -76,7 +76,7 @@ public class AioConnector implements IoConnector {
 		this.channelEventPublisher.subscribeChannelEvent(channelHandler);
 	}
 	
-	private void initialize() {
+	protected void initialize() {
 		addHandler(new ChannelFutureHandler());
 	}
 
