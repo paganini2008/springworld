@@ -20,7 +20,6 @@ import com.github.paganini2008.embeddedio.examples.Item;
  */
 public class AppendableByteBuffer implements IoBuffer {
 
-	public static final AtomicLong increment = new AtomicLong();
 	private final AtomicLong length = new AtomicLong(0);
 	private ByteBuffer buffer;
 	private final int bufferSize;
