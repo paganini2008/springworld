@@ -1,6 +1,5 @@
 package com.github.paganini2008.transport.embeddedio;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -10,11 +9,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.embeddedio.AioConnector;
 import com.github.paganini2008.embeddedio.Channel;
-import com.github.paganini2008.embeddedio.ChannelHandler;
 import com.github.paganini2008.embeddedio.IdleChannelHandler;
 import com.github.paganini2008.embeddedio.IdleTimeoutListener;
 import com.github.paganini2008.embeddedio.IoConnector;
 import com.github.paganini2008.embeddedio.NioConnector;
+import com.github.paganini2008.embeddedio.Promise;
 import com.github.paganini2008.embeddedio.SerializationTransformer;
 import com.github.paganini2008.transport.ConnectionWatcher;
 import com.github.paganini2008.transport.HandshakeCallback;
@@ -84,21 +83,24 @@ public class EmbeddedClient implements NioClient {
 		if (isConnected(remoteAddress)) {
 			return;
 		}
-		connector.addHandler(new ChannelHandler() {
-
-			@Override
-			public void fireChannelActive(Channel channel) throws IOException {
-				ConnectionWatcher connectionWatcher = channelContext.getConnectionWatcher();
-				if (connectionWatcher != null) {
-					connectionWatcher.watch(channel.getRemoteAddr(), handshakeCallback);
-				}
-				handshakeCallback.operationComplete(channel.getRemoteAddr());
-			}
-
-		});
 		try {
-			connector.connect(remoteAddress);
-		} catch (IOException e) {
+			connector.connect(remoteAddress, new Promise<Channel>() {
+
+				@Override
+				public void onSuccess(Channel channel) {
+					ConnectionWatcher connectionWatcher = channelContext.getConnectionWatcher();
+					if (connectionWatcher != null) {
+						connectionWatcher.watch(channel.getRemoteAddr(), handshakeCallback);
+					}
+					handshakeCallback.operationComplete(channel.getRemoteAddr());
+				}
+
+				@Override
+				public void onFailure(Throwable e) {
+					throw new TransportClientException(e.getMessage(), e);
+				}
+			});
+		} catch (Exception e) {
 			throw new TransportClientException(e.getMessage(), e);
 		}
 	}
