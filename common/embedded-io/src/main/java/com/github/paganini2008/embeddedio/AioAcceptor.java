@@ -38,7 +38,6 @@ public class AioAcceptor implements IoAcceptor {
 	private Transformer transformer = new SerializationTransformer();
 	private SocketAddress localAddress = new InetSocketAddress(8090);
 	private int readerBufferSize = 2 * 1024;
-	private int autoFlushInterval = 0;
 	private final AtomicBoolean opened = new AtomicBoolean();
 	private final Map<AsynchronousSocketChannel, Channel> channelHolder = new ConcurrentHashMap<AsynchronousSocketChannel, Channel>();
 
@@ -87,14 +86,6 @@ public class AioAcceptor implements IoAcceptor {
 		this.readerBufferSize = readerBufferSize;
 	}
 
-	public int getAutoFlushInterval() {
-		return autoFlushInterval;
-	}
-
-	public void setAutoFlushInterval(int autoFlushInterval) {
-		this.autoFlushInterval = autoFlushInterval;
-	}
-
 	public void addHandler(ChannelHandler channelHandler) {
 		this.channelEventPublisher.subscribeChannelEvent(channelHandler);
 	}
@@ -108,7 +99,7 @@ public class AioAcceptor implements IoAcceptor {
 			}
 			channel.accept(null, this);
 			Channel channelWrapper = channelHolder.getOrDefault(socketChannel,
-					new AioChannel(channelEventPublisher, socketChannel, transformer, autoFlushInterval));
+					new AioChannel(channelEventPublisher, socketChannel, transformer, 1, 0));
 			channelEventPublisher.publishChannelEvent(new ChannelEvent(channelWrapper, ChannelEvent.EventType.ACTIVE));
 			channelWrapper.read();
 		}

@@ -8,6 +8,7 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.embeddedio.ChannelEvent.EventType;
 
 /**
@@ -26,15 +27,16 @@ public class NioConnector extends NioReactor implements IoConnector {
 	public NioConnector(Executor executor) {
 		this.reader = new NioReader();
 		this.channelEventPublisher = new DefaultChannelEventPublisher(executor);
+		initialize();
 	}
 
 	private final NioReader reader;
 	private final ChannelEventPublisher channelEventPublisher;
-	private Channel channel;
 	private Transformer transformer = new SerializationTransformer();
 	private int writerBatchSize = 1;
 	private int writerBufferSize = 1024;
 	private int autoFlushInterval = 0;
+	private final Observable observable = Observable.unrepeatable();
 
 	public int getWriterBatchSize() {
 		return writerBatchSize;
@@ -72,7 +74,11 @@ public class NioConnector extends NioReactor implements IoConnector {
 		this.channelEventPublisher.subscribeChannelEvent(channelHandler);
 	}
 
-	public void connect(SocketAddress remoteAddress) throws IOException {
+	private void initialize() {
+		addHandler(new ChannelFutureHandler());
+	}
+
+	public Channel connect(SocketAddress remoteAddress, Promise<Channel> completionHandler) throws IOException {
 		SocketChannel socketChannel = SocketChannel.open();
 		final Socket socket = socketChannel.socket();
 		socket.setKeepAlive(true);
@@ -83,28 +89,23 @@ public class NioConnector extends NioReactor implements IoConnector {
 		}
 		socketChannel.configureBlocking(false);
 		socketChannel.connect(remoteAddress);
-		channel = new NioChannel(channelEventPublisher, socketChannel, transformer, autoFlushInterval);
+		if (completionHandler != null) {
+			observable.addObserver((ob, arg) -> {
+				if (arg instanceof Throwable) {
+					completionHandler.onFailure((Throwable) arg);
+				} else {
+					completionHandler.onSuccess((Channel) arg);
+				}
+			});
+		}
+		Channel channel = new NioChannel(channelEventPublisher, socketChannel, transformer, writerBatchSize, autoFlushInterval);
 		register(socketChannel, SelectionKey.OP_CONNECT, channel);
-	}
-
-	public void write(Object object) {
-		channel.write(object, writerBatchSize);
-	}
-
-	public void flush() {
-		channel.flush();
-	}
-
-	public boolean isActive() {
-		return channel != null && channel.isActive();
+		return channel;
 	}
 
 	public void close() {
-		reader.destroy();
 		channelEventPublisher.destroy();
-		if (channel != null) {
-			channel.close();
-		}
+		reader.destroy();
 		destroy();
 	}
 
@@ -116,21 +117,39 @@ public class NioConnector extends NioReactor implements IoConnector {
 	@Override
 	protected void process(SelectionKey selectionKey) throws IOException {
 		final SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
-		boolean connected = true;
+		final Channel channel = (Channel) selectionKey.attachment();
+		boolean connected;
 		if (socketChannel.isConnectionPending()) {
 			try {
 				while (!socketChannel.finishConnect()) {
 					;
 				}
+				connected = true;
 			} catch (IOException e) {
 				connected = false;
 				channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, EventType.FATAL, null, e));
 			}
+		} else {
+			connected = socketChannel.isConnected();
 		}
 		if (connected) {
 			reader.register(socketChannel, SelectionKey.OP_READ, channel);
 			channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, EventType.ACTIVE));
 		}
+	}
+
+	private class ChannelFutureHandler implements ChannelHandler {
+
+		@Override
+		public void fireChannelActive(Channel channel) throws IOException {
+			observable.notifyObservers(channel);
+		}
+
+		@Override
+		public void fireChannelFatal(Channel channel, Throwable e) {
+			observable.notifyObservers(e);
+		}
+
 	}
 
 }

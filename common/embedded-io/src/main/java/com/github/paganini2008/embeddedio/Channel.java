@@ -13,7 +13,7 @@ public interface Channel {
 
 	long writeAndFlush(Object message);
 
-	long write(Object message, int batchSize);
+	long write(Object message);
 
 	long flush();
 

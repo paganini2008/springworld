@@ -16,7 +16,7 @@ public class TestServer {
 		server.getTransformer().setSerialization(new StringSerialization(), new ObjectSerialization());
 		server.setReaderBufferSize(10 * 1024);
 		LoggingChannelHandler handler = new LoggingChannelHandler("server");
-		server.addHandler(IdleChannelHandler.readerIdle(60, 1, TimeUnit.SECONDS, IdleTimeoutListener.LOG));
+		server.addHandler(IdleChannelHandler.readerIdle(60, 60, TimeUnit.SECONDS, IdleTimeoutListener.LOG));
 		server.addHandler(handler);
 		server.start();
 		System.in.read();

@@ -22,13 +22,7 @@ public interface IoConnector {
 
 	void addHandler(ChannelHandler channelHandler);
 
-	void connect(SocketAddress remoteAddress) throws IOException;
-
-	void write(Object object);
-
-	void flush();
-
-	boolean isActive();
+	Channel connect(SocketAddress remoteAddress, Promise<Channel> listener) throws IOException;
 
 	void close();
 

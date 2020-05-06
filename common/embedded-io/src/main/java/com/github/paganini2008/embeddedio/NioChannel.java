@@ -32,15 +32,17 @@ public class NioChannel implements Channel, Executable {
 	private final SocketChannel channel;
 	private final Transformer transformer;
 	private final IoBuffer cachedReaderBuffer;
+	private final int batchSize;
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 	private final WriteLock writerLock = lock.writeLock();
 	private final ReadLock readerLock = lock.readLock();
 
-	NioChannel(ChannelEventPublisher eventPublisher, SocketChannel channel, Transformer transformer, int autoFlushInterval) {
+	NioChannel(ChannelEventPublisher eventPublisher, SocketChannel channel, Transformer transformer, int batchSize, int autoFlushInterval) {
 		this.eventPublisher = eventPublisher;
 		this.channel = channel;
 		this.transformer = transformer;
 		this.cachedReaderBuffer = new AppendableByteBuffer(DEFAULT_BUFFER_INCREMENT_SIZE);
+		this.batchSize = batchSize;
 		if (autoFlushInterval > 0) {
 			ThreadUtils.scheduleWithFixedDelay(this, autoFlushInterval, TimeUnit.SECONDS);
 		}
@@ -68,7 +70,7 @@ public class NioChannel implements Channel, Executable {
 	}
 
 	@Override
-	public long write(Object message, int batchSize) {
+	public long write(Object message) {
 		if (batchSize == 1) {
 			return writeAndFlush(message);
 		} else if (batchSize > 1) {

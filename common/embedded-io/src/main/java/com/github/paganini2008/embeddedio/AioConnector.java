@@ -8,6 +8,7 @@ import java.nio.channels.CompletionHandler;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.logging.Log;
 import com.github.paganini2008.devtools.logging.LogFactory;
 import com.github.paganini2008.embeddedio.ChannelEvent.EventType;
@@ -23,11 +24,11 @@ public class AioConnector implements IoConnector {
 
 	private static final Log logger = LogFactory.getLog(AioConnector.class);
 	private final ChannelEventPublisher channelEventPublisher;
-	private Channel channel;
 	private Transformer transformer = new SerializationTransformer();
 	private int writerBatchSize = 1;
 	private int writerBufferSize = 1024;
 	private int autoFlushInterval = 0;
+	private final Observable observable = Observable.unrepeatable();
 
 	public AioConnector() {
 		this(Executors.newCachedThreadPool());
@@ -35,6 +36,7 @@ public class AioConnector implements IoConnector {
 
 	public AioConnector(Executor executor) {
 		this.channelEventPublisher = new DefaultChannelEventPublisher(executor);
+		initialize();
 	}
 
 	public Transformer getTransformer() {
@@ -73,9 +75,13 @@ public class AioConnector implements IoConnector {
 	public void addHandler(ChannelHandler channelHandler) {
 		this.channelEventPublisher.subscribeChannelEvent(channelHandler);
 	}
+	
+	private void initialize() {
+		addHandler(new ChannelFutureHandler());
+	}
 
 	@Override
-	public void connect(SocketAddress remoteAddress) throws IOException {
+	public Channel connect(SocketAddress remoteAddress, Promise<Channel> completionHandler) throws IOException {
 		AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open();
 		socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, writerBufferSize);
 		socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -85,7 +91,7 @@ public class AioConnector implements IoConnector {
 		} catch (RuntimeException e) {
 			logger.warn(e.getMessage());
 		}
-		channel = new AioChannel(channelEventPublisher, socketChannel, transformer, autoFlushInterval);
+		Channel channel = new AioChannel(channelEventPublisher, socketChannel, transformer, writerBatchSize, autoFlushInterval);
 		socketChannel.connect(remoteAddress, null, new CompletionHandler<Void, Object>() {
 
 			@Override
@@ -99,30 +105,35 @@ public class AioConnector implements IoConnector {
 				channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, EventType.FATAL, null, e));
 			}
 		});
-
-	}
-
-	@Override
-	public void write(Object object) {
-		channel.write(object, writerBatchSize);
-	}
-
-	@Override
-	public void flush() {
-		channel.flush();
-	}
-
-	@Override
-	public boolean isActive() {
-		return channel.isActive();
+		if (completionHandler != null) {
+			observable.addObserver((ob, arg) -> {
+				if (arg instanceof Throwable) {
+					completionHandler.onFailure((Throwable) arg);
+				} else {
+					completionHandler.onSuccess((Channel) arg);
+				}
+			});
+		}
+		return channel;
 	}
 
 	@Override
 	public void close() {
 		channelEventPublisher.destroy();
-		if (channel != null) {
-			channel.close();
+	}
+	
+	private class ChannelFutureHandler implements ChannelHandler {
+
+		@Override
+		public void fireChannelActive(Channel channel) throws IOException {
+			observable.notifyObservers(channel);
 		}
+
+		@Override
+		public void fireChannelFatal(Channel channel, Throwable e) {
+			observable.notifyObservers(e);
+		}
+
 	}
 
 }

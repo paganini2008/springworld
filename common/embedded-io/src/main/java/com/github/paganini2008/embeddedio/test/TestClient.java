@@ -5,11 +5,13 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.github.paganini2008.embeddedio.AioConnector;
+import com.github.paganini2008.embeddedio.Channel;
 import com.github.paganini2008.embeddedio.ChannelHandler;
 import com.github.paganini2008.embeddedio.IdleChannelHandler;
 import com.github.paganini2008.embeddedio.IdleTimeoutListener;
 import com.github.paganini2008.embeddedio.LoggingChannelHandler;
 import com.github.paganini2008.embeddedio.ObjectSerialization;
+import com.github.paganini2008.embeddedio.Promise;
 import com.github.paganini2008.embeddedio.StringSerialization;
 import com.github.paganini2008.embeddedio.examples.Item;
 
@@ -18,21 +20,33 @@ public class TestClient {
 	public static void main(String[] args) throws Exception {
 		AioConnector client = new AioConnector();
 		client.getTransformer().setSerialization(new ObjectSerialization(), new StringSerialization());
-		//client.setWriterBufferSize(20 * 1024);
-		client.addHandler(IdleChannelHandler.writerIdle(30, 1, TimeUnit.SECONDS, IdleTimeoutListener.LOG));
+		// client.setWriterBufferSize(20 * 1024);
+		client.addHandler(IdleChannelHandler.writerIdle(30, 60, TimeUnit.SECONDS, IdleTimeoutListener.LOG));
 		client.setWriterBatchSize(10);
 		client.setAutoFlushInterval(3);
 		ChannelHandler handler = new LoggingChannelHandler("client");
 		client.addHandler(handler);
+		Channel channel;
 		try {
-		client.connect(new InetSocketAddress("127.0.0.1",8090));
-		}catch (Exception e) {
+			channel = client.connect(new InetSocketAddress("127.0.0.1", 8090), new Promise<Channel>() {
+
+				@Override
+				public void onSuccess(Channel channel) {
+					System.out.println(channel + " is ok");
+				}
+
+				@Override
+				public void onFailure(Throwable e) {
+					e.printStackTrace();
+				}
+			});
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 		System.in.read();
 		for (int i = 0; i < 10000; i++) {
-			client.write(new Item("fengy_" + i, toFullString()));
+			channel.write(new Item("fengy_" + i, toFullString()));
 		}
 		Thread.sleep(60 * 60 * 1000L);
 		client.close();

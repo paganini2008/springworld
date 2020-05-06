@@ -29,7 +29,6 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	private Transformer transformer = new SerializationTransformer();
 	private SocketAddress localAddress = new InetSocketAddress(8090);
 	private int readerBufferSize = 2 * 1024;
-	private int autoFlushInterval = 0;
 	private final AtomicUnsignedInteger readerIndex;
 	private final ChannelEventPublisher channelEventPublisher;
 	private final ConcurrentMap<Integer, NioReader> readers = new ConcurrentHashMap<Integer, NioReader>();
@@ -93,10 +92,10 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	}
 
 	public void stop() {
+		channelEventPublisher.destroy();
 		for (NioReactor reactor : readers.values()) {
 			reactor.destroy();
 		}
-		channelEventPublisher.destroy();
 		if (serverChannel != null) {
 			try {
 				serverChannel.close();
@@ -116,7 +115,7 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	protected void process(SelectionKey selectionKey) throws IOException {
 		SocketChannel socketChannel = ((ServerSocketChannel) selectionKey.channel()).accept();
 		socketChannel.configureBlocking(false);
-		Channel channel = new NioChannel(channelEventPublisher, socketChannel, transformer, autoFlushInterval);
+		Channel channel = new NioChannel(channelEventPublisher, socketChannel, transformer, 1, 0);
 		NioReader nextReactor = readers.getOrDefault(readerIndex.getAndIncrement(), new NioReader());
 		nextReactor.register(socketChannel, SelectionKey.OP_READ, channel);
 		channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, ChannelEvent.EventType.ACTIVE));

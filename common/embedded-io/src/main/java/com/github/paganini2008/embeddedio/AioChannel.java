@@ -34,14 +34,17 @@ public class AioChannel implements Channel, Executable {
 	private final ChannelEventPublisher eventPublisher;
 	private final AsynchronousSocketChannel channel;
 	private final Transformer transformer;
+	private final int batchSize;
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 	private final WriteLock writerLock = lock.writeLock();
 	private final ReadLock readerLock = lock.readLock();
 
-	AioChannel(ChannelEventPublisher eventPublisher, AsynchronousSocketChannel channel, Transformer transformer, int autoFlushInterval) {
+	AioChannel(ChannelEventPublisher eventPublisher, AsynchronousSocketChannel channel, Transformer transformer, int batchSize,
+			int autoFlushInterval) {
 		this.eventPublisher = eventPublisher;
 		this.channel = channel;
 		this.transformer = transformer;
+		this.batchSize = batchSize;
 		if (autoFlushInterval > 0) {
 			ThreadUtils.scheduleWithFixedDelay(this, autoFlushInterval, TimeUnit.SECONDS);
 		}
@@ -67,7 +70,7 @@ public class AioChannel implements Channel, Executable {
 	}
 
 	@Override
-	public long write(Object message, int batchSize) {
+	public long write(Object message) {
 		if (batchSize == 1) {
 			return writeAndFlush(message);
 		} else if (batchSize > 1) {
