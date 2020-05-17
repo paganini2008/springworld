@@ -25,6 +25,7 @@ public class NioConnector extends NioReactor implements IoConnector {
 	}
 
 	public NioConnector(Executor executor) {
+		super(true);
 		this.reader = new NioReader();
 		this.channelEventPublisher = new DefaultChannelEventPublisher(executor);
 		initialize();
@@ -78,7 +79,7 @@ public class NioConnector extends NioReactor implements IoConnector {
 		addHandler(new ChannelFutureHandler());
 	}
 
-	public Channel connect(SocketAddress remoteAddress, Promise<Channel> completionHandler) throws IOException {
+	public Channel connect(SocketAddress remoteAddress, ChannelPromise<Channel> promise) throws IOException {
 		SocketChannel socketChannel = SocketChannel.open();
 		final Socket socket = socketChannel.socket();
 		socket.setKeepAlive(true);
@@ -89,12 +90,12 @@ public class NioConnector extends NioReactor implements IoConnector {
 		}
 		socketChannel.configureBlocking(false);
 		socketChannel.connect(remoteAddress);
-		if (completionHandler != null) {
+		if (promise != null) {
 			observable.addObserver((ob, arg) -> {
 				if (arg instanceof Throwable) {
-					completionHandler.onFailure((Throwable) arg);
+					promise.onFailure((Throwable) arg);
 				} else {
-					completionHandler.onSuccess((Channel) arg);
+					promise.onSuccess((Channel) arg);
 				}
 			});
 		}

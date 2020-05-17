@@ -41,14 +41,14 @@ public class LoggingChannelHandler implements ChannelHandler {
 		packet.getMessages().forEach(data -> {
 			log.info("[" + counter.incrementAndGet() + "]: " + data);
 			if ("server".equals(side)) {
-				channel.write("ok");
+				//channel.write("ok");
 			}
 		});
 	}
 
 	@Override
 	public void fireChannelWriteable(Channel channel, MessagePacket packet) throws IOException {
-		log.info("Channel write length: " + packet.getLength() + ", size: " + packet.getMessages().size());
+		//log.info("Channel write length: " + packet.getLength() + ", size: " + packet.getMessages().size());
 	}
 
 	@Override

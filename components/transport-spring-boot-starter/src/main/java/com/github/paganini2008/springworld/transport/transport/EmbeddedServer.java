@@ -80,7 +80,7 @@ public class EmbeddedServer implements NioServer {
 		ExecutorService executor = Executors.newFixedThreadPool(nThreads, new PooledThreadFactory("transport-embedded-server-threads-"));
 		acceptor = useAio ? new AioAcceptor(executor) : new NioAcceptor(executor);
 		acceptor.setBacklog(128);
-		acceptor.setReaderBufferSize(2 * 1024 * 1024);
+		acceptor.setReaderBufferSize(1024 * 1024);
 		Transformer transformer = new SerializationTransformer();
 		transformer.setSerialization(serializationFactory.getEncoder(), serializationFactory.getDecoder());
 		acceptor.setTransformer(transformer);

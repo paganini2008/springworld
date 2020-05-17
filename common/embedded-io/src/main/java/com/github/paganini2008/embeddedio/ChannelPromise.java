@@ -7,7 +7,7 @@ package com.github.paganini2008.embeddedio;
  * @author Fred Feng
  * @since 1.0
  */
-public interface Promise<T> {
+public interface ChannelPromise<T> {
 
 	void onSuccess(T object);
 

@@ -38,6 +38,7 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	}
 
 	public NioAcceptor(Executor executor) {
+		super(false);
 		this.channelEventPublisher = new DefaultChannelEventPublisher(executor);
 		this.readerIndex = new AtomicUnsignedInteger(1, processorCount);
 	}

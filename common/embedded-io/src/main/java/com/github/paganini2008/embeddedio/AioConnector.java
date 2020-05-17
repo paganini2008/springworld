@@ -81,7 +81,7 @@ public class AioConnector implements IoConnector {
 	}
 
 	@Override
-	public Channel connect(SocketAddress remoteAddress, Promise<Channel> completionHandler) throws IOException {
+	public Channel connect(SocketAddress remoteAddress, ChannelPromise<Channel> promise) throws IOException {
 		AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open();
 		socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, writerBufferSize);
 		socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -105,12 +105,12 @@ public class AioConnector implements IoConnector {
 				channelEventPublisher.publishChannelEvent(new ChannelEvent(channel, EventType.FATAL, null, e));
 			}
 		});
-		if (completionHandler != null) {
+		if (promise != null) {
 			observable.addObserver((ob, arg) -> {
 				if (arg instanceof Throwable) {
-					completionHandler.onFailure((Throwable) arg);
+					promise.onFailure((Throwable) arg);
 				} else {
-					completionHandler.onSuccess((Channel) arg);
+					promise.onSuccess((Channel) arg);
 				}
 			});
 		}

@@ -11,7 +11,7 @@ import com.github.paganini2008.embeddedio.IdleChannelHandler;
 import com.github.paganini2008.embeddedio.IdleTimeoutListener;
 import com.github.paganini2008.embeddedio.LoggingChannelHandler;
 import com.github.paganini2008.embeddedio.ObjectSerialization;
-import com.github.paganini2008.embeddedio.Promise;
+import com.github.paganini2008.embeddedio.ChannelPromise;
 import com.github.paganini2008.embeddedio.StringSerialization;
 import com.github.paganini2008.embeddedio.examples.Item;
 
@@ -28,7 +28,7 @@ public class TestClient {
 		client.addHandler(handler);
 		Channel channel;
 		try {
-			channel = client.connect(new InetSocketAddress("127.0.0.1", 8090), new Promise<Channel>() {
+			channel = client.connect(new InetSocketAddress("127.0.0.1", 8090), new ChannelPromise<Channel>() {
 
 				@Override
 				public void onSuccess(Channel channel) {

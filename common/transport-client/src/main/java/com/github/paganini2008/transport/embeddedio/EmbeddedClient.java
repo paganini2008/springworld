@@ -9,12 +9,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.embeddedio.AioConnector;
 import com.github.paganini2008.embeddedio.Channel;
+import com.github.paganini2008.embeddedio.ChannelPromise;
 import com.github.paganini2008.embeddedio.IdleChannelHandler;
 import com.github.paganini2008.embeddedio.IdleTimeoutListener;
 import com.github.paganini2008.embeddedio.IoConnector;
 import com.github.paganini2008.embeddedio.NioConnector;
-import com.github.paganini2008.embeddedio.Promise;
 import com.github.paganini2008.embeddedio.SerializationTransformer;
+import com.github.paganini2008.embeddedio.Transformer;
 import com.github.paganini2008.transport.ConnectionWatcher;
 import com.github.paganini2008.transport.HandshakeCallback;
 import com.github.paganini2008.transport.NioClient;
@@ -36,15 +37,22 @@ public class EmbeddedClient implements NioClient {
 	private IoConnector connector;
 	private int idleTimeout = 30;
 	private int threadCount = -1;
+	private SerializationFactory serializationFactory;
 
 	@Override
 	public void open() {
 		final int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
 		Executor threadPool = Executors.newFixedThreadPool(nThreads, new PooledThreadFactory("transport-embedded-client-threads-"));
 		connector = useAio ? new AioConnector(threadPool) : new NioConnector(threadPool);
-		connector.setWriterBatchSize(100);
-		connector.setWriterBufferSize(1024 * 1024);
+		connector.setWriterBatchSize(10);
+		connector.setWriterBufferSize(10 * 1024);
 		connector.setAutoFlushInterval(3);
+		if (serializationFactory == null) {
+			serializationFactory = new EmbeddedSerializationFactory();
+		}
+		Transformer transformer = new SerializationTransformer();
+		transformer.setSerialization(serializationFactory.getEncoder(), serializationFactory.getDecoder());
+		connector.setTransformer(transformer);
 		if (idleTimeout > 0) {
 			connector.addHandler(IdleChannelHandler.writerIdle(idleTimeout, 60, TimeUnit.SECONDS, new PingIdleTimeoutListener()));
 		}
@@ -84,7 +92,7 @@ public class EmbeddedClient implements NioClient {
 			return;
 		}
 		try {
-			connector.connect(remoteAddress, new Promise<Channel>() {
+			connector.connect(remoteAddress, new ChannelPromise<Channel>() {
 
 				@Override
 				public void onSuccess(Channel channel) {
@@ -130,9 +138,7 @@ public class EmbeddedClient implements NioClient {
 	}
 
 	public void setSerializationFactory(SerializationFactory serializationFactory) {
-		SerializationTransformer transformer = new SerializationTransformer();
-		transformer.setSerialization(serializationFactory.getEncoder(), serializationFactory.getDecoder());
-		this.connector.setTransformer(transformer);
+		this.serializationFactory = serializationFactory;
 	}
 
 	@Override

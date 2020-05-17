@@ -98,5 +98,9 @@ public class IdleChannelHandler implements ChannelHandler {
 			IdleTimeoutListener idleTimeoutListener) {
 		return new IdleChannelHandler(0, writerTimeout, checkInterval, timeUnit, idleTimeoutListener);
 	}
+	
+	public void releaseOtherResource() {
+		clock.stop();
+	}
 
 }

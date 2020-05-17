@@ -9,6 +9,7 @@ import com.github.paganini2008.transport.RandomPartitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
 import com.github.paganini2008.transport.TransportClient;
 import com.github.paganini2008.transport.Tuple;
+import com.github.paganini2008.transport.embeddedio.EmbeddedClient;
 import com.github.paganini2008.transport.grizzly.GrizzlyClient;
 import com.github.paganini2008.transport.mina.MinaClient;
 import com.github.paganini2008.transport.netty.NettyClient;
@@ -97,6 +98,9 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 		}
 		NioClient nioClient;
 		switch (transporter.toLowerCase()) {
+		case "embedded-io":
+			nioClient = new EmbeddedClient();
+			break;
 		case "netty":
 			nioClient = new NettyClient();
 			break;

@@ -24,7 +24,7 @@ public class KryoSerializer implements Serializer {
 	private final Pool<Input> inputPool;
 
 	public KryoSerializer() {
-		this(DEFAULT_POOL_SIZE, DEFAULT_IO_POOL_SIZE, DEFAULT_IO_POOL_SIZE, 4096);
+		this(DEFAULT_POOL_SIZE, DEFAULT_IO_POOL_SIZE, DEFAULT_IO_POOL_SIZE, 8192);
 	}
 
 	public KryoSerializer(int poolSize, int outputSize, int inputSize, int bufferSize) {
