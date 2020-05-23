@@ -15,11 +15,6 @@ import org.springframework.context.annotation.Configuration;
 public class ContextClusterSupportConfig {
 
 	@Bean
-	public ContextClusterConfigProperties configProperties() {
-		return new ContextClusterConfigProperties();
-	}
-
-	@Bean
 	@ConditionalOnMissingBean(ClusterIdGenerator.class)
 	public ClusterIdGenerator clusterIdGenerator() {
 		return new DefaultClusterIdGenerator();

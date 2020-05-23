@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
  * ContextMulticastEventHandlerBeanProcessor
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Component

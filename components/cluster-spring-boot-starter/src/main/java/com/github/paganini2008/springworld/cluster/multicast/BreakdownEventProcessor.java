@@ -1,8 +1,9 @@
 package com.github.paganini2008.springworld.cluster.multicast;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springworld.cluster.ContextClusterConfigProperties;
+import com.github.paganini2008.springworld.cluster.ContextClusterAware;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 
 /**
@@ -10,8 +11,6 @@ import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
  * BreakdownEventProcessor
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class BreakdownEventProcessor implements RedisMessageHandler {
@@ -22,8 +21,8 @@ public class BreakdownEventProcessor implements RedisMessageHandler {
 	@Autowired
 	private ContextMulticastEventListener multicastEventListener;
 
-	@Autowired
-	private ContextClusterConfigProperties configProperties;
+	@Value("${spring.application.name}")
+	private String applicationName;
 
 	@Override
 	public void onMessage(String channel, Object message) {
@@ -34,7 +33,7 @@ public class BreakdownEventProcessor implements RedisMessageHandler {
 
 	@Override
 	public String getChannel() {
-		return configProperties.getApplicationClusterName() + ":*";
+		return ContextClusterAware.SPRING_CLUSTER_NAMESPACE + applicationName + ":*";
 	}
 
 	@Override

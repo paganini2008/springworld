@@ -27,16 +27,16 @@ public class ContextClusterHeartbeatThread implements Executable {
 
 	@Value("${spring.application.cluster.lifespanTtl:5}")
 	private int lifespanTtl;
-
-	@Autowired
-	private ContextClusterConfigProperties configProperties;
-
+	
+	@Value("${spring.application.name}")
+	private String applicationName;
+	
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 
 	@Override
 	public boolean execute() {
-		String key = configProperties.getApplicationClusterName();
+		final String key = ContextClusterAware.SPRING_CLUSTER_NAMESPACE+ applicationName;
 		redisTemplate.expire(key, lifespanTtl, TimeUnit.SECONDS);
 		return true;
 	}
@@ -48,7 +48,7 @@ public class ContextClusterHeartbeatThread implements Executable {
 			throw new IllegalArgumentException("The value range of parameter 'spring.application.cluster.lifespanTtl' is between "
 					+ MIN_LIFESPAN_TTL + " and " + MAX_LIFESPAN_TTL);
 		}
-		String key = configProperties.getApplicationClusterName();
+		final String key = ContextClusterAware.SPRING_CLUSTER_NAMESPACE+ applicationName;
 		redisTemplate.expire(key, lifespanTtl, TimeUnit.SECONDS);
 		timer = ThreadUtils.scheduleAtFixedRate(this, 3, 3, TimeUnit.SECONDS);
 		log.info("Start ContextClusterHeartbeatThread ok.");

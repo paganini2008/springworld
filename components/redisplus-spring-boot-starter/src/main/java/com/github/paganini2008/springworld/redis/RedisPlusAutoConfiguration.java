@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Import;
  * RedisPlusAutoConfiguration
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Configuration

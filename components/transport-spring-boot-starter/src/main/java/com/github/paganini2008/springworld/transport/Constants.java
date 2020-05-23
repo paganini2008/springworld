@@ -5,8 +5,6 @@ package com.github.paganini2008.springworld.transport;
  * Constants
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public abstract class Constants {

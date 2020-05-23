@@ -17,7 +17,6 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
 import com.github.paganini2008.springworld.redis.KryoRedisSerializer;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
 import com.github.paganini2008.springworld.transport.buffer.MemcachedBufferZone;
@@ -42,6 +41,7 @@ import com.github.paganini2008.springworld.xmemcached.MemcachedTemplate;
 import com.github.paganini2008.springworld.xmemcached.MemcachedTemplateBuilder;
 import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.NioClient;
+import com.github.paganini2008.transport.NodeFinder;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
 import com.github.paganini2008.transport.TupleImpl;
@@ -90,8 +90,13 @@ public class TransportServerConfiguration {
 	}
 
 	@Bean
-	public ContextMulticastEventHandler connectionSensitiveMulticastEventHandler() {
-		return new ConnectionSensitiveMulticastEventHandler();
+	public NioServerPeerFinder nioServerPeerFinder() {
+		return new NioServerPeerFinder();
+	}
+
+	@Bean(destroyMethod = "destroy")
+	public NodeFinder contextNodeFinder() {
+		return new ContextNodeFinder();
 	}
 
 	@Primary

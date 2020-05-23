@@ -2,11 +2,11 @@ package com.github.paganini2008.transport.logging;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.transport.HashPartitioner;
-import com.github.paganini2008.transport.JedisLookupAddress;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RandomPartitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
+import com.github.paganini2008.transport.SpringApplicationClusterInfo;
 import com.github.paganini2008.transport.TransportClient;
 import com.github.paganini2008.transport.Tuple;
 import com.github.paganini2008.transport.embeddedio.EmbeddedClient;
@@ -31,8 +31,8 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 	private String redisHost = "localhost";
 	private int redisPort = 6379;
 	private int redisDbIndex = 0;
-	private String password = "";
-	private String clusterName;
+	private String redisAuth = "";
+	private String applicationName;
 	private int startupDelay = 0;
 	private String partitioner = "roundrobin";
 	private String groupingFieldName;
@@ -58,8 +58,8 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 		this.partitioner = partitioner;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public void setRedisAuth(String redisAuth) {
+		this.redisAuth = redisAuth;
 	}
 
 	public void setStartupDelay(int startupDelay) {
@@ -70,8 +70,8 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 		this.groupingFieldName = groupingFieldName;
 	}
 
-	public void setClusterName(String clusterName) {
-		this.clusterName = clusterName;
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 			return;
 		}
 		NioClient nioClient;
-		switch (transporter.toLowerCase()) {
+		switch (this.transporter.toLowerCase()) {
 		case "embedded-io":
 			nioClient = new EmbeddedClient();
 			break;
@@ -131,8 +131,13 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 		default:
 			throw new IllegalArgumentException("Unknown partitioner: " + this.partitioner);
 		}
-		transportClient = new TransportClient(clusterName, new JedisLookupAddress(redisHost, redisPort, password, redisDbIndex), nioClient,
-				partitioner, startupDelay);
+		SpringApplicationClusterInfo clusterInfo = new SpringApplicationClusterInfo(applicationName);
+		clusterInfo.getBuilder().setHost(redisHost);
+		clusterInfo.getBuilder().setPort(redisPort);
+		clusterInfo.getBuilder().setAuth(redisAuth);
+		clusterInfo.getBuilder().setDbIndex(redisDbIndex);
+
+		transportClient = new TransportClient(clusterInfo, nioClient, partitioner, startupDelay);
 		if (StringUtils.isNotBlank(groupingFieldName)) {
 			transportClient.setGroupingFieldName(groupingFieldName);
 		}

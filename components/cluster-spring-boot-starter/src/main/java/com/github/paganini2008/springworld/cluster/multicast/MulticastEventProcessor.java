@@ -12,8 +12,6 @@ import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
  * MulticastEventProcessor
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class MulticastEventProcessor implements RedisMessageHandler {
@@ -29,9 +27,10 @@ public class MulticastEventProcessor implements RedisMessageHandler {
 	public void onMessage(String channel, Object received) {
 		if (received instanceof Map) {
 			Map<String, Object> data = (Map<String, Object>) received;
+			String instanceId = (String) data.get("instanceId");
 			String topic = (String) data.get("topic");
 			Object message = data.get("message");
-			multicastEventListener.fireOnMessage(clusterId.get(), topic, message);
+			multicastEventListener.fireOnMessage(instanceId, topic, message);
 		}
 	}
 

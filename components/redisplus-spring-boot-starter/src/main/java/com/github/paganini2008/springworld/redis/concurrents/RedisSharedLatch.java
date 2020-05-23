@@ -97,8 +97,8 @@ public class RedisSharedLatch implements SharedLatch {
 		return false;
 	}
 
-	public long availablePermits() {
-		return maxPermits - counter.get();
+	public long cons() {
+		return maxPermits - availablePermits();
 	}
 
 	public void release() {
@@ -130,6 +130,11 @@ public class RedisSharedLatch implements SharedLatch {
 		if (lifespan != null) {
 			lifespan.watch(counter.getKey(), expiration, checkInterval, TimeUnit.SECONDS);
 		}
+	}
+
+	@Override
+	public long availablePermits() {
+		return maxPermits - counter.get();
 	}
 
 }

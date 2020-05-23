@@ -1,6 +1,5 @@
 package com.github.paganini2008.springworld.transport.transport;
 
-import static com.github.paganini2008.springworld.transport.Constants.APPLICATION_KEY;
 import static com.github.paganini2008.springworld.transport.Constants.PORT_RANGE_END;
 import static com.github.paganini2008.springworld.transport.Constants.PORT_RANGE_START;
 
@@ -13,7 +12,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
@@ -25,7 +23,7 @@ import com.github.paganini2008.embeddedio.IoAcceptor;
 import com.github.paganini2008.embeddedio.NioAcceptor;
 import com.github.paganini2008.embeddedio.SerializationTransformer;
 import com.github.paganini2008.embeddedio.Transformer;
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.transport.NodeFinder;
 import com.github.paganini2008.transport.embeddedio.SerializationFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,9 +54,6 @@ public class EmbeddedServer implements NioServer {
 	@Value("${spring.transport.nioserver.embeddedio.useAio:false}")
 	private boolean useAio;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
-
 	@Autowired
 	private EmbeddedServerHandler serverHandler;
 
@@ -66,10 +61,7 @@ public class EmbeddedServer implements NioServer {
 	private SerializationFactory serializationFactory;
 
 	@Autowired
-	private ClusterId clusterId;
-
-	@Autowired
-	private StringRedisTemplate redisTemplate;
+	private NodeFinder nodeFinder;
 
 	@Override
 	public int start() throws Exception {
@@ -80,7 +72,7 @@ public class EmbeddedServer implements NioServer {
 		ExecutorService executor = Executors.newFixedThreadPool(nThreads, new PooledThreadFactory("transport-embedded-server-threads-"));
 		acceptor = useAio ? new AioAcceptor(executor) : new NioAcceptor(executor);
 		acceptor.setBacklog(128);
-		acceptor.setReaderBufferSize(1024 * 1024);
+		acceptor.setReaderBufferSize(2 * 1024 * 1024);
 		Transformer transformer = new SerializationTransformer();
 		transformer.setSerialization(serializationFactory.getEncoder(), serializationFactory.getDecoder());
 		acceptor.setTransformer(transformer);
@@ -95,8 +87,7 @@ public class EmbeddedServer implements NioServer {
 		try {
 			acceptor.start();
 			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			String key = String.format(APPLICATION_KEY, applicationName);
-			redisTemplate.opsForHash().put(key, clusterId.get(), location);
+			nodeFinder.registerNode(location);
 			started.set(true);
 			log.info("EmbeddedServer is started on: " + localAddress);
 		} catch (IOException e) {

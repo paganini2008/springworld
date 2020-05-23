@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
  * MessageHandler
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Documented

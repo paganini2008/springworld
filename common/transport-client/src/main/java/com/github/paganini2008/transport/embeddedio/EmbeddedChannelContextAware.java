@@ -41,6 +41,7 @@ public abstract class EmbeddedChannelContextAware implements ChannelHandler, Cha
 
 	@Override
 	public void fireChannelInactive(Channel channel) throws IOException {
+		System.out.println("EmbeddedChannelContextAware.fireChannelInactive():::");
 		SocketAddress address = channel.getRemoteAddr();
 		removeChannel(address);
 
@@ -58,6 +59,7 @@ public abstract class EmbeddedChannelContextAware implements ChannelHandler, Cha
 
 	@Override
 	public void fireChannelFatal(Channel channel, Throwable e) {
+		e.printStackTrace();
 		channel.close();
 
 		SocketAddress address = channel.getRemoteAddr();

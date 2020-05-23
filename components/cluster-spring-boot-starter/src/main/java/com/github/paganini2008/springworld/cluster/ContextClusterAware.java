@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -19,12 +20,14 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ContextClusterAware implements ApplicationListener<ContextRefreshedEvent> {
+	
+	public static final String SPRING_CLUSTER_NAMESPACE = "spring:application:cluster:";
+	
+	@Value("${spring.application.name}")
+	private String applicationName;
 
 	@Autowired
 	private ClusterId clusterId;
-
-	@Autowired
-	private ContextClusterConfigProperties configProperties;
 
 	@Autowired
 	private StringRedisTemplate redisTemplate;
@@ -34,7 +37,7 @@ public class ContextClusterAware implements ApplicationListener<ContextRefreshed
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		final String key = configProperties.getApplicationClusterName();
+		final String key = SPRING_CLUSTER_NAMESPACE + applicationName;
 		if (redisTemplate.hasKey(key) && redisTemplate.getExpire(key) < 0) {
 			redisTemplate.delete(key);
 		}
@@ -48,11 +51,11 @@ public class ContextClusterAware implements ApplicationListener<ContextRefreshed
 			heartbeatThread.start();
 			context.publishEvent(new ContextMasterStandbyEvent(context));
 			log.info("Master of context cluster '{}' is you. You can also implement ApplicationListener to listen the event type {}",
-					configProperties.getApplicationName(), ContextMasterStandbyEvent.class.getName());
+					applicationName, ContextMasterStandbyEvent.class.getName());
 		} else {
 			context.publishEvent(new ContextSlaveStandbyEvent(context, masterId));
 			log.info("Slave of context cluster '{}' is you. You can also implement ApplicationListener to listen the event type {}",
-					configProperties.getApplicationName(), ContextSlaveStandbyEvent.class.getName());
+					applicationName, ContextSlaveStandbyEvent.class.getName());
 		}
 	}
 

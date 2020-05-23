@@ -38,8 +38,6 @@ import redis.clients.jedis.JedisPoolConfig;
  * Log4j2TransportClientAppender
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Plugin(name = Log4j2TransportClientAppender.PLUGIN_NAME, category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)

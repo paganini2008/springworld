@@ -21,25 +21,18 @@ public class TransportClient implements Executable {
 
 	private static final Log logger = LogFactory.getLog(TransportClient.class);
 
-	public TransportClient(String clusterName, String redisHost, int redisPort, String password) {
-		this(clusterName, new JedisLookupAddress(redisHost, redisPort, password, 0));
+	public TransportClient(ClusterInfo clusterInfo) {
+		this(clusterInfo, new NettyClient(), new RoundRobinPartitioner(), 0);
 	}
 
-	public TransportClient(String clusterName, LookupAddress lookupAddress) {
-		this(clusterName, lookupAddress, new NettyClient(), new RoundRobinPartitioner(), 0);
-	}
-
-	public TransportClient(String clusterName, LookupAddress lookupAddress, NioClient nioClient, Partitioner partitioner,
-			int startupDelay) {
-		this.clusterName = clusterName;
-		this.lookupAddress = lookupAddress;
+	public TransportClient(ClusterInfo clusterInfo, NioClient nioClient, Partitioner partitioner, int startupDelay) {
+		this.clusterInfo = clusterInfo;
 		this.nioClient = nioClient;
 		this.partitioner = partitioner;
 		this.startupDelay = startupDelay;
 	}
 
-	private final String clusterName;
-	private final LookupAddress lookupAddress;
+	private final ClusterInfo clusterInfo;
 	private final NioClient nioClient;
 	private final Partitioner partitioner;
 	private final int startupDelay;
@@ -69,9 +62,6 @@ public class TransportClient implements Executable {
 		if (started) {
 			throw new IllegalStateException("TransportClient is started now.");
 		}
-		if (StringUtils.isBlank(clusterName)) {
-			throw new TransportClientException("ClusterName must be required.");
-		}
 		if (startupDelay > 0) {
 			ThreadUtils.schedule(() -> {
 				doStart();
@@ -96,14 +86,14 @@ public class TransportClient implements Executable {
 		}
 		started = false;
 		nioClient.close();
-		lookupAddress.releaseExternalResources();
+		clusterInfo.releaseExternalResources();
 		logger.info("Close TransportClient ok.");
 	}
 
 	private void doConnect() {
 		String[] addresses = new String[0];
 		try {
-			addresses = lookupAddress.getAddresses(clusterName);
+			addresses = clusterInfo.getInstanceAddresses();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -111,7 +101,7 @@ public class TransportClient implements Executable {
 			String[] args = address.split(":", 2);
 			try {
 				nioClient.connect(new InetSocketAddress(args[0], Integer.parseInt(args[1])), location -> {
-					logger.info("Logging to: " + location);
+					logger.info("TransportClient connect to: " + location);
 				});
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -122,7 +112,11 @@ public class TransportClient implements Executable {
 	@Override
 	public boolean execute() {
 		doConnect();
-		return nioClient.isOpened();
+		return started && nioClient.isOpened();
+	}
+
+	public ClusterInfo getClusterInfo() {
+		return clusterInfo;
 	}
 
 }

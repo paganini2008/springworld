@@ -12,8 +12,6 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  * ContextMulticastEventListener
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class ContextMulticastEventListener {
@@ -21,44 +19,44 @@ public class ContextMulticastEventListener {
 	public static final String GLOBAL_TOPIC = "*";
 	private final Map<String, List<ContextMulticastEventHandler>> topicHandlers = new ConcurrentHashMap<String, List<ContextMulticastEventHandler>>();
 
-	public void fireOnJoin(final String clusterId) {
+	public void fireOnJoin(final String instanceId) {
 		List<ContextMulticastEventHandler> eventHandlers = topicHandlers.get(GLOBAL_TOPIC);
 		if (eventHandlers != null) {
 			eventHandlers.forEach(handler -> {
-				handler.onJoin(clusterId);
+				handler.onJoin(instanceId);
 			});
 		}
 	}
 
-	public void fireOnLeave(final String clusterId) {
+	public void fireOnLeave(final String instanceId) {
 		List<ContextMulticastEventHandler> eventHandlers = topicHandlers.get(GLOBAL_TOPIC);
 		if (eventHandlers != null) {
 			eventHandlers.forEach(handler -> {
-				handler.onLeave(clusterId);
+				handler.onLeave(instanceId);
 			});
 		}
 	}
 
-	public void fireOnMessage(final String clusterId, final String topic, final Object message) {
+	public void fireOnMessage(final String instanceId, final String topic, final Object message) {
 		if (GLOBAL_TOPIC.equals(topic)) {
 			List<ContextMulticastEventHandler> eventHandlers = topicHandlers.get(topic);
 			if (eventHandlers != null) {
 				eventHandlers.forEach(handler -> {
-					handler.onGlobalMessage(clusterId, message);
+					handler.onGlobalMessage(instanceId, message);
 				});
 			}
 		} else {
 			List<ContextMulticastEventHandler> eventHandlers = topicHandlers.get(topic);
 			if (eventHandlers != null) {
 				eventHandlers.forEach(handler -> {
-					handler.onMessage(clusterId, message);
+					handler.onMessage(instanceId, message);
 				});
 			}
 		}
 	}
 
 	public void addHandler(ContextMulticastEventHandler multicastEventHandler) {
-		String topic = multicastEventHandler.getTopic();
+		final String topic = multicastEventHandler.getTopic();
 		List<ContextMulticastEventHandler> handlers = MapUtils.get(topicHandlers, topic, () -> {
 			return new CopyOnWriteArrayList<ContextMulticastEventHandler>();
 		});

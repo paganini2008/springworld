@@ -44,8 +44,8 @@ public class EmbeddedClient implements NioClient {
 		final int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
 		Executor threadPool = Executors.newFixedThreadPool(nThreads, new PooledThreadFactory("transport-embedded-client-threads-"));
 		connector = useAio ? new AioConnector(threadPool) : new NioConnector(threadPool);
-		connector.setWriterBatchSize(10);
-		connector.setWriterBufferSize(10 * 1024);
+		connector.setWriterBatchSize(100);
+		connector.setWriterBufferSize(1024 * 1024);
 		connector.setAutoFlushInterval(3);
 		if (serializationFactory == null) {
 			serializationFactory = new EmbeddedSerializationFactory();
