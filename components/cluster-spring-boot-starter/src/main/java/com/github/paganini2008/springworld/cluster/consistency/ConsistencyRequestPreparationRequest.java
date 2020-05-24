@@ -6,6 +6,8 @@ import com.github.paganini2008.springworld.cluster.ClusterId;
 import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
 import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGroup;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * ConsistencyRequestPreparationRequest
@@ -13,6 +15,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGro
  * @author Fred Feng
  * @since 1.0
  */
+@Slf4j
 public class ConsistencyRequestPreparationRequest implements ContextMulticastEventHandler {
 
 	@Autowired

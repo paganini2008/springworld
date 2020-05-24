@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster.consistency;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,9 +16,10 @@ import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEve
  * @since 1.0
  */
 @Configuration
+@ConditionalOnProperty(value = "spring.application.cluster.lead-election.enabled", havingValue = "true")
 public class ConsistencyRequestConfig {
 
-	@ConditionalOnBean(Clock.class)
+	@ConditionalOnMissingBean(Clock.class)
 	@Bean
 	public Clock clock() {
 		return new Clock();
@@ -71,6 +73,11 @@ public class ConsistencyRequestConfig {
 	@Bean
 	public ContextMulticastEventHandler requestLearningResponse() {
 		return new ConsistencyRequestLearningResponse();
+	}
+	
+	@Bean
+	public LeaderElection leaderElection() {
+		return new LeaderElection();
 	}
 
 }

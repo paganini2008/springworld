@@ -94,6 +94,7 @@ public class TransportServerConfiguration {
 		return new NioServerPeerFinder();
 	}
 
+	@ConditionalOnMissingBean(NodeFinder.class)
 	@Bean(destroyMethod = "destroy")
 	public NodeFinder contextNodeFinder() {
 		return new ContextNodeFinder();

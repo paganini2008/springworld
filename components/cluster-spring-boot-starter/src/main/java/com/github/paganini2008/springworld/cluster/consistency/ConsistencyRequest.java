@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * 
@@ -12,6 +13,7 @@ import lombok.Getter;
  * @author Fred Feng
  * @since 1.0
  */
+@ToString
 @Getter
 public class ConsistencyRequest implements Serializable {
 

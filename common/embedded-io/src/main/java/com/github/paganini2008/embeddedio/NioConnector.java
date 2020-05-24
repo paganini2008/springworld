@@ -91,7 +91,7 @@ public class NioConnector extends NioReactor implements IoConnector {
 		socketChannel.configureBlocking(false);
 		socketChannel.connect(remoteAddress);
 		if (promise != null) {
-			observable.addObserver((ob, arg) -> {
+			observable.addObserver(remoteAddress.toString(), (ob, arg) -> {
 				if (arg instanceof Throwable) {
 					promise.onFailure((Throwable) arg);
 				} else {
@@ -143,7 +143,8 @@ public class NioConnector extends NioReactor implements IoConnector {
 
 		@Override
 		public void fireChannelActive(Channel channel) throws IOException {
-			observable.notifyObservers(channel);
+			SocketAddress remoteAddress = channel.getRemoteAddr();
+			observable.notifyObservers(remoteAddress.toString(), channel);
 		}
 
 		@Override

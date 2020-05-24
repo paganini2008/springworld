@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
+import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ContextClusterAware;
 
 /**
@@ -31,13 +32,17 @@ public class ConsistencyRequestSerial {
 	public long nextSerial(String name) {
 		final String redisCounter = String.format(CONSISTENCY_SERIAL_PATTERN,
 				ContextClusterAware.SPRING_CLUSTER_NAMESPACE + applicationName, name);
-		return serials.getOrDefault(name, new RedisAtomicLong(redisCounter, connectionFactory)).incrementAndGet();
+		return MapUtils.get(serials, name, () -> {
+			return new RedisAtomicLong(redisCounter, connectionFactory);
+		}).incrementAndGet();
 	}
 
 	public long currentSerial(String name) {
 		final String redisCounter = String.format(CONSISTENCY_SERIAL_PATTERN,
 				ContextClusterAware.SPRING_CLUSTER_NAMESPACE + applicationName, name);
-		return serials.getOrDefault(name, new RedisAtomicLong(redisCounter, connectionFactory)).get();
+		return MapUtils.get(serials, name, () -> {
+			return new RedisAtomicLong(redisCounter, connectionFactory);
+		}).get();
 	}
 
 }

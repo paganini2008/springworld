@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.devtools.multithreads.Clock.ClockTask;
 import com.github.paganini2008.springworld.cluster.ClusterId;
@@ -37,17 +38,27 @@ public final class ConsistencyRequestContext {
 	@Autowired
 	private ConsistencyRequestSerial requestSerial;
 
-	private final Map<String, List<ConsistencyResponse>> preparations = new ConcurrentHashMap<String, List<ConsistencyResponse>>();
-	private final Map<String, List<ConsistencyResponse>> commitments = new ConcurrentHashMap<String, List<ConsistencyResponse>>();
+	private final Map<String, Map<Long, List<ConsistencyResponse>>> preparations = new ConcurrentHashMap<String, Map<Long, List<ConsistencyResponse>>>();
+	private final Map<String, Map<Long, List<ConsistencyResponse>>> commitments = new ConcurrentHashMap<String, Map<Long, List<ConsistencyResponse>>>();
 
 	public void canLearn(ConsistencyResponse response) {
-		final String id = response.getRequest().getId();
-		commitments.getOrDefault(id, new CopyOnWriteArrayList<ConsistencyResponse>()).add(response);
+		ConsistencyRequest request = response.getRequest();
+		Map<Long, List<ConsistencyResponse>> map = MapUtils.get(commitments, request.getName(), () -> {
+			return new ConcurrentHashMap<Long, List<ConsistencyResponse>>();
+		});
+		MapUtils.get(map, request.getRound(), () -> {
+			return new CopyOnWriteArrayList<ConsistencyResponse>();
+		}).add(response);
 	}
 
 	public void canCommit(ConsistencyResponse response) {
-		final String id = response.getRequest().getId();
-		preparations.getOrDefault(id, new CopyOnWriteArrayList<ConsistencyResponse>()).add(response);
+		ConsistencyRequest request = response.getRequest();
+		Map<Long, List<ConsistencyResponse>> map = MapUtils.get(preparations, request.getName(), () -> {
+			return new ConcurrentHashMap<Long, List<ConsistencyResponse>>();
+		});
+		MapUtils.get(map, request.getRound(), () -> {
+			return new CopyOnWriteArrayList<ConsistencyResponse>();
+		}).add(response);
 	}
 
 	public void propose(String name, Object value) {
@@ -55,7 +66,7 @@ public final class ConsistencyRequestContext {
 		final long serial = requestSerial.nextSerial(name);
 		ConsistencyRequest request = ConsistencyRequest.of(clusterId.get()).setName(name).setValue(value).setRound(round).setSerial(serial);
 		contextMulticastGroup.multicast(ConsistencyRequest.PREPARATION_REQUEST, request);
-		clock.schedule(new ConsistencyRequestPreparationFuture(request), 2, TimeUnit.SECONDS);
+		clock.schedule(new ConsistencyRequestPreparationFuture(request), 3, TimeUnit.SECONDS);
 	}
 
 	private class ConsistencyRequestCommitmentFuture extends ClockTask {
@@ -68,15 +79,23 @@ public final class ConsistencyRequestContext {
 
 		@Override
 		protected void runTask() {
-			List<ConsistencyResponse> original = commitments.get(request.getId());
-			List<ConsistencyResponse> expected = preparations.get(request.getId());
-			if (original.size() == expected.size()) {
+			String name = request.getName();
+			long round = request.getRound();
+			List<ConsistencyResponse> original = commitments.containsKey(name) ? commitments.get(name).get(round) : null;
+			List<ConsistencyResponse> expected = preparations.containsKey(name) ? preparations.get(name).get(round) : null;
+			int originalLength = original != null ? original.size() : 0;
+			int expectedLength = expected != null ? expected.size() : 0;
+			if (originalLength > 0 && originalLength == expectedLength) {
 				long newRound = requestRound.nextRound(request.getName());
 				request.setRound(newRound);
 				contextMulticastGroup.multicast(ConsistencyRequest.LEARNING_REQUEST, request);
 			} else {
-				original.clear();
-				expected.clear();
+				if (original != null) {
+					original.clear();
+				}
+				if (expected != null) {
+					expected.clear();
+				}
 
 				if (request.getRound() == requestRound.currentRound(request.getName())) {
 					propose(request.getName(), request.getValue());
@@ -96,16 +115,21 @@ public final class ConsistencyRequestContext {
 
 		@Override
 		protected void runTask() {
-			List<ConsistencyResponse> answers = preparations.get(request.getId());
+			String name = request.getName();
+			long round = request.getRound();
+
+			List<ConsistencyResponse> answers = preparations.containsKey(name) ? preparations.get(name).get(round) : null;
 			int n = contextMulticastGroup.countOfChannel();
-			if (answers.size() > n / 2) {
+			if (answers != null && answers.size() > n / 2) {
 				for (ConsistencyResponse response : answers) {
 					ConsistencyRequest request = response.getRequest();
 					contextMulticastGroup.send(response.getInstanceId(), ConsistencyRequest.COMMITMENT_REQUEST, request);
 				}
-				clock.schedule(new ConsistencyRequestCommitmentFuture(request.copy()), 2, TimeUnit.SECONDS);
+				clock.schedule(new ConsistencyRequestCommitmentFuture(request), 3, TimeUnit.SECONDS);
 			} else {
-				answers.clear();
+				if (answers != null) {
+					answers.clear();
+				}
 
 				if (request.getRound() == requestRound.currentRound(request.getName())) {
 					propose(request.getName(), request.getValue());

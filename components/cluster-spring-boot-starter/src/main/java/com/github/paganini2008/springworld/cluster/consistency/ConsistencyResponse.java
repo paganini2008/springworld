@@ -3,6 +3,8 @@ package com.github.paganini2008.springworld.cluster.consistency;
 import java.io.Serializable;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -11,10 +13,15 @@ import lombok.Getter;
  * @author Fred Feng
  * @since 1.0
  */
+@ToString
+@Setter
 @Getter
 public class ConsistencyResponse implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	public ConsistencyResponse() {
+	}
 
 	public ConsistencyResponse(ConsistencyRequest request, String instanceId, boolean acceptable) {
 		this.request = request;
@@ -22,8 +29,8 @@ public class ConsistencyResponse implements Serializable {
 		this.acceptable = acceptable;
 	}
 
-	private final ConsistencyRequest request;
-	private final String instanceId;
-	private final boolean acceptable;
+	private ConsistencyRequest request;
+	private String instanceId;
+	private boolean acceptable;
 
 }

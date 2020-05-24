@@ -36,6 +36,8 @@ public class NioChannel implements Channel, Executable {
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 	private final WriteLock writerLock = lock.writeLock();
 	private final ReadLock readerLock = lock.readLock();
+	private SocketAddress localAddress;
+	private SocketAddress remoteAddress;
 
 	NioChannel(SocketChannel channel, ChannelEventPublisher eventPublisher, Transformer transformer, int batchSize, int autoFlushInterval) {
 		this.channel = channel;
@@ -182,20 +184,26 @@ public class NioChannel implements Channel, Executable {
 
 	@Override
 	public SocketAddress getLocalAddr() {
-		try {
-			return channel.getLocalAddress();
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
+		if (localAddress == null) {
+			try {
+				localAddress = channel.getLocalAddress();
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
+			}
 		}
+		return localAddress;
 	}
 
 	@Override
 	public SocketAddress getRemoteAddr() {
-		try {
-			return channel.getRemoteAddress();
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
+		if (remoteAddress == null) {
+			try {
+				remoteAddress = channel.getRemoteAddress();
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
+			}
 		}
+		return remoteAddress;
 	}
 
 	public String toString() {

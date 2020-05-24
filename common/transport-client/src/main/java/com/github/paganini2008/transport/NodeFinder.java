@@ -10,7 +10,7 @@ package com.github.paganini2008.transport;
 public interface NodeFinder {
 
 	default void registerNode(Object attachment) {
-		throw new UnsupportedOperationException("Only used by spring context.");
+		throw new UnsupportedOperationException("Only being used by spring application context.");
 	}
 
 	Object findNode(String instanceId);

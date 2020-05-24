@@ -38,12 +38,12 @@ public class ContextNodeFinder implements NodeFinder {
 		final String key = String.format(APPLICATION_KEY, applicationName);
 		final String instanceId = clusterId.get();
 		redisTemplate.opsForHash().put(key, instanceId, attachment);
-		log.info("Register node '{}' to spring application cluster: {}", instanceId, applicationName);
+		log.info("Register node '{}' to spring application cluster '{}'", instanceId, applicationName);
 	}
 
 	@Override
 	public Object findNode(String instanceId) {
-		log.info("Find node '{}' from spring application cluster: {}", instanceId, applicationName);
+		log.info("Find node '{}' from spring application cluster '{}'", instanceId, applicationName);
 		final String key = String.format(APPLICATION_KEY, applicationName);
 		if (!ObjectUtils.accept(new Acceptable() {
 
@@ -60,7 +60,9 @@ public class ContextNodeFinder implements NodeFinder {
 		})) {
 			throw new TransportClientException("InstanceId not found!");
 		}
-		return (String) redisTemplate.opsForHash().get(key, instanceId);
+		String location = (String) redisTemplate.opsForHash().get(key, instanceId);
+		System.out.println("InstanceId: " + instanceId + ", Location: " + location);
+		return location;
 	}
 
 }
