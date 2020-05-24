@@ -11,19 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 
- * ContextClusterController
+ * ApplicationClusterController
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @RequestMapping("/application/cluster")
 @RestController
-public class ContextClusterController {
+public class ApplicationClusterController {
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Autowired
 	private Environment env;

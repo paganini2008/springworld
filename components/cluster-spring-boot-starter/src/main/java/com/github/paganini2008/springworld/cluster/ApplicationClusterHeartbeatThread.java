@@ -14,29 +14,30 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ContextClusterHeartbeatThread
+ * Start a backend thread, which constantly prolong ttl, to keep heartbeating
+ * between application and redis.
  * 
  * @author Fred Feng
  * @version 1.0
  */
 @Slf4j
-public class ContextClusterHeartbeatThread implements Executable {
+public class ApplicationClusterHeartbeatThread implements Executable {
 
 	private static final int MIN_LIFESPAN_TTL = 5;
 	private static final int MAX_LIFESPAN_TTL = 15;
 
 	@Value("${spring.application.cluster.lifespanTtl:5}")
 	private int lifespanTtl;
-	
+
 	@Value("${spring.application.name}")
 	private String applicationName;
-	
+
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 
 	@Override
 	public boolean execute() {
-		final String key = ContextClusterAware.SPRING_CLUSTER_NAMESPACE+ applicationName;
+		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
 		redisTemplate.expire(key, lifespanTtl, TimeUnit.SECONDS);
 		return true;
 	}
@@ -48,10 +49,10 @@ public class ContextClusterHeartbeatThread implements Executable {
 			throw new IllegalArgumentException("The value range of parameter 'spring.application.cluster.lifespanTtl' is between "
 					+ MIN_LIFESPAN_TTL + " and " + MAX_LIFESPAN_TTL);
 		}
-		final String key = ContextClusterAware.SPRING_CLUSTER_NAMESPACE+ applicationName;
+		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
 		redisTemplate.expire(key, lifespanTtl, TimeUnit.SECONDS);
 		timer = ThreadUtils.scheduleAtFixedRate(this, 3, 3, TimeUnit.SECONDS);
-		log.info("Start ContextClusterHeartbeatThread ok.");
+		log.info("Start ApplicationClusterHeartbeatThread ok.");
 	}
 
 	public void stop() {

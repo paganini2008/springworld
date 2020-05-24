@@ -12,20 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 
- * ContextMulticastController
+ * ClusterMulticastController
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @RequestMapping("/application/cluster")
 @RestController
 @ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true")
-public class ContextMulticastController {
+public class ClusterMulticastController {
 
 	@Autowired
-	private ContextMulticastGroup multicastGroup;
+	private ClusterMulticastGroup multicastGroup;
 
 	@GetMapping("/multicast")
 	public Map<String, Object> multicast(@RequestParam("c") String content) {

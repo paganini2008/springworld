@@ -12,17 +12,17 @@ import org.springframework.context.annotation.Configuration;
  * @version 1.0
  */
 @Configuration
-public class ContextClusterSupportConfig {
+public class ApplicationClusterSupportConfig {
 
 	@Bean
-	@ConditionalOnMissingBean(ClusterIdGenerator.class)
-	public ClusterIdGenerator clusterIdGenerator() {
-		return new DefaultClusterIdGenerator();
+	@ConditionalOnMissingBean(InstanceIdGenerator.class)
+	public InstanceIdGenerator instanceIdGenerator() {
+		return new DefaultInstanceIdGenerator();
 	}
 
 	@Bean
-	public ClusterId clusterId() {
-		return new ClusterId();
+	public InstanceId instanceId() {
+		return new InstanceId();
 	}
 
 }

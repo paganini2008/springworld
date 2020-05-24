@@ -8,23 +8,21 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springworld.cluster.ClusterId;
-import com.github.paganini2008.springworld.cluster.ContextClusterAware;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ContextMulticastHeartbeatThread
+ * ClusterMulticastHeartbeatThread
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Slf4j
-public class ContextMulticastHeartbeatThread implements Executable {
+public class ClusterMulticastHeartbeatThread implements Executable {
 
 	private static final int MIN_LIFESPAN_TTL = 5;
 	private static final int MAX_LIFESPAN_TTL = 15;
@@ -39,7 +37,7 @@ public class ContextMulticastHeartbeatThread implements Executable {
 	private RedisMessageSender redisMessageSender;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	private Timer timer;
 
@@ -56,10 +54,10 @@ public class ContextMulticastHeartbeatThread implements Executable {
 			throw new IllegalArgumentException("The value range of parameter 'spring.application.cluster.lifespanTtl' is between "
 					+ MIN_LIFESPAN_TTL + " and " + MAX_LIFESPAN_TTL);
 		}
-		this.channel = ContextClusterAware.SPRING_CLUSTER_NAMESPACE + applicationName + ":" + clusterId.get();
+		this.channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":" + clusterId.get();
 		redisMessageSender.sendEphemeralMessage(channel, clusterId.get(), lifespanTtl, TimeUnit.SECONDS);
 		timer = ThreadUtils.scheduleAtFixedRate(this, 3, 3, TimeUnit.SECONDS);
-		log.info("Start ContextMulticastHeartbeatThread ok.");
+		log.info("Start ClusterMulticastHeartbeatThread ok.");
 	}
 
 	public void stop() {

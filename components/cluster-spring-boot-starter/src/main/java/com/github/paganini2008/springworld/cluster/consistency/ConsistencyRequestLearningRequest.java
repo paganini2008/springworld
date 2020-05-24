@@ -2,8 +2,8 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGroup;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,13 +15,13 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyRequestLearningRequest implements ContextMulticastEventHandler {
+public class ConsistencyRequestLearningRequest implements ClusterMulticastEventListener {
 
 	@Autowired
 	private ConsistencyRequestRound requestRound;
 
 	@Autowired
-	private ContextMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup contextMulticastGroup;
 
 	@Override
 	public void onMessage(String instanceId, Object message) {

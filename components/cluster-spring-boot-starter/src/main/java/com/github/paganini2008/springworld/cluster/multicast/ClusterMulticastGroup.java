@@ -11,17 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
 /**
  * 
- * ContextMulticastGroup
+ * ClusterMulticastGroup
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class ContextMulticastGroup {
+public class ClusterMulticastGroup {
 
 	private final List<String> channels = new CopyOnWriteArrayList<String>();
 
@@ -32,7 +32,7 @@ public class ContextMulticastGroup {
 	private LoadBalance loadBalance;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	public void registerChannel(String channel, int weight) {
 		Assert.hasNoText("Channel is required.");
@@ -58,7 +58,7 @@ public class ContextMulticastGroup {
 	}
 
 	public void unicast(Object message) {
-		unicast(ContextMulticastEventListener.GLOBAL_TOPIC, message);
+		unicast(ClusterMulticastEventListenerContainer.GLOBAL_TOPIC, message);
 	}
 
 	public void unicast(String topic, Object message) {
@@ -76,7 +76,7 @@ public class ContextMulticastGroup {
 	}
 
 	public void multicast(Object message) {
-		multicast(ContextMulticastEventListener.GLOBAL_TOPIC, message);
+		multicast(ClusterMulticastEventListenerContainer.GLOBAL_TOPIC, message);
 	}
 
 	public void multicast(String topic, Object message) {

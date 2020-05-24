@@ -6,27 +6,27 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 
- * ContextClusterConfig
+ * ApplicationClusterConfig
  *
  * @author Fred Feng
  * @version 1.0
  */
 @Configuration
 @ConditionalOnProperty(value = "spring.application.cluster.enabled", havingValue = "true", matchIfMissing = true)
-public class ContextClusterConfig {
+public class ApplicationClusterConfig {
 
 	@Bean(name = "clusterHeartbeatThread", destroyMethod = "stop")
-	public ContextClusterHeartbeatThread heartbeatThread() {
-		return new ContextClusterHeartbeatThread();
+	public ApplicationClusterHeartbeatThread clusterHeartbeatThread() {
+		return new ApplicationClusterHeartbeatThread();
 	}
 
 	@Bean
-	public ContextClusterAware contextClusterAware() {
-		return new ContextClusterAware();
+	public ApplicationClusterAware clusterAware() {
+		return new ApplicationClusterAware();
 	}
 
 	@Bean
-	public ContextMasterBreakdownListener masterBreakdownListener() {
-		return new ContextMasterBreakdownListener();
+	public ApplicationClusterLeaderMissingListener clusterLeaderMissingListener() {
+		return new ApplicationClusterLeaderMissingListener();
 	}
 }

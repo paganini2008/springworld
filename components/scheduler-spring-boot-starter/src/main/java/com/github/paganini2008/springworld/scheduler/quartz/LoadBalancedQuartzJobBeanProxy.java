@@ -6,7 +6,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGroup;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 /**
  * 
@@ -20,7 +20,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGro
 public class LoadBalancedQuartzJobBeanProxy implements Job {
 
 	@Autowired
-	private ContextMulticastGroup multicastGroup;
+	private ClusterMulticastGroup multicastGroup;
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {

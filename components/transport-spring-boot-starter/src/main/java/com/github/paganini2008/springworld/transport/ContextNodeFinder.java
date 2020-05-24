@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.devtools.Acceptable;
 import com.github.paganini2008.devtools.ObjectUtils;
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.transport.NodeFinder;
 import com.github.paganini2008.transport.TransportClientException;
 
@@ -28,7 +28,7 @@ public class ContextNodeFinder implements NodeFinder {
 	private String applicationName;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Autowired
 	private StringRedisTemplate redisTemplate;

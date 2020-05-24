@@ -9,7 +9,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.springworld.cluster.ContextClusterAware;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 
 /**
  * 
@@ -30,16 +30,16 @@ public class ConsistencyRequestRound {
 	private RedisConnectionFactory connectionFactory;
 
 	public long nextRound(String name) {
-		final String redisCounter = String.format(CONSISTENCY_ROUND_PATTERN, ContextClusterAware.SPRING_CLUSTER_NAMESPACE + applicationName,
-				name);
+		final String redisCounter = String.format(CONSISTENCY_ROUND_PATTERN,
+				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
 		return MapUtils.get(rounds, name, () -> {
 			return new RedisAtomicLong(redisCounter, connectionFactory);
 		}).incrementAndGet();
 	}
 
 	public long currentRound(String name) {
-		final String redisCounter = String.format(CONSISTENCY_ROUND_PATTERN, ContextClusterAware.SPRING_CLUSTER_NAMESPACE + applicationName,
-				name);
+		final String redisCounter = String.format(CONSISTENCY_ROUND_PATTERN,
+				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
 		return MapUtils.get(rounds, name, () -> {
 			return new RedisAtomicLong(redisCounter, connectionFactory);
 		}).get();

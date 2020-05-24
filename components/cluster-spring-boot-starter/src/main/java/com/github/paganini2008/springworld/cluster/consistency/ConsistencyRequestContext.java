@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.devtools.multithreads.Clock.ClockTask;
-import com.github.paganini2008.springworld.cluster.ClusterId;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGroup;
+import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 /**
  * 
@@ -24,13 +24,13 @@ import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGro
 public final class ConsistencyRequestContext {
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Autowired
 	private Clock clock;
 
 	@Autowired
-	private ContextMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup contextMulticastGroup;
 
 	@Autowired
 	private ConsistencyRequestRound requestRound;

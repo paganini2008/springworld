@@ -7,8 +7,6 @@ import java.util.List;
  * LoadBalance
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public interface LoadBalance {

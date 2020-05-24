@@ -1,18 +1,20 @@
 package com.github.paganini2008.springworld.cluster.multicast;
 
+import java.util.EventListener;
+
 /**
  * 
- * ContextMulticastEventHandler
+ * ClusterMulticastEventListener
  * 
  * @author Fred Feng
  * @version 1.0
  */
-public interface ContextMulticastEventHandler {
+public interface ClusterMulticastEventListener extends EventListener {
 
-	default void onJoin(String instanceId) {
+	default void onActive(String instanceId) {
 	}
 
-	default void onLeave(String instanceId) {
+	default void onInactive(String instanceId) {
 	}
 
 	default void onMessage(String instanceId, Object message) {
@@ -22,7 +24,7 @@ public interface ContextMulticastEventHandler {
 	}
 
 	default String getTopic() {
-		return ContextMulticastEventListener.GLOBAL_TOPIC;
+		return ClusterMulticastEventListenerContainer.GLOBAL_TOPIC;
 	}
 
 }

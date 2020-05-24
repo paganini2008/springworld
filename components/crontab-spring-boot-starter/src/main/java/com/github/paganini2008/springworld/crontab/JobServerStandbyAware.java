@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import com.github.paganini2008.springworld.cluster.ContextMasterStandbyEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderStandbyEvent;
 
 /**
  * 
@@ -16,13 +16,13 @@ import com.github.paganini2008.springworld.cluster.ContextMasterStandbyEvent;
  * @version 1.0
  */
 @Component
-public class JobServerStandbyAware implements ApplicationListener<ContextMasterStandbyEvent> {
+public class JobServerStandbyAware implements ApplicationListener<ApplicationClusterLeaderStandbyEvent> {
 
 	@Autowired
 	private JobManager jobManager;
 
 	@Override
-	public void onApplicationEvent(ContextMasterStandbyEvent event) {
+	public void onApplicationEvent(ApplicationClusterLeaderStandbyEvent event) {
 		if (jobManager instanceof PersistentJobsInitializer) {
 			((PersistentJobsInitializer) jobManager).reloadPersistentJobs();
 		}

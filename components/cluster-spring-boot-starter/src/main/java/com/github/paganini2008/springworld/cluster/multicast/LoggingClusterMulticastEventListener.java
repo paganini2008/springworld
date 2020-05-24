@@ -4,25 +4,23 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * LoggingContextMulticastEventHandler
+ * LoggingClusterMulticastEventListener
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Slf4j
-public class LoggingContextMulticastEventHandler implements ContextMulticastEventHandler {
+public class LoggingClusterMulticastEventListener implements ClusterMulticastEventListener {
 
 	@Override
-	public void onJoin(String clusterId) {
+	public void onActive(String clusterId) {
 		if (log.isTraceEnabled()) {
 			log.trace("Spring application '{}' has joined.", clusterId);
 		}
 	}
 
 	@Override
-	public void onLeave(String clusterId) {
+	public void onInactive(String clusterId) {
 		if (log.isTraceEnabled()) {
 			log.trace("Spring application '{}' has gone.", clusterId);
 		}

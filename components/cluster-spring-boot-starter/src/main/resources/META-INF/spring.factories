@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.github.paganini2008.springworld.cluster.ContextClusterAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.github.paganini2008.springworld.cluster.ApplicationClusterAutoConfiguration

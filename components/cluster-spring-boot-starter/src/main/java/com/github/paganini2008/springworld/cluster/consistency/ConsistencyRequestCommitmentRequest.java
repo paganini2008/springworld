@@ -2,9 +2,9 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.ClusterId;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGroup;
+import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 /**
  * 
@@ -13,16 +13,16 @@ import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGro
  * @author Fred Feng
  * @since 1.0
  */
-public class ConsistencyRequestCommitmentRequest implements ContextMulticastEventHandler {
+public class ConsistencyRequestCommitmentRequest implements ClusterMulticastEventListener {
 
 	@Autowired
 	private ConsistencyRequestSerialCache requestSerialCache;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Autowired
-	private ContextMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup contextMulticastGroup;
 
 	@Override
 	public void onMessage(String instanceId, Object message) {

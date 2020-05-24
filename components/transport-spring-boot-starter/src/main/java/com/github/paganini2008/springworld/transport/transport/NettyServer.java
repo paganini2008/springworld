@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.transport.netty.KeepAlivePolicy;
 import com.github.paganini2008.transport.netty.MessageCodecFactory;
 
@@ -66,7 +66,7 @@ public class NettyServer implements NioServer {
 	private KeepAlivePolicy keepAlivePolicy;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Autowired
 	private StringRedisTemplate redisTemplate;

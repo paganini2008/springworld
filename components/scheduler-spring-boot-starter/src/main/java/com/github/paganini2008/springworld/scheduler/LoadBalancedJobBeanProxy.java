@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGroup;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LoadBalancedJobBeanProxy implements Runnable, JobRunningControl {
 
 	@Autowired
-	private ContextMulticastGroup multicastGroup;
+	private ClusterMulticastGroup multicastGroup;
 
 	private final Class<?> jobBeanClass;
 	private final String jobBeanName;

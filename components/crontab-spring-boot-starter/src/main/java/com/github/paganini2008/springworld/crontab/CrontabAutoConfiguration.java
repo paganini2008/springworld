@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.github.paganini2008.springworld.cluster.ContextClusterConfig;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterConfig;
 
 /**
  * 
@@ -18,7 +18,7 @@ import com.github.paganini2008.springworld.cluster.ContextClusterConfig;
  * @version 1.0
  */
 @Configuration
-@ConditionalOnBean(ContextClusterConfig.class)
+@ConditionalOnBean(ApplicationClusterConfig.class)
 @Import({ JobBeanPostProcessor.class, JobServerStandbyAware.class, HealthCheckJob.class, JobManagerController.class })
 public class CrontabAutoConfiguration {
 

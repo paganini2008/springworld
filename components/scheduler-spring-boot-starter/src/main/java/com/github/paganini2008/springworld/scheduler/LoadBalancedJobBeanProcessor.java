@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.scheduler.JobAnnotations.Executable;
 import com.github.paganini2008.springworld.scheduler.JobAnnotations.OnEnd;
@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ConditionalOnProperty(prefix = "spring.task-scheduler", name = "loadbalance.enabled", havingValue = "true")
 @Component
-public class LoadBalancedJobBeanProcessor implements ContextMulticastEventHandler {
+public class LoadBalancedJobBeanProcessor implements ClusterMulticastEventListener {
 
 	private static final Map<String, Type> jobClassCache = Collections.synchronizedMap(new HashMap<String, Type>());
 	private static final Map<Type, Method[]> jobClassMetaDataCache = Collections.synchronizedMap(new HashMap<Type, Method[]>());

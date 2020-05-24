@@ -2,9 +2,9 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.ClusterId;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastGroup;
+import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,19 +16,19 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class LeaderElection implements ContextMulticastEventHandler {
+public class LeaderElection implements ClusterMulticastEventListener {
 
 	@Autowired
 	private ConsistencyRequestContext context;
 
 	@Autowired
-	private ContextMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup contextMulticastGroup;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Override
-	public void onJoin(String instanceId) {
+	public void onActive(String instanceId) {
 		int channels = contextMulticastGroup.countOfChannel();
 		if (channels >= 3) {
 			log.info("Start leader election ...");

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.github.paganini2008.devtools.multithreads.Clock;
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastEventHandler;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
 
 /**
  * 
@@ -46,32 +46,32 @@ public class ConsistencyRequestConfig {
 	}
 
 	@Bean
-	public ContextMulticastEventHandler requestPreparationRequest() {
+	public ClusterMulticastEventListener requestPreparationRequest() {
 		return new ConsistencyRequestPreparationRequest();
 	}
 
 	@Bean
-	public ContextMulticastEventHandler requestPreparationResponse() {
+	public ClusterMulticastEventListener requestPreparationResponse() {
 		return new ConsistencyRequestPreparationResponse();
 	}
 
 	@Bean
-	public ContextMulticastEventHandler requestCommitmentRequest() {
+	public ClusterMulticastEventListener requestCommitmentRequest() {
 		return new ConsistencyRequestCommitmentRequest();
 	}
 
 	@Bean
-	public ContextMulticastEventHandler requestCommitmentResponse() {
+	public ClusterMulticastEventListener requestCommitmentResponse() {
 		return new ConsistencyRequestCommitmentResponse();
 	}
 
 	@Bean
-	public ContextMulticastEventHandler requestLearningRequest() {
+	public ClusterMulticastEventListener requestLearningRequest() {
 		return new ConsistencyRequestLearningRequest();
 	}
 
 	@Bean
-	public ContextMulticastEventHandler requestLearningResponse() {
+	public ClusterMulticastEventListener requestLearningResponse() {
 		return new ConsistencyRequestLearningResponse();
 	}
 	

@@ -21,7 +21,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.transport.grizzly.IdleTimeoutFilter;
 import com.github.paganini2008.transport.grizzly.IdleTimeoutPolicies;
 import com.github.paganini2008.transport.grizzly.TupleCodecFactory;
@@ -63,7 +63,7 @@ public class GrizzlyServer implements NioServer {
 	private TupleCodecFactory codecFactory;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Autowired
 	private StringRedisTemplate redisTemplate;

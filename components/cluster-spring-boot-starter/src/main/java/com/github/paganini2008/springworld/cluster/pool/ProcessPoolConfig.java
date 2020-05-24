@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import com.github.paganini2008.springworld.cluster.multicast.ContextMulticastConfig;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
 import com.github.paganini2008.springworld.redis.BeanNames;
 import com.github.paganini2008.springworld.redis.concurrents.Lifespan;
 import com.github.paganini2008.springworld.redis.concurrents.RedisKeyLifespan;
@@ -28,7 +28,7 @@ import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
  * @version 1.0
  */
 @Configuration
-@ConditionalOnBean(ContextMulticastConfig.class)
+@ConditionalOnBean(ClusterMulticastConfig.class)
 @ConditionalOnProperty(value = "spring.application.cluster.pool.enabled", havingValue = "true")
 public class ProcessPoolConfig {
 

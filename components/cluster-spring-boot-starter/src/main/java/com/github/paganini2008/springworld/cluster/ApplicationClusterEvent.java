@@ -5,16 +5,16 @@ import org.springframework.context.event.ApplicationContextEvent;
 
 /**
  * 
- * ContextClusterEvent
+ * Base class for cluster event
  *
  * @author Fred Feng
  * @version 1.0
  */
-public abstract class ContextClusterEvent extends ApplicationContextEvent {
+public abstract class ApplicationClusterEvent extends ApplicationContextEvent {
 
 	private static final long serialVersionUID = -9030425105386583374L;
 
-	public ContextClusterEvent(ApplicationContext source) {
+	public ApplicationClusterEvent(ApplicationContext source) {
 		super(source);
 	}
 

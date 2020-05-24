@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.transport.Tuple;
 
 /**
@@ -22,7 +22,7 @@ public class RedisBufferZone implements BufferZone {
 	private RedisTemplate<String, Object> template;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Value("${spring.application.name}")
 	private String applicationName;

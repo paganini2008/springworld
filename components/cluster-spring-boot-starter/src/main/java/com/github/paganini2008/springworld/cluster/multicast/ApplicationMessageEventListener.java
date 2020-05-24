@@ -4,23 +4,23 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 
 /**
  * 
- * MulticastEventProcessor
+ * ApplicationMessageEventListener
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class MulticastEventProcessor implements RedisMessageHandler {
+public class ApplicationMessageEventListener implements RedisMessageHandler {
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId instanceId;
 
 	@Autowired
-	private ContextMulticastEventListener multicastEventListener;
+	private ClusterMulticastEventListenerContainer eventListenerContainer;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -30,13 +30,13 @@ public class MulticastEventProcessor implements RedisMessageHandler {
 			String instanceId = (String) data.get("instanceId");
 			String topic = (String) data.get("topic");
 			Object message = data.get("message");
-			multicastEventListener.fireOnMessage(instanceId, topic, message);
+			eventListenerContainer.fireOnMessage(instanceId, topic, message);
 		}
 	}
 
 	@Override
 	public String getChannel() {
-		return clusterId.get();
+		return instanceId.get();
 	}
 
 }

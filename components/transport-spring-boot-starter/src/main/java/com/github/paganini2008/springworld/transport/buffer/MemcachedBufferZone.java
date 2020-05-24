@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springworld.cluster.ClusterId;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.xmemcached.MemcachedTemplate;
 import com.github.paganini2008.transport.Tuple;
 import com.github.paganini2008.transport.TupleImpl;
@@ -32,7 +32,7 @@ public class MemcachedBufferZone implements BufferZone {
 	private boolean cooperative;
 
 	@Autowired
-	private ClusterId clusterId;
+	private InstanceId clusterId;
 
 	@Autowired
 	private MemcachedTemplate memcachedOperations;

@@ -13,16 +13,16 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ClusterId
+ * InstanceId
  * 
  * @author Fred Feng
  * @version 1.0
  */
 @Slf4j
-public final class ClusterId {
+public final class InstanceId {
 
 	@Autowired
-	private ClusterIdGenerator idGenerator;
+	private InstanceIdGenerator idGenerator;
 
 	@Value("${spring.application.cluster.id:}")
 	private String id;
@@ -37,8 +37,8 @@ public final class ClusterId {
 		if (StringUtils.isBlank(id)) {
 			synchronized (this) {
 				if (StringUtils.isBlank(id)) {
-					id = idGenerator.generateClusterId();
-					log.info(IOUtils.NEWLINE + "\tGenerate the clusterId: " + id);
+					id = idGenerator.generateInstanceId();
+					log.info(IOUtils.NEWLINE + "\tGenerate the instanceId: " + id);
 				}
 			}
 		}
