@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 
- * ContextClusterSupportConfig
+ * ApplicationClusterSupportConfig
  *
  * @author Fred Feng
  * @version 1.0

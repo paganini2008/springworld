@@ -31,7 +31,7 @@ public final class ConsistencyRequestContext {
 	private Clock clock;
 
 	@Autowired
-	private ClusterMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Autowired
 	private ConsistencyRequestRound requestRound;
@@ -69,7 +69,7 @@ public final class ConsistencyRequestContext {
 		final long round = requestRound.currentRound(name);
 		final long serial = requestSerial.nextSerial(name);
 		ConsistencyRequest request = ConsistencyRequest.of(clusterId.get()).setName(name).setValue(value).setRound(round).setSerial(serial);
-		contextMulticastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
+		clusterMulticastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
 		clock.schedule(new ConsistencyRequestPreparationFuture(request), responseWaitingTime, TimeUnit.SECONDS);
 	}
 
@@ -93,7 +93,7 @@ public final class ConsistencyRequestContext {
 			if (originalLength > 0 && originalLength == expectedLength) {
 				long newRound = requestRound.nextRound(request.getName());
 				request.setRound(newRound);
-				contextMulticastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
+				clusterMulticastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
 			} else {
 				if (original != null) {
 					original.clear();
@@ -124,11 +124,11 @@ public final class ConsistencyRequestContext {
 			long round = request.getRound();
 
 			List<ConsistencyResponse> answers = preparations.containsKey(name) ? preparations.get(name).get(round) : null;
-			int n = contextMulticastGroup.countOfChannel();
+			int n = clusterMulticastGroup.countOfChannel();
 			if (answers != null && answers.size() > n / 2) {
 				for (ConsistencyResponse response : answers) {
 					ConsistencyRequest request = response.getRequest();
-					contextMulticastGroup.send(response.getInstanceId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST, request);
+					clusterMulticastGroup.send(response.getInstanceId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST, request);
 				}
 				clock.schedule(new ConsistencyRequestCommitmentFuture(request), responseWaitingTime, TimeUnit.SECONDS);
 			} else {

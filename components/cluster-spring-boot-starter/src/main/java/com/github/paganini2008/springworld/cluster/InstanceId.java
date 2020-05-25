@@ -51,7 +51,7 @@ public final class InstanceId {
 	}
 
 	public String toString() {
-		return "ClusterId: " + get() + ", Master: " + isLeader();
+		return "ClusterId: " + get() + ", Leader: " + isLeader();
 	}
 
 }

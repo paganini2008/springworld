@@ -16,67 +16,67 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListe
  * @since 1.0
  */
 @Configuration
-@ConditionalOnProperty(value = "spring.application.cluster.lead-election.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true")
 public class ConsistencyRequestConfig {
 
 	@ConditionalOnMissingBean(Clock.class)
-	@Bean
+	@Bean(destroyMethod = "stop")
 	public Clock clock() {
 		return new Clock();
 	}
 
 	@Bean
-	public ConsistencyRequestContext requestContext() {
+	public ConsistencyRequestContext consistencyRequestContext() {
 		return new ConsistencyRequestContext();
 	}
 
 	@Bean
-	public ConsistencyRequestRound requestRound() {
+	public ConsistencyRequestRound consistencyRequestRound() {
 		return new ConsistencyRequestRound();
 	}
 
 	@Bean
-	public ConsistencyRequestSerial requestSerial() {
+	public ConsistencyRequestSerial consistencyRequestSerial() {
 		return new ConsistencyRequestSerial();
 	}
 
 	@Bean
-	public ConsistencyRequestSerialCache requestSerialCache() {
+	public ConsistencyRequestSerialCache consistencyRequestSerialCache() {
 		return new ConsistencyRequestSerialCache();
 	}
 
 	@Bean
-	public ClusterMessageListener requestPreparationRequest() {
+	public ClusterMessageListener consistencyRequestPreparationRequest() {
 		return new ConsistencyRequestPreparationRequest();
 	}
 
 	@Bean
-	public ClusterMessageListener requestPreparationResponse() {
+	public ClusterMessageListener consistencyRequestPreparationResponse() {
 		return new ConsistencyRequestPreparationResponse();
 	}
 
 	@Bean
-	public ClusterMessageListener requestCommitmentRequest() {
+	public ClusterMessageListener consistencyRequestCommitmentRequest() {
 		return new ConsistencyRequestCommitmentRequest();
 	}
 
 	@Bean
-	public ClusterMessageListener requestCommitmentResponse() {
+	public ClusterMessageListener consistencyRequestCommitmentResponse() {
 		return new ConsistencyRequestCommitmentResponse();
 	}
 
 	@Bean
-	public ClusterMessageListener requestLearningRequest() {
+	public ClusterMessageListener consistencyRequestLearningRequest() {
 		return new ConsistencyRequestLearningRequest();
 	}
 
 	@Bean
-	public ClusterMessageListener requestLearningResponse() {
+	public ClusterMessageListener consistencyRequestLearningResponse() {
 		return new ConsistencyRequestLearningResponse();
 	}
-	
+
 	@Bean
-	public ConsistencyLeaderElectionListener leaderElection() {
+	public ConsistencyLeaderElectionListener consistencyLeaderElectionListener() {
 		return new ConsistencyLeaderElectionListener();
 	}
 

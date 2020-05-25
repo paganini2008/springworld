@@ -47,9 +47,14 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 	@Override
 	public void onInactive(String anotherInstanceId) {
 		if (instanceId.getLeaderId().equals(anotherInstanceId)) {
-			final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
-			log.info("Start leader election. Identify: " + leaderIdentify);
-			context.propose(leaderIdentify, instanceId.get());
+			final int channels = clusterMulticastGroup.countOfChannel();
+			if (channels >= MINIMUM_LEADER_ELECTION_PARTICIPANTS) {
+				final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
+				log.info("Start leader election. Identify: " + leaderIdentify);
+				context.propose(leaderIdentify, instanceId.get());
+			} else {
+				throw new LeaderNotFoundException("Leader election participants < " + MINIMUM_LEADER_ELECTION_PARTICIPANTS);
+			}
 		}
 	}
 
