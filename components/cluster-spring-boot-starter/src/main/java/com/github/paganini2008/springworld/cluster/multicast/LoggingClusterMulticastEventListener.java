@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class LoggingClusterMulticastEventListener implements ClusterMulticastEventListener {
+public class LoggingClusterMulticastEventListener implements ClusterStateChangeListener {
 
 	@Override
 	public void onActive(String clusterId) {
@@ -30,13 +30,6 @@ public class LoggingClusterMulticastEventListener implements ClusterMulticastEve
 	public void onMessage(String clusterId, Object message) {
 		if (log.isTraceEnabled()) {
 			log.trace("Spring application '{}' send message: {}", clusterId, message);
-		}
-	}
-
-	@Override
-	public void onGlobalMessage(String clusterId, Object message) {
-		if (log.isTraceEnabled()) {
-			log.trace("Spring application '{}' send global message: {}", clusterId, message);
 		}
 	}
 

@@ -3,7 +3,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class LeaderElection implements ClusterMulticastEventListener {
+public class LeaderElection implements ClusterStateChangeListener {
 
 	@Autowired
 	private ConsistencyRequestContext context;

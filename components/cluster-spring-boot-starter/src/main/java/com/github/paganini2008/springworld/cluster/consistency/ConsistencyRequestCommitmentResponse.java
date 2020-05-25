@@ -2,7 +2,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 
 /**
  * 
@@ -11,7 +11,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEve
  * @author Fred Feng
  * @since 1.0
  */
-public class ConsistencyRequestCommitmentResponse implements ClusterMulticastEventListener {
+public class ConsistencyRequestCommitmentResponse implements ClusterMessageListener {
 
 	@Autowired
 	private ConsistencyRequestContext context;

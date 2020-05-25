@@ -8,18 +8,18 @@ import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 
 /**
  * 
- * ApplicationInactiveEventListener
+ * ApplicationInactiveListener
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class ApplicationInactiveEventListener implements RedisMessageHandler {
+public class ApplicationInactiveListener implements RedisMessageHandler {
 
 	@Autowired
 	private ClusterMulticastGroup multicastGroup;
 
 	@Autowired
-	private ClusterMulticastEventListenerContainer eventListenerContainer;
+	private ClusterMulticastListenerContainer multicastListenerContainer;
 
 	@Value("${spring.application.name}")
 	private String applicationName;
@@ -28,7 +28,7 @@ public class ApplicationInactiveEventListener implements RedisMessageHandler {
 	public void onMessage(String channel, Object message) {
 		final String instanceId = (String) message;
 		multicastGroup.removeChannel(instanceId);
-		eventListenerContainer.fireOnInactive(instanceId);
+		multicastListenerContainer.fireOnInactive(instanceId);
 	}
 
 	@Override

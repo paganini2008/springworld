@@ -3,7 +3,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 /**
@@ -13,7 +13,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGro
  * @author Fred Feng
  * @since 1.0
  */
-public class ConsistencyRequestCommitmentRequest implements ClusterMulticastEventListener {
+public class ConsistencyRequestCommitmentRequest implements ClusterMessageListener {
 
 	@Autowired
 	private ConsistencyRequestSerialCache requestSerialCache;

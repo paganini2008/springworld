@@ -1,6 +1,6 @@
 package com.github.paganini2008.springworld.cluster.consistency;
 
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyRequestLearningResponse implements ClusterMulticastEventListener {
+public class ConsistencyRequestLearningResponse implements ClusterMessageListener {
 
 	@Override
 	public void onMessage(String instanceId, Object message) {

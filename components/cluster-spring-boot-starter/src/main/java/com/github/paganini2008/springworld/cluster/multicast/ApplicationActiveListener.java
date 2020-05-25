@@ -10,12 +10,12 @@ import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
 /**
  * 
- * ApplicationActiveEventListener
+ * ApplicationActiveListener
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class ApplicationActiveEventListener implements RedisMessageHandler {
+public class ApplicationActiveListener implements RedisMessageHandler {
 
 	@Value("${spring.application.name}")
 	private String applicationName;
@@ -30,7 +30,7 @@ public class ApplicationActiveEventListener implements RedisMessageHandler {
 	private InstanceId instanceId;
 
 	@Autowired
-	private ClusterMulticastEventListenerContainer eventListenerContainer;
+	private ClusterMulticastListenerContainer eventListenerContainer;
 
 	@Override
 	public void onMessage(String channel, Object message) {

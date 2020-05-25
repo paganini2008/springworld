@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastEventListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
 
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class ProcessPoolWorkThread implements ClusterMulticastEventListener {
+public class ProcessPoolWorkThread implements ClusterMessageListener {
 
 	@Autowired
 	private WorkQueue workQueue;

@@ -52,13 +52,13 @@ public class ClusterMulticastGroup {
 			channels.remove(channel);
 		}
 	}
-	
+
 	public int countOfChannel() {
 		return channels.size();
 	}
 
 	public void unicast(Object message) {
-		unicast(ClusterMulticastEventListenerContainer.GLOBAL_TOPIC, message);
+		unicast("*", message);
 	}
 
 	public void unicast(String topic, Object message) {
@@ -76,7 +76,7 @@ public class ClusterMulticastGroup {
 	}
 
 	public void multicast(Object message) {
-		multicast(ClusterMulticastEventListenerContainer.GLOBAL_TOPIC, message);
+		multicast("*", message);
 	}
 
 	public void multicast(String topic, Object message) {

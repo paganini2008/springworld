@@ -8,22 +8,24 @@ import org.springframework.stereotype.Component;
 
 /**
  * 
- * ClusterMulticastEventListenerBeanProcessor
+ * ClusterMulticastListenerBeanProcessor
  * 
  * @author Fred Feng
  * @version 1.0
  */
 @Component
 @ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true")
-public class ClusterMulticastEventListenerBeanProcessor implements BeanPostProcessor {
+public class ClusterMulticastListenerBeanProcessor implements BeanPostProcessor {
 
 	@Autowired
-	private ClusterMulticastEventListenerContainer eventListenerContainer;
+	private ClusterMulticastListenerContainer multicastListenerContainer;
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		if (bean instanceof ClusterMulticastEventListener) {
-			eventListenerContainer.addListener((ClusterMulticastEventListener) bean);
+		if (bean instanceof ClusterStateChangeListener) {
+			multicastListenerContainer.registerListener((ClusterStateChangeListener) bean);
+		} else if (bean instanceof ClusterMessageListener) {
+			multicastListenerContainer.registerListener((ClusterMessageListener) bean);
 		}
 		return bean;
 	}

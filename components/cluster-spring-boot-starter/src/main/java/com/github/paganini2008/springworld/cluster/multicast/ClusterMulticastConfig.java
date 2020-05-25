@@ -24,18 +24,18 @@ public class ClusterMulticastConfig {
 	}
 
 	@Bean
-	public RedisMessageHandler activeEventListener() {
-		return new ApplicationActiveEventListener();
+	public RedisMessageHandler applicationActiveListener() {
+		return new ApplicationActiveListener();
 	}
 
 	@Bean
-	public RedisMessageHandler inactiveEventListener() {
-		return new ApplicationInactiveEventListener();
+	public RedisMessageHandler applicationInactiveListener() {
+		return new ApplicationInactiveListener();
 	}
 
 	@Bean
-	public RedisMessageHandler messageEventListener() {
-		return new ApplicationMessageEventListener();
+	public RedisMessageHandler applicationMessageListener() {
+		return new ApplicationMessageListener();
 	}
 
 	@Bean
@@ -55,12 +55,12 @@ public class ClusterMulticastConfig {
 	}
 
 	@Bean
-	public ClusterMulticastEventListenerContainer multicastEventListenerContainer() {
-		return new ClusterMulticastEventListenerContainer();
+	public ClusterMulticastListenerContainer multicastListenerContainer() {
+		return new ClusterMulticastListenerContainer();
 	}
 
 	@Bean
-	public ClusterMulticastEventListener loggingMulticastEventListener() {
+	public ClusterStateChangeListener loggingMulticastEventListener() {
 		return new LoggingClusterMulticastEventListener();
 	}
 
