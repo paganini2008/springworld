@@ -3,8 +3,9 @@ package com.github.paganini2008.springworld.cluster.consistency;
 import java.io.Serializable;
 import java.util.UUID;
 
+import com.github.paganini2008.devtools.date.DateUtils;
+
 import lombok.Getter;
-import lombok.ToString;
 
 /**
  * 
@@ -13,18 +14,17 @@ import lombok.ToString;
  * @author Fred Feng
  * @since 1.0
  */
-@ToString
 @Getter
 public class ConsistencyRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String PREPARATION_REQUEST = "<Perparation Request>";
-	public static final String PREPARATION_RESPONSE = "<Perparation Response>";
-	public static final String COMMITMENT_REQUEST = "<Commitment Request>";
-	public static final String COMMITMENT_RESPONSE = "<Commitment Response>";
-	public static final String LEARNING_REQUEST = "<Learning Request>";
-	public static final String LEARNING_RESPONSE = "<Learning Response>";
+	public static final String PREPARATION_OPERATION_REQUEST = "<Perparation Operation Request>";
+	public static final String PREPARATION_OPERATION_RESPONSE = "<Perparation Operation Response>";
+	public static final String COMMITMENT_OPERATION_REQUEST = "<Commitment Operation Request>";
+	public static final String COMMITMENT_OPERATION_RESPONSE = "<Commitment Operation Response>";
+	public static final String LEARNING_OPERATION_REQUEST = "<Learning Operation Request>";
+	public static final String LEARNING_OPERATION_RESPONSE = "<Learning Operation Response>";
 
 	private String id;
 	private String instanceId;
@@ -73,6 +73,11 @@ public class ConsistencyRequest implements Serializable {
 
 	public ConsistencyRequest copy() {
 		return ConsistencyRequest.of(instanceId).setName(name).setRound(round).setValue(value).setSerial(serial);
+	}
+
+	public String toString() {
+		return "[" + round + "/" + serial + "] name: " + name + ", value: " + (value != null ? value.getClass() : "NULL") + ", date: "
+				+ DateUtils.format(timestamp);
 	}
 
 }

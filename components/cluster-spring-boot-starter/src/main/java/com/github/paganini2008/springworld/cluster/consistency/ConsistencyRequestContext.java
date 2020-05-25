@@ -2,12 +2,13 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.collection.LruMap;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.devtools.multithreads.Clock.ClockTask;
@@ -38,13 +39,16 @@ public final class ConsistencyRequestContext {
 	@Autowired
 	private ConsistencyRequestSerial requestSerial;
 
-	private final Map<String, Map<Long, List<ConsistencyResponse>>> preparations = new ConcurrentHashMap<String, Map<Long, List<ConsistencyResponse>>>();
-	private final Map<String, Map<Long, List<ConsistencyResponse>>> commitments = new ConcurrentHashMap<String, Map<Long, List<ConsistencyResponse>>>();
+	@Value("${spring.application.cluster.consistency.responseWaitingTime:3}")
+	private long responseWaitingTime;
+
+	private final Map<String, Map<Long, List<ConsistencyResponse>>> preparations = new LruMap<String, Map<Long, List<ConsistencyResponse>>>();
+	private final Map<String, Map<Long, List<ConsistencyResponse>>> commitments = new LruMap<String, Map<Long, List<ConsistencyResponse>>>();
 
 	public void canLearn(ConsistencyResponse response) {
 		ConsistencyRequest request = response.getRequest();
 		Map<Long, List<ConsistencyResponse>> map = MapUtils.get(commitments, request.getName(), () -> {
-			return new ConcurrentHashMap<Long, List<ConsistencyResponse>>();
+			return new LruMap<Long, List<ConsistencyResponse>>(16);
 		});
 		MapUtils.get(map, request.getRound(), () -> {
 			return new CopyOnWriteArrayList<ConsistencyResponse>();
@@ -54,7 +58,7 @@ public final class ConsistencyRequestContext {
 	public void canCommit(ConsistencyResponse response) {
 		ConsistencyRequest request = response.getRequest();
 		Map<Long, List<ConsistencyResponse>> map = MapUtils.get(preparations, request.getName(), () -> {
-			return new ConcurrentHashMap<Long, List<ConsistencyResponse>>();
+			return new LruMap<Long, List<ConsistencyResponse>>();
 		});
 		MapUtils.get(map, request.getRound(), () -> {
 			return new CopyOnWriteArrayList<ConsistencyResponse>();
@@ -65,8 +69,8 @@ public final class ConsistencyRequestContext {
 		final long round = requestRound.currentRound(name);
 		final long serial = requestSerial.nextSerial(name);
 		ConsistencyRequest request = ConsistencyRequest.of(clusterId.get()).setName(name).setValue(value).setRound(round).setSerial(serial);
-		contextMulticastGroup.multicast(ConsistencyRequest.PREPARATION_REQUEST, request);
-		clock.schedule(new ConsistencyRequestPreparationFuture(request), 3, TimeUnit.SECONDS);
+		contextMulticastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
+		clock.schedule(new ConsistencyRequestPreparationFuture(request), responseWaitingTime, TimeUnit.SECONDS);
 	}
 
 	private class ConsistencyRequestCommitmentFuture extends ClockTask {
@@ -81,6 +85,7 @@ public final class ConsistencyRequestContext {
 		protected void runTask() {
 			String name = request.getName();
 			long round = request.getRound();
+
 			List<ConsistencyResponse> original = commitments.containsKey(name) ? commitments.get(name).get(round) : null;
 			List<ConsistencyResponse> expected = preparations.containsKey(name) ? preparations.get(name).get(round) : null;
 			int originalLength = original != null ? original.size() : 0;
@@ -88,7 +93,7 @@ public final class ConsistencyRequestContext {
 			if (originalLength > 0 && originalLength == expectedLength) {
 				long newRound = requestRound.nextRound(request.getName());
 				request.setRound(newRound);
-				contextMulticastGroup.multicast(ConsistencyRequest.LEARNING_REQUEST, request);
+				contextMulticastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
 			} else {
 				if (original != null) {
 					original.clear();
@@ -123,9 +128,9 @@ public final class ConsistencyRequestContext {
 			if (answers != null && answers.size() > n / 2) {
 				for (ConsistencyResponse response : answers) {
 					ConsistencyRequest request = response.getRequest();
-					contextMulticastGroup.send(response.getInstanceId(), ConsistencyRequest.COMMITMENT_REQUEST, request);
+					contextMulticastGroup.send(response.getInstanceId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST, request);
 				}
-				clock.schedule(new ConsistencyRequestCommitmentFuture(request), 3, TimeUnit.SECONDS);
+				clock.schedule(new ConsistencyRequestCommitmentFuture(request), responseWaitingTime, TimeUnit.SECONDS);
 			} else {
 				if (answers != null) {
 					answers.clear();

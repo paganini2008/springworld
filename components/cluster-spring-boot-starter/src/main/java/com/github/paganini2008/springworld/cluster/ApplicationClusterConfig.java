@@ -26,7 +26,7 @@ public class ApplicationClusterConfig {
 	}
 
 	@Bean
-	public ApplicationClusterLeaderMissingListener clusterLeaderMissingListener() {
-		return new ApplicationClusterLeaderMissingListener();
+	public ApplicationClusterLeaderExpiredListener clusterLeaderMissingListener() {
+		return new ApplicationClusterLeaderExpiredListener();
 	}
 }

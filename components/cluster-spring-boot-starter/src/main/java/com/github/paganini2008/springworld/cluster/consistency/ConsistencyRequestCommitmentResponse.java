@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * ConsistencyRequestCommitmentResponse
@@ -11,6 +13,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListe
  * @author Fred Feng
  * @since 1.0
  */
+@Slf4j
 public class ConsistencyRequestCommitmentResponse implements ClusterMessageListener {
 
 	@Autowired
@@ -18,6 +21,9 @@ public class ConsistencyRequestCommitmentResponse implements ClusterMessageListe
 
 	@Override
 	public void onMessage(String instanceId, Object message) {
+		if (log.isTraceEnabled()) {
+			log.trace(getTopic() + " " + instanceId + ", " + message);
+		}
 		ConsistencyResponse response = (ConsistencyResponse) message;
 		if (response.isAcceptable()) {
 			context.canLearn(response);
@@ -26,7 +32,7 @@ public class ConsistencyRequestCommitmentResponse implements ClusterMessageListe
 
 	@Override
 	public String getTopic() {
-		return ConsistencyRequest.COMMITMENT_RESPONSE;
+		return ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE;
 	}
 
 }

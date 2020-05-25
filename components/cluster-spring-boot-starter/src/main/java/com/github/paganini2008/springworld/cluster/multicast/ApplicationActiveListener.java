@@ -30,7 +30,7 @@ public class ApplicationActiveListener implements RedisMessageHandler {
 	private InstanceId instanceId;
 
 	@Autowired
-	private ClusterMulticastListenerContainer eventListenerContainer;
+	private ClusterMulticastListenerContainer multicastListenerContainer;
 
 	@Override
 	public void onMessage(String channel, Object message) {
@@ -41,7 +41,7 @@ public class ApplicationActiveListener implements RedisMessageHandler {
 			multicastGroup.registerChannel(thatId, weight);
 			redisMessageSender.sendMessage(getChannel(), instanceId.get() + ":" + instanceId.getWeight());
 
-			eventListenerContainer.fireOnActive(thatId);
+			multicastListenerContainer.fireOnActive(thatId);
 		}
 	}
 

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
-import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderStandbyEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.redis.concurrents.Lifespan;
 import com.github.paganini2008.springworld.redis.concurrents.RedisSharedLatch;
 import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class ContextClusterLatch extends RedisSharedLatch implements SharedLatch, ApplicationListener<ApplicationClusterLeaderStandbyEvent> {
+public class ContextClusterLatch extends RedisSharedLatch implements SharedLatch, ApplicationListener<ApplicationClusterNewLeaderEvent> {
 
 	private static final int DEFAULT_SHARED_LATCH_EXPIRATION = 60;
 
@@ -33,7 +33,7 @@ public class ContextClusterLatch extends RedisSharedLatch implements SharedLatch
 	private Lifespan lifespan;
 
 	@Override
-	public void onApplicationEvent(ApplicationClusterLeaderStandbyEvent event) {
+	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
 		keepAlive(lifespan, 3);
 		log.info("ContextClusterLatch start to work.");
 	}

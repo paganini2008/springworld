@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * ConsistencyPreparationResponseHandler
@@ -11,6 +13,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListe
  * @author Fred Feng
  * @since 1.0
  */
+@Slf4j
 public class ConsistencyRequestPreparationResponse implements ClusterMessageListener {
 
 	@Autowired
@@ -18,6 +21,9 @@ public class ConsistencyRequestPreparationResponse implements ClusterMessageList
 
 	@Override
 	public void onMessage(String instanceId, Object message) {
+		if (log.isTraceEnabled()) {
+			log.trace(getTopic() + " " + instanceId + ", " + message);
+		}
 		ConsistencyResponse response = (ConsistencyResponse) message;
 		if (response.isAcceptable()) {
 			context.canCommit(response);
@@ -26,7 +32,7 @@ public class ConsistencyRequestPreparationResponse implements ClusterMessageList
 
 	@Override
 	public String getTopic() {
-		return ConsistencyRequest.PREPARATION_RESPONSE;
+		return ConsistencyRequest.PREPARATION_OPERATION_RESPONSE;
 	}
 
 }

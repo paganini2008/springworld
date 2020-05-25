@@ -1,7 +1,5 @@
 package com.github.paganini2008.springworld.cluster;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -9,6 +7,7 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.io.IOUtils;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,11 +26,13 @@ public final class InstanceId {
 	@Value("${spring.application.cluster.id:}")
 	private String id;
 
+	@Setter
+	@Getter
+	private String leaderId;
+
 	@Getter
 	@Value("${spring.application.cluster.weight:1}")
 	private int weight;
-
-	private final AtomicBoolean master = new AtomicBoolean(false);
 
 	public String get() {
 		if (StringUtils.isBlank(id)) {
@@ -45,16 +46,12 @@ public final class InstanceId {
 		return id;
 	}
 
-	public boolean isMaster() {
-		return master.get();
-	}
-
-	public void setMaster(boolean master) {
-		this.master.set(master);
+	public boolean isLeader() {
+		return this.id.equals(leaderId);
 	}
 
 	public String toString() {
-		return "ClusterId: " + get() + ", Master: " + isMaster();
+		return "ClusterId: " + get() + ", Master: " + isLeader();
 	}
 
 }

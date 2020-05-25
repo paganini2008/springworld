@@ -32,7 +32,7 @@ public class ClusterMulticastGroup {
 	private LoadBalance loadBalance;
 
 	@Autowired
-	private InstanceId clusterId;
+	private InstanceId instanceId;
 
 	public void registerChannel(String channel, int weight) {
 		Assert.hasNoText("Channel is required.");
@@ -65,14 +65,14 @@ public class ClusterMulticastGroup {
 		Assert.hasNoText("Topic is required");
 		String channel = loadBalance.select(message, channels);
 		if (StringUtils.isNotBlank(channel)) {
-			redisMessageSender.sendMessage(channel, createObjectMessage(clusterId.get(), topic, message));
+			redisMessageSender.sendMessage(channel, createObjectMessage(instanceId.get(), topic, message));
 		}
 	}
 
 	public void send(String channel, String topic, Object message) {
 		Assert.hasNoText("Channel is required");
 		Assert.hasNoText("Topic is required");
-		redisMessageSender.sendMessage(channel, createObjectMessage(clusterId.get(), topic, message));
+		redisMessageSender.sendMessage(channel, createObjectMessage(instanceId.get(), topic, message));
 	}
 
 	public void multicast(Object message) {
@@ -82,7 +82,7 @@ public class ClusterMulticastGroup {
 	public void multicast(String topic, Object message) {
 		Assert.hasNoText("Topic is required");
 		for (String channel : new HashSet<String>(channels)) {
-			redisMessageSender.sendMessage(channel, createObjectMessage(clusterId.get(), topic, message));
+			redisMessageSender.sendMessage(channel, createObjectMessage(instanceId.get(), topic, message));
 		}
 	}
 

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApplicationClusterController {
 
 	@Autowired
-	private InstanceId clusterId;
+	private InstanceId instanceId;
 
 	@Autowired
 	private Environment env;
@@ -29,8 +29,8 @@ public class ApplicationClusterController {
 	@GetMapping("/info")
 	public Map<String, Object> info() {
 		Map<String, Object> info = new HashMap<String, Object>();
-		info.put("clusterId", clusterId.get());
-		info.put("master", clusterId.isMaster());
+		info.put("instanceId", instanceId.get());
+		info.put("leader", instanceId.isLeader());
 		info.put("port", env.getProperty("server.port"));
 		return info;
 	}

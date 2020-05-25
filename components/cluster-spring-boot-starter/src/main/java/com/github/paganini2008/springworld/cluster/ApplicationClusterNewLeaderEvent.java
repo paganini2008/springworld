@@ -4,16 +4,16 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * 
- * ApplicationClusterLeaderStandbyEvent
+ * ApplicationClusterNewLeaderEvent
  * 
  * @author Fred Feng
  * @version 1.0
  */
-public class ApplicationClusterLeaderStandbyEvent extends ApplicationClusterEvent {
+public class ApplicationClusterNewLeaderEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = -2932470508571995512L;
 
-	public ApplicationClusterLeaderStandbyEvent(ApplicationContext context) {
+	public ApplicationClusterNewLeaderEvent(ApplicationContext context) {
 		super(context);
 	}
 

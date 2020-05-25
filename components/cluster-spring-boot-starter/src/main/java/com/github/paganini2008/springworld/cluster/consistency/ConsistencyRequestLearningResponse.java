@@ -16,13 +16,18 @@ public class ConsistencyRequestLearningResponse implements ClusterMessageListene
 
 	@Override
 	public void onMessage(String instanceId, Object message) {
+		if (log.isTraceEnabled()) {
+			log.trace(getTopic() + " " + instanceId + ", " + message);
+		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
-		log.info(getTopic() + "\t" + request.getName() + "\t" + request.getValue());
+		if (log.isDebugEnabled()) {
+			log.debug("InstanceId '" + instanceId + "' learns " + request);
+		}
 	}
 
 	@Override
 	public String getTopic() {
-		return ConsistencyRequest.LEARNING_RESPONSE;
+		return ConsistencyRequest.LEARNING_OPERATION_RESPONSE;
 	}
 
 }

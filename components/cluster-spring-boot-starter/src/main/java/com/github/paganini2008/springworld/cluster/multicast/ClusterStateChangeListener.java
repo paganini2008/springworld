@@ -9,13 +9,13 @@ package com.github.paganini2008.springworld.cluster.multicast;
  */
 public interface ClusterStateChangeListener extends ClusterMulticastListener {
 
-	default void onActive(String instanceId) {
+	default void onActive(String anotherInstanceId) {
 	}
 
-	default void onInactive(String instanceId) {
+	default void onInactive(String anotherInstanceId) {
 	}
 
-	default void onMessage(String instanceId, Object message) {
+	default void onMessage(String anotherInstanceId, Object message) {
 	}
 
 }

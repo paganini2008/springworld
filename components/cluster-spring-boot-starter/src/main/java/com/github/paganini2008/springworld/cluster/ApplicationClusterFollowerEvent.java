@@ -4,16 +4,16 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * 
- * ApplicationClusterFollowerStandbyEvent
+ * ApplicationClusterFollowerEvent
  * 
  * @author Fred Feng
  * @version 1.0
  */
-public class ApplicationClusterFollowerStandbyEvent extends ApplicationClusterEvent {
+public class ApplicationClusterFollowerEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = 9109166626001674260L;
 
-	public ApplicationClusterFollowerStandbyEvent(ApplicationContext context, String leaderId) {
+	public ApplicationClusterFollowerEvent(ApplicationContext context, String leaderId) {
 		super(context);
 		this.leaderId = leaderId;
 	}

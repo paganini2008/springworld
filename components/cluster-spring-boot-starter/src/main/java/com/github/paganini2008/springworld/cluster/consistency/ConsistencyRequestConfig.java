@@ -76,8 +76,8 @@ public class ConsistencyRequestConfig {
 	}
 	
 	@Bean
-	public LeaderElection leaderElection() {
-		return new LeaderElection();
+	public ConsistencyLeaderElectionListener leaderElection() {
+		return new ConsistencyLeaderElectionListener();
 	}
 
 }

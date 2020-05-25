@@ -9,7 +9,7 @@ package com.github.paganini2008.springworld.cluster.multicast;
  */
 public interface ClusterMessageListener extends ClusterMulticastListener {
 
-	void onMessage(String instanceId, Object message);
+	void onMessage(String anotherInstanceId, Object message);
 
 	default String getTopic() {
 		return "*";
