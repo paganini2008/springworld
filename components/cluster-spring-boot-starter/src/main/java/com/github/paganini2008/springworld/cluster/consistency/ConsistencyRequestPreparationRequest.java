@@ -22,15 +22,15 @@ public class ConsistencyRequestPreparationRequest implements ClusterMessageListe
 	private ConsistencyRequestSerialCache requestSerialCache;
 
 	@Autowired
-	private InstanceId clusterId;
+	private InstanceId instanceId;
 
 	@Autowired
 	private ClusterMulticastGroup contextMulticastGroup;
 
 	@Override
-	public void onMessage(String instanceId, Object message) {
+	public void onMessage(String anotherInstanceId, Object message) {
 		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + instanceId + ", " + message);
+			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
 		String name = request.getName();
@@ -39,9 +39,9 @@ public class ConsistencyRequestPreparationRequest implements ClusterMessageListe
 		long maxSerial = requestSerialCache.getSerial(name, round);
 		if (serial >= maxSerial) {
 			requestSerialCache.setSerial(name, round, serial);
-			contextMulticastGroup.send(instanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE, request.ack(clusterId.get(), true));
+			contextMulticastGroup.send(anotherInstanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE, request.ack(instanceId.get(), true));
 		} else {
-			contextMulticastGroup.send(instanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE, request.ack(clusterId.get(), false));
+			contextMulticastGroup.send(anotherInstanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE, request.ack(instanceId.get(), false));
 		}
 	}
 

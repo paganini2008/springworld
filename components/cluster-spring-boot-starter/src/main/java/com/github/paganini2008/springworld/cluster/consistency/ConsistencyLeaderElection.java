@@ -24,7 +24,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyLeaderElection implements LeaderElection, ApplicationContextAware, ApplicationListener<ConsistencyOperationResult> {
+public class ConsistencyLeaderElection
+		implements LeaderElection, ApplicationContextAware, ApplicationListener<ConsistencyRequestConfirmationEvent> {
 
 	private ApplicationContext applicationContext;
 
@@ -37,8 +38,8 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 	@Override
 	public void lookupLeader(ApplicationEvent applicationEvent) {
 		log.info("Lookup leader for application cluster '{}'", applicationName);
-		ConsistencyOperationResult result = (ConsistencyOperationResult) applicationEvent;
-		String newLeaderId = (String) result.getValue();
+		ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
+		String newLeaderId = (String) ((ConsistencyRequest) event.getSource()).getValue();
 		if (instanceId.get().equals(newLeaderId)) {
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
 			log.info("You are the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}",
@@ -52,10 +53,14 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 	}
 
 	@Override
-	public void onApplicationEvent(ConsistencyOperationResult result) {
+	public void onApplicationEvent(ConsistencyRequestConfirmationEvent event) {
 		final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
-		if (leaderIdentify.equals(result.getName())) {
-			lookupLeader(result);
+		if (leaderIdentify.equals(((ConsistencyRequest) event.getSource()).getName())) {
+			if (event.isOk()) {
+				lookupLeader(event);
+			} else {
+				throw new LeaderNotFoundException();
+			}
 		}
 	}
 

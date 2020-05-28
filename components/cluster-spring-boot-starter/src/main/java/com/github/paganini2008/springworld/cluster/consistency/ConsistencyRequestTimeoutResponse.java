@@ -10,13 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ConsistencyRequestLearningResponse
+ * ConsistencyRequestTimeoutResponse
  *
  * @author Fred Feng
+ *
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyRequestLearningResponse implements ClusterMessageListener, ApplicationContextAware {
+public class ConsistencyRequestTimeoutResponse implements ClusterMessageListener, ApplicationContextAware {
 
 	@Override
 	public void onMessage(String anotherInstanceId, Object message) {
@@ -24,15 +25,12 @@ public class ConsistencyRequestLearningResponse implements ClusterMessageListene
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
-		if (log.isDebugEnabled()) {
-			log.debug("InstanceId '" + anotherInstanceId + "' learns " + request);
-		}
 		applicationContext.publishEvent(new ConsistencyRequestCompletionEvent(request, anotherInstanceId));
 	}
 
 	@Override
 	public String getTopic() {
-		return ConsistencyRequest.LEARNING_OPERATION_RESPONSE;
+		return ConsistencyRequest.TIMEOUT_OPERATION_RESPONSE;
 	}
 
 	private ApplicationContext applicationContext;

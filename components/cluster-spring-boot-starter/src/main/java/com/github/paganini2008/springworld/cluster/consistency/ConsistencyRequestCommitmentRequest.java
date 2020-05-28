@@ -30,7 +30,7 @@ public class ConsistencyRequestCommitmentRequest implements ClusterMessageListen
 	@Override
 	public void onMessage(String anotherInstanceId, Object message) {
 		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + instanceId + ", " + message);
+			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
 		String name = request.getName();

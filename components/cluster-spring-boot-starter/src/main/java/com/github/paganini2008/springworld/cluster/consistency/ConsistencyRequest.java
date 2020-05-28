@@ -25,6 +25,8 @@ public class ConsistencyRequest implements Serializable {
 	public static final String COMMITMENT_OPERATION_RESPONSE = "<Commitment Operation Response>";
 	public static final String LEARNING_OPERATION_REQUEST = "<Learning Operation Request>";
 	public static final String LEARNING_OPERATION_RESPONSE = "<Learning Operation Response>";
+	public static final String TIMEOUT_OPERATION_REQUEST = "<Timeout Operation Request>";
+	public static final String TIMEOUT_OPERATION_RESPONSE = "<Timeout Operation Response>";
 
 	private String id;
 	private String instanceId;
@@ -33,6 +35,7 @@ public class ConsistencyRequest implements Serializable {
 	private long serial;
 	private long round;
 	private long timestamp;
+	private int timeout;
 
 	public ConsistencyRequest() {
 	}
@@ -65,6 +68,15 @@ public class ConsistencyRequest implements Serializable {
 	public ConsistencyRequest setSerial(long serial) {
 		this.serial = serial;
 		return this;
+	}
+
+	public ConsistencyRequest setTimeout(int timeout) {
+		this.timeout = timeout;
+		return this;
+	}
+
+	public boolean hasExpired() {
+		return timeout > 0 && System.currentTimeMillis() - timestamp > timeout * 1000;
 	}
 
 	public ConsistencyResponse ack(String instanceId, boolean acceptable) {

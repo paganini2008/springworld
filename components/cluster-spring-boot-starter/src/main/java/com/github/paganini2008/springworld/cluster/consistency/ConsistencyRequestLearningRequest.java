@@ -24,20 +24,24 @@ public class ConsistencyRequestLearningRequest implements ClusterMessageListener
 	private ConsistencyRequestRound requestRound;
 
 	@Autowired
-	private ClusterMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup clusterMulticastGroup;
+
+	@Autowired
+	private Court court;
 
 	@Override
-	public void onMessage(String instanceId, Object message) {
+	public void onMessage(String anotherInstanceId, Object message) {
 		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + instanceId + ", " + message);
+			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
 		if (request.getRound() == requestRound.currentRound(request.getName())) {
 			if (log.isDebugEnabled()) {
 				log.debug("Selected ConsistencyRequest: " + request);
 			}
-			applicationContext.publishEvent(new ConsistencyOperationResult(request.getName(), request.getValue()));
-			contextMulticastGroup.send(instanceId, ConsistencyRequest.LEARNING_OPERATION_RESPONSE, request);
+			court.completeProposal(request.getName());
+			applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, anotherInstanceId, true));
+			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_RESPONSE, request);
 		}
 	}
 

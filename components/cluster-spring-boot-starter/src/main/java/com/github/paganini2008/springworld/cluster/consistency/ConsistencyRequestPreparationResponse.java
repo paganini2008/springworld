@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ConsistencyPreparationResponseHandler
+ * ConsistencyRequestPreparationResponse
  *
  * @author Fred Feng
  * @since 1.0
@@ -17,16 +17,16 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsistencyRequestPreparationResponse implements ClusterMessageListener {
 
 	@Autowired
-	private ConsistencyRequestContext context;
+	private Court court;
 
 	@Override
-	public void onMessage(String instanceId, Object message) {
+	public void onMessage(String anotherInstanceId, Object message) {
 		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + instanceId + ", " + message);
+			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyResponse response = (ConsistencyResponse) message;
 		if (response.isAcceptable()) {
-			context.canCommit(response);
+			court.canCommit(response);
 		}
 	}
 

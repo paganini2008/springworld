@@ -24,6 +24,11 @@ public class ConsistencyRequestConfig {
 	public Clock clock() {
 		return new Clock();
 	}
+	
+	@Bean
+	public Court court() {
+		return new Court();
+	}
 
 	@Bean
 	public ConsistencyRequestContext consistencyRequestContext() {

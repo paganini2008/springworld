@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConsistencyLeaderElectionListener implements ClusterStateChangeListener {
 
+	private static final int LEADER_ELECTION_TIMEOUT = 60;
 	private static final int MINIMUM_LEADER_ELECTION_PARTICIPANTS = 3;
 
 	@Autowired
@@ -40,21 +41,16 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 		if (channels >= MINIMUM_LEADER_ELECTION_PARTICIPANTS) {
 			final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
 			log.info("Start leader election. Identify: " + leaderIdentify);
-			context.propose(leaderIdentify, instanceId.get());
+			context.propose(leaderIdentify, instanceId.get(), LEADER_ELECTION_TIMEOUT);
 		}
 	}
 
 	@Override
 	public void onInactive(String anotherInstanceId) {
 		if (instanceId.getLeaderId().equals(anotherInstanceId)) {
-			final int channels = clusterMulticastGroup.countOfChannel();
-			if (channels >= MINIMUM_LEADER_ELECTION_PARTICIPANTS) {
-				final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
-				log.info("Start leader election. Identify: " + leaderIdentify);
-				context.propose(leaderIdentify, instanceId.get());
-			} else {
-				throw new LeaderNotFoundException("Leader election participants < " + MINIMUM_LEADER_ELECTION_PARTICIPANTS);
-			}
+			final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
+			log.info("Start leader election. Identify: " + leaderIdentify);
+			context.propose(leaderIdentify, instanceId.get(), LEADER_ELECTION_TIMEOUT);
 		}
 	}
 
