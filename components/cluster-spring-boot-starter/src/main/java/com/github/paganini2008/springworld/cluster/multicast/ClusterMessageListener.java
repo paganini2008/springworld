@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.multicast;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+
 /**
  * 
  * ClusterMessageListener
@@ -9,7 +11,7 @@ package com.github.paganini2008.springworld.cluster.multicast;
  */
 public interface ClusterMessageListener extends ClusterMulticastListener {
 
-	void onMessage(String anotherInstanceId, Object message);
+	void onMessage(ApplicationInfo applicationInfo, Object message);
 
 	default String getTopic() {
 		return "*";

@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -28,7 +29,8 @@ public class ConsistencyRequestCommitmentRequest implements ClusterMessageListen
 	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Override
-	public void onMessage(String anotherInstanceId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
@@ -39,10 +41,10 @@ public class ConsistencyRequestCommitmentRequest implements ClusterMessageListen
 		long maxSerial = requestSerialCache.getSerial(name, round);
 		if (serial >= maxSerial) {
 			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE,
-					request.ack(instanceId.get(), true));
+					request.ack(instanceId.getApplicationInfo(), true));
 		} else {
 			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE,
-					request.ack(instanceId.get(), false));
+					request.ack(instanceId.getApplicationInfo(), false));
 		}
 	}
 

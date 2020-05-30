@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +21,9 @@ public class ConsistencyRequestPreparationResponse implements ClusterMessageList
 	private Court court;
 
 	@Override
-	public void onMessage(String anotherInstanceId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
 		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
+			log.trace(getTopic() + " " + applicationInfo.getId() + ", " + message);
 		}
 		ConsistencyResponse response = (ConsistencyResponse) message;
 		if (response.isAcceptable()) {

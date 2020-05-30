@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeEvent.EventType;
 
 /**
@@ -28,43 +29,43 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 		this.applicationContext = applicationContext;
 	}
 
-	public void fireOnActive(final String instanceId) {
+	public void fireOnActive(final ApplicationInfo applicationInfo) {
 		List<ClusterStateChangeListener> eventListeners = listeners;
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
-				handler.onActive(instanceId);
+				handler.onActive(applicationInfo);
 			});
 		}
-		applicationContext.publishEvent(new ClusterStateChangeEvent(applicationContext, instanceId, EventType.ON_ACTIVE));
+		applicationContext.publishEvent(new ClusterStateChangeEvent(applicationContext, applicationInfo, EventType.ON_ACTIVE));
 	}
 
-	public void fireOnInactive(final String instanceId) {
+	public void fireOnInactive(final ApplicationInfo applicationInfo) {
 		List<ClusterStateChangeListener> eventListeners = listeners;
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
-				handler.onInactive(instanceId);
+				handler.onInactive(applicationInfo);
 			});
 		}
-		applicationContext.publishEvent(new ClusterStateChangeEvent(applicationContext, instanceId, EventType.ON_INACTIVE));
+		applicationContext.publishEvent(new ClusterStateChangeEvent(applicationContext, applicationInfo, EventType.ON_INACTIVE));
 	}
 
-	public void fireOnMessage(final String instanceId, final Object message) {
+	public void fireOnMessage(final ApplicationInfo applicationInfo, final Object message) {
 		List<ClusterStateChangeListener> eventListeners = listeners;
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
-				handler.onMessage(instanceId, message);
+				handler.onMessage(applicationInfo, message);
 			});
 		}
-		ClusterStateChangeEvent event = new ClusterStateChangeEvent(applicationContext, instanceId, EventType.ON_MESSAGE);
+		ClusterStateChangeEvent event = new ClusterStateChangeEvent(applicationContext, applicationInfo, EventType.ON_MESSAGE);
 		event.setMessage(message);
 		applicationContext.publishEvent(event);
 	}
 
-	public void fireOnMessage(final String instanceId, final String topic, final Object message) {
+	public void fireOnMessage(final ApplicationInfo applicationInfo, final String topic, final Object message) {
 		List<ClusterMessageListener> eventListeners = topicListeners.get(topic);
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
-				handler.onMessage(instanceId, message);
+				handler.onMessage(applicationInfo, message);
 			});
 		}
 	}

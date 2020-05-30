@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.NodeFinder;
@@ -32,7 +33,8 @@ public class NioServerPeerFinder implements ClusterStateChangeListener {
 	private NodeFinder nodeFinder;
 
 	@Override
-	public void onActive(String instanceId) {
+	public void onActive(ApplicationInfo applicationInfo) {
+		String instanceId = applicationInfo.getId();
 		log.info("Node '{}' join the spring application cluster {}", instanceId, applicationName);
 		String location = (String) nodeFinder.findNode(instanceId);
 		if (StringUtils.isNotBlank(location)) {
@@ -52,8 +54,8 @@ public class NioServerPeerFinder implements ClusterStateChangeListener {
 	}
 
 	@Override
-	public void onInactive(String instanceId) {
-		log.info("Node '{}' leave the spring application cluster {}", instanceId, applicationName);
+	public void onInactive(ApplicationInfo applicationInfo) {
+		log.info("Node '{}' leave the spring application cluster {}", applicationInfo.getId(), applicationName);
 	}
 
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
@@ -24,23 +25,33 @@ public class ConsistencyRequestLearningRequest implements ClusterMessageListener
 	private ConsistencyRequestRound requestRound;
 
 	@Autowired
+	private ConsistencyRequestSerial requestSerial;
+
+	@Autowired
+	private ConsistencyRequestSerialCache requestSerialCache;
+
+	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Autowired
 	private Court court;
 
 	@Override
-	public void onMessage(String anotherInstanceId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
-		if (request.getRound() == requestRound.currentRound(request.getName())) {
+		final String name = request.getName();
+		if (request.getRound() == requestRound.currentRound(name)) {
 			if (log.isDebugEnabled()) {
 				log.debug("Selected ConsistencyRequest: " + request);
 			}
-			court.completeProposal(request.getName());
-			applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, anotherInstanceId, true));
+			clean(name);
+			court.completeProposal(name);
+
+			applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, applicationInfo, true));
 			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_RESPONSE, request);
 		}
 	}
@@ -48,6 +59,12 @@ public class ConsistencyRequestLearningRequest implements ClusterMessageListener
 	@Override
 	public String getTopic() {
 		return ConsistencyRequest.LEARNING_OPERATION_REQUEST;
+	}
+
+	private void clean(String name) {
+		requestRound.clean(name);
+		requestSerial.clean(name);
+		requestSerialCache.clean(name);
 	}
 
 	private ApplicationContext applicationContext;

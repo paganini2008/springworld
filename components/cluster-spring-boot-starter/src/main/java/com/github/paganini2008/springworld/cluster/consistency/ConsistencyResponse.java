@@ -2,6 +2,8 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import java.io.Serializable;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,14 +25,14 @@ public class ConsistencyResponse implements Serializable {
 	public ConsistencyResponse() {
 	}
 
-	public ConsistencyResponse(ConsistencyRequest request, String instanceId, boolean acceptable) {
+	public ConsistencyResponse(ConsistencyRequest request, ApplicationInfo applicationInfo, boolean acceptable) {
 		this.request = request;
-		this.instanceId = instanceId;
+		this.applicationInfo = applicationInfo;
 		this.acceptable = acceptable;
 	}
 
 	private ConsistencyRequest request;
-	private String instanceId;
+	private ApplicationInfo applicationInfo;
 	private boolean acceptable;
 
 }

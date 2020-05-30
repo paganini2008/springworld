@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,17 +33,37 @@ public class ConsistencyRequestSerial {
 	public long nextSerial(String name) {
 		final String redisCounter = String.format(CONSISTENCY_SERIAL_PATTERN,
 				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
-		return MapUtils.get(serials, name, () -> {
-			return new RedisAtomicLong(redisCounter, connectionFactory);
-		}).incrementAndGet();
+		try {
+			return MapUtils.get(serials, name, () -> {
+				return new RedisAtomicLong(redisCounter, connectionFactory);
+			}).incrementAndGet();
+		} catch (Exception e) {
+			serials.remove(name);
+			return nextSerial(name);
+		}
 	}
 
 	public long currentSerial(String name) {
 		final String redisCounter = String.format(CONSISTENCY_SERIAL_PATTERN,
 				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
-		return MapUtils.get(serials, name, () -> {
-			return new RedisAtomicLong(redisCounter, connectionFactory);
-		}).get();
+		try {
+			return MapUtils.get(serials, name, () -> {
+				return new RedisAtomicLong(redisCounter, connectionFactory);
+			}).get();
+		} catch (Exception e) {
+			serials.remove(name);
+			return currentSerial(name);
+		}
+	}
+
+	public void clean(String name) {
+		RedisAtomicLong counter = serials.remove(name);
+		if (counter != null) {
+			try {
+				counter.expire(ConsistencyRequestContext.CONSISTENCY_REQUEST_MAX_TIMEOUT, TimeUnit.SECONDS);
+			} catch (Exception ignored) {
+			}
+		}
 	}
 
 }

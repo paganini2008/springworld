@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster.consistency;
+package com.github.paganini2008.springworld.cluster.election;
 
 /**
  * 

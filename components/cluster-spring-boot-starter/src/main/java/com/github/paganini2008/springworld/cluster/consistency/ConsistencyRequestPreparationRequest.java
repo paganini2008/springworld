@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -25,10 +26,11 @@ public class ConsistencyRequestPreparationRequest implements ClusterMessageListe
 	private InstanceId instanceId;
 
 	@Autowired
-	private ClusterMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Override
-	public void onMessage(String anotherInstanceId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
@@ -39,9 +41,11 @@ public class ConsistencyRequestPreparationRequest implements ClusterMessageListe
 		long maxSerial = requestSerialCache.getSerial(name, round);
 		if (serial >= maxSerial) {
 			requestSerialCache.setSerial(name, round, serial);
-			contextMulticastGroup.send(anotherInstanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE, request.ack(instanceId.get(), true));
+			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE,
+					request.ack(instanceId.getApplicationInfo(), true));
 		} else {
-			contextMulticastGroup.send(anotherInstanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE, request.ack(instanceId.get(), false));
+			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE,
+					request.ack(instanceId.getApplicationInfo(), false));
 		}
 	}
 

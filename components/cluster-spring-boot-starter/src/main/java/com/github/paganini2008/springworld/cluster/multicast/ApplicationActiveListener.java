@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
@@ -34,14 +35,13 @@ public class ApplicationActiveListener implements RedisMessageHandler {
 
 	@Override
 	public void onMessage(String channel, Object message) {
-		final String[] args = ((String) message).split(":", 2);
-		String thatId = args[0];
-		int weight = Integer.parseInt(args[1]);
+		final ApplicationInfo applicationInfo = (ApplicationInfo) message;
+		String thatId = applicationInfo.getId();
+		int thatWeight = applicationInfo.getWeight();
 		if (!multicastGroup.hasRegistered(thatId)) {
-			multicastGroup.registerChannel(thatId, weight);
-			redisMessageSender.sendMessage(getChannel(), instanceId.get() + ":" + instanceId.getWeight());
-
-			multicastListenerContainer.fireOnActive(thatId);
+			multicastGroup.registerChannel(thatId, thatWeight);
+			redisMessageSender.sendMessage(getChannel(), instanceId.getApplicationInfo());
+			multicastListenerContainer.fireOnActive(applicationInfo);
 		}
 	}
 

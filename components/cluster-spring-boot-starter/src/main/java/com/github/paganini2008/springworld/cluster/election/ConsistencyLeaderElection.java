@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster.consistency;
+package com.github.paganini2008.springworld.cluster.election;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,10 @@ import org.springframework.context.ApplicationListener;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.cluster.LeaderElection;
+import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequest;
+import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestConfirmationEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,19 +39,19 @@ public class ConsistencyLeaderElection
 
 	@Override
 	public void lookupLeader(ApplicationEvent applicationEvent) {
-		log.info("Lookup leader for application cluster '{}'", applicationName);
-		ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
-		String newLeaderId = (String) ((ConsistencyRequest) event.getSource()).getValue();
-		if (instanceId.get().equals(newLeaderId)) {
+		ConsistencyRequestConfirmationEvent resultEvent = (ConsistencyRequestConfirmationEvent) applicationEvent;
+		ApplicationInfo leaderInfo = (ApplicationInfo) ((ConsistencyRequest) resultEvent.getSource()).getValue();
+		if (instanceId.getApplicationInfo().equals(leaderInfo)) {
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
-			log.info("You are the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}",
-					applicationName, ApplicationClusterNewLeaderEvent.class.getName());
+			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", applicationName,
+					ApplicationClusterNewLeaderEvent.class.getName());
 		} else {
-			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, newLeaderId));
-			log.info("You are the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
+			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
+			log.info("I am the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
 					applicationName, ApplicationClusterFollowerEvent.class.getName());
 		}
-		instanceId.setLeaderId(newLeaderId);
+		log.info("Leader's info: " + leaderInfo);
+		instanceId.setLeaderInfo(leaderInfo);
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.context.ApplicationEvent;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+
 /**
  * 
  * ConsistencyRequestCompletionEvent
@@ -14,15 +16,15 @@ public class ConsistencyRequestCompletionEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = -6200632827461240339L;
 
-	public ConsistencyRequestCompletionEvent(ConsistencyRequest consistencyRequest, String instanceId) {
+	public ConsistencyRequestCompletionEvent(ConsistencyRequest consistencyRequest, ApplicationInfo applicationInfo) {
 		super(consistencyRequest);
-		this.instanceId = instanceId;
+		this.applicationInfo = applicationInfo;
 	}
 
-	private final String instanceId;
+	private final ApplicationInfo applicationInfo;
 
-	public String getInstanceId() {
-		return instanceId;
+	public ApplicationInfo getApplicationInfo() {
+		return applicationInfo;
 	}
 
 }

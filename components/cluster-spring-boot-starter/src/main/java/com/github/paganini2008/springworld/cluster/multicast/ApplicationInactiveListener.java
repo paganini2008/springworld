@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
 
 /**
@@ -26,9 +27,9 @@ public class ApplicationInactiveListener implements RedisMessageHandler {
 
 	@Override
 	public void onMessage(String channel, Object message) {
-		final String instanceId = (String) message;
-		multicastGroup.removeChannel(instanceId);
-		multicastListenerContainer.fireOnInactive(instanceId);
+		final ApplicationInfo applicationInfo = (ApplicationInfo) message;
+		multicastGroup.removeChannel(applicationInfo.getId());
+		multicastListenerContainer.fireOnInactive(applicationInfo);
 	}
 
 	@Override

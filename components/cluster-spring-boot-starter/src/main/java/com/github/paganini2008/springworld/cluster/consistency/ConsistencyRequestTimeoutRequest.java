@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
@@ -28,13 +29,14 @@ public class ConsistencyRequestTimeoutRequest implements ClusterMessageListener,
 	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Override
-	public void onMessage(String anotherInstanceId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
 		if (request.getRound() == requestRound.currentRound(request.getName())) {
-			applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, anotherInstanceId, false));
+			applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, applicationInfo, false));
 			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.TIMEOUT_OPERATION_RESPONSE, request);
 		}
 	}

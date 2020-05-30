@@ -79,10 +79,10 @@ public class ConsistencyRequestConfig {
 	public ClusterMessageListener consistencyRequestLearningResponse() {
 		return new ConsistencyRequestLearningResponse();
 	}
-
+	
 	@Bean
-	public ConsistencyLeaderElectionListener consistencyLeaderElectionListener() {
-		return new ConsistencyLeaderElectionListener();
+	public ApplicationClusterCache applicationClusterCache() {
+		return new ApplicationClusterCache();
 	}
 
 }

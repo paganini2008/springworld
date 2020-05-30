@@ -3,6 +3,7 @@ package com.github.paganini2008.springworld.cluster.multicast;
 import org.springframework.context.ApplicationContext;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 /**
  * 
@@ -15,13 +16,13 @@ public class ClusterStateChangeEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = -2482108960259276628L;
 
-	public ClusterStateChangeEvent(ApplicationContext source, String instanceId, EventType eventType) {
+	public ClusterStateChangeEvent(ApplicationContext source, ApplicationInfo applicationInfo, EventType eventType) {
 		super(source);
-		this.instanceId = instanceId;
+		this.applicationInfo = applicationInfo;
 		this.eventType = eventType;
 	}
 
-	private final String instanceId;
+	private final ApplicationInfo applicationInfo;
 	private final EventType eventType;
 	private Object message;
 
@@ -33,8 +34,8 @@ public class ClusterStateChangeEvent extends ApplicationClusterEvent {
 		this.message = message;
 	}
 
-	public String getInstanceId() {
-		return instanceId;
+	public ApplicationInfo getApplicationInfo() {
+		return applicationInfo;
 	}
 
 	public EventType getEventType() {

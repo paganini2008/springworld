@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.scheduler.JobAnnotations.Executable;
@@ -94,7 +95,7 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 	private JobManager jobManager;
 
 	@Override
-	public void onMessage(String clusterId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
 		String[] args = ((String) message).split("#", 2);
 		String jobBeanClassName = args[0];
 		String jobBeanName = args[1];

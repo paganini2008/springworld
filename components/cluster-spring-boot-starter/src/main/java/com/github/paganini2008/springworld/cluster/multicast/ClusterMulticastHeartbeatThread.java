@@ -37,7 +37,7 @@ public class ClusterMulticastHeartbeatThread implements Executable {
 	private RedisMessageSender redisMessageSender;
 
 	@Autowired
-	private InstanceId clusterId;
+	private InstanceId instanceId;
 
 	private Timer timer;
 
@@ -45,7 +45,7 @@ public class ClusterMulticastHeartbeatThread implements Executable {
 
 	@Override
 	public boolean execute() {
-		redisMessageSender.sendEphemeralMessage(channel, clusterId.get(), lifespanTtl, TimeUnit.SECONDS);
+		redisMessageSender.sendEphemeralMessage(channel, instanceId.getApplicationInfo(), lifespanTtl, TimeUnit.SECONDS);
 		return true;
 	}
 
@@ -54,8 +54,8 @@ public class ClusterMulticastHeartbeatThread implements Executable {
 			throw new IllegalArgumentException("The value range of parameter 'spring.application.cluster.lifespanTtl' is between "
 					+ MIN_LIFESPAN_TTL + " and " + MAX_LIFESPAN_TTL);
 		}
-		this.channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":" + clusterId.get();
-		redisMessageSender.sendEphemeralMessage(channel, clusterId.get(), lifespanTtl, TimeUnit.SECONDS);
+		this.channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":" + instanceId.get();
+		redisMessageSender.sendEphemeralMessage(channel, instanceId.getApplicationInfo(), lifespanTtl, TimeUnit.SECONDS);
 		timer = ThreadUtils.scheduleAtFixedRate(this, 3, 3, TimeUnit.SECONDS);
 		log.info("Start ClusterMulticastHeartbeatThread ok.");
 	}

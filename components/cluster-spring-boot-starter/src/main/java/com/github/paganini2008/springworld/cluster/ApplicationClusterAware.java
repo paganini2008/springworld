@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import com.github.paganini2008.springworld.cluster.consistency.ConsistencyLeaderElection;
+import com.github.paganini2008.springworld.cluster.election.ConsistencyLeaderElection;
+import com.github.paganini2008.springworld.cluster.election.LeaderElection;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,13 +26,16 @@ public class ApplicationClusterAware implements ApplicationListener<ContextRefre
 	@Value("${spring.application.name}")
 	private String applicationName;
 
+	@Value("${spring.application.cluster.consistency.leader-election.minimumParticipants:3}")
+	private int minimumParticipants;
+
 	@Autowired
 	private LeaderElection leaderElection;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		if (leaderElection instanceof ConsistencyLeaderElection) {
-			log.warn("Leader election will be launched if cluster's node equal or greater than 3.");
+			log.warn("Leader election will be launched if cluster's node equal or greater than {}.", minimumParticipants);
 		} else {
 			leaderElection.lookupLeader(event);
 		}

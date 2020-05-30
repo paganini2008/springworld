@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
@@ -35,7 +36,7 @@ public class ProcessPoolWorkThread implements ClusterMessageListener {
 	private InvocationResult invocationResult;
 
 	@Override
-	public void onMessage(String clusterId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
 		Object bean = null;
 		Object result = null;
 		Signature signature = null;

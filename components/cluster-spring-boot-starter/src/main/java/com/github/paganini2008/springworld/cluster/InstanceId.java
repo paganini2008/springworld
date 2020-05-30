@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.io.IOUtils;
+import com.github.paganini2008.devtools.net.NetUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,15 +21,26 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class InstanceId {
 
+	private final long startTime = System.currentTimeMillis();
+
 	@Autowired
 	private InstanceIdGenerator idGenerator;
+
+	@Value("${spring.application.name}")
+	private String applicationName;
 
 	@Value("${spring.application.cluster.id:}")
 	private String id;
 
+	@Value("${spring.application.cluster.hostName:}")
+	private String hostName;
+
+	@Value("${server.port}")
+	private int serverPort;
+
 	@Setter
 	@Getter
-	private String leaderId;
+	private ApplicationInfo leaderInfo;
 
 	@Getter
 	@Value("${spring.application.cluster.weight:1}")
@@ -47,11 +59,29 @@ public final class InstanceId {
 	}
 
 	public boolean isLeader() {
-		return this.id.equals(leaderId);
+		if (leaderInfo == null) {
+			return false;
+		}
+		return get().equals(leaderInfo.getId());
+	}
+
+	public String getHostName() {
+		if (StringUtils.isBlank(hostName)) {
+			hostName = NetUtils.getLocalHost();
+		}
+		return hostName;
+	}
+
+	public long getStartTime() {
+		return startTime;
+	}
+
+	public ApplicationInfo getApplicationInfo() {
+		return new ApplicationInfo(get(), applicationName, getHostName(), serverPort, getWeight(), getStartTime(), getLeaderInfo());
 	}
 
 	public String toString() {
-		return "ClusterId: " + get() + ", Leader: " + isLeader();
+		return "InstanceId: " + get() + ", Leader: " + isLeader();
 	}
 
 }

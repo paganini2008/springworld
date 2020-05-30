@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.github.paganini2008.springworld.cluster.consistency.ConsistencyLeaderElection;
+import com.github.paganini2008.springworld.cluster.election.FastLeaderElection;
+import com.github.paganini2008.springworld.cluster.election.LeaderElection;
 
 /**
  * 
@@ -36,6 +37,6 @@ public class ApplicationClusterConfig {
 	@ConditionalOnMissingBean(LeaderElection.class)
 	@Bean
 	public LeaderElection leaderElection() {
-		return new ConsistencyLeaderElection();
+		return new FastLeaderElection();
 	}
 }

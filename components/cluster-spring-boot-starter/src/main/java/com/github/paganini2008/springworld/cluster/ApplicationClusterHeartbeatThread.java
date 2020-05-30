@@ -4,11 +4,13 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springworld.redis.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,8 +34,9 @@ public class ApplicationClusterHeartbeatThread implements Executable {
 	@Value("${spring.application.name}")
 	private String applicationName;
 
+	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	@Autowired
-	private StringRedisTemplate redisTemplate;
+	private RedisTemplate<String, Object> redisTemplate;
 
 	@Override
 	public boolean execute() {

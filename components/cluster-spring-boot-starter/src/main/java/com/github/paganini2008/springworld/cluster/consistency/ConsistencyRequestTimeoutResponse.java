@@ -4,6 +4,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsistencyRequestTimeoutResponse implements ClusterMessageListener, ApplicationContextAware {
 
 	@Override
-	public void onMessage(String anotherInstanceId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
 		ConsistencyRequest request = (ConsistencyRequest) message;
-		applicationContext.publishEvent(new ConsistencyRequestCompletionEvent(request, anotherInstanceId));
+		applicationContext.publishEvent(new ConsistencyRequestCompletionEvent(request, applicationInfo));
 	}
 
 	@Override

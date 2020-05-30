@@ -1,18 +1,21 @@
 package com.github.paganini2008.springworld.cluster.multicast;
 
+import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -65,14 +68,14 @@ public class ClusterMulticastGroup {
 		Assert.hasNoText("Topic is required");
 		String channel = loadBalance.select(message, channels);
 		if (StringUtils.isNotBlank(channel)) {
-			redisMessageSender.sendMessage(channel, createObjectMessage(instanceId.get(), topic, message));
+			redisMessageSender.sendMessage(channel, createObjectMessage(topic, message));
 		}
 	}
 
 	public void send(String channel, String topic, Object message) {
 		Assert.hasNoText("Channel is required");
 		Assert.hasNoText("Topic is required");
-		redisMessageSender.sendMessage(channel, createObjectMessage(instanceId.get(), topic, message));
+		redisMessageSender.sendMessage(channel, createObjectMessage(topic, message));
 	}
 
 	public void multicast(Object message) {
@@ -82,17 +85,28 @@ public class ClusterMulticastGroup {
 	public void multicast(String topic, Object message) {
 		Assert.hasNoText("Topic is required");
 		for (String channel : new HashSet<String>(channels)) {
-			redisMessageSender.sendMessage(channel, createObjectMessage(instanceId.get(), topic, message));
+			redisMessageSender.sendMessage(channel, createObjectMessage(topic, message));
 		}
 	}
 
-	protected Object createObjectMessage(String instanceId, String topic, Object message) {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("instanceId", instanceId);
-		data.put("topic", topic);
-		data.put("message", message);
-		data.put("timestamp", System.currentTimeMillis());
+	protected ClusterMulticastMessage createObjectMessage(String topic, Object message) {
+		ClusterMulticastMessage data = new ClusterMulticastMessage();
+		data.setApplicationInfo(instanceId.getApplicationInfo());
+		data.setTopic(topic);
+		data.setMessage(message);
 		return data;
+	}
+
+	@Getter
+	@Setter
+	public static class ClusterMulticastMessage implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		private ApplicationInfo applicationInfo;
+		private String topic;
+		private Object message;
+
 	}
 
 }

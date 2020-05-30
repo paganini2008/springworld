@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.multicast;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,23 +15,23 @@ import lombok.extern.slf4j.Slf4j;
 public class LoggingClusterMulticastEventListener implements ClusterStateChangeListener {
 
 	@Override
-	public void onActive(String clusterId) {
+	public void onActive(ApplicationInfo applicationInfo) {
 		if (log.isTraceEnabled()) {
-			log.trace("Spring application '{}' has joined.", clusterId);
+			log.trace("Spring application '{}' has joined.", applicationInfo);
 		}
 	}
 
 	@Override
-	public void onInactive(String clusterId) {
+	public void onInactive(ApplicationInfo applicationInfo) {
 		if (log.isTraceEnabled()) {
-			log.trace("Spring application '{}' has gone.", clusterId);
+			log.trace("Spring application '{}' has gone.", applicationInfo);
 		}
 	}
 
 	@Override
-	public void onMessage(String clusterId, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, Object message) {
 		if (log.isTraceEnabled()) {
-			log.trace("Spring application '{}' send message: {}", clusterId, message);
+			log.trace("Spring application '{}' send message: {}", applicationInfo.getId(), message);
 		}
 	}
 

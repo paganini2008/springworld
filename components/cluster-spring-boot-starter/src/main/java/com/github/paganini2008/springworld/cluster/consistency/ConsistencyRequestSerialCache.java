@@ -28,4 +28,8 @@ public class ConsistencyRequestSerialCache {
 		return data.getOrDefault(round, 0L);
 	}
 
+	public void clean(String name) {
+		serials.remove(name);
+	}
+
 }

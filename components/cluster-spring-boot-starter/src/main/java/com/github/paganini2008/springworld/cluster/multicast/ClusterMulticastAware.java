@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
 
@@ -30,7 +31,8 @@ public class ClusterMulticastAware implements ApplicationListener<ContextRefresh
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		final String channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":active";
-		redisMessageSender.sendMessage(channel, instanceId.get() + ":" + instanceId.getWeight());
+		ApplicationInfo applicationInfo = instanceId.getApplicationInfo();
+		redisMessageSender.sendMessage(channel, applicationInfo);
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import com.github.paganini2008.devtools.date.DateUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 import lombok.Getter;
 
@@ -28,8 +29,8 @@ public class ConsistencyRequest implements Serializable {
 	public static final String TIMEOUT_OPERATION_REQUEST = "<Timeout Operation Request>";
 	public static final String TIMEOUT_OPERATION_RESPONSE = "<Timeout Operation Response>";
 
+	private ApplicationInfo applicationInfo;
 	private String id;
-	private String instanceId;
 	private String name;
 	private Object value;
 	private long serial;
@@ -40,14 +41,14 @@ public class ConsistencyRequest implements Serializable {
 	public ConsistencyRequest() {
 	}
 
-	ConsistencyRequest(String instanceId) {
+	ConsistencyRequest(ApplicationInfo applicationInfo) {
 		this.id = UUID.randomUUID().toString();
-		this.instanceId = instanceId;
+		this.applicationInfo = applicationInfo;
 		this.timestamp = System.currentTimeMillis();
 	}
 
-	public static ConsistencyRequest of(String instanceId) {
-		return new ConsistencyRequest(instanceId);
+	public static ConsistencyRequest of(ApplicationInfo applicationInfo) {
+		return new ConsistencyRequest(applicationInfo);
 	}
 
 	public ConsistencyRequest setName(String name) {
@@ -79,12 +80,12 @@ public class ConsistencyRequest implements Serializable {
 		return timeout > 0 && System.currentTimeMillis() - timestamp > timeout * 1000;
 	}
 
-	public ConsistencyResponse ack(String instanceId, boolean acceptable) {
-		return new ConsistencyResponse(this, instanceId, acceptable);
+	public ConsistencyResponse ack(ApplicationInfo applicationInfo, boolean acceptable) {
+		return new ConsistencyResponse(this, applicationInfo, acceptable);
 	}
 
 	public ConsistencyRequest copy() {
-		return ConsistencyRequest.of(instanceId).setName(name).setRound(round).setValue(value).setSerial(serial);
+		return ConsistencyRequest.of(applicationInfo).setName(name).setRound(round).setValue(value).setSerial(serial);
 	}
 
 	public String toString() {

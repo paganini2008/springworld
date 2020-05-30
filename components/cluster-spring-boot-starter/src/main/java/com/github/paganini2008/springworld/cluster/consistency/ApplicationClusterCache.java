@@ -1,8 +1,7 @@
 package com.github.paganini2008.springworld.cluster.consistency;
 
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -29,9 +28,9 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 	@Autowired
 	private ConsistencyRequestContext context;
 	private final Observable observable = Observable.unrepeatable();
-	private final Lock lock = new ReentrantLock();
 	private final Cache delegate;
 	private int timeout = 60;
+	private final Semaphore lock;
 
 	/**
 	 * 
@@ -48,11 +47,12 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 	}
 
 	public ApplicationClusterCache() {
-		this(new HashCache());
+		this(new HashCache(), false);
 	}
 
-	public ApplicationClusterCache(Cache delegate) {
+	public ApplicationClusterCache(Cache delegate, boolean serializable) {
 		this.delegate = delegate;
+		this.lock = serializable ? new Semaphore(1, true) : new Semaphore(Runtime.getRuntime().availableProcessors() * 2);
 	}
 
 	public void setTimeout(int timeout) {
@@ -65,20 +65,27 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 	}
 
 	public void putObject(final Object key, final Object value, Watcher watcher) {
-		lock.lock();
 		final String name = key.toString();
-		observable.addObserver(name, (ob, arg) -> {
-			lock.unlock();
-			Object expectedValue = getObject((String) arg);
-			if (ObjectUtils.equals(expectedValue, value)) {
-				if (watcher != null) {
-					watcher.process(name);
+		try {
+			lock.acquire();
+		} catch (InterruptedException e) {
+			throw new IllegalStateException(e);
+		}
+		if (context.propose(name, value, timeout)) {
+			observable.addObserver(name, (ob, arg) -> {
+				lock.release();
+				Object expectedValue = getObject((String) arg);
+				if (ObjectUtils.equals(expectedValue, value)) {
+					if (watcher != null) {
+						watcher.process(name);
+					}
+				} else {
+					putObject(key, value, watcher);
 				}
-			} else {
-				putObject(key, value, watcher);
-			}
-		});
-		context.propose(name, value, timeout);
+			});
+		} else {
+			lock.release();
+		}
 	}
 
 	@Override
@@ -121,11 +128,13 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 	@Override
 	public void onApplicationEvent(ConsistencyRequestConfirmationEvent event) {
 		final ConsistencyRequest result = (ConsistencyRequest) event.getSource();
-		final String name = result.getName();
-		delegate.putObject(name, result.getValue());
-		observable.notifyObservers(name, name);
-		if (log.isTraceEnabled()) {
-			log.trace("Current cache'size: " + getSize());
+		if (event.isOk()) {
+			final String name = result.getName();
+			delegate.putObject(name, result.getValue());
+			observable.notifyObservers(name, name);
+			if (log.isTraceEnabled()) {
+				log.trace("Current cache'size: " + getSize());
+			}
 		}
 	}
 

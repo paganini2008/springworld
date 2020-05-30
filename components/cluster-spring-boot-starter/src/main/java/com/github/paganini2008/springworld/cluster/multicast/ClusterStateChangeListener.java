@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.multicast;
 
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+
 /**
  * 
  * ClusterStateChangeListener
@@ -9,13 +11,13 @@ package com.github.paganini2008.springworld.cluster.multicast;
  */
 public interface ClusterStateChangeListener extends ClusterMulticastListener {
 
-	default void onActive(String anotherInstanceId) {
+	default void onActive(ApplicationInfo applicationInfo) {
 	}
 
-	default void onInactive(String anotherInstanceId) {
+	default void onInactive(ApplicationInfo applicationInfo) {
 	}
 
-	default void onMessage(String anotherInstanceId, Object message) {
+	default void onMessage(ApplicationInfo applicationInfo, Object message) {
 	}
 
 }
