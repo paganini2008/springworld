@@ -1,7 +1,7 @@
 package com.github.paganini2008.springworld.tx;
 
-import com.github.paganini2008.springworld.redis.pubsub.MessageHandler;
-import com.github.paganini2008.springworld.redis.pubsub.OnMessage;
+import com.github.paganini2008.springworld.redisplus.messager.MessageHandler;
+import com.github.paganini2008.springworld.redisplus.messager.OnMessage;
 
 import lombok.extern.slf4j.Slf4j;
 

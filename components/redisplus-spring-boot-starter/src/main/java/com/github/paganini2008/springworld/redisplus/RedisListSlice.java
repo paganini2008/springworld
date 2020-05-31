@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis;
+package com.github.paganini2008.springworld.redisplus;
 
 import java.util.List;
 

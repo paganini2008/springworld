@@ -5,9 +5,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
-import com.github.paganini2008.springworld.redis.concurrents.Lifespan;
-import com.github.paganini2008.springworld.redis.concurrents.RedisSharedLatch;
-import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.concurrents.Lifespan;
+import com.github.paganini2008.springworld.redisplus.concurrents.RedisSharedLatch;
+import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
 
 import lombok.extern.slf4j.Slf4j;
 

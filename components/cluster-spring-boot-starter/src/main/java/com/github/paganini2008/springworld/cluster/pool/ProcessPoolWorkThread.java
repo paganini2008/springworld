@@ -7,7 +7,7 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
 
 import lombok.extern.slf4j.Slf4j;
 

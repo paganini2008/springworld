@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis.pubsub;
+package com.github.paganini2008.springworld.redisplus.messager;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,6 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
  * RedisMessageHandlerBeanProcessor
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
@@ -60,8 +58,13 @@ public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
 		}
 
 		@Override
-		public boolean isEphemeral() {
-			return annotation.ephemeral();
+		public boolean isRepeatable() {
+			return annotation.repeatable();
+		}
+
+		@Override
+		public boolean isAck() {
+			return annotation.ack();
 		}
 
 	}

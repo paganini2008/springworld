@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis.pubsub;
+package com.github.paganini2008.springworld.redisplus.messager;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,5 +24,9 @@ public @interface MessageHandler {
 	String value();
 
 	boolean ephemeral() default false;
+
+	boolean repeatable() default true;
+
+	boolean ack() default false;
 
 }

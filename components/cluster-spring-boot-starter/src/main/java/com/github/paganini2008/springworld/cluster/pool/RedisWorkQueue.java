@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springworld.redis.BeanNames;
+import com.github.paganini2008.springworld.redisplus.BeanNames;
 
 /**
  * 

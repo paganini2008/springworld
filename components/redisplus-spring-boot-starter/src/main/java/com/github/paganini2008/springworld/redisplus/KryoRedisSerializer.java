@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis;
+package com.github.paganini2008.springworld.redisplus;
 
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;

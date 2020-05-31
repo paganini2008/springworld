@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
-import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
 
 /**
  * 

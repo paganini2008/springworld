@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis.concurrents;
+package com.github.paganini2008.springworld.redisplus.concurrents;
 
 import com.github.paganini2008.devtools.multithreads.latch.Latch;
 

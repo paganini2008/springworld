@@ -12,7 +12,7 @@ import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis.pubsub;
+package com.github.paganini2008.springworld.redisplus.messager;
 
 import org.springframework.context.ApplicationEvent;
 
@@ -7,27 +7,27 @@ import org.springframework.context.ApplicationEvent;
  * RedisMessageEvent
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 public class RedisMessageEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = 5563838735572037403L;
 
-	public RedisMessageEvent(String channel, Object message) {
-		super(message);
-		this.channel = channel;
+	public RedisMessageEvent(RedisMessageEntity entity) {
+		super(entity);
 	}
 
-	private final String channel;
-
 	public String getChannel() {
-		return channel;
+		return getSource().getChannel();
 	}
 
 	public Object getMessage() {
-		return getSource();
+		return getSource().getMessage();
+	}
+
+	@Override
+	public RedisMessageEntity getSource() {
+		return (RedisMessageEntity) super.getSource();
 	}
 
 }

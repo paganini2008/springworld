@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterHeartbeatTh
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.redis.BeanNames;
+import com.github.paganini2008.springworld.redisplus.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
 

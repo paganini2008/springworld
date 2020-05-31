@@ -23,8 +23,8 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.multithreads.ThreadLocalInteger;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
-import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
-import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

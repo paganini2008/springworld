@@ -13,10 +13,10 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
-import com.github.paganini2008.springworld.redis.BeanNames;
-import com.github.paganini2008.springworld.redis.concurrents.Lifespan;
-import com.github.paganini2008.springworld.redis.concurrents.RedisKeyLifespan;
-import com.github.paganini2008.springworld.redis.concurrents.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.BeanNames;
+import com.github.paganini2008.springworld.redisplus.concurrents.Lifespan;
+import com.github.paganini2008.springworld.redisplus.concurrents.RedisKeyLifespan;
+import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
 
 /**
  * 

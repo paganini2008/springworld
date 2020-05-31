@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis.concurrents;
+package com.github.paganini2008.springworld.redisplus.concurrents;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;

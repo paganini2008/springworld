@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redis.pubsub;
+package com.github.paganini2008.springworld.redisplus.messager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import com.github.paganini2008.springworld.redis.BeanNames;
+import com.github.paganini2008.devtools.Observable;
+import com.github.paganini2008.springworld.redisplus.BeanNames;
 
 /**
  * 
@@ -18,12 +19,12 @@ import com.github.paganini2008.springworld.redis.BeanNames;
  */
 public class RedisMessageSender {
 
-	static final String EXPIRED_KEY_PREFIX = "__";
+	public static final String EXPIRED_KEY_PREFIX = "__";
 
-	@Value("${spring.redis.pubsub.channel:pubsub}")
-	private String channel;
+	@Value("${spring.redis.messager.pubsub.channel.ack:messager-pubsub-ack}")
+	private String channelAck;
 
-	@Value("${spring.redis.ephemeral-key.namespace:ephemeral:}")
+	@Value("${spring.redis.messager.ephemeral-key.namespace:ephemeral-message:}")
 	private String namespace;
 
 	@Autowired
@@ -31,15 +32,26 @@ public class RedisMessageSender {
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
-	@Qualifier(BeanNames.REDIS_MESSAGE_LISTENER)
-	private RedisMessageListener redisMessageListener;
+	private RedisMessageDispatcher redisMessageDispather;
 
 	@Autowired
-	@Qualifier(BeanNames.REDIS_EPHEMERAL_MESSAGE_LISTENER)
-	private RedisEphemeralMessageListener redisEphemeralMessageListener;
+	private RedisMessageEventListener redisMessageListener;
+
+	@Qualifier("redisMessageAckChecker")
+	@Autowired
+	private Observable ackChecker;
+
+	public void sendMessage(RedisMessageEntity messageEntity) {
+		redisMessageDispather.dispatch(messageEntity);
+	}
+
+	public void ack(RedisMessageEntity messageEntity) {
+		redisMessageDispather.ack(messageEntity);
+	}
 
 	public void sendMessage(String channel, Object message) {
-		redisTemplate.convertAndSend(this.channel, RedisMessageEntity.of(channel, message));
+		RedisMessageEntity messageEntity = RedisMessageEntity.of(channel, message);
+		sendMessage(messageEntity);
 	}
 
 	public void sendEphemeralMessage(String channel, Object message, long delay, TimeUnit timeUnit) {
@@ -47,9 +59,11 @@ public class RedisMessageSender {
 	}
 
 	public void sendEphemeralMessage(String channel, Object message, long delay, TimeUnit timeUnit, boolean idempotent) {
-		String expiredKey = namespace + channel;
+		final String expiredKey = namespace + channel;
 		if (!idempotent || redisTemplate.hasKey(expiredKey)) {
 			RedisMessageEntity entity = RedisMessageEntity.of(channel, message);
+			entity.setDelay(delay);
+			entity.setTimeUnit(timeUnit);
 			redisTemplate.opsForValue().set(expiredKey, entity, delay, timeUnit);
 			setExpiredValue(expiredKey);
 		}
@@ -61,17 +75,18 @@ public class RedisMessageSender {
 		redisTemplate.opsForValue().set(key, value);
 	}
 
-	public void subscribeChannel(String beanName, RedisMessageHandler messageHandler) {
-		if (messageHandler.isEphemeral()) {
-			redisEphemeralMessageListener.addHandler(beanName, messageHandler);
-		} else {
-			redisMessageListener.addHandler(beanName, messageHandler);
+	public void subscribeChannel(final String beanName, final RedisMessageHandler messageHandler) {
+		redisMessageListener.addHandler(beanName, messageHandler);
+		if (messageHandler.isAck()) {
+			ackChecker.addObserver(beanName, (ob, arg) -> {
+				RedisMessageEntity entity = (RedisMessageEntity) arg;
+				ack(entity);
+			});
 		}
 	}
 
 	public void unsubscribeChannel(String beanName) {
 		redisMessageListener.removeHandler(beanName);
-		redisEphemeralMessageListener.removeHandler(beanName);
 	}
 
 }

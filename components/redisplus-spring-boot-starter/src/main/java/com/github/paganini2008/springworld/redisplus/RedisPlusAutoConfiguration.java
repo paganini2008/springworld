@@ -1,7 +1,9 @@
-package com.github.paganini2008.springworld.redis;
+package com.github.paganini2008.springworld.redisplus;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessagerConfig;
 
 /**
  * 
@@ -11,7 +13,7 @@ import org.springframework.context.annotation.Import;
  * @version 1.0
  */
 @Configuration
-@Import({ RedisPubSubConfig.class })
+@Import({ RedisMessagerConfig.class })
 public class RedisPlusAutoConfiguration {
 
 }

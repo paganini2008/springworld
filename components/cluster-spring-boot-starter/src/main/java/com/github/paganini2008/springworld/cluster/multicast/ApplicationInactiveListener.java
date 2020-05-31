@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.redis.pubsub.RedisMessageHandler;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
 
 /**
  * 
@@ -34,12 +34,7 @@ public class ApplicationInactiveListener implements RedisMessageHandler {
 
 	@Override
 	public String getChannel() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":*";
-	}
-
-	@Override
-	public boolean isEphemeral() {
-		return true;
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":member:*";
 	}
 
 }

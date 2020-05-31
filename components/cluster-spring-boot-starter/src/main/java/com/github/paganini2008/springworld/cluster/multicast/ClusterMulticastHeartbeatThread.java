@@ -10,7 +10,7 @@ import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.redis.pubsub.RedisMessageSender;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +54,7 @@ public class ClusterMulticastHeartbeatThread implements Executable {
 			throw new IllegalArgumentException("The value range of parameter 'spring.application.cluster.lifespanTtl' is between "
 					+ MIN_LIFESPAN_TTL + " and " + MAX_LIFESPAN_TTL);
 		}
-		this.channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":" + instanceId.get();
+		this.channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":member:" + instanceId.get();
 		redisMessageSender.sendEphemeralMessage(channel, instanceId.getApplicationInfo(), lifespanTtl, TimeUnit.SECONDS);
 		timer = ThreadUtils.scheduleAtFixedRate(this, 3, 3, TimeUnit.SECONDS);
 		log.info("Start ClusterMulticastHeartbeatThread ok.");
