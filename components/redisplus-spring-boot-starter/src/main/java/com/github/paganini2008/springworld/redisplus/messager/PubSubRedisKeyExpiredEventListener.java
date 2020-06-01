@@ -1,8 +1,5 @@
 package com.github.paganini2008.springworld.redisplus.messager;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SuppressWarnings("all")
 public class PubSubRedisKeyExpiredEventListener implements ApplicationListener<RedisKeyExpiredEvent> {
-
-	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
-	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelPatternHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
-
-	@Autowired
-	private RedisMessageSender redisMessageSender;
 
 	@Autowired
 	private RedisMessageEventPublisher eventPublisher;
