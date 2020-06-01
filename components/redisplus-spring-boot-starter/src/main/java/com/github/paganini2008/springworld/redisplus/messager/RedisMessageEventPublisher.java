@@ -13,9 +13,10 @@ import com.github.paganini2008.springworld.redisplus.BeanNames;
 /**
  * 
  * RedisMessageEventPublisher
- * 
+ *
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 public class RedisMessageEventPublisher implements ApplicationContextAware {
 
@@ -26,14 +27,14 @@ public class RedisMessageEventPublisher implements ApplicationContextAware {
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	private RedisTemplate<String, Object> redisTemplate;
 
-	public void queue(RedisMessageEntity entity) {
+	public void doQueue(RedisMessageEntity entity) {
 		RedisMessageEntity redisMessageEntity = (RedisMessageEntity) redisTemplate.opsForList().leftPop(queueKey);
 		if (redisMessageEntity != null) {
-			applicationContext.publishEvent(new RedisMessageEvent(entity));
+			applicationContext.publishEvent(new RedisMessageEvent(redisMessageEntity));
 		}
 	}
 
-	public void pubsub(RedisMessageEntity entity) {
+	public void doPubsub(RedisMessageEntity entity) {
 		applicationContext.publishEvent(new RedisMessageEvent(entity));
 	}
 

@@ -3,11 +3,7 @@ package com.github.paganini2008.springworld.redisplus.messager;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-
-import com.github.paganini2008.springworld.redisplus.BeanNames;
 
 /**
  * 
@@ -18,14 +14,8 @@ import com.github.paganini2008.springworld.redisplus.BeanNames;
  */
 public class RedisMessageSender {
 
-	public static final String EXPIRED_KEY_PREFIX = "__";
-
 	@Value("${spring.redis.messager.ephemeral-key.namespace:ephemeral-message:}")
 	private String namespace;
-
-	@Autowired
-	@Qualifier(BeanNames.REDIS_TEMPLATE)
-	private RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
 	private RedisMessageDispatcher redisMessageDispather;
@@ -43,24 +33,11 @@ public class RedisMessageSender {
 	}
 
 	public void sendEphemeralMessage(String channel, Object message, long delay, TimeUnit timeUnit) {
-		sendEphemeralMessage(channel, message, delay, timeUnit, false);
-	}
-
-	public void sendEphemeralMessage(String channel, Object message, long delay, TimeUnit timeUnit, boolean idempotent) {
 		final String expiredKey = namespace + channel;
-		if (!idempotent || redisTemplate.hasKey(expiredKey)) {
-			RedisMessageEntity entity = RedisMessageEntity.of(channel, message);
-			entity.setDelay(delay);
-			entity.setTimeUnit(timeUnit);
-			redisTemplate.opsForValue().set(expiredKey, entity, delay, timeUnit);
-			setExpiredValue(expiredKey);
-		}
-	}
-
-	private void setExpiredValue(String expiredKey) {
-		final String key = EXPIRED_KEY_PREFIX + expiredKey;
-		Object value = redisTemplate.opsForValue().get(expiredKey);
-		redisTemplate.opsForValue().set(key, value);
+		RedisMessageEntity messageEntity = RedisMessageEntity.of(channel, message);
+		messageEntity.setDelay(delay);
+		messageEntity.setTimeUnit(timeUnit);
+		redisMessageDispather.expire(expiredKey, messageEntity, delay, timeUnit);
 	}
 
 	public void subscribeChannel(final String beanName, final RedisMessageHandler messageHandler) {

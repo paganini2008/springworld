@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,12 +34,6 @@ import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 @Configuration
 @ConditionalOnBean(RedisConnectionFactory.class)
 public class RedisMessagerConfig {
-
-	@Value("${spring.redis.messager.pubsub.channel:messager-pubsub}")
-	private String pubsubChannelKey;
-
-	@Value("${spring.redis.messager.queue.channel:messager-queue}")
-	private String queueChannelKey;
 
 	@Bean(BeanNames.REDIS_SERIALIZER)
 	public RedisSerializer<Object> redisSerializer() {
@@ -84,35 +78,79 @@ public class RedisMessagerConfig {
 		return new RedisMessageEventPublisher();
 	}
 
-	@DependsOn(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
-	@Bean(BeanNames.REDIS_MESSAGE_PUBSUB_LISTENER)
-	public MessageListenerAdapter redisMessagePubsubListener(
-			@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
-		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "pubsub");
-		adapter.setSerializer(redisSerializer);
-		adapter.afterPropertiesSet();
-		return adapter;
+	@ConditionalOnProperty(name = "spring.redis.messager.dispatcher.mode", havingValue = "pubsub", matchIfMissing = true)
+	@Configuration
+	public static class PubSubModeConfig {
+
+		@Value("${spring.redis.messager.pubsub.channel:messager-pubsub}")
+		private String pubsubChannelKey;
+
+		@Bean(BeanNames.PUBSUB_REDIS_MESSAGE_DISPATCHER)
+		public RedisMessageDispatcher pubSubRedisMessageDispatcher() {
+			return new PubSubRedisMessageDispatcher();
+		}
+
+		@Bean(BeanNames.REDIS_MESSAGE_PUBSUB_LISTENER)
+		public MessageListenerAdapter redisMessagePubsubListener(
+				@Qualifier(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER) RedisMessageEventPublisher eventPublisher,
+				@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
+			MessageListenerAdapter adapter = new MessageListenerAdapter(eventPublisher, "doPubsub");
+			adapter.setSerializer(redisSerializer);
+			adapter.afterPropertiesSet();
+			return adapter;
+		}
+
+		@Bean(BeanNames.REDIS_MESSAGE_LISTENER_CONTAINER)
+		public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
+				@Qualifier(BeanNames.REDIS_MESSAGE_PUBSUB_LISTENER) MessageListenerAdapter redisMessagePubsubListener) {
+			RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
+			redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
+			redisMessageListenerContainer.addMessageListener(redisMessagePubsubListener, new ChannelTopic(pubsubChannelKey));
+			return redisMessageListenerContainer;
+		}
+		
+		@Bean
+		public PubSubRedisKeyExpiredEventListener pubSubRedisKeyExpiredEventListener() {
+			return new PubSubRedisKeyExpiredEventListener();
+		}
 	}
 
-	@DependsOn(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
-	@Bean(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER)
-	public MessageListenerAdapter redisMessageQueueListener(
-			@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
-		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "queue");
-		adapter.setSerializer(redisSerializer);
-		adapter.afterPropertiesSet();
-		return adapter;
-	}
+	@ConditionalOnProperty(name = "spring.redis.messager.dispatcher.mode", havingValue = "queue")
+	@Configuration
+	public static class QueueModeConfig {
 
-	@Bean(BeanNames.REDIS_MESSAGE_LISTENER_CONTAINER)
-	public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
-			@Qualifier(BeanNames.REDIS_MESSAGE_PUBSUB_LISTENER) MessageListenerAdapter redisMessagePubsubListener,
-			@Qualifier(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER) MessageListenerAdapter redisMessageQueueListener) {
-		RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
-		redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
-		redisMessageListenerContainer.addMessageListener(redisMessagePubsubListener, new ChannelTopic(pubsubChannelKey));
-		redisMessageListenerContainer.addMessageListener(redisMessageQueueListener, new ChannelTopic(queueChannelKey));
-		return redisMessageListenerContainer;
+		@Value("${spring.redis.messager.queue.channel:messager-queue}")
+		private String queueChannelKey;
+
+		@ConditionalOnProperty(name = "spring.redis.messager.dispatcher.mode", havingValue = "queue")
+		@Bean(BeanNames.QUEUE_REDIS_MESSAGE_DISPATCHER)
+		public RedisMessageDispatcher queueRedisMessageDispatcher() {
+			return new QueueRedisMessageDispatcher();
+		}
+
+		@Bean(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER)
+		public MessageListenerAdapter redisMessageQueueListener(
+				@Qualifier(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER) RedisMessageEventPublisher eventPublisher,
+				@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
+			MessageListenerAdapter adapter = new MessageListenerAdapter(eventPublisher, "doQueue");
+			adapter.setSerializer(redisSerializer);
+			adapter.afterPropertiesSet();
+			return adapter;
+		}
+
+		@Bean(BeanNames.REDIS_MESSAGE_LISTENER_CONTAINER)
+		public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
+				@Qualifier(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER) MessageListenerAdapter redisMessageQueueListener) {
+			RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
+			redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
+			redisMessageListenerContainer.addMessageListener(redisMessageQueueListener, new ChannelTopic(queueChannelKey));
+			return redisMessageListenerContainer;
+		}
+		
+		@Bean
+		public QueueRedisKeyExpiredEventListener queueRedisKeyExpiredEventListener() {
+			return new QueueRedisKeyExpiredEventListener();
+		}
 	}
 
 	@Bean(BeanNames.REDIS_MESSAGE_EVENT_LISTENER)
@@ -120,20 +158,9 @@ public class RedisMessagerConfig {
 		return new RedisMessageEventListener();
 	}
 
-	@Bean(BeanNames.REDIS_KEY_EXPIRED_EVENT_PUBLISHER)
-	public RedisKeyExpiredEventPublisher redisKeyExpiredEventPublisher() {
-		return new RedisKeyExpiredEventPublisher();
-	}
-
 	@Bean(BeanNames.REDIS_MESSAGE_SENDER)
 	public RedisMessageSender redisMessageSender() {
 		return new RedisMessageSender();
-	}
-
-	@ConditionalOnMissingBean(RedisMessageDispatcher.class)
-	@Bean
-	public RedisMessageDispatcher redisMessageDispather() {
-		return new PubSubRedisMessageDispatcher();
 	}
 
 	@Bean

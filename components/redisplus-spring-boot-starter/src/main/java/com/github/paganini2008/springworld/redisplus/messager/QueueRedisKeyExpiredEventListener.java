@@ -4,12 +4,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.RedisKeyExpiredEvent;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,20 +18,24 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * RedisKeyExpiredEventPublisher
+ * QueueRedisKeyExpiredEventListener
  *
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Slf4j
 @SuppressWarnings("all")
-public class RedisKeyExpiredEventPublisher implements ApplicationListener<RedisKeyExpiredEvent>, ApplicationContextAware {
+public class QueueRedisKeyExpiredEventListener implements ApplicationListener<RedisKeyExpiredEvent> {
 
 	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
 	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelPatternHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
+
+	@Autowired
+	private RedisMessageEventPublisher eventPublisher;
 
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	@Autowired
@@ -46,31 +47,16 @@ public class RedisKeyExpiredEventPublisher implements ApplicationListener<RedisK
 	public void onApplicationEvent(RedisKeyExpiredEvent event) {
 		final String expiredKey = new String(event.getSource(), CharsetUtils.UTF_8);
 		if (expiredKey.startsWith(namespace)) {
-			final String channel = expiredKey.replace(namespace, "");
-			RedisMessageEntity redisMessageEntity = getRedisMessageEntity(expiredKey);
-			if (redisMessageEntity != null) {
-				if (log.isTraceEnabled()) {
-					log.trace("Redis key '{}' is expired. The value is '{}'", expiredKey, redisMessageEntity);
-				}
-				applicationContext.publishEvent(new RedisMessageEvent(redisMessageEntity));
+			if (log.isTraceEnabled()) {
+				log.trace("Redis key '{}' is expired.", expiredKey);
 			}
+			RedisMessageEntity redisMessageEntity = getRedisMessageEntity(expiredKey);
+			eventPublisher.doQueue(redisMessageEntity);
 		}
 	}
 
-	private RedisMessageEntity getRedisMessageEntity(String expiredKey) {
-		final String key = RedisMessageSender.EXPIRED_KEY_PREFIX + expiredKey;
-		if (redisTemplate.hasKey(key)) {
-			RedisMessageEntity entity = (RedisMessageEntity) redisTemplate.opsForValue().get(key);
-			redisTemplate.delete(key);
-			return entity;
-		}
-		return null;
+	protected RedisMessageEntity getRedisMessageEntity(String expiredKey) {
+		return RedisMessageEntity.EMPTY;
 	}
 
-	private ApplicationContext applicationContext;
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
 }

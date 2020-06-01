@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.redisplus.messager;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 
  * RedisMessageDispatcher
@@ -11,5 +13,7 @@ package com.github.paganini2008.springworld.redisplus.messager;
 public interface RedisMessageDispatcher {
 
 	void dispatch(RedisMessageEntity messageEntity);
-	
+
+	void expire(String expiredKey, RedisMessageEntity messageEntity, long delay, TimeUnit timeUnit);
+
 }

@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.redisplus.messager;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +31,14 @@ public class QueueRedisMessageDispatcher implements RedisMessageDispatcher {
 
 	@Override
 	public void dispatch(RedisMessageEntity messageEntity) {
-		redisTemplate.opsForList().leftPush(queueKey, messageEntity);
+		redisTemplate.opsForList().rightPush(queueKey, messageEntity);
 		redisTemplate.convertAndSend(queueChannelKey, messageEntity);
+	}
+
+	@Override
+	public void expire(String expiredKey, RedisMessageEntity messageEntity, long delay, TimeUnit timeUnit) {
+		redisTemplate.opsForList().rightPush(queueKey, messageEntity);
+		redisTemplate.opsForValue().set(expiredKey, messageEntity, delay, timeUnit);
 	}
 
 }
