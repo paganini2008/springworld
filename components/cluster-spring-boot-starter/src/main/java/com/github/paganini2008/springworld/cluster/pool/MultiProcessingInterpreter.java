@@ -24,7 +24,7 @@ public class MultiProcessingInterpreter {
 	private ProcessPool processPool;
 
 	@Autowired
-	private InvocationResult invocationResult;
+	private InvocationBarrier invocationBarrier;
 
 	@Pointcut("execution(public * *(..))")
 	public void signature() {
@@ -32,11 +32,12 @@ public class MultiProcessingInterpreter {
 
 	@Around("signature() && @annotation(com.github.paganini2008.springworld.cluster.pool.MultiProcessing)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
-		if (invocationResult.isCompleted()) {
+		if (invocationBarrier.isCompleted()) {
 			return pjp.proceed();
 		} else {
 			Class<?> beanClass = pjp.getSignature().getDeclaringType();
 			Component component = beanClass.getAnnotation(Component.class);
+			
 			String beanName = component.value();
 			String methodName = pjp.getSignature().getName();
 			Object[] arguments = pjp.getArgs();

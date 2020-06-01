@@ -36,7 +36,7 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 	private SharedLatch sharedLatch;
 
 	@Autowired
-	private InvocationResult invocationResult;
+	private InvocationBarrier invocationBarrier;
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
@@ -47,7 +47,7 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 			signature = (Signature) message;
 			bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
 			if (bean != null) {
-				invocationResult.setCompleted();
+				invocationBarrier.setCompleted();
 				result = MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
 				MethodUtils.invokeMethodWithAnnotation(bean, OnSuccess.class, signature, result);
 			} else {

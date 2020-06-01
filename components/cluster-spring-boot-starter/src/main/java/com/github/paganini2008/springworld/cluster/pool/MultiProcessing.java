@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * MultiProcessing
+ * This annonation that decorate a method may represent to call in the whole
+ * application cluster.
  *
  * @author Fred Feng
  * 

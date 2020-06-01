@@ -9,7 +9,7 @@ package com.github.paganini2008.springworld.cluster.pool;
  */
 public interface PendingQueue {
 
-	void set(Signature signature);
+	void add(Signature signature);
 
 	Signature get();
 

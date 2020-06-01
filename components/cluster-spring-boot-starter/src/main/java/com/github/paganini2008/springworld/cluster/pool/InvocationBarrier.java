@@ -2,14 +2,13 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 /**
  * 
- * InvocationResult
+ * InvocationBarrier
  *
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
-public final class InvocationResult {
+public final class InvocationBarrier {
 
 	private final ThreadLocal<Boolean> threadLocal = new ThreadLocal<Boolean>() {
 
@@ -17,13 +16,13 @@ public final class InvocationResult {
 		protected Boolean initialValue() {
 			return Boolean.FALSE;
 		}
-		
+
 	};
-	
+
 	public void setCompleted() {
 		threadLocal.set(Boolean.TRUE);
 	}
-	
+
 	public boolean isCompleted() {
 		boolean result = threadLocal.get();
 		threadLocal.remove();

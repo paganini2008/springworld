@@ -73,8 +73,8 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public InvocationResult invocationResult() {
-		return new InvocationResult();
+	public InvocationBarrier invocationBarrier() {
+		return new InvocationBarrier();
 	}
 
 }

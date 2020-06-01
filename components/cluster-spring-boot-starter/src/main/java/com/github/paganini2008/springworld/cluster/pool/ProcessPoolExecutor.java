@@ -52,7 +52,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 			String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + ":" + applicationName + ":process-pool-task";
 			clusterMulticastGroup.unicast(topic, signature);
 		} else {
-			pendingQueue.set(signature);
+			pendingQueue.add(signature);
 		}
 
 	}

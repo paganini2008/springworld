@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.redisplus;
+package com.github.paganini2008.springworld.redisplus.kryo;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
 

@@ -121,7 +121,7 @@ public class RedisMessagerConfig {
 	}
 
 	@Bean(BeanNames.REDIS_KEY_EXPIRED_EVENT_PUBLISHER)
-	public RedisKeyExpiredEventPublisher redisKeyExpiredEventListener() {
+	public RedisKeyExpiredEventPublisher redisKeyExpiredEventPublisher() {
 		return new RedisKeyExpiredEventPublisher();
 	}
 

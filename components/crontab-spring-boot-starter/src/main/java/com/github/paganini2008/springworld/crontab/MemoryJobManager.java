@@ -12,7 +12,7 @@ import com.github.paganini2008.devtools.scheduler.TaskExecutor;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor.TaskDetail;
 import com.github.paganini2008.devtools.scheduler.TaskExecutor.TaskFuture;
 import com.github.paganini2008.springworld.redisplus.BeanNames;
-import com.github.paganini2008.springworld.redisplus.RedisHashSlice;
+import com.github.paganini2008.springworld.redisplus.common.RedisHashSlice;
 import com.github.paganini2008.devtools.scheduler.ThreadPoolTaskExecutor;
 
 /**

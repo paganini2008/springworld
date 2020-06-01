@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SuppressWarnings("all")
-public class RedisKeyExpiredEventPublisher implements ApplicationListener<RedisKeyExpiredEvent>,ApplicationContextAware {
+public class RedisKeyExpiredEventPublisher implements ApplicationListener<RedisKeyExpiredEvent>, ApplicationContextAware {
 
 	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
 	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelPatternHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
@@ -66,7 +66,7 @@ public class RedisKeyExpiredEventPublisher implements ApplicationListener<RedisK
 		}
 		return null;
 	}
-	
+
 	private ApplicationContext applicationContext;
 
 	@Override

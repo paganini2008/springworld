@@ -79,4 +79,8 @@ public class RedisCounter {
 		return longValue.getKey();
 	}
 
+	public String toString() {
+		return longValue.toString();
+	}
+
 }

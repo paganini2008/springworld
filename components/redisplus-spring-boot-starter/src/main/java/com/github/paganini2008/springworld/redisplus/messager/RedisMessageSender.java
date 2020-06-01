@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.springworld.redisplus.BeanNames;
 
 /**
@@ -33,10 +32,6 @@ public class RedisMessageSender {
 
 	@Autowired
 	private RedisMessageEventListener redisMessageListener;
-
-	@Qualifier("redisMessageAckChecker")
-	@Autowired
-	private Observable ackChecker;
 
 	public void sendMessage(RedisMessageEntity messageEntity) {
 		redisMessageDispather.dispatch(messageEntity);
