@@ -11,14 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ProcessPoolProcessor
+ * MultiProcessingInterpreter
  *
  * @author Fred Feng
  * @version 1.0
  */
 @Slf4j
 @Aspect
-public class ProcessPoolProcessor {
+public class MultiProcessingInterpreter {
 
 	@Autowired
 	private ProcessPool processPool;
@@ -30,7 +30,7 @@ public class ProcessPoolProcessor {
 	public void signature() {
 	}
 
-	@Around("signature() && @annotation(com.github.paganini2008.springworld.cluster.pool.BackgroundProcessing)")
+	@Around("signature() && @annotation(com.github.paganini2008.springworld.cluster.pool.MultiProcessing)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
 		if (invocationResult.isCompleted()) {
 			return pjp.proceed();

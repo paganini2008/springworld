@@ -17,8 +17,4 @@ public interface RedisMessageHandler {
 		return true;
 	}
 
-	default boolean isAck() {
-		return false;
-	}
-
 }

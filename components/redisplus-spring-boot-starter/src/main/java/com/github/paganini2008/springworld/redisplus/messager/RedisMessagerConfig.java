@@ -21,9 +21,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.springworld.redisplus.BeanNames;
-import com.github.paganini2008.springworld.redisplus.TtlKeeper;
+import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 
 /**
  * 
@@ -35,18 +34,12 @@ import com.github.paganini2008.springworld.redisplus.TtlKeeper;
 @Configuration
 @ConditionalOnBean(RedisConnectionFactory.class)
 public class RedisMessagerConfig {
-	
+
 	@Value("${spring.redis.messager.pubsub.channel:messager-pubsub}")
 	private String pubsubChannelKey;
 
-	@Value("${spring.redis.messager.pubsub.channel.ack:messager-pubsub-ack}")
-	private String pubsubChannelAckKey;
-	
 	@Value("${spring.redis.messager.queue.channel:messager-queue}")
 	private String queueChannelKey;
-
-	@Value("${spring.redis.messager.queue.channel.ack:messager-queue-ack}")
-	private String queueChannelAckKey;
 
 	@Bean(BeanNames.REDIS_SERIALIZER)
 	public RedisSerializer<Object> redisSerializer() {
@@ -93,35 +86,19 @@ public class RedisMessagerConfig {
 
 	@DependsOn(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
 	@Bean(BeanNames.REDIS_MESSAGE_PUBSUB_LISTENER)
-	public MessageListenerAdapter redisMessagePubsubListener(@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
+	public MessageListenerAdapter redisMessagePubsubListener(
+			@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
 		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "pubsub");
-		adapter.setSerializer(redisSerializer);
-		adapter.afterPropertiesSet();
-		return adapter;
-	}
-	
-	@DependsOn(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
-	@Bean(BeanNames.REDIS_MESSAGE_PUBSUB_ACK_LISTENER)
-	public MessageListenerAdapter redisMessagePubsubAckListener(@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
-		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "pubsubAck");
-		adapter.setSerializer(redisSerializer);
-		adapter.afterPropertiesSet();
-		return adapter;
-	}
-	
-	@DependsOn(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
-	@Bean(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER)
-	public MessageListenerAdapter redisMessageQueueListener(@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
-		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "queue");
 		adapter.setSerializer(redisSerializer);
 		adapter.afterPropertiesSet();
 		return adapter;
 	}
 
 	@DependsOn(BeanNames.REDIS_MESSAGE_EVENT_PUBLISHER)
-	@Bean(BeanNames.REDIS_MESSAGE_QUEUE_ACK_LISTENER)
-	public MessageListenerAdapter redisMessageQueueAckListener(@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
-		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "queueAck");
+	@Bean(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER)
+	public MessageListenerAdapter redisMessageQueueListener(
+			@Qualifier(BeanNames.REDIS_SERIALIZER) RedisSerializer<Object> redisSerializer) {
+		MessageListenerAdapter adapter = new MessageListenerAdapter(redisMessageEventPublisher(), "queue");
 		adapter.setSerializer(redisSerializer);
 		adapter.afterPropertiesSet();
 		return adapter;
@@ -130,15 +107,11 @@ public class RedisMessagerConfig {
 	@Bean(BeanNames.REDIS_MESSAGE_LISTENER_CONTAINER)
 	public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
 			@Qualifier(BeanNames.REDIS_MESSAGE_PUBSUB_LISTENER) MessageListenerAdapter redisMessagePubsubListener,
-			@Qualifier(BeanNames.REDIS_MESSAGE_PUBSUB_ACK_LISTENER) MessageListenerAdapter redisMessagePubsubAckListener,
-			@Qualifier(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER) MessageListenerAdapter redisMessageQueueListener,
-			@Qualifier(BeanNames.REDIS_MESSAGE_QUEUE_ACK_LISTENER) MessageListenerAdapter redisMessageQueueAckListener) {
+			@Qualifier(BeanNames.REDIS_MESSAGE_QUEUE_LISTENER) MessageListenerAdapter redisMessageQueueListener) {
 		RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
 		redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
 		redisMessageListenerContainer.addMessageListener(redisMessagePubsubListener, new ChannelTopic(pubsubChannelKey));
-		redisMessageListenerContainer.addMessageListener(redisMessagePubsubAckListener, new ChannelTopic(pubsubChannelAckKey));
 		redisMessageListenerContainer.addMessageListener(redisMessageQueueListener, new ChannelTopic(queueChannelKey));
-		redisMessageListenerContainer.addMessageListener(redisMessageQueueAckListener, new ChannelTopic(queueChannelAckKey));
 		return redisMessageListenerContainer;
 	}
 
@@ -147,16 +120,16 @@ public class RedisMessagerConfig {
 		return new RedisMessageEventListener();
 	}
 
-	@Bean(BeanNames.REDIS_KEY_EXPIRED_EVENT_LISTENER)
-	public RedisKeyExpiredEventListener redisKeyExpiredEventListener() {
-		return new RedisKeyExpiredEventListener();
+	@Bean(BeanNames.REDIS_KEY_EXPIRED_EVENT_PUBLISHER)
+	public RedisKeyExpiredEventPublisher redisKeyExpiredEventListener() {
+		return new RedisKeyExpiredEventPublisher();
 	}
 
 	@Bean(BeanNames.REDIS_MESSAGE_SENDER)
 	public RedisMessageSender redisMessageSender() {
 		return new RedisMessageSender();
 	}
-	
+
 	@ConditionalOnMissingBean(RedisMessageDispatcher.class)
 	@Bean
 	public RedisMessageDispatcher redisMessageDispather() {
@@ -168,14 +141,9 @@ public class RedisMessagerConfig {
 		return new RedisMessageHandlerBeanProcessor();
 	}
 
-	@Bean
-	public Observable redisMessageAckChecker() {
-		return Observable.repeatable();
-	}
-	
-	@Bean
-	public TtlKeeper ttlKeeper() {
-		return new TtlKeeper();
+	@Bean(destroyMethod = "stop")
+	public TtlKeeper ttlKeeper(RedisTemplate<String, Object> redisTemplate) {
+		return new TtlKeeper(redisTemplate);
 	}
 
 }

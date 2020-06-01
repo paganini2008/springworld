@@ -20,9 +20,6 @@ public class PubSubRedisMessageDispatcher implements RedisMessageDispatcher {
 	@Value("${spring.redis.messager.pubsub.channel:messager-pubsub}")
 	private String pubsubChannelKey;
 
-	@Value("${spring.redis.messager.pubsub.channel.ack:messager-pubsub-ack}")
-	private String pubsubChannelAckKey;
-
 	@Autowired
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	private RedisTemplate<String, Object> redisTemplate;
@@ -30,10 +27,6 @@ public class PubSubRedisMessageDispatcher implements RedisMessageDispatcher {
 	@Override
 	public void dispatch(RedisMessageEntity messageEntity) {
 		redisTemplate.convertAndSend(this.pubsubChannelKey, messageEntity);
-	}
-
-	public void ack(RedisMessageEntity messageEntity) {
-		redisTemplate.convertAndSend(this.pubsubChannelAckKey, messageEntity);
 	}
 
 }

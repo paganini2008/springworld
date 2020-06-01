@@ -1,30 +1,33 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ProcessPoolWorkThread
+ * ProcessPoolTaskListener
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Slf4j
-public class ProcessPoolWorkThread implements ClusterMessageListener {
+public class ProcessPoolTaskListener implements ClusterMessageListener {
+
+	@Value("${spring.application.name}")
+	private String applicationName;
 
 	@Autowired
-	private WorkQueue workQueue;
+	private PendingQueue pendingQueue;
 
 	@Autowired
 	private ProcessPool processPool;
@@ -56,7 +59,7 @@ public class ProcessPoolWorkThread implements ClusterMessageListener {
 		} finally {
 			sharedLatch.release();
 
-			signature = workQueue.pop();
+			signature = pendingQueue.get();
 			if (signature != null) {
 				processPool.submit(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()), signature.getMethodName(),
 						signature.getArguments());
@@ -66,7 +69,7 @@ public class ProcessPoolWorkThread implements ClusterMessageListener {
 
 	@Override
 	public String getTopic() {
-		return ProcessPool.TOPIC_IDENTITY;
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + ":" + applicationName + ":process-pool-task";
 	}
 
 }

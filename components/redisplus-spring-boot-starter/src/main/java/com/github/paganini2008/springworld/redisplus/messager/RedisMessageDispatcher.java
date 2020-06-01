@@ -12,6 +12,4 @@ public interface RedisMessageDispatcher {
 
 	void dispatch(RedisMessageEntity messageEntity);
 	
-	void ack(RedisMessageEntity messageEntity);
-	
 }

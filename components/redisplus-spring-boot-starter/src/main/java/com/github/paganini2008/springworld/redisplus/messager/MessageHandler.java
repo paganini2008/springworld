@@ -23,10 +23,6 @@ public @interface MessageHandler {
 
 	String value();
 
-	boolean ephemeral() default false;
-
 	boolean repeatable() default true;
-
-	boolean ack() default false;
 
 }

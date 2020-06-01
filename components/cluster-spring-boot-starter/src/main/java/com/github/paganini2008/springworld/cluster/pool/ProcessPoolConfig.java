@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -8,15 +9,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
-import com.github.paganini2008.springworld.redisplus.BeanNames;
-import com.github.paganini2008.springworld.redisplus.concurrents.Lifespan;
-import com.github.paganini2008.springworld.redisplus.concurrents.RedisKeyLifespan;
-import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.common.RedisCounter;
+import com.github.paganini2008.springworld.redisplus.common.RedisSharedLatch;
+import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 
 /**
  * 
@@ -35,37 +34,27 @@ public class ProcessPoolConfig {
 	@Value("${spring.application.name}")
 	private String applicationName;
 
-	@Bean
-	public ProcessPoolProperties poolConfig() {
-		return new ProcessPoolProperties();
-	}
+	@Value("${spring.application.cluster.pool.size:8}")
+	private int poolSize;
 
 	@Bean
-	public Lifespan lifespan(@Qualifier(BeanNames.REDIS_TEMPLATE) RedisTemplate<String, Object> redisOperations) {
-		return new RedisKeyLifespan(threadPoolTaskScheduler(), redisOperations);
-	}
-
-	@ConditionalOnMissingBean(TaskScheduler.class)
-	@Bean
-	public TaskScheduler threadPoolTaskScheduler() {
-		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-		scheduler.setPoolSize(8);
-		scheduler.setThreadNamePrefix("taskScheduler-");
-		scheduler.setWaitForTasksToCompleteOnShutdown(true);
-		scheduler.setAwaitTerminationSeconds(300);
-		return scheduler;
+	public RedisCounter redisCounter(RedisConnectionFactory redisConnectionFactory, TtlKeeper ttlKeeper) {
+		final String fullName = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":pool";
+		RedisCounter redisCounter = new RedisCounter(fullName, redisConnectionFactory);
+		redisCounter.keep(ttlKeeper, 5, TimeUnit.SECONDS);
+		return redisCounter;
 	}
 
 	@ConditionalOnMissingBean(SharedLatch.class)
 	@Bean
-	public SharedLatch clusterLatch(ProcessPoolProperties poolConfig, RedisConnectionFactory redisConnectionFactory) {
-		return new ContextClusterLatch(applicationName, poolConfig.getPoolSize(), redisConnectionFactory);
+	public SharedLatch sharedLatch(RedisCounter redisCounter) {
+		return new RedisSharedLatch(redisCounter, poolSize);
 	}
 
-	@ConditionalOnMissingBean(WorkQueue.class)
+	@ConditionalOnMissingBean(PendingQueue.class)
 	@Bean
-	public WorkQueue workQueue() {
-		return new RedisWorkQueue();
+	public PendingQueue pendingQueue() {
+		return new RedisPendingQueue();
 	}
 
 	@Bean
@@ -74,13 +63,13 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public ProcessPoolWorkThread processPoolWorkThread() {
-		return new ProcessPoolWorkThread();
+	public ProcessPoolTaskListener processPoolTaskListener() {
+		return new ProcessPoolTaskListener();
 	}
 
 	@Bean
-	public ProcessPoolProcessor processPoolBackgroundProcessor() {
-		return new ProcessPoolProcessor();
+	public MultiProcessingInterpreter multiProcessingInterpreter() {
+		return new MultiProcessingInterpreter();
 	}
 
 	@Bean

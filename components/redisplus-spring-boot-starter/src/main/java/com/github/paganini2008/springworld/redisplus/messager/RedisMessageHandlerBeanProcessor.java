@@ -62,11 +62,6 @@ public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
 			return annotation.repeatable();
 		}
 
-		@Override
-		public boolean isAck() {
-			return annotation.ack();
-		}
-
 	}
 
 }

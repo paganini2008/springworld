@@ -21,9 +21,6 @@ public class RedisMessageSender {
 
 	public static final String EXPIRED_KEY_PREFIX = "__";
 
-	@Value("${spring.redis.messager.pubsub.channel.ack:messager-pubsub-ack}")
-	private String channelAck;
-
 	@Value("${spring.redis.messager.ephemeral-key.namespace:ephemeral-message:}")
 	private String namespace;
 
@@ -43,10 +40,6 @@ public class RedisMessageSender {
 
 	public void sendMessage(RedisMessageEntity messageEntity) {
 		redisMessageDispather.dispatch(messageEntity);
-	}
-
-	public void ack(RedisMessageEntity messageEntity) {
-		redisMessageDispather.ack(messageEntity);
 	}
 
 	public void sendMessage(String channel, Object message) {
@@ -77,12 +70,6 @@ public class RedisMessageSender {
 
 	public void subscribeChannel(final String beanName, final RedisMessageHandler messageHandler) {
 		redisMessageListener.addHandler(beanName, messageHandler);
-		if (messageHandler.isAck()) {
-			ackChecker.addObserver(beanName, (ob, arg) -> {
-				RedisMessageEntity entity = (RedisMessageEntity) arg;
-				ack(entity);
-			});
-		}
 	}
 
 	public void unsubscribeChannel(String beanName) {

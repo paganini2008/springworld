@@ -2,18 +2,16 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 /**
  * 
- * WorkQueue
+ * PendingQueue
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
-public interface WorkQueue {
+public interface PendingQueue {
 
-	void push(Signature signature);
+	void set(Signature signature);
 
-	Signature pop();
+	Signature get();
 
 	void waitForTermination();
 

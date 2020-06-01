@@ -4,11 +4,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 
-import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 
@@ -27,34 +24,21 @@ public class RedisMessageEventListener implements ApplicationListener<RedisMessa
 	private final Map<String, Map<String, RedisMessageHandler>> channelHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
 	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelPatternHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
 
-	@Qualifier("redisMessageAckChecker")
-	@Autowired
-	private Observable ackChecker;
-
 	public void onApplicationEvent(RedisMessageEvent event) {
 		final String channel = event.getChannel();
 		final Object message = event.getMessage();
 		Map<String, RedisMessageHandler> handlers = channelHandlers.get(channel);
 		if (handlers != null && handlers.size() > 0) {
-			String beanName;
 			RedisMessageHandler handler;
 			for (Map.Entry<String, RedisMessageHandler> entry : handlers.entrySet()) {
-				beanName = entry.getKey();
 				handler = entry.getValue();
-				boolean ok = true;
 				try {
 					handler.onMessage(channel, message);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
-					ok = false;
 				}
 				if (!handler.isRepeatable()) {
 					handlers.remove(entry.getKey());
-				}
-				if (handler.isAck()) {
-					RedisMessageEntity messageEntity = event.getSource();
-					messageEntity.setOk(ok);
-					ackChecker.notifyObservers(beanName, messageEntity);
 				}
 			}
 		}
@@ -62,25 +46,16 @@ public class RedisMessageEventListener implements ApplicationListener<RedisMessa
 			if (matchesChannel(keyPattern, channel)) {
 				handlers = channelPatternHandlers.get(keyPattern);
 				if (handlers != null && handlers.size() > 0) {
-					String beanName;
 					RedisMessageHandler handler;
 					for (Map.Entry<String, RedisMessageHandler> entry : handlers.entrySet()) {
-						beanName = entry.getKey();
 						handler = entry.getValue();
-						boolean ok = true;
 						try {
 							handler.onMessage(channel, message);
 						} catch (Exception e) {
 							log.error(e.getMessage(), e);
-							ok = false;
 						}
 						if (!handler.isRepeatable()) {
 							handlers.remove(entry.getKey());
-						}
-						if (handler.isAck()) {
-							RedisMessageEntity messageEntity = event.getSource();
-							messageEntity.setOk(ok);
-							ackChecker.notifyObservers(beanName, messageEntity);
 						}
 					}
 				}

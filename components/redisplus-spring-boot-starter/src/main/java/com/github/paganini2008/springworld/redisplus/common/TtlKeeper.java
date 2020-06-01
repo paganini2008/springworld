@@ -1,12 +1,8 @@
-package com.github.paganini2008.springworld.redisplus;
+package com.github.paganini2008.springworld.redisplus.common;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PreDestroy;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.RedisOperations;
 
 import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.devtools.multithreads.Clock.ClockTask;
@@ -22,23 +18,33 @@ import com.github.paganini2008.devtools.multithreads.Clock.ClockTask;
 public class TtlKeeper {
 
 	private static final int TTL_RESET_THRESHOLD = 10;
-	private final Clock clock = new Clock();
+	private final Clock clock;
+	private final RedisOperations<String, Object> redisOperations;
+	private boolean cascadeStopClock;
 
-	@Autowired
-	@Qualifier(BeanNames.REDIS_TEMPLATE)
-	private RedisTemplate<String, Object> redisTemplate;
+	public TtlKeeper(RedisOperations<String, Object> redisOperations) {
+		this(new Clock(), redisOperations);
+		this.cascadeStopClock = true;
+	}
 
-	@PreDestroy
+	public TtlKeeper(Clock clock, RedisOperations<String, Object> redisOperations) {
+		this.clock = clock;
+		this.redisOperations = redisOperations;
+		this.cascadeStopClock = false;
+	}
+
 	public void stop() {
-		clock.stop();
+		if (cascadeStopClock) {
+			clock.stop();
+		}
 	}
 
 	public void keep(String key, long timeout, TimeUnit timeUnit) {
 		if (timeUnit.compareTo(TimeUnit.SECONDS) < 0) {
 			throw new IllegalArgumentException("Don't accept the TimeUnit: " + timeUnit);
 		}
-		if (redisTemplate.hasKey(key)) {
-			redisTemplate.expire(key, timeout, timeUnit);
+		if (redisOperations.hasKey(key)) {
+			redisOperations.expire(key, timeout, timeUnit);
 			clock.scheduleAtFixedRate(new TtlKeepingTask(key, timeout, timeUnit), 1, 1, TimeUnit.SECONDS);
 		}
 	}
@@ -57,10 +63,10 @@ public class TtlKeeper {
 
 		@Override
 		protected void runTask() {
-			Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+			Long ttl = redisOperations.getExpire(key, TimeUnit.SECONDS);
 			if (ttl != null) {
 				if (ttl < TTL_RESET_THRESHOLD) {
-					redisTemplate.expire(key, timeout, timeUnit);
+					redisOperations.expire(key, timeout, timeUnit);
 				}
 			}
 		}

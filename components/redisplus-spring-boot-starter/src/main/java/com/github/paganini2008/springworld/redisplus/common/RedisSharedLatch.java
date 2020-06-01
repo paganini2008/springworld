@@ -1,12 +1,9 @@
-package com.github.paganini2008.springworld.redisplus.concurrents;
+package com.github.paganini2008.springworld.redisplus.common;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 
@@ -15,35 +12,29 @@ import com.github.paganini2008.devtools.multithreads.ThreadUtils;
  * RedisSharedLatch
  *
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 public class RedisSharedLatch implements SharedLatch {
 
-	private static final String LATCH_KEY_PREFIX = "latch:";
-
-	public RedisSharedLatch(String name, int maxPermits, RedisConnectionFactory redisConnectionFactory, int expiration) {
-		this.counter = new RedisAtomicLong(LATCH_KEY_PREFIX + name, redisConnectionFactory);
-		this.counter.expire(expiration, TimeUnit.SECONDS);
-		this.expiration = expiration;
+	public RedisSharedLatch(RedisCounter redisCounter, int maxPermits) {
+		this.redisCounter = redisCounter;
 		this.maxPermits = maxPermits;
 		this.startTime = System.currentTimeMillis();
 	}
 
 	private final int maxPermits;
-	private final int expiration;
 	private final long startTime;
 	private final Lock lock = new ReentrantLock();
 	private final Condition condition = lock.newCondition();
-	protected RedisAtomicLong counter;
+	private final RedisCounter redisCounter;
 
 	public boolean acquire() {
 		while (true) {
 			lock.lock();
 			try {
-				if (counter.get() < maxPermits) {
-					counter.incrementAndGet();
+				if (redisCounter.get() < maxPermits) {
+					redisCounter.incrementAndGet();
 					return true;
 				} else {
 					try {
@@ -66,8 +57,8 @@ public class RedisSharedLatch implements SharedLatch {
 		while (true) {
 			lock.lock();
 			try {
-				if (counter.get() < maxPermits) {
-					counter.incrementAndGet();
+				if (redisCounter.get() < maxPermits) {
+					redisCounter.incrementAndGet();
 					return true;
 				} else {
 					if (nanosTimeout > 0) {
@@ -90,8 +81,8 @@ public class RedisSharedLatch implements SharedLatch {
 	}
 
 	public boolean tryAcquire() {
-		if (counter.get() < maxPermits) {
-			counter.incrementAndGet();
+		if (redisCounter.get() < maxPermits) {
+			redisCounter.incrementAndGet();
 			return true;
 		}
 		return false;
@@ -107,12 +98,12 @@ public class RedisSharedLatch implements SharedLatch {
 		}
 		lock.lock();
 		condition.signalAll();
-		counter.decrementAndGet();
+		redisCounter.decrementAndGet();
 		lock.unlock();
 	}
 
 	public boolean isLocked() {
-		return counter.get() > 0;
+		return redisCounter.get() > 0;
 	}
 
 	public long join() {
@@ -123,18 +114,11 @@ public class RedisSharedLatch implements SharedLatch {
 	}
 
 	public String getKey() {
-		return counter.getKey();
-	}
-
-	public void keepAlive(Lifespan lifespan, int checkInterval) {
-		if (lifespan != null) {
-			lifespan.watch(counter.getKey(), expiration, checkInterval, TimeUnit.SECONDS);
-		}
+		return redisCounter.getKey();
 	}
 
 	@Override
 	public long availablePermits() {
-		return maxPermits - counter.get();
+		return maxPermits - redisCounter.get();
 	}
-
 }

@@ -1,0 +1,82 @@
+package com.github.paganini2008.springworld.redisplus.common;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.support.atomic.RedisAtomicLong;
+
+/**
+ * 
+ * RedisCounter
+ *
+ * @author Fred Feng
+ *
+ * @since 1.0
+ */
+public class RedisCounter {
+
+	private final RedisAtomicLong longValue;
+
+	public RedisCounter(String name, RedisOperations<String, Long> redisOperations) {
+		this.longValue = new RedisAtomicLong(name, redisOperations);
+	}
+
+	public RedisCounter(String name, RedisConnectionFactory connectionFactory) {
+		this.longValue = new RedisAtomicLong(name, connectionFactory);
+	}
+
+	public void expire(long timeout, TimeUnit timeUnit) {
+		longValue.expire(timeout, timeUnit);
+	}
+
+	public void expireAt(Date date) {
+		longValue.expireAt(date);
+	}
+
+	public void keep(TtlKeeper keeper, long timeout, TimeUnit timeUnit) {
+		keeper.keep(longValue.getKey(), timeout, timeUnit);
+	}
+
+	public void set(long newValue) {
+		longValue.set(newValue);
+	}
+
+	public long get() {
+		return longValue.get();
+	}
+
+	public long getAndIncrement() {
+		return longValue.getAndIncrement();
+	}
+
+	public long getAndDecrement() {
+		return longValue.getAndDecrement();
+	}
+
+	public long incrementAndGet() {
+		return longValue.incrementAndGet();
+	}
+
+	public long decrementAndGet() {
+		return longValue.decrementAndGet();
+	}
+
+	public long getAndAdd(long delta) {
+		return longValue.getAndAdd(delta);
+	}
+
+	public long getAndSet(long newValue) {
+		return longValue.getAndSet(newValue);
+	}
+
+	public long addAndGet(long delta) {
+		return longValue.addAndGet(delta);
+	}
+
+	public String getKey() {
+		return longValue.getKey();
+	}
+
+}

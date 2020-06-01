@@ -22,9 +22,6 @@ public class RedisMessageEventPublisher implements ApplicationContextAware {
 	@Value("${spring.redis.messager.queue:messager-queue}")
 	private String queueKey;
 
-	@Value("${spring.redis.messager.queue.ack:messager-queue-ack}")
-	private String queueAckKey;
-
 	@Autowired
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	private RedisTemplate<String, Object> redisTemplate;
@@ -36,19 +33,8 @@ public class RedisMessageEventPublisher implements ApplicationContextAware {
 		}
 	}
 
-	public void queueAck(RedisMessageEntity entity) {
-		RedisMessageEntity redisMessageEntity = (RedisMessageEntity) redisTemplate.opsForList().leftPop(queueAckKey);
-		if (redisMessageEntity != null) {
-			applicationContext.publishEvent(new RedisMessageAckEvent(entity));
-		}
-	}
-
 	public void pubsub(RedisMessageEntity entity) {
 		applicationContext.publishEvent(new RedisMessageEvent(entity));
-	}
-
-	public void pubsubAck(RedisMessageEntity entity) {
-		applicationContext.publishEvent(new RedisMessageAckEvent(entity));
 	}
 
 	private ApplicationContext applicationContext;

@@ -4,9 +4,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
-import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
+import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
 
 /**
  * 
@@ -19,17 +21,20 @@ import com.github.paganini2008.springworld.redisplus.concurrents.SharedLatch;
  */
 public class ProcessPoolExecutor implements ProcessPool {
 
+	@Value("${spring.application.name}")
+	private String applicationName;
+
+	@Value("${spring.application.cluster.pool.latch.timeout:-1}")
+	private int timeout;
+
 	@Autowired
 	private SharedLatch sharedLatch;
 
 	@Autowired
-	private ClusterMulticastGroup contextMulticastGroup;
+	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Autowired
-	private ProcessPoolProperties poolConfig;
-
-	@Autowired
-	private WorkQueue workQueue;
+	private PendingQueue pendingQueue;
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
@@ -42,12 +47,12 @@ public class ProcessPoolExecutor implements ProcessPool {
 		if (arguments != null) {
 			signature.setArguments(arguments);
 		}
-		boolean acquired = poolConfig.getTimeout() > 0 ? sharedLatch.acquire(poolConfig.getTimeout(), TimeUnit.SECONDS)
-				: sharedLatch.acquire();
+		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
 		if (acquired) {
-			contextMulticastGroup.unicast(TOPIC_IDENTITY, signature);
+			String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + ":" + applicationName + ":process-pool-task";
+			clusterMulticastGroup.unicast(topic, signature);
 		} else {
-			workQueue.push(signature);
+			pendingQueue.set(signature);
 		}
 
 	}
@@ -58,9 +63,8 @@ public class ProcessPoolExecutor implements ProcessPool {
 			return;
 		}
 		running.set(false);
-		workQueue.waitForTermination();
+		pendingQueue.waitForTermination();
 		sharedLatch.join();
-		
 	}
 
 }
