@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster.consistency;
+package com.github.paganini2008.springworld.cluster.cache;
 
 import java.util.Set;
 import java.util.concurrent.Semaphore;
@@ -11,6 +11,9 @@ import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.cache.AbstractCache;
 import com.github.paganini2008.devtools.cache.Cache;
 import com.github.paganini2008.devtools.cache.HashCache;
+import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequest;
+import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestConfirmationEvent;
+import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +30,10 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 
 	@Autowired
 	private ConsistencyRequestContext context;
+
+	@Autowired(required = false)
+	private Watcher watcher;
+
 	private final Observable observable = Observable.unrepeatable();
 	private final Cache delegate;
 	private int timeout = 60;
@@ -60,11 +67,7 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 	}
 
 	@Override
-	public void putObject(Object key, Object value) {
-		putObject(key, value, null);
-	}
-
-	public void putObject(final Object key, final Object value, Watcher watcher) {
+	public void putObject(final Object key, final Object value) {
 		final String name = key.toString();
 		try {
 			lock.acquire();
@@ -80,7 +83,7 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 						watcher.process(name);
 					}
 				} else {
-					putObject(key, value, watcher);
+					putObject(key, value);
 				}
 			});
 		} else {

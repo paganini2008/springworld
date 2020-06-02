@@ -79,10 +79,5 @@ public class ConsistencyRequestConfig {
 	public ClusterMessageListener consistencyRequestLearningResponse() {
 		return new ConsistencyRequestLearningResponse();
 	}
-	
-	@Bean
-	public ApplicationClusterCache applicationClusterCache() {
-		return new ApplicationClusterCache();
-	}
 
 }
