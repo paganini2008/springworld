@@ -92,6 +92,16 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 	}
 
 	@Override
+	public Object getObject(Object key, Object defaultValue) {
+		Object result = getObject(key);
+		if (result == null) {
+			result = defaultValue;
+			putObject(key, result);
+		}
+		return result;
+	}
+
+	@Override
 	public boolean hasKey(Object key) {
 		return delegate.hasKey(key);
 	}
@@ -136,7 +146,7 @@ public class ApplicationClusterCache extends AbstractCache implements Applicatio
 			delegate.putObject(name, result.getValue());
 			observable.notifyObservers(name, name);
 			if (log.isTraceEnabled()) {
-				log.trace("Current cache'size: " + getSize());
+				log.trace("ApplicationClusterCache size: " + getSize());
 			}
 		}
 	}

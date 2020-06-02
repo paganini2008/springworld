@@ -10,6 +10,8 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * ProcessPoolExecutor
@@ -19,6 +21,7 @@ import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
  * 
  * @version 1.0
  */
+@Slf4j
 public class ProcessPoolExecutor implements ProcessPool {
 
 	@Value("${spring.application.name}")
@@ -49,6 +52,9 @@ public class ProcessPoolExecutor implements ProcessPool {
 		}
 		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
 		if (acquired) {
+			if (log.isTraceEnabled()) {
+				log.trace("Pool concurrency is " + sharedLatch.cons());
+			}
 			String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + ":" + applicationName + ":process-pool-task";
 			clusterMulticastGroup.unicast(topic, signature);
 		} else {

@@ -42,23 +42,28 @@ public class CachedInvocationInterpreter {
 			return pjp.proceed();
 		}
 
-		if (StringUtils.isNotBlank(cachedInfo.value())) {
-			return cache.getObject(cachedInfo.value(), pjp.proceed());
+		String key = cachedInfo.value();
+		if (StringUtils.isBlank(key)) {
+			StringBuilder keyRepr = new StringBuilder();
+			Class<?> beanClass = signature.getDeclaringType();
+			Component component = beanClass.getAnnotation(Component.class);
+			String beanName = component.value();
+			if (StringUtils.isBlank(beanName)) {
+				beanName = beanClass.getName();
+			}
+			keyRepr.append(beanName);
+			String methodName = signature.getMethod().getName();
+			keyRepr.append(".").append(methodName);
+			Object[] arguments = pjp.getArgs();
+			keyRepr.append("(").append(ArrayUtils.join(arguments, ",")).append(")");
+			key = keyRepr.toString();
 		}
-
-		StringBuilder keyRepr = new StringBuilder();
-		Class<?> beanClass = signature.getDeclaringType();
-		Component component = beanClass.getAnnotation(Component.class);
-		String beanName = component.value();
-		if (StringUtils.isBlank(beanName)) {
-			beanName = beanClass.getName();
+		Object result = cache.getObject(key);
+		if (result == null) {
+			result = pjp.proceed();
+			cache.putObject(key, result);
 		}
-		keyRepr.append(beanName);
-		String methodName = signature.getMethod().getName();
-		keyRepr.append(".").append(methodName);
-		Object[] arguments = pjp.getArgs();
-		keyRepr.append(".").append(ArrayUtils.join(arguments, ","));
-		return cache.getObject(keyRepr.toString(), pjp.proceed());
+		return result;
 	}
 
 }

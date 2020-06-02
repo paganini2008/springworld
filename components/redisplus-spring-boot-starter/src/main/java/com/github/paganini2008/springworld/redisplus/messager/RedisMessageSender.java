@@ -28,8 +28,7 @@ public class RedisMessageSender {
 	}
 
 	public void sendMessage(String channel, Object message) {
-		RedisMessageEntity messageEntity = RedisMessageEntity.of(channel, message);
-		sendMessage(messageEntity);
+		sendMessage(RedisMessageEntity.of(channel, message));
 	}
 
 	public void sendEphemeralMessage(String channel, Object message, long delay, TimeUnit timeUnit) {

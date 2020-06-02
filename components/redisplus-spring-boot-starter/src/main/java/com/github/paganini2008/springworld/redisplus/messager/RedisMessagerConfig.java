@@ -35,6 +35,7 @@ import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 @ConditionalOnBean(RedisConnectionFactory.class)
 public class RedisMessagerConfig {
 
+	@ConditionalOnMissingBean(RedisSerializer.class)
 	@Bean(BeanNames.REDIS_SERIALIZER)
 	public RedisSerializer<Object> redisSerializer() {
 		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
@@ -108,7 +109,7 @@ public class RedisMessagerConfig {
 			redisMessageListenerContainer.addMessageListener(redisMessagePubsubListener, new ChannelTopic(pubsubChannelKey));
 			return redisMessageListenerContainer;
 		}
-		
+
 		@Bean
 		public PubSubRedisKeyExpiredEventListener pubSubRedisKeyExpiredEventListener() {
 			return new PubSubRedisKeyExpiredEventListener();
@@ -146,7 +147,7 @@ public class RedisMessagerConfig {
 			redisMessageListenerContainer.addMessageListener(redisMessageQueueListener, new ChannelTopic(queueChannelKey));
 			return redisMessageListenerContainer;
 		}
-		
+
 		@Bean
 		public QueueRedisKeyExpiredEventListener queueRedisKeyExpiredEventListener() {
 			return new QueueRedisKeyExpiredEventListener();
@@ -169,7 +170,7 @@ public class RedisMessagerConfig {
 	}
 
 	@Bean(destroyMethod = "stop")
-	public TtlKeeper ttlKeeper(RedisTemplate<String, Object> redisTemplate) {
+	public TtlKeeper ttlKeeper(@Qualifier(BeanNames.REDIS_TEMPLATE) RedisTemplate<String, Object> redisTemplate) {
 		return new TtlKeeper(redisTemplate);
 	}
 

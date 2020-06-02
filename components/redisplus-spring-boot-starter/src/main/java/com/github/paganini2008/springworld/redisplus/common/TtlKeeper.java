@@ -44,6 +44,7 @@ public class TtlKeeper {
 			throw new IllegalArgumentException("Don't accept the TimeUnit: " + timeUnit);
 		}
 		if (redisOperations.hasKey(key)) {
+			System.out.println("首付： " + key);
 			redisOperations.expire(key, timeout, timeUnit);
 			clock.scheduleAtFixedRate(new TtlKeepingTask(key, timeout, timeUnit), 1, 1, TimeUnit.SECONDS);
 		}
