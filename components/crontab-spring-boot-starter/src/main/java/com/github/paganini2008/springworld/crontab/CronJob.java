@@ -1,6 +1,6 @@
 package com.github.paganini2008.springworld.crontab;
 
-import com.github.paganini2008.devtools.scheduler.cron.CronExpression;
+import com.github.paganini2008.devtools.cron4j.cron.CronExpression;
 
 /**
  * 

@@ -57,10 +57,11 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 		}
 		ApplicationInfo leaderInfo = applicationInfo.getLeaderInfo();
 		if (leaderInfo != null) {
-			instanceId.setLeaderInfo(leaderInfo);
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
 			log.info("I am the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
 					applicationName, ApplicationClusterFollowerEvent.class.getName());
+			log.info("Leader's info: " + leaderInfo);
+			instanceId.setLeaderInfo(leaderInfo);
 		} else {
 			final int channelCount = clusterMulticastGroup.countOfChannel();
 			if (channelCount >= minimumParticipants) {
