@@ -3,7 +3,7 @@ package com.github.paganini2008.springworld.crontab;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.github.paganini2008.devtools.cron4j.cron.CronBuilder;
+import com.github.paganini2008.devtools.cron4j.cron.CronExpressionBuilder;
 import com.github.paganini2008.devtools.cron4j.cron.CronExpression;
 import com.github.paganini2008.devtools.io.FileUtils;
 
@@ -46,7 +46,7 @@ public class HealthCheckJob implements CronJob {
 
 	@Override
 	public CronExpression getCronExpression() {
-		return CronBuilder.everySecond(5);
+		return CronExpressionBuilder.everySecond(5);
 	}
 
 }

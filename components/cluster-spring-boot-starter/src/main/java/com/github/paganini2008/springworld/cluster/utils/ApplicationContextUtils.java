@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cluster.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -70,6 +71,15 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
 	public static Environment getEnvironment() {
 		return contextHolder.getEnvironment();
+	}
+
+	public static <T> T getBean(Class<T> requiredType, Function<T, Boolean> f) {
+		for (T bean : getBeansOfType(requiredType).values()) {
+			if (f.apply(bean)) {
+				return bean;
+			}
+		}
+		return null;
 	}
 
 	public static <T> Map<String, T> getBeansOfType(Class<T> requiredType) {

@@ -70,7 +70,6 @@ public class ClusterMulticastGroup {
 		if (StringUtils.isNotBlank(channel)) {
 			redisMessageSender.sendMessage(channel, createObjectMessage(topic, message));
 		}
-		System.out.println(">>>>>> 发送：" + topic + ", message: " + message);
 	}
 
 	public void send(String channel, String topic, Object message) {
