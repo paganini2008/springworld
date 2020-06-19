@@ -2,6 +2,9 @@ package com.github.paganini2008.springworld.cached;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 
  * OperationNotification
@@ -9,6 +12,8 @@ import java.io.Serializable;
  * @author Fred Feng
  * @since 1.0
  */
+@Setter
+@Getter
 public class OperationNotification implements Serializable {
 
 	private static final long serialVersionUID = -3145872764240760266L;
@@ -16,6 +21,10 @@ public class OperationNotification implements Serializable {
 	private String key;
 	private String name;
 	private Object value;
+	private Object returnResult;
+	
+	public OperationNotification() {
+	}
 	
 	public OperationNotification(String signature,String key) {
 		this(signature, key, null);
@@ -29,38 +38,6 @@ public class OperationNotification implements Serializable {
 		this.signature = signature;
 		this.key = key;
 		this.name = name;
-		this.value = value;
-	}
-
-	public String getSignature() {
-		return signature;
-	}
-
-	public void setSignature(String signature) {
-		this.signature = signature;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
 		this.value = value;
 	}
 

@@ -28,8 +28,8 @@ public class CachedInvocationInterpreter {
 	@Pointcut("execution(public * *(..))")
 	public void signature() {
 	}
-
-	@Around("signature() && @annotation(com.github.paganini2008.springworld.cluster.cache.Cached)")
+	
+	@Around("signature() && @annotation(com.github.paganini2008.springworld.cached.Cached)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
 		MethodSignature signature = (MethodSignature) pjp.getSignature();
 		Cached cachedInfo = signature.getMethod().getAnnotation(Cached.class);

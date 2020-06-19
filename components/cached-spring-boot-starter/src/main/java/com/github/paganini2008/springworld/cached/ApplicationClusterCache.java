@@ -8,6 +8,8 @@ import java.util.concurrent.Semaphore;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
@@ -29,20 +31,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApplicationClusterCache implements Cache, ApplicationListener<ConsistencyRequestConfirmationEvent>, ApplicationContextAware {
 
+	@Qualifier("cacheDelegate")
 	@Autowired
 	private Cache cache;
 
 	@Autowired
 	private ConsistencyRequestContext context;
-	
-	private int timeout = 60;
+
+	@Value("${spring.application.cluster.cache.executionTimeout:60}")
+	private int timeout;
 
 	private ApplicationContext applicationContext;
 	private final Observable operations = Observable.unrepeatable();
 	private final Observable signatures = Observable.repeatable();
 	private final Semaphore lock;
-	private final ApplicationClusterHashOperations hashOperations =new ApplicationClusterHashOperations();
-	private final  ApplicationClusterSetOperations setOperations = new ApplicationClusterSetOperations();
+	private final ApplicationClusterHashOperations hashOperations = new ApplicationClusterHashOperations();
+	private final ApplicationClusterSetOperations setOperations = new ApplicationClusterSetOperations();
 	private final ApplicationClusterListOperations listOperations = new ApplicationClusterListOperations();
 
 	public ApplicationClusterCache(boolean serializable) {
@@ -58,19 +62,20 @@ public class ApplicationClusterCache implements Cache, ApplicationListener<Consi
 		});
 		signatures.addObserver(MethodSignatures.parse("cache", "increment"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.increment(operationNotification.getKey());
+			operationNotification.setReturnResult(cache.increment(operationNotification.getKey()));
 		});
 		signatures.addObserver(MethodSignatures.parse("cache", "decrement"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.decrement(operationNotification.getKey());
+			operationNotification.setReturnResult(cache.decrement(operationNotification.getKey()));
 		});
 		signatures.addObserver(MethodSignatures.parse("cache", "addLong"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.addLong(operationNotification.getKey(), (Long) operationNotification.getValue());
+			operationNotification.setReturnResult(cache.addLong(operationNotification.getKey(), (Long) operationNotification.getValue()));
 		});
 		signatures.addObserver(MethodSignatures.parse("cache", "addDouble"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.addDouble(operationNotification.getKey(), (Double) operationNotification.getValue());
+			operationNotification
+					.setReturnResult(cache.addDouble(operationNotification.getKey(), (Double) operationNotification.getValue()));
 		});
 		signatures.addObserver(MethodSignatures.parse("cache", "delete"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
@@ -103,11 +108,11 @@ public class ApplicationClusterCache implements Cache, ApplicationListener<Consi
 		});
 		signatures.addObserver(MethodSignatures.parse("set", "pollFirst"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.set().pollFirst(operationNotification.getKey());
+			operationNotification.setReturnResult(cache.set().pollFirst(operationNotification.getKey()));
 		});
 		signatures.addObserver(MethodSignatures.parse("set", "pollLast"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.set().pollLast(operationNotification.getKey());
+			operationNotification.setReturnResult(cache.set().pollLast(operationNotification.getKey()));
 		});
 
 		signatures.addObserver(MethodSignatures.parse("list", "addFirst"), (ob, argument) -> {
@@ -124,11 +129,11 @@ public class ApplicationClusterCache implements Cache, ApplicationListener<Consi
 		});
 		signatures.addObserver(MethodSignatures.parse("list", "pollFirst"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.list().pollFirst(operationNotification.getKey());
+			operationNotification.setReturnResult(cache.list().pollFirst(operationNotification.getKey()));
 		});
 		signatures.addObserver(MethodSignatures.parse("list", "pollLast"), (ob, argument) -> {
 			final OperationNotification operationNotification = (OperationNotification) argument;
-			cache.list().pollLast(operationNotification.getKey());
+			operationNotification.setReturnResult(cache.list().pollLast(operationNotification.getKey()));
 		});
 	}
 
@@ -405,18 +410,16 @@ public class ApplicationClusterCache implements Cache, ApplicationListener<Consi
 
 		@Override
 		public Object pollFirst(String key) {
-			Object result = peekFirst(key);
 			OperationNotification operationNotification = new OperationNotification(MethodSignatures.parse("list", "pollFirst"), key);
 			processInBackground(key, operationNotification);
-			return result;
+			return null;
 		}
 
 		@Override
 		public Object pollLast(String key) {
-			Object result = peekLast(key);
 			OperationNotification operationNotification = new OperationNotification(MethodSignatures.parse("list", "pollLast"), key);
 			processInBackground(key, operationNotification);
-			return result;
+			return null;
 		}
 
 		@Override
@@ -432,8 +435,8 @@ public class ApplicationClusterCache implements Cache, ApplicationListener<Consi
 		if (event.isOk()) {
 			final String name = result.getName();
 			final OperationNotification operationNotification = (OperationNotification) result.getValue();
-			operations.notifyObservers(name, operationNotification);
 			signatures.notifyObservers(operationNotification.getSignature(), operationNotification);
+			operations.notifyObservers(name, operationNotification);
 			if (log.isTraceEnabled()) {
 				log.trace("ApplicationClusterCache size: " + size());
 			}

@@ -107,6 +107,9 @@ public abstract class MethodSignatures {
 		default:
 			throw new UnsupportedOperationException(dataType);
 		}
+		if (!m.containsKey(functionName)) {
+			throw new IllegalStateException("Invalid method signature: " + dataType + "." + functionName);
+		}
 		return m.get(functionName);
 	}
 
