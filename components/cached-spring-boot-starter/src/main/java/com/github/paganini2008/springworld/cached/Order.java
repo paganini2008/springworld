@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cache;
+package com.github.paganini2008.springworld.cached;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Delete
+ * Order
  *
  * @author Fred Feng
  * @since 1.0
@@ -16,6 +16,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Delete {
-
+public @interface Order {
+	
 }

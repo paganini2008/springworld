@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.github.paganini2008.springworld.cache.ApplicationClusterCacheAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.github.paganini2008.springworld.cached.ApplicationClusterCacheAutoConfiguration

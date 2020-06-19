@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cache;
+package com.github.paganini2008.springworld.cached;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,11 +34,12 @@ public class ApplicationClusterCache implements Cache, ApplicationListener<Consi
 
 	@Autowired
 	private ConsistencyRequestContext context;
+	
+	private int timeout = 60;
 
 	private ApplicationContext applicationContext;
 	private final Observable operations = Observable.unrepeatable();
 	private final Observable signatures = Observable.repeatable();
-	private int timeout = 60;
 	private final Semaphore lock;
 	private final ApplicationClusterHashOperations hashOperations =new ApplicationClusterHashOperations();
 	private final  ApplicationClusterSetOperations setOperations = new ApplicationClusterSetOperations();

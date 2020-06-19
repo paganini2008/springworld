@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cache;
+package com.github.paganini2008.springworld.cached;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,14 +8,21 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Order
+ * Cached
  *
  * @author Fred Feng
+ *
  * @since 1.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Order {
+public @interface Cached {
+
+	String ref() default "";
+	
+	String value() default "";
+	
+	int expire() default -1;
 	
 }

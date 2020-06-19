@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cache;
+package com.github.paganini2008.springworld.cached;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
