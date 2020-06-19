@@ -20,6 +20,7 @@
 		<module>crontab-spring-boot-starter</module>
 		<module>redisplus-spring-boot-starter</module>
 		<module>cluster-spring-boot-starter</module>
+		<module>cached-spring-boot-starter</module>
 		<module>transport-spring-boot-starter</module>
 		<module>scheduler-spring-boot-starter</module>
 		<module>jdbcplus-spring-boot-starter</module>

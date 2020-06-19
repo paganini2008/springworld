@@ -2,7 +2,7 @@ package com.github.paganini2008.springworld.tx;
 
 import org.springframework.context.ApplicationListener;
 
-import com.github.paganini2008.devtools.collection.MultiMapMap;
+import com.github.paganini2008.devtools.collection.MultiMappedMap;
 
 /**
  * 
@@ -13,7 +13,7 @@ import com.github.paganini2008.devtools.collection.MultiMapMap;
  */
 public class TransactionEventListenerContainer implements ApplicationListener<TransactionEvent> {
 
-	private final MultiMapMap<TransactionPhase, String, TransactionEventListener> holder = new MultiMapMap<>();
+	private final MultiMappedMap<TransactionPhase, String, TransactionEventListener> holder = new MultiMappedMap<>();
 
 	public void registerEventListener(TransactionPhase transactionPhase, String id, TransactionEventListener eventListener) {
 		holder.put(transactionPhase, id, eventListener);
