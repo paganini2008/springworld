@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationEvent;
  */
 public class OperationNotificationEvent extends ApplicationEvent {
 
-	private static final long serialVersionUID = -6400039183325187092L;
+	private static final long serialVersionUID = -474744672800806045L;
 
 	public OperationNotificationEvent(Cache cache, OperationNotification operationNotification) {
 		super(cache);
