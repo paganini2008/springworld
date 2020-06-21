@@ -7,7 +7,8 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.event.SmartApplicationListener;
 
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
@@ -26,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @SuppressWarnings("unchecked")
 @Slf4j
-public class ApplicationClusterCacheEventProcessor implements ApplicationListener<ConsistencyRequestConfirmationEvent> {
+public class ApplicationClusterCacheEventProcessor implements SmartApplicationListener {
 
 	private final Observable operations = Observable.unrepeatable();
 	private final Observable signatures = Observable.repeatable();
@@ -121,19 +122,30 @@ public class ApplicationClusterCacheEventProcessor implements ApplicationListene
 
 	public void watch(String key, Watcher watcher) {
 		operations.addObserver(key, new Observer() {
-			
+
 			@Override
 			public void update(Observable ob, Object arg) {
 				final OperationNotification operationNotification = (OperationNotification) arg;
 				watcher.operate(operationNotification);
 			}
-			
+
 		});
 	}
 
 	@Override
-	public void onApplicationEvent(ConsistencyRequestConfirmationEvent event) {
-		final ConsistencyRequest result = (ConsistencyRequest) event.getSource();
+	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+		return eventType == ConsistencyRequestConfirmationEvent.class;
+	}
+
+	@Override
+	public boolean supportsSourceType(Class<?> sourceType) {
+		return sourceType == OperationNotification.class;
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationEvent applicationEvent) {
+		final ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
+		final ConsistencyRequest result = event.getRequest();
 		if (event.isOk()) {
 			final String name = result.getName();
 			final OperationNotification operationNotification = (OperationNotification) result.getValue();

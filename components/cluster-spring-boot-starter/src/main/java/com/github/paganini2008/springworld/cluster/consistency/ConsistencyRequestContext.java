@@ -57,7 +57,9 @@ public final class ConsistencyRequestContext {
 		}
 		Proposal proposal = new Proposal(name, value);
 		if (!court.saveProposal(proposal)) {
-			log.warn("The proposal named '{}' is being processing currently. Please submit again after completion.", name);
+			if (log.isTraceEnabled()) {
+				log.trace("The proposal named '{}' is being processing currently. Please submit again after completion.", name);
+			}
 			return false;
 		}
 		final long round = requestRound.currentRound(name);

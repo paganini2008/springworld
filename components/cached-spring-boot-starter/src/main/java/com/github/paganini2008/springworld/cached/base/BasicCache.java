@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +49,9 @@ public abstract class BasicCache implements Cache {
 	private final SetOperations setOperationsProxy = (SetOperations) setOperations.getProxy();
 	private final ListOperations listOperationsProxy = (ListOperations) listOperations.getProxy();
 
-	private final Map<Map<String, ?>, Signature> signatures = new IdentityHashMap<Map<String, ?>, Signature>(6);
+	private final Map<Map<String, ?>, Signature> signatures = Collections
+			.synchronizedMap(new IdentityHashMap<Map<String, ?>, Signature>(6));
+	
 	private KeyExpirationPolicy keyExpirationPolicy = new KeyExpirationPolicy() {
 	};
 	private RemovalListener removalListener = new RemovalListener() {
@@ -426,12 +429,14 @@ public abstract class BasicCache implements Cache {
 	 * @param key
 	 * @param signature
 	 */
-	private synchronized void retain(String key, Signature signature) {
+	private void retain(String key, Signature signature) {
 		for (Map.Entry<Map<String, ?>, Signature> entry : signatures.entrySet()) {
 			if (entry.getValue() != signature) {
-				Object value;
-				if ((value = entry.getKey().remove(key)) != null) {
-					removalListener.onRemoval(new RemovalNotification(key, value, RemovalReason.REPLACEMENT));
+				if (entry.getKey().size() > 0) {
+					Object value;
+					if ((value = entry.getKey().remove(key)) != null) {
+						removalListener.onRemoval(new RemovalNotification(key, value, RemovalReason.REPLACEMENT));
+					}
 				}
 			}
 		}
