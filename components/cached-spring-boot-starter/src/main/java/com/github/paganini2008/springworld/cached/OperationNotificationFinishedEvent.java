@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cached;
 
+import com.github.paganini2008.springworld.cached.base.Cache;
+
 /**
  * 
  * OperationNotificationFinishedEvent

@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 
+import com.github.paganini2008.springworld.cached.base.Cache;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestContext;
 
 /**

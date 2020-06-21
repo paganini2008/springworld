@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springworld.cached.base.Cache;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;

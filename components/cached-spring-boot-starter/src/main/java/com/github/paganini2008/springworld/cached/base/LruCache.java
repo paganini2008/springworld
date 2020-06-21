@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cached;
+package com.github.paganini2008.springworld.cached.base;
 
 import com.github.paganini2008.devtools.collection.LruList;
 

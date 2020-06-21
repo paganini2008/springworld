@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cached;
+package com.github.paganini2008.springworld.cached.base;
 
 import java.io.Serializable;
 

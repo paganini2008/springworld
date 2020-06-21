@@ -42,7 +42,7 @@ public final class ConsistencyRequestContext {
 	@Autowired
 	private ConsistencyRequestSerial requestSerial;
 
-	@Value("${spring.application.cluster.consistency.responseWaitingTime:2}")
+	@Value("${spring.application.cluster.consistency.responseWaitingTime:1}")
 	private long responseWaitingTime;
 
 	@Autowired

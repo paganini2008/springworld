@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
+import com.github.paganini2008.springworld.cached.base.Cache;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequest;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestConfirmationEvent;
 

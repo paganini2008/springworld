@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cached;
+package com.github.paganini2008.springworld.cached.base;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;

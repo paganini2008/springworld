@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.paganini2008.devtools.reflection.MethodUtils;
+import com.github.paganini2008.springworld.cached.base.Cache;
+import com.github.paganini2008.springworld.cached.base.Clear;
+import com.github.paganini2008.springworld.cached.base.Delete;
+import com.github.paganini2008.springworld.cached.base.Hit;
+import com.github.paganini2008.springworld.cached.base.Order;
 
 import lombok.extern.slf4j.Slf4j;
 

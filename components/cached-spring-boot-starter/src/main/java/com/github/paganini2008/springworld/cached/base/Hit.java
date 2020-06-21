@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cached;
+package com.github.paganini2008.springworld.cached.base;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

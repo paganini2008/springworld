@@ -1,5 +1,8 @@
 package com.github.paganini2008.springworld.cached;
 
+import com.github.paganini2008.springworld.cached.base.Cache;
+import com.github.paganini2008.springworld.cached.base.SortedCache;
+
 public class TestCache {
 
 	public static void main(String[] args) {

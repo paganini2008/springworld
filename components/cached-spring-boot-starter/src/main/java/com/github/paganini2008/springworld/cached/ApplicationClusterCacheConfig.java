@@ -11,6 +11,8 @@ import org.springframework.util.ErrorHandler;
 
 import com.github.paganini2008.devtools.multithreads.ThreadPool;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springworld.cached.base.Cache;
+import com.github.paganini2008.springworld.cached.base.LruCache;
 
 import lombok.extern.slf4j.Slf4j;
 

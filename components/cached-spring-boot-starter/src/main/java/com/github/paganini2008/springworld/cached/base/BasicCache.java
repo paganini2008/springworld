@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cached;
+package com.github.paganini2008.springworld.cached.base;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -29,7 +29,7 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
  * @author Fred Feng
  * @since 1.0
  */
-public class BasicCache implements Cache {
+public abstract class BasicCache implements Cache {
 
 	private final Map<String, Object> cache = new ConcurrentHashMap<String, Object>();
 	private final Map<String, AtomicLong> longs = new ConcurrentHashMap<String, AtomicLong>();
@@ -54,7 +54,7 @@ public class BasicCache implements Cache {
 	private RemovalListener removalListener = new RemovalListener() {
 	};
 
-	public BasicCache() {
+	protected BasicCache() {
 		signatures.put(cache, valueOperations);
 		signatures.put(longs, valueOperations);
 		signatures.put(doubles, valueOperations);
