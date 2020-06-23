@@ -17,8 +17,12 @@ public class Court {
 
 	private final Map<String, Proposal> juege = new ConcurrentHashMap<String, Proposal>();
 
+	public boolean hasProposal(String name) {
+		return juege.containsKey(name);
+	}
+
 	public boolean saveProposal(Proposal proposal) {
-		if (juege.containsKey(proposal.getName())) {
+		if (hasProposal(proposal.getName())) {
 			return false;
 		}
 		return juege.putIfAbsent(proposal.getName(), proposal) == null;

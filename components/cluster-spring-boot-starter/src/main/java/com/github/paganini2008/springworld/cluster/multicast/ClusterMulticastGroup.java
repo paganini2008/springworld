@@ -57,7 +57,7 @@ public class ClusterMulticastGroup {
 	}
 
 	public int countOfChannel() {
-		return channels.size();
+		return new HashSet<String>(channels).size();
 	}
 
 	public void unicast(Object message) {

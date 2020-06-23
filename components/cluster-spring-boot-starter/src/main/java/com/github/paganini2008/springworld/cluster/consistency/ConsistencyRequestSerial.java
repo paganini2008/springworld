@@ -11,6 +11,7 @@ import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 
 /**
  * 
@@ -28,15 +29,19 @@ public class ConsistencyRequestSerial {
 	private String applicationName;
 
 	@Autowired
+	private InstanceId instanceId;
+
+	@Autowired
 	private RedisConnectionFactory connectionFactory;
 
 	public long nextSerial(String name) {
 		final String redisCounter = String.format(CONSISTENCY_SERIAL_PATTERN,
 				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
 		try {
-			return MapUtils.get(serials, name, () -> {
+			RedisAtomicLong counter = MapUtils.get(serials, name, () -> {
 				return new RedisAtomicLong(redisCounter, connectionFactory);
-			}).incrementAndGet();
+			});
+			return instanceId.getWeight() > 1 ? counter.incrementAndGet() + instanceId.getWeight() : counter.incrementAndGet();
 		} catch (Exception e) {
 			serials.remove(name);
 			return nextSerial(name);

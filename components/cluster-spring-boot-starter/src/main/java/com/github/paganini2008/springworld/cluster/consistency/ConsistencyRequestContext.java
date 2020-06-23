@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.cluster.consistency;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +56,12 @@ public final class ConsistencyRequestContext {
 		if (timeout > CONSISTENCY_REQUEST_MAX_TIMEOUT) {
 			throw new IllegalArgumentException("Maximum timout is " + CONSISTENCY_REQUEST_MAX_TIMEOUT);
 		}
+		if (court.hasProposal(name)) {
+			if (log.isTraceEnabled()) {
+				log.trace("The proposal named '{}' is being processing currently. Please submit again after completion.", name);
+			}
+			return false;
+		}
 		Proposal proposal = new Proposal(name, value);
 		if (!court.saveProposal(proposal)) {
 			if (log.isTraceEnabled()) {
@@ -64,8 +71,8 @@ public final class ConsistencyRequestContext {
 		}
 		final long round = requestRound.currentRound(name);
 		final long serial = requestSerial.nextSerial(name);
-		ConsistencyRequest request = ConsistencyRequest.of(instanceId.getApplicationInfo()).setName(name).setRound(round).setSerial(serial)
-				.setTimeout(timeout);
+		ConsistencyRequest request = ConsistencyRequest.of(instanceId.getApplicationInfo()).setName(name).setValue(value).setRound(round)
+				.setSerial(serial).setTimeout(timeout);
 		clusterMulticastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
 		clock.schedule(new ConsistencyRequestPreparationFuture(request), responseWaitingTime, TimeUnit.SECONDS);
 		return true;
@@ -101,7 +108,6 @@ public final class ConsistencyRequestContext {
 					if (proposal != null) {
 						long newRound = requestRound.nextRound(name);
 						request.setRound(newRound);
-						request.setValue(proposal.getValue());
 						clusterMulticastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
 					}
 				}
@@ -116,7 +122,7 @@ public final class ConsistencyRequestContext {
 					clusterMulticastGroup.multicast(ConsistencyRequest.TIMEOUT_OPERATION_REQUEST, request);
 				} else {
 					if (request.getRound() == requestRound.currentRound(request.getName())) {
-						propose(request.getName(), request.getValue(), request.getTimeout());
+						propose(name, proposal.getValue(), request.getTimeout());
 					}
 				}
 			}
@@ -139,12 +145,16 @@ public final class ConsistencyRequestContext {
 			int n = clusterMulticastGroup.countOfChannel();
 			if (responses != null && responses.size() > n / 2) {
 				if (request.getRound() == requestRound.currentRound(name)) {
+					Collections.sort(responses);
+					final ConsistencyRequest firstRequest = responses.get(0).getRequest();
+
 					for (ConsistencyResponse response : responses) {
 						ConsistencyRequest request = response.getRequest();
+						request.setSerial(firstRequest.getSerial()).setValue(firstRequest.getValue());
 						clusterMulticastGroup.send(response.getApplicationInfo().getId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST,
 								request);
 					}
-					clock.schedule(new ConsistencyRequestCommitmentFuture(request), responseWaitingTime, TimeUnit.SECONDS);
+					clock.schedule(new ConsistencyRequestCommitmentFuture(firstRequest), responseWaitingTime, TimeUnit.SECONDS);
 				}
 			} else {
 				if (responses != null) {
@@ -153,8 +163,8 @@ public final class ConsistencyRequestContext {
 				if (request.hasExpired()) {
 					clusterMulticastGroup.multicast(ConsistencyRequest.TIMEOUT_OPERATION_REQUEST, request);
 				} else {
-					if (request.getRound() == requestRound.currentRound(request.getName())) {
-						propose(request.getName(), request.getValue(), request.getTimeout());
+					if (request.getRound() == requestRound.currentRound(name)) {
+						propose(name, request.getValue(), request.getTimeout());
 					}
 				}
 			}
