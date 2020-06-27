@@ -19,8 +19,8 @@ import lombok.ToString;
 @Setter
 @Getter
 public class ConsistencyResponse implements Serializable, Comparable<ConsistencyResponse> {
-
-	private static final long serialVersionUID = 1L;
+	
+	private static final long serialVersionUID = 704634098311834803L;
 
 	public ConsistencyResponse() {
 	}
@@ -37,7 +37,11 @@ public class ConsistencyResponse implements Serializable, Comparable<Consistency
 
 	@Override
 	public int compareTo(ConsistencyResponse other) {
-		return (int) (other.getRequest().getSerial() - request.getSerial());
+		long otherSerial = other.getRequest().getSerial();
+		if (otherSerial == request.getSerial()) {
+			return other.getApplicationInfo().getId().compareTo(applicationInfo.getId());
+		}
+		return (int) (otherSerial - request.getSerial());
 	}
 
 }

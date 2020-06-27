@@ -1,16 +1,18 @@
 package com.github.paganini2008.springworld.cached;
 
+import java.lang.reflect.Method;
+import java.util.concurrent.Executor;
+
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.ApplicationEventMulticaster;
-import org.springframework.context.event.SimpleApplicationEventMulticaster;
-import org.springframework.util.ErrorHandler;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
 
-import com.github.paganini2008.devtools.multithreads.ThreadPool;
-import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.devtools.multithreads.ThreadPoolBuilder;
 import com.github.paganini2008.springworld.cached.base.Cache;
 import com.github.paganini2008.springworld.cached.base.LruCache;
 
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
+@EnableAsync
 @ConditionalOnProperty(value = "spring.application.cluster.cache.enabled", havingValue = "true")
 @Configuration
 public class ApplicationClusterCacheConfig {
@@ -35,21 +38,6 @@ public class ApplicationClusterCacheConfig {
 	@Bean
 	public Cache cacheDelegate() {
 		return new LruCache(maxSize);
-	}
-
-	@ConditionalOnMissingBean(ThreadPool.class)
-	@Bean(destroyMethod = "shutdown")
-	public ThreadPool taskThreadPool() {
-		return ThreadUtils.commonPool();
-	}
-
-	@ConditionalOnMissingBean(ApplicationEventMulticaster.class)
-	@Bean
-	public ApplicationEventMulticaster applicationEventMulticaster() {
-		SimpleApplicationEventMulticaster eventMulticaster = new SimpleApplicationEventMulticaster();
-		eventMulticaster.setTaskExecutor(taskThreadPool());
-		eventMulticaster.setErrorHandler(new DefaultErrorHandler());
-		return eventMulticaster;
 	}
 
 	@Bean
@@ -72,14 +60,33 @@ public class ApplicationClusterCacheConfig {
 		return new CachedInvocationInterpreter();
 	}
 
+	@ConditionalOnMissingBean(AsyncConfigurer.class)
+	@Bean
+	public AsyncConfigurer cacheAsyncOperationConfig() {
+		return new CacheAsyncOperationConfig();
+	}
+
 	@Slf4j
-	public static class DefaultErrorHandler implements ErrorHandler {
+	public static class CacheAsyncOperationConfig implements AsyncConfigurer {
+
+		@Value("${spring.application.cluster.cache.concurrents:8}")
+		private int concurrents;
 
 		@Override
-		public void handleError(Throwable e) {
-			log.error(e.getMessage(), e);
+		public Executor getAsyncExecutor() {
+			return ThreadPoolBuilder.common(concurrents).setMaxPermits(concurrents).build();
+		}
+
+		@Override
+		public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+			return new AsyncUncaughtExceptionHandler() {
+
+				@Override
+				public void handleUncaughtException(Throwable e, Method method, Object... params) {
+					log.error(e.getMessage(), e);
+				}
+			};
 		}
 
 	}
-
 }

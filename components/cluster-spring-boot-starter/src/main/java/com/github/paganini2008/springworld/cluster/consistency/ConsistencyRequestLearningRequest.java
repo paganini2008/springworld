@@ -38,22 +38,27 @@ public class ConsistencyRequestLearningRequest implements ClusterMessageListener
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		final ConsistencyRequest request = (ConsistencyRequest) message;
+		final String name = request.getName();
+		if (request.getRound() != requestRound.currentRound(name)) {
+			if (log.isTraceEnabled()) {
+				log.trace("This round of proposal '{}' has been finished.", name);
+			}
+			return;
+		}
 		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
+			log.trace(getTopic() + " " + anotherInstanceId + ", " + request);
 		}
-		ConsistencyRequest request = (ConsistencyRequest) message;
-		final String name = request.getName();
-		if (request.getRound() == requestRound.currentRound(name)) {
-			if (log.isDebugEnabled()) {
-				log.debug("Selected ConsistencyRequest: " + request);
-			}
-			clean(name);
-			court.completeProposal(name);
+		if (log.isDebugEnabled()) {
+			log.debug("Selected ConsistencyRequest: " + request);
+		}
+		clean(name);
+		court.completeProposal(name);
 
-			applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, applicationInfo, true));
-			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_RESPONSE, request);
-		}
+		applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, applicationInfo, true));
+		clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_RESPONSE, request);
+
 	}
 
 	@Override

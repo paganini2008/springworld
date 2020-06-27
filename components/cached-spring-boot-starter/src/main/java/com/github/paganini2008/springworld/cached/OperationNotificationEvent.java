@@ -26,4 +26,8 @@ public class OperationNotificationEvent extends ApplicationEvent {
 		return operationNotification;
 	}
 
+	public Cache getSource() {
+		return (Cache) super.getSource();
+	}
+
 }

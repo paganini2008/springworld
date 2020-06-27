@@ -74,7 +74,10 @@ public final class ConsistencyRequestContext {
 		ConsistencyRequest request = ConsistencyRequest.of(instanceId.getApplicationInfo()).setName(name).setValue(value).setRound(round)
 				.setSerial(serial).setTimeout(timeout);
 		clusterMulticastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
-		clock.schedule(new ConsistencyRequestPreparationFuture(request), responseWaitingTime, TimeUnit.SECONDS);
+
+		ConsistencyRequestPreparationFuture preparationFuture = new ConsistencyRequestPreparationFuture(request);
+		clock.schedule(preparationFuture, responseWaitingTime, TimeUnit.SECONDS);
+		court.formulate(name, preparationFuture);
 		return true;
 	}
 
@@ -86,12 +89,34 @@ public final class ConsistencyRequestContext {
 		clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
 	}
 
-	private class ConsistencyRequestCommitmentFuture extends ClockTask {
+	/**
+	 * 
+	 * ConsistencyRequestCommitmentFuture
+	 *
+	 * @author Fred Feng
+	 * @since 1.0
+	 */
+	private class ConsistencyRequestCommitmentFuture extends ClockTask implements Formulation {
 
 		private final ConsistencyRequest request;
 
 		ConsistencyRequestCommitmentFuture(ConsistencyRequest request) {
 			this.request = request;
+		}
+
+		@Override
+		public void directRun() {
+			runTask();
+		}
+
+		@Override
+		public String getPeriod() {
+			return COMMITMENT_PERIOD;
+		}
+
+		@Override
+		public boolean cancel() {
+			return super.cancel();
 		}
 
 		@Override
@@ -130,12 +155,34 @@ public final class ConsistencyRequestContext {
 
 	}
 
-	private class ConsistencyRequestPreparationFuture extends ClockTask {
+	/**
+	 * 
+	 * ConsistencyRequestPreparationFuture
+	 *
+	 * @author Fred Feng
+	 * @since 1.0
+	 */
+	private class ConsistencyRequestPreparationFuture extends ClockTask implements Formulation {
 
 		private final ConsistencyRequest request;
 
 		ConsistencyRequestPreparationFuture(ConsistencyRequest request) {
 			this.request = request;
+		}
+
+		@Override
+		public void directRun() {
+			runTask();
+		}
+
+		@Override
+		public String getPeriod() {
+			return PREPARATION_PERIOD;
+		}
+
+		@Override
+		public boolean cancel() {
+			return super.cancel();
 		}
 
 		@Override
@@ -154,7 +201,10 @@ public final class ConsistencyRequestContext {
 						clusterMulticastGroup.send(response.getApplicationInfo().getId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST,
 								request);
 					}
-					clock.schedule(new ConsistencyRequestCommitmentFuture(firstRequest), responseWaitingTime, TimeUnit.SECONDS);
+					
+					ConsistencyRequestCommitmentFuture commitmentFuture = new ConsistencyRequestCommitmentFuture(firstRequest);
+					clock.schedule(commitmentFuture, responseWaitingTime, TimeUnit.SECONDS);
+					court.formulate(name, commitmentFuture);
 				}
 			} else {
 				if (responses != null) {

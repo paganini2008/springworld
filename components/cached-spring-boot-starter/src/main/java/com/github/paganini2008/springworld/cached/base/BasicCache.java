@@ -51,7 +51,7 @@ public abstract class BasicCache implements Cache {
 
 	private final Map<Map<String, ?>, Signature> signatures = Collections
 			.synchronizedMap(new IdentityHashMap<Map<String, ?>, Signature>(6));
-	
+
 	private KeyExpirationPolicy keyExpirationPolicy = new KeyExpirationPolicy() {
 	};
 	private RemovalListener removalListener = new RemovalListener() {

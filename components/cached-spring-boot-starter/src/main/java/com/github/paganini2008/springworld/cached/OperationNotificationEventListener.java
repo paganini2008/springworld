@@ -11,9 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.event.SmartApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 
-import com.github.paganini2008.springworld.cached.base.Cache;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestContext;
 
 /**
@@ -23,9 +24,9 @@ import com.github.paganini2008.springworld.cluster.consistency.ConsistencyReques
  * @author Fred Feng
  * @since 1.0
  */
-public class OperationNotificationEventListener implements ApplicationContextAware, ApplicationListener<OperationNotificationEvent> {
+public class OperationNotificationEventListener implements ApplicationContextAware, SmartApplicationListener {
 
-	@Value("${spring.application.cluster.cache.concurrents:1}")
+	@Value("${spring.application.cluster.cache.concurrents:8}")
 	private int concurrents;
 
 	@Value("${spring.application.cluster.cache.executionTimeout:60}")
@@ -47,28 +48,39 @@ public class OperationNotificationEventListener implements ApplicationContextAwa
 	}
 
 	@Override
-	public void onApplicationEvent(OperationNotificationEvent event) {
+	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+		return eventType == OperationNotificationEvent.class;
+	}
+
+	@Override
+	public boolean supportsSourceType(Class<?> sourceType) {
+		return sourceType == ApplicationClusterCache.class;
+	}
+
+	@Async
+	@Override
+	public void onApplicationEvent(ApplicationEvent applicationEvent) {
 		try {
 			lock.acquire();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
+		final OperationNotificationEvent event = (OperationNotificationEvent) applicationEvent;
 		final OperationNotification operationNotification = event.getOperationNotification();
-		String key = operationNotification.getKey();
+		final String key = operationNotification.getKey();
 		if (context.propose(key, operationNotification, timeout)) {
 			eventProcessor.watch(key, argument -> {
 				lock.release();
-				final Cache delegate = (Cache) event.getSource();
-				applicationContext.publishEvent(new OperationNotificationFinishedEvent(delegate, argument));
-
+				applicationContext.publishEvent(new OperationSynchronizationEvent(argument));
 				OperationNotification next = pendingQueue.poll();
 				if (next != null) {
-					applicationContext.publishEvent(new OperationNotificationEvent(delegate, next));
+					applicationContext.publishEvent(new OperationNotificationEvent(event.getSource(), next));
 				}
 			});
 		} else {
 			pendingQueue.add(operationNotification);
 			lock.release();
+
 		}
 	}
 

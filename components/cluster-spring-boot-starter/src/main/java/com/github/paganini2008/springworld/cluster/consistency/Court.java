@@ -5,6 +5,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.github.paganini2008.devtools.Observable;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
+
 /**
  * 
  * Court
@@ -15,6 +20,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Court {
 
+	@Autowired
+	private ClusterMulticastGroup clusterMulticastGroup;
+
+	private final Observable watcher = Observable.unrepeatable();
 	private final Map<String, Proposal> juege = new ConcurrentHashMap<String, Proposal>();
 
 	public boolean hasProposal(String name) {
@@ -33,20 +42,39 @@ public class Court {
 	}
 
 	public Proposal completeProposal(String name) {
+		watcher.deleteObservers(Formulation.PREPARATION_PERIOD + name);
+		watcher.deleteObservers(Formulation.COMMITMENT_PERIOD + name);
 		return juege.remove(name);
+	}
+
+	public void formulate(String name, Formulation formulation) {
+		watcher.addObserver(formulation.getPeriod() + name, (ob, arg) -> {
+			formulation.cancel();
+			formulation.directRun();
+		});
 	}
 
 	public void canLearn(ConsistencyResponse response) {
 		ConsistencyRequest request = response.getRequest();
-		if (juege.containsKey(request.getName())) {
-			juege.get(request.getName()).getCommitments().add(response);
+		String name = request.getName();
+		if (juege.containsKey(name)) {
+			List<ConsistencyResponse> list = juege.get(name).getCommitments();
+			list.add(response);
+			if (list.size() == clusterMulticastGroup.countOfChannel()) {
+				watcher.notifyObservers(Formulation.COMMITMENT_PERIOD + name, name);
+			}
 		}
 	}
 
 	public void canCommit(ConsistencyResponse response) {
 		ConsistencyRequest request = response.getRequest();
-		if (juege.containsKey(request.getName())) {
-			juege.get(request.getName()).getPreparations().add(response);
+		String name = request.getName();
+		if (juege.containsKey(name)) {
+			List<ConsistencyResponse> list = juege.get(name).getPreparations();
+			list.add(response);
+			if (list.size() == clusterMulticastGroup.countOfChannel()) {
+				watcher.notifyObservers(Formulation.PREPARATION_PERIOD + name, name);
+			}
 		}
 	}
 

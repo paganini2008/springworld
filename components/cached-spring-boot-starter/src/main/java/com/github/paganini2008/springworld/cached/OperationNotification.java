@@ -2,6 +2,8 @@ package com.github.paganini2008.springworld.cached;
 
 import java.io.Serializable;
 
+import com.github.paganini2008.devtools.beans.ToStringBuilder;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,11 +24,11 @@ public class OperationNotification implements Serializable {
 	private String name;
 	private Object value;
 	private Object returnResult;
-	
+
 	public OperationNotification() {
 	}
-	
-	public OperationNotification(String signature,String key) {
+
+	public OperationNotification(String signature, String key) {
 		this(signature, key, null);
 	}
 
@@ -39,6 +41,10 @@ public class OperationNotification implements Serializable {
 		this.key = key;
 		this.name = name;
 		this.value = value;
+	}
+
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

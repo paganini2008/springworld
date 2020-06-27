@@ -20,12 +20,23 @@ public class ConsistencyRequestPreparationResponse implements ClusterMessageList
 	@Autowired
 	private Court court;
 
+	@Autowired
+	private ConsistencyRequestRound requestRound;
+
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
-		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + applicationInfo.getId() + ", " + message);
+		final ConsistencyResponse response = (ConsistencyResponse) message;
+		final ConsistencyRequest request = response.getRequest();
+		final String name = request.getName();
+		if (request.getRound() != requestRound.currentRound(name)) {
+			if (log.isTraceEnabled()) {
+				log.trace("This round of proposal '{}' has been finished.", name);
+			}
+			return;
 		}
-		ConsistencyResponse response = (ConsistencyResponse) message;
+		if (log.isTraceEnabled()) {
+			log.trace(getTopic() + " " + applicationInfo.getId() + ", " + response);
+		}
 		if (response.isAcceptable()) {
 			court.canCommit(response);
 		}

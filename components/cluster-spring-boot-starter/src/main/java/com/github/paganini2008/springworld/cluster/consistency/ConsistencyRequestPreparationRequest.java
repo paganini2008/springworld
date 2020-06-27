@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsistencyRequestPreparationRequest implements ClusterMessageListener {
 
 	@Autowired
+	private ConsistencyRequestRound requestRound;
+
+	@Autowired
 	private ConsistencyRequestSerialCache requestSerialCache;
 
 	@Autowired
@@ -30,12 +33,19 @@ public class ConsistencyRequestPreparationRequest implements ClusterMessageListe
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		final ConsistencyRequest request = (ConsistencyRequest) message;
+		final String name = request.getName();
+		if (request.getRound() != requestRound.currentRound(name)) {
+			if (log.isTraceEnabled()) {
+				log.trace("This round of proposal '{}' has been finished.", name);
+			}
+			return;
+		}
+
 		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
 		}
-		ConsistencyRequest request = (ConsistencyRequest) message;
-		String name = request.getName();
 		long round = request.getRound();
 		long serial = request.getSerial();
 		long maxSerial = requestSerialCache.getSerial(name, round);

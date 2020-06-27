@@ -18,8 +18,8 @@ import lombok.Getter;
 @Getter
 public class ConsistencyRequest implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = 7128587826224341606L;
+	
 	public static final String PREPARATION_OPERATION_REQUEST = "<Perparation Operation Request>";
 	public static final String PREPARATION_OPERATION_RESPONSE = "<Perparation Operation Response>";
 	public static final String COMMITMENT_OPERATION_REQUEST = "<Commitment Operation Request>";
@@ -89,7 +89,7 @@ public class ConsistencyRequest implements Serializable {
 	}
 
 	public String toString() {
-		return "[" + round + "/" + serial + "] name: " + name + ", value: " + (value != null ? value.getClass() : "NULL") + ", date: "
+		return "[" + round + "/" + serial + "] name: " + name + ", value: " + (value != null ? value.toString() : "NULL") + ", date: "
 				+ DateUtils.format(timestamp);
 	}
 
