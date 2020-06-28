@@ -50,6 +50,7 @@ public class ConsistencyRequestCommitmentRequest implements ClusterMessageListen
 		long serial = request.getSerial();
 		long maxSerial = requestSerialCache.getSerial(name, round);
 		if (serial >= maxSerial) {
+			requestSerialCache.setValue(name, round, serial, request.getValue());
 			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE,
 					request.ack(instanceId.getApplicationInfo(), true));
 		} else {

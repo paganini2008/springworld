@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster.consistency;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -19,14 +20,25 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ConsistencyRequestTimeoutResponse implements ClusterMessageListener, ApplicationContextAware {
+	
+	@Autowired
+	private ConsistencyRequestRound requestRound;
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+		final ConsistencyRequest request = (ConsistencyRequest) message;
+		final String name = request.getName();
+		if (request.getRound() != requestRound.currentRound(name)) {
+			if (log.isTraceEnabled()) {
+				log.trace("This round of proposal '{}' has been finished.", name);
+			}
+			return;
+		}
+		
 		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
-			log.trace(getTopic() + " " + anotherInstanceId + ", " + message);
+			log.trace(getTopic() + " " + anotherInstanceId + ", " + request);
 		}
-		ConsistencyRequest request = (ConsistencyRequest) message;
 		applicationContext.publishEvent(new ConsistencyRequestCompletionEvent(request, applicationInfo));
 	}
 

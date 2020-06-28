@@ -71,8 +71,8 @@ public final class ConsistencyRequestContext {
 		}
 		final long round = requestRound.currentRound(name);
 		final long serial = requestSerial.nextSerial(name);
-		ConsistencyRequest request = ConsistencyRequest.of(instanceId.getApplicationInfo()).setName(name).setValue(value).setRound(round)
-				.setSerial(serial).setTimeout(timeout);
+		ConsistencyRequest request = ConsistencyRequest.of(instanceId.getApplicationInfo()).setName(name).setRound(round).setSerial(serial)
+				.setTimeout(timeout);
 		clusterMulticastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
 
 		ConsistencyRequestPreparationFuture preparationFuture = new ConsistencyRequestPreparationFuture(request);
@@ -133,7 +133,9 @@ public final class ConsistencyRequestContext {
 					if (proposal != null) {
 						long newRound = requestRound.nextRound(name);
 						request.setRound(newRound);
-						clusterMulticastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
+						if (request.getRound() == requestRound.currentRound(name)) {
+							clusterMulticastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
+						}
 					}
 				}
 			} else {
@@ -146,7 +148,7 @@ public final class ConsistencyRequestContext {
 				if (request.hasExpired()) {
 					clusterMulticastGroup.multicast(ConsistencyRequest.TIMEOUT_OPERATION_REQUEST, request);
 				} else {
-					if (request.getRound() == requestRound.currentRound(request.getName())) {
+					if (request.getRound() == requestRound.currentRound(name)) {
 						propose(name, proposal.getValue(), request.getTimeout());
 					}
 				}
@@ -188,6 +190,7 @@ public final class ConsistencyRequestContext {
 		@Override
 		protected void runTask() {
 			final String name = request.getName();
+			final Proposal proposal = court.getProposal(name);
 			List<ConsistencyResponse> responses = court.getProposal(name) != null ? court.getProposal(name).getPreparations() : null;
 			int n = clusterMulticastGroup.countOfChannel();
 			if (responses != null && responses.size() > n / 2) {
@@ -197,11 +200,11 @@ public final class ConsistencyRequestContext {
 
 					for (ConsistencyResponse response : responses) {
 						ConsistencyRequest request = response.getRequest();
-						request.setSerial(firstRequest.getSerial()).setValue(firstRequest.getValue());
+						request.setValue(firstRequest.getValue() != null ? firstRequest.getValue() : proposal.getValue());
 						clusterMulticastGroup.send(response.getApplicationInfo().getId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST,
 								request);
 					}
-					
+
 					ConsistencyRequestCommitmentFuture commitmentFuture = new ConsistencyRequestCommitmentFuture(firstRequest);
 					clock.schedule(commitmentFuture, responseWaitingTime, TimeUnit.SECONDS);
 					court.formulate(name, commitmentFuture);

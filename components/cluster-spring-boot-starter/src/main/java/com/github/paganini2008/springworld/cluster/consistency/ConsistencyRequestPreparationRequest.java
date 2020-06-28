@@ -49,8 +49,12 @@ public class ConsistencyRequestPreparationRequest implements ClusterMessageListe
 		long round = request.getRound();
 		long serial = request.getSerial();
 		long maxSerial = requestSerialCache.getSerial(name, round);
-		if (serial >= maxSerial) {
-			requestSerialCache.setSerial(name, round, serial);
+		if (serial > maxSerial) {
+			Object preValue = requestSerialCache.setValue(name, round, serial, request.getValue());
+			if (preValue != null) {
+				System.out.println("preValue: " + preValue);
+				request.setValue(preValue);
+			}
 			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.PREPARATION_OPERATION_RESPONSE,
 					request.ack(instanceId.getApplicationInfo(), true));
 		} else {
