@@ -5,8 +5,8 @@ import java.util.concurrent.Executor;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @EnableAsync
-@ConditionalOnProperty(value = "spring.application.cluster.cache.enabled", havingValue = "true")
+@ConditionalOnExpression("${spring.application.cluster.multicast.enabled} && ${spring.application.cluster.cache.enabled}")
 @Configuration
 public class ApplicationClusterCacheConfig {
 
