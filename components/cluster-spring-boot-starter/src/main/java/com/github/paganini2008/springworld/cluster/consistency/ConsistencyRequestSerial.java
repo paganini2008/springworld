@@ -12,6 +12,9 @@ import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -20,6 +23,7 @@ import com.github.paganini2008.springworld.cluster.InstanceId;
  * @author Fred Feng
  * @since 1.0
  */
+@Slf4j
 public class ConsistencyRequestSerial {
 
 	private static final String CONSISTENCY_SERIAL_PATTERN = "%s:consistency:serial:%s";
@@ -34,41 +38,46 @@ public class ConsistencyRequestSerial {
 	@Autowired
 	private RedisConnectionFactory connectionFactory;
 
+	@Autowired
+	private TtlKeeper ttlKeeper;
+
 	public long nextSerial(String name) {
-		final String redisCounter = String.format(CONSISTENCY_SERIAL_PATTERN,
-				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
+		final String redisCounterName = counterName(name);
 		try {
 			RedisAtomicLong counter = MapUtils.get(serials, name, () -> {
-				return new RedisAtomicLong(redisCounter, connectionFactory);
+				RedisAtomicLong l = new RedisAtomicLong(redisCounterName, connectionFactory);
+				ttlKeeper.keep(l.getKey(), 5, TimeUnit.SECONDS);
+				return l;
 			});
 			return instanceId.getWeight() > 1 ? counter.incrementAndGet() + instanceId.getWeight() : counter.incrementAndGet();
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			serials.remove(name);
 			return nextSerial(name);
 		}
 	}
 
 	public long currentSerial(String name) {
-		final String redisCounter = String.format(CONSISTENCY_SERIAL_PATTERN,
-				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
+		final String redisCounterName = counterName(name);
 		try {
 			return MapUtils.get(serials, name, () -> {
-				return new RedisAtomicLong(redisCounter, connectionFactory);
+				RedisAtomicLong l = new RedisAtomicLong(redisCounterName, connectionFactory);
+				ttlKeeper.keep(l.getKey(), 5, TimeUnit.SECONDS);
+				return l;
 			}).get();
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			serials.remove(name);
 			return currentSerial(name);
 		}
 	}
 
 	public void clean(String name) {
-		RedisAtomicLong counter = serials.remove(name);
-		if (counter != null) {
-			try {
-				counter.expire(ConsistencyRequestContext.CONSISTENCY_REQUEST_MAX_TIMEOUT, TimeUnit.SECONDS);
-			} catch (Exception ignored) {
-			}
-		}
+		serials.remove(name);
+	}
+
+	private String counterName(String name) {
+		return String.format(CONSISTENCY_SERIAL_PATTERN, ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
 	}
 
 }

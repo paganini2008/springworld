@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.multithreads.Clock;
-import com.github.paganini2008.devtools.multithreads.Clock.ClockTask;
+import com.github.paganini2008.devtools.multithreads.ClockTask;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.consistency.Court.Proposal;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;

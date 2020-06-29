@@ -11,6 +11,7 @@ import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 
 /**
  * 
@@ -29,13 +30,17 @@ public class ConsistencyRequestRound {
 
 	@Autowired
 	private RedisConnectionFactory connectionFactory;
+	
+	@Autowired
+	private TtlKeeper ttlKeeper;
 
 	public long nextRound(String name) {
-		final String redisCounter = String.format(CONSISTENCY_ROUND_PATTERN,
-				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
+		final String redisCounterName = counterName(name);
 		try {
 			return MapUtils.get(rounds, name, () -> {
-				return new RedisAtomicLong(redisCounter, connectionFactory);
+				RedisAtomicLong l = new RedisAtomicLong(redisCounterName, connectionFactory);
+				ttlKeeper.keep(l.getKey(), 5, TimeUnit.SECONDS);
+				return l;
 			}).incrementAndGet();
 		} catch (Exception e) {
 			rounds.remove(name);
@@ -44,11 +49,12 @@ public class ConsistencyRequestRound {
 	}
 
 	public long currentRound(String name) {
-		final String redisCounter = String.format(CONSISTENCY_ROUND_PATTERN,
-				ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
+		final String redisCounterName = counterName(name);
 		try {
 			return MapUtils.get(rounds, name, () -> {
-				return new RedisAtomicLong(redisCounter, connectionFactory);
+				RedisAtomicLong l = new RedisAtomicLong(redisCounterName, connectionFactory);
+				ttlKeeper.keep(l.getKey(), 5, TimeUnit.SECONDS);
+				return l;
 			}).get();
 		} catch (Exception e) {
 			rounds.remove(name);
@@ -57,13 +63,11 @@ public class ConsistencyRequestRound {
 	}
 
 	public void clean(String name) {
-		RedisAtomicLong counter = rounds.remove(name);
-		if (counter != null) {
-			try {
-				counter.expire(ConsistencyRequestContext.CONSISTENCY_REQUEST_MAX_TIMEOUT, TimeUnit.SECONDS);
-			} catch (Exception ignored) {
-			}
-		}
+		rounds.remove(name);
+	}
+
+	private String counterName(String name) {
+		return String.format(CONSISTENCY_ROUND_PATTERN, ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
 	}
 
 }

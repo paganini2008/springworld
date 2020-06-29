@@ -18,7 +18,7 @@ public class DefaultChannelEventPublisher implements ChannelEventPublisher {
 	private final EventBus<ChannelEvent, Object> delegate;
 
 	public DefaultChannelEventPublisher(Executor executor) {
-		this.delegate = new EventBus<>(executor, true);
+		this.delegate = new EventBus<>(executor, true, true);
 	}
 
 	@Override
