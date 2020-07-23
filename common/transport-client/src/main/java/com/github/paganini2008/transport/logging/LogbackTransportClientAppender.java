@@ -1,18 +1,17 @@
 package com.github.paganini2008.transport.logging;
 
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.devtools.beans.BeanUtils;
+import com.github.paganini2008.devtools.logging.Log;
+import com.github.paganini2008.devtools.logging.LogFactory;
 import com.github.paganini2008.transport.HashPartitioner;
+import com.github.paganini2008.transport.HttpClient;
+import com.github.paganini2008.transport.HttpTransportClient;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
-import com.github.paganini2008.transport.RandomPartitioner;
-import com.github.paganini2008.transport.RoundRobinPartitioner;
-import com.github.paganini2008.transport.SpringApplicationClusterInfo;
+import com.github.paganini2008.transport.TcpTransportClient;
 import com.github.paganini2008.transport.TransportClient;
 import com.github.paganini2008.transport.Tuple;
-import com.github.paganini2008.transport.embeddedio.EmbeddedClient;
-import com.github.paganini2008.transport.grizzly.GrizzlyClient;
-import com.github.paganini2008.transport.mina.MinaClient;
-import com.github.paganini2008.transport.netty.NettyClient;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxyUtil;
@@ -27,51 +26,52 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
  */
 public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
-	private String transporter = "netty";
-	private String redisHost = "localhost";
-	private int redisPort = 6379;
-	private int redisDbIndex = 0;
-	private String redisAuth = "";
-	private String applicationName;
+	private static final Log logger = LogFactory.getLog(LogbackTransportClientAppender.class);
+	private String nioClientClassName = "com.github.paganini2008.transport.netty.NettyClient";
+	private String httpClientClassName = "com.github.paganini2008.transport.DefaultHttpClient";
+	private String brokerProtocol = "tcp";
+	private String brokerUrl;
 	private int startupDelay = 0;
-	private String partitioner = "roundrobin";
-	private String groupingFieldName;
+	private String partitionerClassName = "com.github.paganini2008.transport.RoundRobinPartitioner";
+	private String groupingFields;
+	private int httpConnectionTimeout = 60;
+	private int httpReadTimeout = 60;
 	private TransportClient transportClient;
 
-	public void setRedisHost(String redisHost) {
-		this.redisHost = redisHost;
+	public void setNioClient(String nioClientClassName) {
+		this.nioClientClassName = nioClientClassName;
 	}
 
-	public void setRedisPort(int redisPort) {
-		this.redisPort = redisPort;
+	public void setHttpClient(String httpClientClassName) {
+		this.httpClientClassName = httpClientClassName;
 	}
 
-	public void setTransporter(String transporter) {
-		this.transporter = transporter;
-	}
-
-	public void setRedisDbIndex(int redisDbIndex) {
-		this.redisDbIndex = redisDbIndex;
+	public void setBrokerProtocol(String brokerProtocol) {
+		this.brokerProtocol = brokerProtocol;
 	}
 
 	public void setPartitioner(String partitioner) {
-		this.partitioner = partitioner;
-	}
-
-	public void setRedisAuth(String redisAuth) {
-		this.redisAuth = redisAuth;
+		this.partitionerClassName = partitioner;
 	}
 
 	public void setStartupDelay(int startupDelay) {
 		this.startupDelay = startupDelay;
 	}
 
-	public void setGroupingFieldName(String groupingFieldName) {
-		this.groupingFieldName = groupingFieldName;
+	public void setGroupingFields(String groupingFields) {
+		this.groupingFields = groupingFields;
 	}
 
-	public void setApplicationName(String applicationName) {
-		this.applicationName = applicationName;
+	public void setBrokerUrl(String brokerUrl) {
+		this.brokerUrl = brokerUrl;
+	}
+
+	public void setHttpConnectionTimeout(int httpConnectionTimeout) {
+		this.httpConnectionTimeout = httpConnectionTimeout;
+	}
+
+	public void setHttpReadTimeout(int httpReadTimeout) {
+		this.httpReadTimeout = httpReadTimeout;
 	}
 
 	@Override
@@ -88,66 +88,40 @@ public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<I
 	}
 
 	@Override
-	public void start() {
-		if (isStarted()) {
-			return;
+	public synchronized void start() {
+		logger.info("Start the LogbackTransportClientAppender.");
+
+		if (!isStarted()) {
+			super.start();
 		}
 		if (transportClient != null) {
-			super.start();
 			return;
 		}
-		NioClient nioClient;
-		switch (this.transporter.toLowerCase()) {
-		case "embedded-io":
-			nioClient = new EmbeddedClient();
+
+		Partitioner partitioner = BeanUtils.instantiate(partitionerClassName);
+		if (partitioner instanceof HashPartitioner && StringUtils.isNotBlank(groupingFields)) {
+			((HashPartitioner) partitioner).addFieldNames(groupingFields.trim().split(","));
+		}
+		switch (brokerProtocol.toLowerCase()) {
+		case "tcp":
+			NioClient nioClient = BeanUtils.instantiate(nioClientClassName);
+			transportClient = new TcpTransportClient(brokerUrl, nioClient, partitioner, startupDelay);
 			break;
-		case "netty":
-			nioClient = new NettyClient();
-			break;
-		case "mina":
-			nioClient = new MinaClient();
-			break;
-		case "grizzly":
-			nioClient = new GrizzlyClient();
+		case "https":
+		case "http":
+			HttpClient httpClient = BeanUtils.instantiate(httpClientClassName);
+			transportClient = new HttpTransportClient(brokerUrl, httpClient, partitioner, startupDelay);
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown transporter: " + transporter);
-		}
-
-		Partitioner partitioner;
-		switch (this.partitioner.toLowerCase()) {
-		case "roundrobin":
-			partitioner = new RoundRobinPartitioner();
-			break;
-		case "random":
-			partitioner = new RandomPartitioner();
-			break;
-		case "hash":
-			partitioner = new HashPartitioner();
-			break;
-		case "mdc-hash":
-			partitioner = new MdcHashPartitioner();
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown partitioner: " + this.partitioner);
-		}
-		SpringApplicationClusterInfo clusterInfo = new SpringApplicationClusterInfo(applicationName);
-		clusterInfo.getBuilder().setHost(redisHost);
-		clusterInfo.getBuilder().setPort(redisPort);
-		clusterInfo.getBuilder().setAuth(redisAuth);
-		clusterInfo.getBuilder().setDbIndex(redisDbIndex);
-
-		transportClient = new TransportClient(clusterInfo, nioClient, partitioner, startupDelay);
-		if (StringUtils.isNotBlank(groupingFieldName)) {
-			transportClient.setGroupingFieldName(groupingFieldName);
+			throw new UnsupportedOperationException("Unkown broker protocol: " + brokerProtocol);
 		}
 		transportClient.start();
-		super.start();
 	}
 
 	@Override
 	public void stop() {
 		super.stop();
+		logger.info("Stop the LogbackTransportClientAppender.");
 	}
 
 }

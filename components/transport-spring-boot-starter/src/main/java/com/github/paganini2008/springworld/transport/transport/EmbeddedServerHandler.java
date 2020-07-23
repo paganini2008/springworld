@@ -33,10 +33,10 @@ public class EmbeddedServerHandler implements ChannelHandler {
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName:default}")
 	private String collectionName;
 
-	@Value("${spring.transport.nioserver.keepalive.response:true}")
+	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
 	@Autowired(required = false)

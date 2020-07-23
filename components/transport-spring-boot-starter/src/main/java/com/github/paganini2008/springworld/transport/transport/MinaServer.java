@@ -1,6 +1,5 @@
 package com.github.paganini2008.springworld.transport.transport;
 
-import static com.github.paganini2008.springworld.transport.Constants.APPLICATION_KEY;
 import static com.github.paganini2008.springworld.transport.Constants.PORT_RANGE_END;
 import static com.github.paganini2008.springworld.transport.Constants.PORT_RANGE_START;
 
@@ -22,14 +21,13 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
-import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.transport.ChannelEvent;
 import com.github.paganini2008.transport.ChannelEvent.EventType;
 import com.github.paganini2008.transport.ChannelEventListener;
+import com.github.paganini2008.transport.NodeFinder;
 import com.github.paganini2008.transport.Tuple;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,26 +60,20 @@ public class MinaServer implements NioServer {
 	@Autowired(required = false)
 	private ChannelEventListener<IoSession> channelEventListener;
 
-	@Value("${spring.transport.nioserver.threads:-1}")
+	@Value("${spring.application.transport.nioserver.threads:-1}")
 	private int threadCount;
 
-	@Value("${spring.transport.nioserver.hostName:}")
+	@Value("${spring.application.transport.nioserver.hostName:}")
 	private String hostName;
 
-	@Value("${spring.transport.nioserver.idleTimeout:60}")
+	@Value("${spring.application.transport.nioserver.idleTimeout:60}")
 	private int idleTimeout;
 
-	@Value("${spring.transport.nioserver.keepalive.response:true}")
+	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
-
 	@Autowired
-	private InstanceId clusterId;
-
-	@Autowired
-	private StringRedisTemplate redisTemplate;
+	private NodeFinder nodeFinder;
 
 	@Override
 	public int start() {
@@ -112,8 +104,7 @@ public class MinaServer implements NioServer {
 			localAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
 			ioAcceptor.bind(localAddress);
 			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			String key = String.format(APPLICATION_KEY, applicationName);
-			redisTemplate.opsForHash().put(key, clusterId.get(), location);
+			nodeFinder.registerNode(location);
 			started.set(true);
 			log.info("MinaServer is started on: " + localAddress);
 		} catch (IOException e) {

@@ -25,7 +25,7 @@ public class HandlerBeanPostProcessor implements BeanPostProcessor, ApplicationL
 		if (bean instanceof Handler) {
 			final Handler handler = (Handler) bean;
 			handlerObservable.addObserver((ob, arg) -> {
-				((LoopProcessor) arg).addHandler(handler);
+				((TupleLoopProcessor) arg).addHandler(handler);
 			});
 		}
 		return bean;
@@ -33,7 +33,7 @@ public class HandlerBeanPostProcessor implements BeanPostProcessor, ApplicationL
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		LoopProcessor loopProcessor = event.getApplicationContext().getBean(LoopProcessor.class);
+		TupleLoopProcessor loopProcessor = event.getApplicationContext().getBean(TupleLoopProcessor.class);
 		handlerObservable.notifyObservers(loopProcessor);
 		loopProcessor.startDaemon();
 	}

@@ -1,6 +1,6 @@
 package com.github.paganini2008.springworld.transport;
 
-import static com.github.paganini2008.springworld.transport.Constants.APPLICATION_KEY;
+import static com.github.paganini2008.transport.Constants.APPLICATION_KEY;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +35,7 @@ public class ContextNodeFinder implements NodeFinder {
 
 	@Override
 	public void registerNode(Object attachment) {
-		final String key = String.format(APPLICATION_KEY, applicationName);
+		final String key = APPLICATION_KEY + applicationName;
 		final String instanceId = clusterId.get();
 		redisTemplate.opsForHash().put(key, instanceId, attachment);
 		log.info("Register node '{}' to spring application cluster '{}'", instanceId, applicationName);
@@ -44,7 +44,7 @@ public class ContextNodeFinder implements NodeFinder {
 	@Override
 	public Object findNode(String instanceId) {
 		log.info("Find node '{}' from spring application cluster '{}'", instanceId, applicationName);
-		final String key = String.format(APPLICATION_KEY, applicationName);
+		final String key = APPLICATION_KEY + applicationName;
 		if (!ObjectUtils.accept(new Acceptable() {
 
 			@Override

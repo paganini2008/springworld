@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
  * 
  * @version 1.0
  */
-@Import({ TransportServerConfiguration.class, BenchmarkController.class })
+@Import({ TransportServerConfiguration.class, ApplicationTransportController.class, BenchmarkController.class })
 @Configuration
 public class TransportAutoConfiguration {
 }

@@ -41,7 +41,7 @@ public class SortedCache extends BasicCache {
 		}
 
 		@Override
-		public void onOrder(String key, Cache cache) {
+		public void onSort(String key, Cache cache) {
 			keys.add(key);
 			if (keys.size() > maxSize) {
 				String oldestKey = keys.pollLast();

@@ -7,18 +7,18 @@
 		<version>2.0-RC3</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	
+
 	<artifactId>crontab-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 	<name>crontab-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
-	<dependencies>
-	
+	<dependencies> 
+
 		<dependency>
 			<groupId>com.github.paganini2008</groupId>
 			<artifactId>devtools-cron4j</artifactId>
-			<version>2.0-RC3</version> 
+			<version>2.0-RC3</version>
 		</dependency>
 
 		<dependency>
@@ -26,8 +26,14 @@
 			<artifactId>cluster-spring-boot-starter</artifactId>
 			<version>2.0-RC3</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.paganini2008.springworld</groupId>
+			<artifactId>cached-spring-boot-starter</artifactId>
+			<version>2.0-RC3</version>
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>

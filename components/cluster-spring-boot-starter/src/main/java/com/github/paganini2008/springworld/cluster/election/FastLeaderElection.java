@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.election;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,11 +13,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterHeartbeatThread;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redisplus.BeanNames;
+import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +34,9 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 	@Value("${spring.application.name}")
 	private String applicationName;
 
+	@Value("${spring.application.cluster.leader.timeout:5}")
+	private int leaderTimeout;
+
 	@Autowired
 	private InstanceId instanceId;
 
@@ -40,7 +45,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
-	private ApplicationClusterHeartbeatThread clusterHeartbeatThread;
+	private TtlKeeper ttlKeeper;
 
 	private ApplicationContext applicationContext;
 
@@ -54,7 +59,6 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		redisTemplate.opsForList().leftPush(key, myInfo);
 		ApplicationInfo leaderInfo;
 		if (myInfo.equals(leaderInfo = (ApplicationInfo) redisTemplate.opsForList().index(key, -1))) {
-			clusterHeartbeatThread.start();
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
 			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", applicationName,
 					ApplicationClusterNewLeaderEvent.class.getName());
@@ -65,6 +69,10 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		}
 		log.info("Leader's info: " + leaderInfo);
 		instanceId.setLeaderInfo(leaderInfo);
+
+		if (instanceId.isLeader()) {
+			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
+		}
 	}
 
 	@Override

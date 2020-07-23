@@ -1,6 +1,8 @@
 package com.github.paganini2008.springworld.transport.buffer;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +27,14 @@ public class MemcachedBufferZone implements BufferZone {
 	@Value("${spring.application.name}")
 	private String applicationName;
 
-	@Value("${spring.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName:default}")
 	private String collectionName;
 
-	@Value("${spring.transport.bufferzone.cooperative:true}")
-	private boolean cooperative;
+	@Value("${spring.application.transport.bufferzone.shared:true}")
+	private boolean shared;
 
 	@Autowired
-	private InstanceId clusterId;
+	private InstanceId instanceId;
 
 	@Autowired
 	private MemcachedTemplate memcachedOperations;
@@ -43,12 +45,18 @@ public class MemcachedBufferZone implements BufferZone {
 	}
 
 	@Override
-	public Tuple get(String collectionName) throws Exception {
-		return memcachedOperations.pop(keyFor(collectionName), TupleImpl.class);
+	public List<Tuple> get(String collectionName, int pullSize) throws Exception {
+		List<Tuple> list = new ArrayList<Tuple>();
+		Tuple tuple;
+		int i = 0;
+		while (null != (tuple = memcachedOperations.pop(keyFor(collectionName), TupleImpl.class)) && i++ < pullSize) {
+			list.add(tuple);
+		}
+		return list;
 	}
 
-	private String keyFor(String collectionName) {
-		return "transport:bufferzone:" + collectionName + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
+	protected String keyFor(String collectionName) {
+		return "spring:application:transport:" + applicationName + ":bufferzone:" + collectionName + (shared ? "" : ":" + instanceId.get());
 	}
 
 	@Override

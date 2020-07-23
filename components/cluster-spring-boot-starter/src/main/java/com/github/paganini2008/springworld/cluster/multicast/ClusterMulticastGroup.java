@@ -16,6 +16,7 @@ import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -24,6 +25,7 @@ import lombok.Setter;
  * @author Fred Feng
  * @version 1.0
  */
+@Slf4j
 public class ClusterMulticastGroup {
 
 	private final List<String> channels = new CopyOnWriteArrayList<String>();
@@ -43,6 +45,9 @@ public class ClusterMulticastGroup {
 			channels.add(channel);
 		}
 		Collections.sort(channels);
+		if (log.isTraceEnabled()) {
+			log.trace("Current channels: " + channels);
+		}
 	}
 
 	public boolean hasRegistered(String channel) {

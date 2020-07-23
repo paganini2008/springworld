@@ -1,28 +1,36 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
+
 /**
  * 
  * JobManager
  * 
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
-public interface JobManager {
+public interface JobManager extends JobPersistence, Lifecycle {
 
-	void scheduleJob(Object jobBean, String jobBeanName, String description, String cronExpression) throws Exception;
+	void schedule(Job job, Object arg);
 
-	void unscheduleJob(String jobBeanName) throws Exception;
+	boolean hasScheduled(Job job);
 
-	void pauseJob(String jobBeanName) throws Exception;
+	void pauseJob(Job job) throws Exception;
 
-	void resumeJob(String jobBeanName) throws Exception;
+	void resumeJob(Job job) throws Exception;
 
-	boolean hasScheduled(String jobBeanName) throws Exception;
+	void unscheduleJob(Job job);
 
-	int countOfJobs() throws Exception;
+	void runJob(Job job, Object arg);
 
-	void runNow();
+	void doSchedule();
+
+	int countOfScheduling();
+
+	Future getFuture(Job job);
+
+	void addJobDependency(SerializableJob job);
+
+	ResultSetSlice<JobInfo> getJobInfos();
 
 }

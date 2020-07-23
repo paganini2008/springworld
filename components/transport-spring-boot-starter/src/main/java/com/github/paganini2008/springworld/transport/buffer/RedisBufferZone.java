@@ -1,5 +1,8 @@
 package com.github.paganini2008.springworld.transport.buffer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,13 +25,13 @@ public class RedisBufferZone implements BufferZone {
 	private RedisTemplate<String, Object> template;
 
 	@Autowired
-	private InstanceId clusterId;
+	private InstanceId instanceId;
 
 	@Value("${spring.application.name}")
 	private String applicationName;
 
-	@Value("${spring.transport.bufferzone.cooperative:true}")
-	private boolean cooperative;
+	@Value("${spring.application.transport.bufferzone.shared:true}")
+	private boolean shared;
 
 	@Override
 	public void set(String collectionName, Tuple tuple) {
@@ -36,8 +39,14 @@ public class RedisBufferZone implements BufferZone {
 	}
 
 	@Override
-	public Tuple get(String collectionName) {
-		return (Tuple) template.opsForList().leftPop(keyFor(collectionName));
+	public List<Tuple> get(String collectionName, int pullSize) {
+		List<Tuple> list = new ArrayList<Tuple>();
+		Tuple tuple;
+		int i = 0;
+		while (null != (tuple = (Tuple) template.opsForList().leftPop(keyFor(collectionName))) && i++ < pullSize) {
+			list.add(tuple);
+		}
+		return list;
 	}
 
 	@Override
@@ -45,8 +54,8 @@ public class RedisBufferZone implements BufferZone {
 		return template.opsForList().size(keyFor(collectionName)).intValue();
 	}
 
-	private String keyFor(String collectionName) {
-		return "transport:bufferzone:" + collectionName + ":" + applicationName + (cooperative ? "" : ":" + clusterId.get());
+	protected String keyFor(String collectionName) {
+		return "spring:application:transport:" + applicationName + ":bufferzone:" + collectionName + (shared ? "" : ":" + instanceId.get());
 	}
 
 }

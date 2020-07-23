@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.beans.ToStringBuilder;
 
@@ -30,7 +31,11 @@ public class ApplicationInfo implements Serializable {
 	private int port;
 	private int weight;
 	private long startTime;
+	@JsonProperty("leader")
+	private boolean isLeader;
 	private Map<String, String> description;
+
+	@JsonIgnore
 	private ApplicationInfo leaderInfo;
 
 	public ApplicationInfo() {
@@ -47,14 +52,12 @@ public class ApplicationInfo implements Serializable {
 		this.weight = weight;
 		this.startTime = startTime;
 		this.leaderInfo = leaderInfo;
+		this.isLeader = leaderInfo != null && id.equals(leaderInfo.getId());
 	}
 
 	@JsonIgnore
 	public boolean isLeader() {
-		if (leaderInfo == null) {
-			return false;
-		}
-		return id.equals(leaderInfo.getId());
+		return isLeader;
 	}
 
 	@Override
@@ -78,7 +81,7 @@ public class ApplicationInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this, new String[] { "leaderInfo", "leader" });
+		return ToStringBuilder.reflectionToString(this, new String[] { "leaderInfo" });
 	}
 
 }

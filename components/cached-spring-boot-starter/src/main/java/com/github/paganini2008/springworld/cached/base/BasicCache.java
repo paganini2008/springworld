@@ -108,8 +108,8 @@ public abstract class BasicCache implements Cache {
 		}
 
 		@Override
-		public Object get(String key, String name) {
-			return hash.get(key, name);
+		public Object get(String key, String name, Object defaultValue) {
+			return hash.get(key, name, defaultValue);
 		}
 
 		@Override
@@ -129,11 +129,11 @@ public abstract class BasicCache implements Cache {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] arguments) throws Throwable {
 			Object result = MethodUtils.invokeMethod(this, method, arguments);
-			if (!method.isAnnotationPresent(Order.class)) {
+			if (!method.isAnnotationPresent(Sort.class)) {
 				return result;
 			}
 			final String key = (String) arguments[0];
-			keyExpirationPolicy.onOrder(key, BasicCache.this);
+			keyExpirationPolicy.onSort(key, BasicCache.this);
 			return result;
 		}
 
@@ -202,11 +202,11 @@ public abstract class BasicCache implements Cache {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] arguments) throws Throwable {
 			Object result = MethodUtils.invokeMethod(this, method, arguments);
-			if (!method.isAnnotationPresent(Order.class)) {
+			if (!method.isAnnotationPresent(Sort.class)) {
 				return result;
 			}
 			final String key = (String) arguments[0];
-			keyExpirationPolicy.onOrder(key, BasicCache.this);
+			keyExpirationPolicy.onSort(key, BasicCache.this);
 			return result;
 		}
 
@@ -282,11 +282,11 @@ public abstract class BasicCache implements Cache {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] arguments) throws Throwable {
 			Object result = MethodUtils.invokeMethod(this, method, arguments);
-			if (!method.isAnnotationPresent(Order.class)) {
+			if (!method.isAnnotationPresent(Sort.class)) {
 				return result;
 			}
 			final String key = (String) arguments[0];
-			keyExpirationPolicy.onOrder(key, BasicCache.this);
+			keyExpirationPolicy.onSort(key, BasicCache.this);
 			return result;
 		}
 
@@ -406,9 +406,9 @@ public abstract class BasicCache implements Cache {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			Object result = method.invoke(this, args);
-			if (method.isAnnotationPresent(Order.class)) {
+			if (method.isAnnotationPresent(Sort.class)) {
 				final String key = (String) args[0];
-				keyExpirationPolicy.onOrder(key, BasicCache.this);
+				keyExpirationPolicy.onSort(key, BasicCache.this);
 			} else if (method.isAnnotationPresent(Delete.class)) {
 				final String key = (String) args[0];
 				keyExpirationPolicy.onDelete(key, BasicCache.this);

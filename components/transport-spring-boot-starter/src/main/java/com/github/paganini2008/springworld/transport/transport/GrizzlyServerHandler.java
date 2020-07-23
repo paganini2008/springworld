@@ -28,16 +28,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GrizzlyServerHandler extends BaseFilter {
 
-	@Value("${spring.transport.nioserver.keepalive.response:true}")
+	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
 	@Autowired
-	private BufferZone store;
+	private BufferZone bufferZone;
 	
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName:default}")
 	private String collectionName;
 
 	@Autowired(required = false)
@@ -57,7 +57,7 @@ public class GrizzlyServerHandler extends BaseFilter {
 		} else {
 			counter.increment();
 			try {
-				store.set(collectionName, message);
+				bufferZone.set(collectionName, message);
 			} catch (Exception e) {
 				if (e instanceof IOException) {
 					throw (IOException) e;

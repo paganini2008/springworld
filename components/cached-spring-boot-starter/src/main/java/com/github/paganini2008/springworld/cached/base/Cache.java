@@ -36,25 +36,25 @@ public interface Cache {
 	 */
 	interface HashOperations extends Signature {
 
-		@Order
+		@Sort
 		void set(String key, String name, Object object);
 
-		@Order
+		@Sort
 		void append(String key, Map<String, Object> m);
 
 		@Hit
-		@Order
+		@Sort
 		boolean hasKey(String key, String name);
 
 		@Hit
-		@Order
-		Object get(String key, String name);
+		@Sort
+		Object get(String key, String name, Object defaultValue);
 
 		@Hit
-		@Order
+		@Sort
 		Map<String, Object> get(String key);
 
-		@Order
+		@Sort
 		void delete(String key, String name);
 	}
 
@@ -67,28 +67,28 @@ public interface Cache {
 	 */
 	interface SetOperations extends Signature {
 
-		@Order
+		@Sort
 		void add(String key, Object object);
 
-		@Order
+		@Sort
 		void append(String key, Collection<Object> c);
 
-		@Order
+		@Sort
 		Object pollFirst(String key);
 
-		@Order
+		@Sort
 		Object pollLast(String key);
 
 		@Hit
-		@Order
+		@Sort
 		Object peekFirst(String key);
 
 		@Hit
-		@Order
+		@Sort
 		Object peekLast(String key);
 
 		@Hit
-		@Order
+		@Sort
 		List<Object> list(String key);
 
 	}
@@ -102,31 +102,31 @@ public interface Cache {
 	 */
 	interface ListOperations extends Signature {
 
-		@Order
+		@Sort
 		void append(String key, Collection<Object> c);
 
-		@Order
+		@Sort
 		void addFirst(String key, Object object);
 
-		@Order
+		@Sort
 		void addLast(String key, Object object);
 
 		@Hit
-		@Order
+		@Sort
 		List<Object> list(String key);
 
 		@Hit
-		@Order
+		@Sort
 		Object peekFirst(String key);
 
 		@Hit
-		@Order
+		@Sort
 		Object peekLast(String key);
 
-		@Order
+		@Sort
 		Object pollFirst(String key);
 
-		@Order
+		@Sort
 		Object pollLast(String key);
 
 	}
@@ -140,35 +140,35 @@ public interface Cache {
 	 */
 	interface ValueOperations extends Signature {
 
-		@Order
+		@Sort
 		void set(String key, Object object);
 
 		@Hit
-		@Order
+		@Sort
 		boolean hasKey(String key);
 
 		@Hit
-		@Order
+		@Sort
 		Object get(String key);
 
 		@Hit
-		@Order
+		@Sort
 		long longValue(String key);
 
-		@Order
+		@Sort
 		long increment(String key);
 
-		@Order
+		@Sort
 		long decrement(String key);
 
-		@Order
+		@Sort
 		long addLong(String key, long delta);
 
 		@Hit
-		@Order
+		@Sort
 		double doubleValue(String key);
 
-		@Order
+		@Sort
 		double addDouble(String key, double delta);
 
 		@Delete

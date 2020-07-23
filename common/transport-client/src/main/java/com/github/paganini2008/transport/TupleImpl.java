@@ -2,8 +2,9 @@ package com.github.paganini2008.transport;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.converter.ConvertUtils;
@@ -15,17 +16,17 @@ import com.github.paganini2008.devtools.converter.ConvertUtils;
  * @author Fred Feng
  * @version 1.0
  */
-public class TupleImpl extends HashMap<String, Object> implements Tuple, Serializable {
+public class TupleImpl extends TreeMap<String, Object> implements Tuple, Serializable {
 
-	private static final long serialVersionUID = -7400874886336157587L;
+	private static final long serialVersionUID = 959427866779280701L;
 
 	public TupleImpl() {
 		super();
 		setField("timestamp", System.currentTimeMillis());
 	}
 
-	public TupleImpl(Map<String, ?> kwargs) {
-		super(kwargs);
+	public TupleImpl(Comparator<String> c) {
+		super(c);
 		setField("timestamp", System.currentTimeMillis());
 	}
 
@@ -54,6 +55,11 @@ public class TupleImpl extends HashMap<String, Object> implements Tuple, Seriali
 		for (String key : keySet()) {
 			BeanUtils.setProperty(object, key, get(key));
 		}
+	}
+
+	@Override
+	public void append(Map<String, ?> m) {
+		putAll(m);
 	}
 
 	@Override

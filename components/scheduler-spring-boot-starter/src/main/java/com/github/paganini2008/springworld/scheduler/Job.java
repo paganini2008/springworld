@@ -1,29 +1,51 @@
 package com.github.paganini2008.springworld.scheduler;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * 
  * Job
- * 
+ *
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ * @since 1.0
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Job {
+public interface Job {
 
-	String name() default "";
-	
-	String value();
+	default String getJobName() {
+		String simpleName = getClass().getSimpleName();
+		return simpleName.substring(0, 1).toLowerCase().concat(simpleName.substring(1));
+	}
 
-	String description() default "";
+	default String getJobClassName() {
+		return getClass().getName();
+	}
+
+	default String getSignature() {
+		return getJobName() + "@" + getJobClassName();
+	}
+
+	default String getDescription() {
+		return "";
+	}
+
+	default int getRetries() {
+		return 0;
+	}
+
+	default Object getAttachment() {
+		return null;
+	}
+
+	default void onStart() {
+	}
+
+	default void onSuccess(Object result) {
+	}
+
+	default void onFailure(Throwable e) {
+	}
+
+	default void onEnd() {
+	}
+
+	Object execute(Object result);
 
 }

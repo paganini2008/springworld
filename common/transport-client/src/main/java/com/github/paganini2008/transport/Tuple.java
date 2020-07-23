@@ -33,6 +33,8 @@ public interface Tuple {
 
 	<T> T getField(String fieldName, Class<T> requiredType);
 
+	void append(Map<String, ?> m);
+
 	void fill(Object object);
 
 	Map<String, Object> toMap();
@@ -66,7 +68,9 @@ public interface Tuple {
 	}
 
 	public static Tuple wrap(Map<String, ?> kwargs) {
-		return new TupleImpl(kwargs);
+		Tuple tuple = new TupleImpl();
+		tuple.append(kwargs);
+		return tuple;
 	}
 
 }

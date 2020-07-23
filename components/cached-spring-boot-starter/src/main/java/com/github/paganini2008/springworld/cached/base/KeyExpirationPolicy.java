@@ -9,7 +9,7 @@ package com.github.paganini2008.springworld.cached.base;
  */
 public interface KeyExpirationPolicy {
 
-	default void onOrder(String key, Cache cache) {
+	default void onSort(String key, Cache cache) {
 	}
 
 	default void onDelete(String key, Cache cache) {

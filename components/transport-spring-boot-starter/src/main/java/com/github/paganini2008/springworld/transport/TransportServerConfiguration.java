@@ -17,8 +17,9 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
-import com.github.paganini2008.springworld.redisplus.kryo.KryoRedisSerializer;
+import com.github.paganini2008.springworld.redisplus.serializer.FstRedisSerializer;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
+import com.github.paganini2008.springworld.transport.buffer.KafkaBufferZone;
 import com.github.paganini2008.springworld.transport.buffer.MemcachedBufferZone;
 import com.github.paganini2008.springworld.transport.buffer.RedisBufferZone;
 import com.github.paganini2008.springworld.transport.transport.EmbeddedChannelEventListener;
@@ -35,16 +36,16 @@ import com.github.paganini2008.springworld.transport.transport.NettyServer;
 import com.github.paganini2008.springworld.transport.transport.NettyServerHandler;
 import com.github.paganini2008.springworld.transport.transport.NettyServerKeepAlivePolicy;
 import com.github.paganini2008.springworld.transport.transport.NioServer;
-import com.github.paganini2008.springworld.xmemcached.KryoMemcachedSerializer;
-import com.github.paganini2008.springworld.xmemcached.MemcachedSerializer;
 import com.github.paganini2008.springworld.xmemcached.MemcachedTemplate;
 import com.github.paganini2008.springworld.xmemcached.MemcachedTemplateBuilder;
+import com.github.paganini2008.springworld.xmemcached.serializer.FstMemcachedSerializer;
+import com.github.paganini2008.springworld.xmemcached.serializer.MemcachedSerializer;
 import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.NodeFinder;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
-import com.github.paganini2008.transport.TupleImpl;
+import com.github.paganini2008.transport.Tuple;
 import com.github.paganini2008.transport.embeddedio.EmbeddedClient;
 import com.github.paganini2008.transport.embeddedio.EmbeddedSerializationFactory;
 import com.github.paganini2008.transport.embeddedio.SerializationFactory;
@@ -57,7 +58,7 @@ import com.github.paganini2008.transport.netty.KeepAlivePolicy;
 import com.github.paganini2008.transport.netty.MessageCodecFactory;
 import com.github.paganini2008.transport.netty.NettyClient;
 import com.github.paganini2008.transport.netty.NettyTupleCodecFactory;
-import com.github.paganini2008.transport.serializer.KryoSerializer;
+import com.github.paganini2008.transport.serializer.FstSerializer;
 import com.github.paganini2008.transport.serializer.Serializer;
 
 import io.netty.channel.Channel;
@@ -75,12 +76,12 @@ public class TransportServerConfiguration {
 	@ConditionalOnMissingBean(Serializer.class)
 	@Bean
 	public Serializer serializer() {
-		return new KryoSerializer();
+		return new FstSerializer();
 	}
 
 	@Bean(destroyMethod = "stop")
-	public LoopProcessor loopProcessor() {
-		return new LoopProcessor();
+	public TupleLoopProcessor tupleLoopProcessor() {
+		return new TupleLoopProcessor();
 	}
 
 	@ConditionalOnMissingBean(Partitioner.class)
@@ -132,18 +133,26 @@ public class TransportServerConfiguration {
 		return new Counter(redisAtomicLong);
 	}
 
+	/**
+	 * 
+	 * RedisBufferZoneConfiguration
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
 	@Configuration
-	@ConditionalOnProperty(name = "spring.transport.bufferzone", havingValue = "redis", matchIfMissing = true)
+	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "redis", matchIfMissing = true)
 	public static class RedisBufferZoneConfiguration {
 
 		@Bean("bufferzone-redis-serializer")
-		public RedisSerializer<Object> redisSerializer() {
-			return new KryoRedisSerializer(TupleImpl.class);
+		public RedisSerializer<Tuple> redisSerializer() {
+			return new FstRedisSerializer<Tuple>(Tuple.class);
 		}
 
 		@Bean("bufferzone-redis-template")
 		public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
-				@Qualifier("bufferzone-redis-serializer") RedisSerializer<Object> redisSerializer) {
+				@Qualifier("bufferzone-redis-serializer") RedisSerializer<Tuple> redisSerializer) {
 			RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
 			redisTemplate.setConnectionFactory(redisConnectionFactory);
 			StringRedisSerializer stringSerializer = new StringRedisSerializer();
@@ -161,8 +170,35 @@ public class TransportServerConfiguration {
 		}
 	}
 
+	/**
+	 * 
+	 * KafkaBufferZoneConfiguration
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
 	@Configuration
-	@ConditionalOnProperty(name = "spring.transport.bufferzone", havingValue = "memcached")
+	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "kafka")
+	public static class KafkaBufferZoneConfiguration {
+
+		@Bean(initMethod = "configure", destroyMethod = "destroy")
+		public BufferZone bufferZone() {
+			return new KafkaBufferZone();
+		}
+
+	}
+
+	/**
+	 * 
+	 * MemcachedBufferZoneConfiguration
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	@Configuration
+	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "memcached")
 	public static class MemcachedBufferZoneConfiguration {
 
 		@Value("${spring.memcached.address:localhost:11211}")
@@ -171,7 +207,7 @@ public class TransportServerConfiguration {
 		@ConditionalOnMissingBean(MemcachedSerializer.class)
 		@Bean
 		public MemcachedSerializer memcachedSerializer() {
-			return new KryoMemcachedSerializer();
+			return new FstMemcachedSerializer();
 		}
 
 		@ConditionalOnMissingBean(MemcachedTemplate.class)
@@ -190,7 +226,7 @@ public class TransportServerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.transport.nioserver", havingValue = "netty", matchIfMissing = true)
+	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "netty", matchIfMissing = true)
 	public static class NettyTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
@@ -230,7 +266,7 @@ public class TransportServerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.transport.nioserver", havingValue = "mina")
+	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "mina")
 	public static class MinaTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
@@ -264,7 +300,7 @@ public class TransportServerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.transport.nioserver", havingValue = "grizzly")
+	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "grizzly")
 	public static class GrizzlyTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
@@ -298,7 +334,7 @@ public class TransportServerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.transport.nioserver", havingValue = "embedded-io")
+	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "embedded-io")
 	public static class EmbeddedIOTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")

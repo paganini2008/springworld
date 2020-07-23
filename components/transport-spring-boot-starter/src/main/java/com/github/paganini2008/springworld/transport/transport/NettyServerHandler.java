@@ -28,15 +28,15 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
 	@Autowired
-	private BufferZone store;
+	private BufferZone bufferZone;
 
 	@Autowired
 	private Counter counter;
 
 	@Autowired(required = false)
 	private ChannelEventListener<Channel> channelEventListener;
-	
-	@Value("${spring.transport.bufferzone.collectionName:default}")
+
+	@Value("${spring.application.transport.bufferzone.collectionName:default}")
 	private String collectionName;
 
 	@Override
@@ -61,7 +61,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object message) throws Exception {
 		counter.increment();
-		store.set(collectionName, (Tuple) message);
+		bufferZone.set(collectionName, (Tuple) message);
 	}
 
 	private void fireChannelEvent(Channel channel, EventType eventType, Throwable cause) {

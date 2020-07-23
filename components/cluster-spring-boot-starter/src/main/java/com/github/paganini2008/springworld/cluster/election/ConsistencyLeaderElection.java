@@ -1,12 +1,16 @@
 package com.github.paganini2008.springworld.cluster.election;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
@@ -14,6 +18,8 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEv
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestConfirmationEvent;
+import com.github.paganini2008.springworld.redisplus.BeanNames;
+import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,8 +38,18 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 	@Value("${spring.application.name}")
 	private String applicationName;
 
+	@Value("${spring.application.cluster.leader.timeout:5}")
+	private int leaderTimeout;
+
 	@Autowired
 	private InstanceId instanceId;
+
+	@Qualifier(BeanNames.REDIS_TEMPLATE)
+	@Autowired
+	private RedisTemplate<String, Object> redisTemplate;
+
+	@Autowired
+	private TtlKeeper ttlKeeper;
 
 	@Override
 	public void lookupLeader(ApplicationEvent applicationEvent) {
@@ -50,6 +66,13 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 		}
 		log.info("Leader's info: " + leaderInfo);
 		instanceId.setLeaderInfo(leaderInfo);
+
+		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+		redisTemplate.opsForList().leftPush(key, instanceId.getApplicationInfo());
+		if (instanceId.isLeader()) {
+			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
+		}
+
 	}
 
 	@Override

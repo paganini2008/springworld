@@ -30,7 +30,7 @@ public class ApplicationClusterCache implements Cache, ApplicationContextAware {
 	private final ApplicationClusterHashOperations hashOperations = new ApplicationClusterHashOperations();
 	private final ApplicationClusterSetOperations setOperations = new ApplicationClusterSetOperations();
 	private final ApplicationClusterListOperations listOperations = new ApplicationClusterListOperations();
-	
+
 	@Override
 	public void set(String key, Object object) {
 		OperationNotification operationNotification = new OperationNotification(MethodSignatures.parse("cache", "set"), key, object);
@@ -162,8 +162,8 @@ public class ApplicationClusterCache implements Cache, ApplicationContextAware {
 		}
 
 		@Override
-		public Object get(String key, String name) {
-			return cache.hash().get(key, name);
+		public Object get(String key, String name, Object defaultValue) {
+			return cache.hash().get(key, name, defaultValue);
 		}
 
 		@Override
@@ -310,7 +310,7 @@ public class ApplicationClusterCache implements Cache, ApplicationContextAware {
 		}
 
 	}
-	
+
 	private ApplicationContext applicationContext;
 
 	@Override

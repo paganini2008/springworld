@@ -1,8 +1,12 @@
 package com.github.paganini2008.springworld.transport.buffer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.LruQueue;
 import com.github.paganini2008.transport.Tuple;
 
@@ -38,9 +42,17 @@ public class MemoryBufferZone implements BufferZone {
 	}
 
 	@Override
-	public Tuple get(String collectionName) {
-		LruQueue<Tuple> q = cache.get(collectionName);
-		return q != null ? q.poll() : null;
+	public List<Tuple> get(String collectionName, int pullSize) {
+		List<Tuple> list = new ArrayList<Tuple>();
+		Queue<Tuple> q = cache.get(collectionName);
+		if (CollectionUtils.isNotEmpty(q)) {
+			Tuple tuple;
+			int i = 0;
+			while (null != (tuple = q.poll()) && i++ < pullSize) {
+				list.add(tuple);
+			}
+		}
+		return list;
 	}
 
 	@Override

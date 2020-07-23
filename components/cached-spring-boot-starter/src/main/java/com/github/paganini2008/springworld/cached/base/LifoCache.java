@@ -26,7 +26,7 @@ public class LifoCache extends BasicCache {
 		}
 
 		@Override
-		public void onOrder(String key, Cache cache) {
+		public void onSort(String key, Cache cache) {
 			if (!keys.contains(key)) {
 				keys.add(key);
 				if (keys.size() > maxSize) {

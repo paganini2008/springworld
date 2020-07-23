@@ -25,12 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 public class MinaServerHandler extends IoHandlerAdapter {
 
 	@Autowired
-	private BufferZone store;
+	private BufferZone bufferZone;
 	
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName:default}")
 	private String collectionName;
 
 	@Autowired(required = false)
@@ -55,7 +55,7 @@ public class MinaServerHandler extends IoHandlerAdapter {
 	@Override
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		counter.increment();
-		store.set(collectionName, (Tuple) message);
+		bufferZone.set(collectionName, (Tuple) message);
 	}
 
 	private void fireChannelEvent(IoSession channel, EventType eventType, Throwable cause) {

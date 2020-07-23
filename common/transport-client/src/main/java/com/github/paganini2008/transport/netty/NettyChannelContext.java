@@ -10,6 +10,7 @@ import com.github.paganini2008.transport.Partitioner;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -20,6 +21,7 @@ import io.netty.channel.ChannelHandler.Sharable;
  * 
  * @version 1.0
  */
+@Slf4j
 @Sharable
 public class NettyChannelContext extends NettyChannelContextAware implements ChannelContext<Channel> {
 
@@ -28,6 +30,9 @@ public class NettyChannelContext extends NettyChannelContextAware implements Cha
 	public void addChannel(Channel channel, int weight) {
 		for (int i = 0; i < weight; i++) {
 			holder.add(channel);
+		}
+		if (log.isTraceEnabled()) {
+			log.trace("Current channel size: " + countOfChannels());
 		}
 	}
 

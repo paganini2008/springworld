@@ -10,7 +10,7 @@ import com.github.paganini2008.springworld.cached.base.Cache;
 import com.github.paganini2008.springworld.cached.base.Clear;
 import com.github.paganini2008.springworld.cached.base.Delete;
 import com.github.paganini2008.springworld.cached.base.Hit;
-import com.github.paganini2008.springworld.cached.base.Order;
+import com.github.paganini2008.springworld.cached.base.Sort;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +30,7 @@ public abstract class MethodSignatures {
 	private static final Map<String, String> list = new HashMap<String, String>();
 
 	static {
-		List<Method> methods = MethodUtils.getMethodsWithAnnotation(Cache.ValueOperations.class, Order.class);
+		List<Method> methods = MethodUtils.getMethodsWithAnnotation(Cache.ValueOperations.class, Sort.class);
 		for (Method method : methods) {
 			if (method.isAnnotationPresent(Hit.class)) {
 				continue;
@@ -53,7 +53,7 @@ public abstract class MethodSignatures {
 			}
 		}
 
-		methods = MethodUtils.getMethodsWithAnnotation(Cache.HashOperations.class, Order.class);
+		methods = MethodUtils.getMethodsWithAnnotation(Cache.HashOperations.class, Sort.class);
 		for (Method method : methods) {
 			if (method.isAnnotationPresent(Hit.class)) {
 				continue;
@@ -66,7 +66,7 @@ public abstract class MethodSignatures {
 			}
 		}
 
-		methods = MethodUtils.getMethodsWithAnnotation(Cache.SetOperations.class, Order.class);
+		methods = MethodUtils.getMethodsWithAnnotation(Cache.SetOperations.class, Sort.class);
 		for (Method method : methods) {
 			if (method.isAnnotationPresent(Hit.class)) {
 				continue;
@@ -79,7 +79,7 @@ public abstract class MethodSignatures {
 			}
 		}
 
-		methods = MethodUtils.getMethodsWithAnnotation(Cache.ListOperations.class, Order.class);
+		methods = MethodUtils.getMethodsWithAnnotation(Cache.ListOperations.class, Sort.class);
 		for (Method method : methods) {
 			if (method.isAnnotationPresent(Hit.class)) {
 				continue;

@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.xmemcached;
 
+import com.github.paganini2008.springworld.xmemcached.serializer.MemcachedSerializer;
+
 import net.rubyeye.xmemcached.MemcachedClient;
 
 /**

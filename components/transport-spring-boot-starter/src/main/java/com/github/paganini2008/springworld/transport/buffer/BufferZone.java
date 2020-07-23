@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.transport.buffer;
 
+import java.util.List;
+
 import com.github.paganini2008.transport.Tuple;
 
 /**
@@ -19,7 +21,7 @@ public interface BufferZone {
 
 	void set(String collectionName, Tuple tuple) throws Exception;
 
-	Tuple get(String collectionName) throws Exception;
+	List<Tuple> get(String collectionName, int pullSize) throws Exception;
 
 	int size(String collectionName) throws Exception;
 

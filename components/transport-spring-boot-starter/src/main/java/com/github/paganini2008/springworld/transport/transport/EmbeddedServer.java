@@ -42,16 +42,16 @@ public class EmbeddedServer implements NioServer {
 	private IoAcceptor acceptor;
 	private InetSocketAddress localAddress;
 
-	@Value("${spring.transport.nioserver.threads:-1}")
+	@Value("${spring.application.transport.nioserver.threads:-1}")
 	private int threadCount;
 
-	@Value("${spring.transport.nioserver.hostName:}")
+	@Value("${spring.application.transport.nioserver.hostName:}")
 	private String hostName;
 
-	@Value("${spring.transport.nioserver.idleTimeout:60}")
+	@Value("${spring.application.transport.nioserver.idleTimeout:60}")
 	private int idleTimeout;
 
-	@Value("${spring.transport.nioserver.embeddedio.useAio:false}")
+	@Value("${spring.application.transport.nioserver.embeddedio.useAio:false}")
 	private boolean useAio;
 
 	@Autowired
