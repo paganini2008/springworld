@@ -26,6 +26,9 @@ public final class InstanceId {
 	@Autowired
 	private InstanceIdGenerator idGenerator;
 
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
+
 	@Value("${spring.application.name}")
 	private String applicationName;
 
@@ -77,7 +80,8 @@ public final class InstanceId {
 	}
 
 	public ApplicationInfo getApplicationInfo() {
-		return new ApplicationInfo(get(), applicationName, getHostName(), serverPort, getWeight(), getStartTime(), getLeaderInfo());
+		return new ApplicationInfo(get(), clusterName, applicationName, getHostName(), serverPort, getWeight(), getStartTime(),
+				getLeaderInfo());
 	}
 
 	public String toString() {

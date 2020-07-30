@@ -17,7 +17,14 @@ public class JdbcJobManager extends AbstractJobManager implements JobManager {
 	private JobStore jobStore;
 
 	@Override
-	public void addJob(Job job) {
+	public void configure() throws Exception {
+		jobStore.reloadJobs((job, attachment) -> {
+			schedule(job, attachment);
+		});
+	}
+
+	@Override
+	public void addJob(Job job) throws JobException {
 		try {
 			jobStore.addJob(job);
 		} catch (Exception e) {
@@ -26,7 +33,7 @@ public class JdbcJobManager extends AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	public void deleteJob(Job job) {
+	public void deleteJob(Job job) throws JobException {
 		try {
 			jobStore.deleteJob(job);
 		} catch (Exception e) {
@@ -35,7 +42,7 @@ public class JdbcJobManager extends AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	public boolean hasJob(Job job) {
+	public boolean hasJob(Job job) throws JobException {
 		try {
 			return jobStore.hasJob(job);
 		} catch (Exception e) {
@@ -44,16 +51,16 @@ public class JdbcJobManager extends AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	protected void setJobState(Job job, JobState jobState) {
+	protected void setJobState(Job job, JobState jobState) throws JobException {
 		try {
 			jobStore.setJobState(job, jobState);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
 	}
-	
+
 	@Override
-	public ResultSetSlice<JobInfo> getJobInfos() {
+	public ResultSetSlice<JobStat> getJobInfos() {
 		return null;
 	}
 

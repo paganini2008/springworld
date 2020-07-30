@@ -26,6 +26,7 @@ public class ApplicationInfo implements Serializable {
 	private static final long serialVersionUID = 2499029995227541654L;
 
 	private String id;
+	private String clusterName;
 	private String applicationName;
 	private String hostName;
 	private int port;
@@ -34,18 +35,19 @@ public class ApplicationInfo implements Serializable {
 	@JsonProperty("leader")
 	private boolean isLeader;
 	private Map<String, String> description;
-
-	@JsonIgnore
 	private ApplicationInfo leaderInfo;
 
 	public ApplicationInfo() {
 	}
 
-	public ApplicationInfo(String id, String applicationName, String hostName, int port, int weight, long startTime,
+	ApplicationInfo(String id, String clusterName, String applicationName, String hostName, int port, int weight, long startTime,
 			ApplicationInfo leaderInfo) {
-		Assert.hasNoText("id");
-		Assert.hasNoText("applicationName");
+		Assert.hasNoText(id);
+		Assert.hasNoText(clusterName);
+		Assert.hasNoText(applicationName);
+		
 		this.id = id;
+		this.clusterName = clusterName;
 		this.applicationName = applicationName;
 		this.hostName = hostName;
 		this.port = port;
@@ -63,7 +65,7 @@ public class ApplicationInfo implements Serializable {
 	@Override
 	public int hashCode() {
 		int result = id.hashCode();
-		result |= applicationName.hashCode();
+		result |= clusterName.hashCode();
 		return result | 37;
 	}
 
@@ -74,7 +76,7 @@ public class ApplicationInfo implements Serializable {
 				return true;
 			}
 			ApplicationInfo other = (ApplicationInfo) obj;
-			return getApplicationName().equals(other.getApplicationName()) && getId().equals(other.getId());
+			return getClusterName().equals(other.getClusterName()) && getId().equals(other.getId());
 		}
 		return false;
 	}

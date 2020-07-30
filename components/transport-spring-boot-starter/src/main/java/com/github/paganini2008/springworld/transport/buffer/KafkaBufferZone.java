@@ -42,8 +42,8 @@ public class KafkaBufferZone implements BufferZone {
 	@Value("${spring.application.transport.bufferzone.pullSize:100}")
 	private int pullSize;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	private final Map<String, AtomicInteger> counter = new ConcurrentHashMap<String, AtomicInteger>();
 	private KafkaProducer<String, Tuple> kafkaProducer;
@@ -64,7 +64,7 @@ public class KafkaBufferZone implements BufferZone {
 		p.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
 		p.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		p.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, FstKafkaSerializer.class);
-		p.put(ConsumerConfig.GROUP_ID_CONFIG, "spring.application.transport." + applicationName);
+		p.put(ConsumerConfig.GROUP_ID_CONFIG, "spring.application.transport." + clusterName);
 
 		kafkaConsumer = new KafkaConsumer<String, Tuple>(p);
 		kafkaConsumer.subscribe(Arrays.asList(topicName.split(",")));

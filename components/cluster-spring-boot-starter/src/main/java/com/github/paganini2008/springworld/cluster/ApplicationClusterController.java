@@ -28,15 +28,15 @@ public class ApplicationClusterController {
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private InstanceId instanceId;
 
 	@GetMapping("/info")
 	public ResponseEntity<ApplicationInfo[]> info() {
-		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
 		ApplicationInfo[] results = new ApplicationInfo[dataList != null ? dataList.size() : 0];
 		int i = 0;

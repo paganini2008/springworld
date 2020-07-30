@@ -61,6 +61,14 @@ public class Cron4jScheduler implements Scheduler {
 		};
 	}
 
+	/**
+	 * 
+	 * FutureImpl
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
 	private static class FutureImpl implements Future {
 
 		private final TaskFuture taskFuture;
@@ -77,6 +85,11 @@ public class Cron4jScheduler implements Scheduler {
 		@Override
 		public boolean isDone() {
 			return taskFuture.isDone();
+		}
+
+		@Override
+		public boolean isCancelled() {
+			return taskFuture.isCancelled();
 		}
 
 		@Override

@@ -11,17 +11,17 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  */
 public interface JobManager extends JobPersistence, Lifecycle {
 
-	void schedule(Job job, Object arg);
+	void schedule(Job job, Object attachment) throws JobException;
 
-	boolean hasScheduled(Job job);
+	boolean hasScheduled(Job job) throws JobException;
 
-	void pauseJob(Job job) throws Exception;
+	void pauseJob(Job job) throws JobException;
 
-	void resumeJob(Job job) throws Exception;
+	void resumeJob(Job job) throws JobException;
 
 	void unscheduleJob(Job job);
 
-	void runJob(Job job, Object arg);
+	void runJob(Job job, Object attachment);
 
 	void doSchedule();
 
@@ -29,8 +29,6 @@ public interface JobManager extends JobPersistence, Lifecycle {
 
 	Future getFuture(Job job);
 
-	void addJobDependency(SerializableJob job);
-
-	ResultSetSlice<JobInfo> getJobInfos();
+	ResultSetSlice<JobStat> getJobInfos();
 
 }

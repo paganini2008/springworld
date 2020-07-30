@@ -1,6 +1,7 @@
 com\github\paganini2008\springworld\cached\OperationSynchronizationEvent.class
 com\github\paganini2008\springworld\cached\base\Cache.class
 com\github\paganini2008\springworld\cached\base\CheckedExpiredCache.class
+com\github\paganini2008\springworld\cached\base\Sort.class
 com\github\paganini2008\springworld\cached\base\BasicCache$HashOperaionsImpl.class
 com\github\paganini2008\springworld\cached\ApplicationClusterCache.class
 com\github\paganini2008\springworld\cached\base\BasicCache$ListOperationsImpl.class
@@ -12,7 +13,6 @@ com\github\paganini2008\springworld\cached\base\BasicCache$1.class
 com\github\paganini2008\springworld\cached\base\Cache$SetOperations.class
 com\github\paganini2008\springworld\cached\ApplicationClusterCacheAutoConfiguration.class
 com\github\paganini2008\springworld\cached\Cached.class
-com\github\paganini2008\springworld\cached\base\Order.class
 com\github\paganini2008\springworld\cached\base\BasicCache.class
 com\github\paganini2008\springworld\cached\ApplicationClusterCacheConfig.class
 com\github\paganini2008\springworld\cached\base\Cache$ListOperations.class

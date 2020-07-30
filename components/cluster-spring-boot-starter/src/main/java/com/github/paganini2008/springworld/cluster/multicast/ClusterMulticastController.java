@@ -27,13 +27,13 @@ public class ClusterMulticastController {
 
 	@GetMapping("/multicast")
 	public Map<String, Object> multicast(@RequestParam("c") String content) {
-		multicastGroup.multicast(content);
+		multicastGroup.multicast("*", content);
 		return resultMap(content);
 	}
 
 	@GetMapping("/unicast")
 	public Map<String, Object> unicast(@RequestParam("c") String content) {
-		multicastGroup.unicast(content);
+		multicastGroup.unicast("*", content);
 		return resultMap(content);
 	}
 

@@ -23,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NioServerPeerFinder implements ClusterStateChangeListener {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private NioClient nioClient;
@@ -35,7 +35,7 @@ public class NioServerPeerFinder implements ClusterStateChangeListener {
 	@Override
 	public void onActive(ApplicationInfo applicationInfo) {
 		String instanceId = applicationInfo.getId();
-		log.info("Node '{}' join the spring application cluster {}", instanceId, applicationName);
+		log.info("Node '{}' join the spring application cluster {}", instanceId, clusterName);
 		String location = (String) nodeFinder.findNode(instanceId);
 		if (StringUtils.isNotBlank(location)) {
 			String[] args = location.split(":", 2);
@@ -55,7 +55,7 @@ public class NioServerPeerFinder implements ClusterStateChangeListener {
 
 	@Override
 	public void onInactive(ApplicationInfo applicationInfo) {
-		log.info("Node '{}' leave the spring application cluster {}", applicationInfo.getId(), applicationName);
+		log.info("Node '{}' leave the spring application cluster {}", applicationInfo.getId(), clusterName);
 	}
 
 }

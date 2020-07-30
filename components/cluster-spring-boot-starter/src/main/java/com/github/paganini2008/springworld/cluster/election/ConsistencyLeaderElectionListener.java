@@ -44,8 +44,8 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 	@Autowired
 	private InstanceId instanceId;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Value("${spring.application.cluster.consistency.leader-election.minimumParticipants:3}")
 	private int minimumParticipants;
@@ -64,18 +64,20 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 		}
 		ApplicationInfo leaderInfo = applicationInfo.getLeaderInfo();
 		if (leaderInfo != null) {
+			log.info("Join the existed cluster: " + leaderInfo.getClusterName());
+
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
 			log.info("I am the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
-					applicationName, ApplicationClusterFollowerEvent.class.getName());
-			log.info("Leader's info: " + leaderInfo);
+					clusterName, ApplicationClusterFollowerEvent.class.getName());
 			instanceId.setLeaderInfo(leaderInfo);
+			log.info("Leader's info: " + leaderInfo);
 
-			final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+			final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 			redisTemplate.opsForList().leftPush(key, instanceId.getApplicationInfo());
 		} else {
 			final int channelCount = clusterMulticastGroup.countOfChannel();
 			if (channelCount >= minimumParticipants) {
-				final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
+				final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":leader";
 				log.info("Start leader election. Identify: " + leaderIdentify);
 				context.propose(leaderIdentify, instanceId.getApplicationInfo(), LEADER_ELECTION_TIMEOUT);
 			}
@@ -85,8 +87,12 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 	@Override
 	public synchronized void onInactive(ApplicationInfo applicationInfo) {
 		if (applicationInfo.isLeader()) {
+			final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
+			redisTemplate.opsForList().remove(key, 1, instanceId.getApplicationInfo());
+
 			instanceId.setLeaderInfo(null);
-			final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
+
+			final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":leader";
 			log.info("Start leader election. Identify: " + leaderIdentify);
 			context.propose(leaderIdentify, instanceId.getApplicationInfo(), LEADER_ELECTION_TIMEOUT);
 		}

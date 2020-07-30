@@ -31,15 +31,15 @@ import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 @ConditionalOnProperty(value = "spring.application.cluster.pool.enabled", havingValue = "true")
 public class ProcessPoolConfig {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Value("${spring.application.cluster.pool.size:8}")
 	private int poolSize;
 
 	@Bean
 	public RedisCounter redisCounter(RedisConnectionFactory redisConnectionFactory, TtlKeeper ttlKeeper) {
-		final String fullName = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":pool";
+		final String fullName = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool";
 		RedisCounter redisCounter = new RedisCounter(fullName, redisConnectionFactory);
 		redisCounter.keep(ttlKeeper, 5, TimeUnit.SECONDS);
 		return redisCounter;

@@ -27,8 +27,8 @@ public class RedisPendingQueue implements PendingQueue {
 	@Value("${spring.application.cluster.pool.pending-queue.maxSize:-1}")
 	private int queueMaxSize;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	public void add(Signature signature) {
 		String key = getKey();
@@ -56,7 +56,7 @@ public class RedisPendingQueue implements PendingQueue {
 	}
 
 	private String getKey() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + ":" + applicationName + ":pool:pending-queue";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool:pending-queue";
 	}
 
 }

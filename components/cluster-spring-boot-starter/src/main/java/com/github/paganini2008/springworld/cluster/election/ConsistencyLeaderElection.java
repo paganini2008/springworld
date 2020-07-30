@@ -35,8 +35,8 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 
 	private ApplicationContext applicationContext;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Value("${spring.application.cluster.leader.timeout:5}")
 	private int leaderTimeout;
@@ -53,21 +53,22 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 
 	@Override
 	public void lookupLeader(ApplicationEvent applicationEvent) {
-		ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
+		final ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
 		ApplicationInfo leaderInfo = (ApplicationInfo) event.getRequest().getValue();
 		if (instanceId.getApplicationInfo().equals(leaderInfo)) {
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
-			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", applicationName,
+			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", clusterName,
 					ApplicationClusterNewLeaderEvent.class.getName());
 		} else {
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
 			log.info("I am the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
-					applicationName, ApplicationClusterFollowerEvent.class.getName());
+					clusterName, ApplicationClusterFollowerEvent.class.getName());
 		}
-		log.info("Leader's info: " + leaderInfo);
+		leaderInfo.setLeader(true);
 		instanceId.setLeaderInfo(leaderInfo);
-
-		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+		log.info("Leader's info: " + leaderInfo);
+		
+		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		redisTemplate.opsForList().leftPush(key, instanceId.getApplicationInfo());
 		if (instanceId.isLeader()) {
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
@@ -88,7 +89,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 	@Override
 	public void onApplicationEvent(ApplicationEvent applicationEvent) {
 		final ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
-		final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":leader";
+		final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":leader";
 		if (leaderIdentify.equals(event.getRequest().getName())) {
 			if (event.isOk()) {
 				lookupLeader(event);

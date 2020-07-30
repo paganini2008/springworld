@@ -24,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessPoolExecutor implements ProcessPool {
 
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
+
 	@Value("${spring.application.name}")
 	private String applicationName;
 
@@ -55,8 +58,8 @@ public class ProcessPoolExecutor implements ProcessPool {
 			if (log.isTraceEnabled()) {
 				log.trace("Pool concurrency is " + sharedLatch.cons());
 			}
-			String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + ":" + applicationName + ":process-pool-task";
-			clusterMulticastGroup.unicast(topic, signature);
+			String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":process-pool-task";
+			clusterMulticastGroup.unicast(applicationName, topic, signature);
 		} else {
 			pendingQueue.add(signature);
 		}

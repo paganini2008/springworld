@@ -28,7 +28,8 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
-		final String[] data = ((String) message).split("@", 2);
+		final JobParameter jobParameter = (JobParameter) message;
+		final String[] data = jobParameter.getSignature().split("@", 2);
 		final String jobName = data[0];
 		final String jobClassName = data[1];
 		Class<?> jobClass = ClassUtils.forName(jobClassName);
@@ -44,7 +45,7 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 		if (job == null) {
 			throw new JobBeanNotFoundException(jobClassName);
 		}
-		jobExecutor.execute(job, null);
+		jobExecutor.execute(job, jobParameter.getArgument());
 	}
 
 	@Override

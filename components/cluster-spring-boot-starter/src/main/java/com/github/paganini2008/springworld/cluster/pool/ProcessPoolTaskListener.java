@@ -23,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessPoolTaskListener implements ClusterMessageListener {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private PendingQueue pendingQueue;
@@ -69,7 +69,7 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 
 	@Override
 	public String getTopic() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + ":" + applicationName + ":process-pool-task";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE  + clusterName + ":process-pool-task";
 	}
 
 }

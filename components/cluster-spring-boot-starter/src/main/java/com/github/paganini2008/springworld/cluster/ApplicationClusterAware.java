@@ -23,9 +23,6 @@ public class ApplicationClusterAware implements ApplicationListener<ContextRefre
 
 	public static final String APPLICATION_CLUSTER_NAMESPACE = "spring:application:cluster:";
 
-	@Value("${spring.application.name}")
-	private String applicationName;
-
 	@Value("${spring.application.cluster.consistency.leader-election.minimumParticipants:3}")
 	private int minimumParticipants;
 

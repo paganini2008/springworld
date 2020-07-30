@@ -29,7 +29,7 @@ public class JobManagerController {
 	private JobManager jobManager;
 
 	@GetMapping("/stat")
-	public ResponseEntity<JobInfo> jobStat(@RequestParam(value = "page", defaultValue = "1", required = false) int page,
+	public ResponseEntity<JobStat> jobStat(@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@CookieValue(value = "PAGE_SIZE", required = false, defaultValue = "10") int size) {
 		return null;
 	}

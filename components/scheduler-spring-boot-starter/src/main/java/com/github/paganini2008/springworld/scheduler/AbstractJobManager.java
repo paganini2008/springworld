@@ -24,30 +24,32 @@ public abstract class AbstractJobManager implements JobManager {
 	@Autowired
 	private Scheduler scheduler;
 
+	@Autowired
+	private JobDependency jobDependency;
+
 	private final Map<Job, Future> schedulingCache = new ConcurrentHashMap<Job, Future>();
 	private final Observable trigger = Observable.unrepeatable();
-	private final Observable dependencies = Observable.repeatable();
 
 	@Override
-	public void schedule(final Job job, final Object arg) {
+	public void schedule(final Job job, final Object attachment)throws JobException{
 		trigger.addObserver((trigger, ignored) -> {
 			if (!hasScheduled(job)) {
 				if (job instanceof CronJob) {
-					schedulingCache.put(job, scheduler.schedule(job, arg, ((CronJob) job).getCronExpression()));
+					schedulingCache.put(job, scheduler.schedule(job, attachment, ((CronJob) job).getCronExpression()));
 				} else if (job instanceof PeriodicJob) {
 					final PeriodicJob periodicJob = (PeriodicJob) job;
 					long delay = DateUtils.convertToMillis(periodicJob.getDelay(), periodicJob.getDelayTimeUnit());
 					long period = DateUtils.convertToMillis(periodicJob.getPeriod(), periodicJob.getPeriodTimeUnit());
-					switch (periodicJob.getRunningMode()) {
+					switch (periodicJob.getSchedulingMode()) {
 					case FIXED_DELAY:
-						schedulingCache.put(job, scheduler.scheduleWithFixedDelay(job, arg, delay, period));
+						schedulingCache.put(job, scheduler.scheduleWithFixedDelay(job, attachment, delay, period));
 						break;
 					case FIXED_RATE:
-						schedulingCache.put(job, scheduler.scheduleAtFixedRate(job, arg, delay, period));
+						schedulingCache.put(job, scheduler.scheduleAtFixedRate(job, attachment, delay, period));
 						break;
 					}
 				} else if (job instanceof SerializableJob) {
-					addJobDependency((SerializableJob) job);
+					jobDependency.addDependency((SerializableJob) job);
 				} else {
 					throw new JobException("Please implement the job interface for CronJob or ScheduledJob.");
 				}
@@ -59,7 +61,7 @@ public abstract class AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	public void unscheduleJob(Job job) {
+	public void unscheduleJob(Job job)throws JobException {
 		if (hasScheduled(job)) {
 			Future future = schedulingCache.remove(job);
 			if (future != null) {
@@ -70,17 +72,17 @@ public abstract class AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	public boolean hasScheduled(Job job) {
+	public boolean hasScheduled(Job job) throws JobException {
 		return hasJob(job) && schedulingCache.containsKey(job);
 	}
 
 	@Override
-	public void runJob(Job job, Object arg) {
-		scheduler.runJob(job, arg);
+	public void runJob(Job job, Object attachment) {
+		scheduler.runJob(job, attachment);
 	}
 
 	@Override
-	public void pauseJob(Job job) throws Exception {
+	public void pauseJob(Job job) throws JobException {
 		if (hasScheduled(job)) {
 			setJobState(job, JobState.PAUSED);
 			if (log.isTraceEnabled()) {
@@ -90,7 +92,7 @@ public abstract class AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	public void resumeJob(Job job) throws Exception {
+	public void resumeJob(Job job) throws  JobException {
 		if (hasScheduled(job)) {
 			setJobState(job, JobState.RUNNING);
 			if (log.isTraceEnabled()) {
@@ -111,16 +113,7 @@ public abstract class AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	public void addJobDependency(SerializableJob job) {
-		for (String signature : job.getDependencies()) {
-			dependencies.addObserver(signature, (ob, arg) -> {
-				scheduler.runJob(job, arg);
-			});
-		}
-	}
-
-	@Override
-	public Future getFuture(Job job) {
+	public Future getFuture(Job job) throws JobException {
 		if (!schedulingCache.containsKey(job)) {
 			throw new JobException("Not scheduling");
 		}
@@ -135,6 +128,6 @@ public abstract class AbstractJobManager implements JobManager {
 		schedulingCache.clear();
 	}
 
-	protected abstract void setJobState(Job job, JobState jobState);
+	protected abstract void setJobState(Job job, JobState jobState) throws JobException;
 
 }

@@ -20,10 +20,10 @@ public class LoadBalancedJobExecutor extends JobTemplate implements JobExecutor 
 	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Autowired
-	private JobExecutionContext context;
+	private JobStore jobStore;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
 
 	@Override
 	public void execute(Job job, Object arg) {
@@ -35,15 +35,14 @@ public class LoadBalancedJobExecutor extends JobTemplate implements JobExecutor 
 		if (!isRunning(job)) {
 			return;
 		}
-		final String message = job.getSignature();
-		final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":scheduler:loadbalance";
-		clusterMulticastGroup.unicast(topic, message);
+		final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
+		clusterMulticastGroup.unicast(topic, new JobParameter(job.getSignature(), arg));
 	}
 
 	@Override
 	public boolean isRunning(Job job) {
 		try {
-			return context.getJobRuntime(job).getJobState() == JobState.RUNNING;
+			return jobStore.getJobRuntime(job).getJobState() == JobState.RUNNING;
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}

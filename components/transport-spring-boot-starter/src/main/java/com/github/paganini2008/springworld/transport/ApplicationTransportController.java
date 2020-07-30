@@ -48,8 +48,8 @@ public class ApplicationTransportController {
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private NioClient nioClient;
@@ -69,7 +69,7 @@ public class ApplicationTransportController {
 
 	@GetMapping("/http/services")
 	public ResponseEntity<String[]> httpServices() {
-		String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+		String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
 		List<Object> locations = new ArrayList<Object>();
 		ApplicationInfo applicationInfo;
@@ -85,13 +85,13 @@ public class ApplicationTransportController {
 
 	@GetMapping("/tcp/services")
 	public ResponseEntity<String[]> tcpServices() {
-		String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+		String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
 		List<Object> appKeys = new ArrayList<Object>();
 		for (Object data : dataList) {
 			appKeys.add(((ApplicationInfo) data).getId());
 		}
-		key = APPLICATION_KEY + applicationName;
+		key = APPLICATION_KEY + clusterName;
 		List<Object> values = stringRedisTemplate.opsForHash().multiGet(key, appKeys);
 		String[] addresses = new String[values != null ? values.size() : 0];
 		int i = 0;

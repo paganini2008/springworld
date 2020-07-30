@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.scheduler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,6 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
-import com.github.paganini2008.devtools.io.SerializationUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
@@ -25,24 +25,23 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * JdbcJobStore
+ * EmbeddedJobStore
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class JdbcJobStore implements JobStore {
+public class EmbeddedJobStore implements JobStore {
 
 	private static final Map<String, String> sqlMap = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 
 		{
-			put("my_job_detail", SqlScripts.DEF_DDL_JOB_DETAIL);
-			put("my_job_panel", SqlScripts.DEF_DDL_JOB_PANEL);
-			put("my_job_cron_trigger", SqlScripts.DEF_DDL_JOB_CRON_TRIGGER);
-			put("my_job_periodic_trigger", SqlScripts.DEF_DDL_JOB_PERIODIC_TRIGGER);
-			put("my_job_dependency", SqlScripts.DEF_DDL_JOB_DEPENDENCY);
+			put("cluster_job_detail", SqlScripts.DEF_DDL_JOB_DETAIL);
+			put("cluster_job_runtime", SqlScripts.DEF_DDL_JOB_RUNTIME);
+			put("cluster_job_trace", SqlScripts.DEF_DDL_JOB_TRACE);
+			put("cluster_job_exception", SqlScripts.DEF_DDL_JOB_EXCEPTION);
 		}
 	};
 
@@ -50,7 +49,7 @@ public class JdbcJobStore implements JobStore {
 	private DataSource dataSource;
 
 	@Override
-	public void initialize() throws SQLException {
+	public void configure() throws SQLException {
 		Connection connection = null;
 		for (Map.Entry<String, String> entry : new HashMap<String, String>(sqlMap).entrySet()) {
 			try {
@@ -66,7 +65,7 @@ public class JdbcJobStore implements JobStore {
 	}
 
 	@Override
-	public void loadExistedJobs(JobLoadingCallback callback) throws SQLException {
+	public void reloadJobs(JobLoadingCallback callback) throws SQLException {
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {
@@ -77,7 +76,7 @@ public class JdbcJobStore implements JobStore {
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
-		if (CollectionUtils.isNotCollection(dataList)) {
+		if (CollectionUtils.isNotEmpty(dataList)) {
 			for (Tuple tuple : dataList) {
 				loadJob(tuple, callback);
 			}
@@ -85,10 +84,8 @@ public class JdbcJobStore implements JobStore {
 		log.info("Reload and schedule all customized jobs ok.");
 	}
 
-	private void loadJob(Tuple tuple, JobLoadingCallback callback) {
-		final String jobName = (String) tuple.get("jobName");
+	protected void loadJob(Tuple tuple, JobLoadingCallback callback) {
 		final String jobClassName = (String) tuple.get("jobClassName");
-
 		Class<?> jobClass = ClassUtils.forName(jobClassName);
 		if (!Job.class.isAssignableFrom(jobClass)) {
 			throw new JobException("Class '" + jobClass.getName() + "' is not a implementor of Job interface.");
@@ -98,10 +95,8 @@ public class JdbcJobStore implements JobStore {
 			return;
 		}
 		Job job = (Job) BeanUtils.instantiate(jobClass);
-		if (callback != null) {
-			callback.afterLoad(job);
-		}
-		log.info("Reload job '" + jobName + "' from database ok.");
+		callback.postLoad(job, tuple.get("attachment"));
+		log.info("Reload job '" + job.getSignature() + "' from database successfully.");
 	}
 
 	@Override
@@ -110,46 +105,30 @@ public class JdbcJobStore implements JobStore {
 		if (hasJob(job)) {
 			return;
 		}
+
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
-			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
+			int id = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
 				ps.setString(1, job.getJobName());
 				ps.setString(2, job.getJobClassName());
-				ps.setString(3, job.getDescription());
-				byte[] bytes = new byte[0];
-				if (job.getAttachment() != null) {
-					bytes = SerializationUtils.serialize(job.getAttachment(), false);
-				}
-				ps.setBytes(4, bytes);
-				ps.setLong(5, System.currentTimeMillis());
+				ps.setString(3, job.getGroupName());
+				ps.setInt(4, JobType.valueOf(job).getValue());
+				ps.setString(5, job.getDescription());
+				ps.setString(6, job.getAttachment());
+				ps.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
 			});
 
-			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_PANEL, ps -> {
-				ps.setString(1, job.getJobName());
+			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_RUNTIME, ps -> {
+				ps.setInt(1, id);
 				ps.setInt(2, JobState.NOT_SCHEDULED.getValue());
 			});
 			connection.commit();
-			log.info("Add job '" + job.getJobName() + "' ok.");
+			log.info("Add job '" + job.getSignature() + "' ok.");
 		} catch (SQLException e) {
 			JdbcUtils.rollbackQuietly(connection);
 			throw e;
-		} finally {
-			JdbcUtils.closeQuietly(connection);
-		}
-	}
-
-	@Override
-	public void saveJobDepentency(SerializableJob job) throws SQLException {
-		Connection connection = null;
-		try {
-			connection = dataSource.getConnection();
-			List<Object[]> argsList = new ArrayList<Object[]>();
-			for (String jobName : job.getDependencies()) {
-				argsList.add(new Object[] { job.getJobName(), jobName });
-			}
-			JdbcUtils.batchUpdate(connection, SqlScripts.DEF_INSERT_JOB_DEPENDENCY, argsList);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
@@ -162,8 +141,8 @@ public class JdbcJobStore implements JobStore {
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
-				JdbcUtils.update(connection, SqlScripts.DEF_DELETE_JOB_DETAIL, new Object[] { job.getJobName() });
-				log.info("Delete job '" + job.getJobName() + "' ok.");
+				JdbcUtils.update(connection, SqlScripts.DEF_DELETE_JOB_DETAIL, new Object[] { job.getJobName(), job.getJobClassName() });
+				log.info("Delete job '" + job.getSignature() + "' ok.");
 			} finally {
 				JdbcUtils.closeQuietly(connection);
 			}
@@ -189,15 +168,54 @@ public class JdbcJobStore implements JobStore {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_STATE, new Object[] { jobState.getValue(), job.getJobName() });
+			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME,
+					new Object[] { jobState.getValue(), job.getJobName(), job.getJobClassName() });
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
 	}
-	
+
+	public JobDetail getJobDetail(Job job) throws Exception {
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
+					new Object[] { job.getJobName(), job.getJobClassName() });
+			return tuple.toBean(JobDetail.class);
+		} finally {
+			JdbcUtils.closeQuietly(connection);
+		}
+	}
+
 	@Override
-	public ResultSetSlice<JobInfo> getJobInfos() {
-		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, SqlScripts.DEF_SELECT_ALL_JOB_DETAIL, (Object[]) null);
+	public JobRuntime getJobRuntime(Job job) throws Exception {
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_RUNTIME,
+					new Object[] { job.getJobName(), job.getJobClassName() });
+			return tuple.toBean(JobRuntime.class);
+		} finally {
+			JdbcUtils.closeQuietly(connection);
+		}
+	}
+
+	@Override
+	public JobStat getJobStat(Job job) throws Exception {
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_STAT,
+					new Object[] { job.getJobName(), job.getJobClassName() });
+			return tuple.toBean(JobStat.class);
+		} finally {
+			JdbcUtils.closeQuietly(connection);
+		}
+	}
+
+	@Override
+	public ResultSetSlice<JobInfo> getJobInfo() {
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, SqlScripts.DEF_SELECT_ALL_JOB_INFO, (Object[]) null);
 		return new ResultSetSlice<JobInfo>() {
 
 			@Override
@@ -218,7 +236,36 @@ public class JdbcJobStore implements JobStore {
 		};
 	}
 
-	static void checkJobSignature(Job job) {
+	@Override
+	public ResultSetSlice<JobStat> getJobStat(StatType statType) throws Exception {
+		String extraColumns = "", extraGroupingColumns = "";
+		if (statType != null) {
+			extraColumns = ", " + statType.getExtraColumns();
+			extraGroupingColumns = ", " + statType.getExtraGroupingColumns();
+		}
+		String sql = String.format(SqlScripts.DEF_SELECT_ALL_JOB_STAT, new Object[] { extraColumns, extraGroupingColumns });
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, sql, (Object[]) null);
+		return new ResultSetSlice<JobStat>() {
+
+			@Override
+			public int totalCount() {
+				return delegate.totalCount();
+			}
+
+			@Override
+			public List<JobStat> list(int maxResults, int firstResult) {
+				List<JobStat> dataList = new ArrayList<JobStat>(maxResults);
+				for (Tuple tuple : delegate.list(maxResults, firstResult)) {
+					JobStat jobStat = tuple.toBean(JobStat.class);
+					dataList.add(jobStat);
+				}
+				return dataList;
+			}
+
+		};
+	}
+
+	private static void checkJobSignature(Job job) {
 		if (StringUtils.isBlank(job.getJobName()) || StringUtils.isBlank(job.getJobClassName())) {
 			throw new JobException("Invalid job signature: " + job.getSignature());
 		}

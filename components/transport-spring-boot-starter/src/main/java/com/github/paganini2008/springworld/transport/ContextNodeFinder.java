@@ -24,8 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ContextNodeFinder implements NodeFinder {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private InstanceId clusterId;
@@ -35,16 +35,16 @@ public class ContextNodeFinder implements NodeFinder {
 
 	@Override
 	public void registerNode(Object attachment) {
-		final String key = APPLICATION_KEY + applicationName;
+		final String key = APPLICATION_KEY + clusterName;
 		final String instanceId = clusterId.get();
 		redisTemplate.opsForHash().put(key, instanceId, attachment);
-		log.info("Register node '{}' to spring application cluster '{}'", instanceId, applicationName);
+		log.info("Register node '{}' to spring application cluster '{}'", instanceId, clusterName);
 	}
 
 	@Override
 	public Object findNode(String instanceId) {
-		log.info("Find node '{}' from spring application cluster '{}'", instanceId, applicationName);
-		final String key = APPLICATION_KEY + applicationName;
+		log.info("Find node '{}' from spring application cluster '{}'", instanceId, clusterName);
+		final String key = APPLICATION_KEY + clusterName;
 		if (!ObjectUtils.accept(new Acceptable() {
 
 			@Override

@@ -18,8 +18,8 @@ import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender
  */
 public class ApplicationActiveListener implements RedisMessageHandler {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
@@ -36,10 +36,10 @@ public class ApplicationActiveListener implements RedisMessageHandler {
 	@Override
 	public void onMessage(String channel, Object message) {
 		final ApplicationInfo applicationInfo = (ApplicationInfo) message;
-		String thatId = applicationInfo.getId();
-		int thatWeight = applicationInfo.getWeight();
-		if (!multicastGroup.hasRegistered(thatId)) {
-			multicastGroup.registerChannel(thatId, thatWeight);
+		final String applicationName = applicationInfo.getApplicationName();
+		final String thatId = applicationInfo.getId();
+		if (!multicastGroup.hasRegistered(applicationName, thatId)) {
+			multicastGroup.registerChannel(applicationName, thatId, applicationInfo.getWeight());
 			redisMessageSender.sendMessage(getChannel(), instanceId.getApplicationInfo());
 			multicastListenerContainer.fireOnActive(applicationInfo);
 		}
@@ -47,7 +47,7 @@ public class ApplicationActiveListener implements RedisMessageHandler {
 
 	@Override
 	public String getChannel() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":active";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":active";
 	}
 
 }

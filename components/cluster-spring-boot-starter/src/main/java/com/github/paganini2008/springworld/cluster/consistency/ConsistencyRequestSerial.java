@@ -29,8 +29,8 @@ public class ConsistencyRequestSerial {
 	private static final String CONSISTENCY_SERIAL_PATTERN = "%s:consistency:serial:%s";
 	private final Map<String, RedisAtomicLong> serials = new ConcurrentHashMap<String, RedisAtomicLong>();
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private InstanceId instanceId;
@@ -77,7 +77,7 @@ public class ConsistencyRequestSerial {
 	}
 
 	private String counterName(String name) {
-		return String.format(CONSISTENCY_SERIAL_PATTERN, ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName, name);
+		return String.format(CONSISTENCY_SERIAL_PATTERN, ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName, name);
 	}
 
 }

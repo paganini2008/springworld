@@ -25,8 +25,8 @@ public interface PeriodicJob extends Job {
 		return TimeUnit.MILLISECONDS;
 	}
 
-	default RunningMode getRunningMode() {
-		return RunningMode.FIXED_RATE;
+	default SchedulingMode getSchedulingMode() {
+		return SchedulingMode.FIXED_RATE;
 	}
 
 }

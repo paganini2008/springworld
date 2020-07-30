@@ -27,8 +27,8 @@ public class RedisBufferZone implements BufferZone {
 	@Autowired
 	private InstanceId instanceId;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Value("${spring.application.transport.bufferzone.shared:true}")
 	private boolean shared;
@@ -55,7 +55,7 @@ public class RedisBufferZone implements BufferZone {
 	}
 
 	protected String keyFor(String collectionName) {
-		return "spring:application:transport:" + applicationName + ":bufferzone:" + collectionName + (shared ? "" : ":" + instanceId.get());
+		return "spring:application:transport:" + clusterName + ":bufferzone:" + collectionName + (shared ? "" : ":" + instanceId.get());
 	}
 
 }

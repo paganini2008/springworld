@@ -9,5 +9,4 @@ package com.github.paganini2008.springworld.cluster.election;
  * @since 1.0
  */
 public interface LeaderElectionListener {
-
 }

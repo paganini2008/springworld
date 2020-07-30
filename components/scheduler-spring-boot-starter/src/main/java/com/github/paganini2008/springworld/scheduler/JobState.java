@@ -26,7 +26,7 @@ public enum JobState {
 	
 	@JsonValue
 	public String getRepr() {
-		return this.name();
+		return this.name().toLowerCase();
 	}
 
 	@JsonCreator
@@ -36,7 +36,7 @@ public enum JobState {
 				return jobState;
 			}
 		}
-		throw new IllegalArgumentException("Unknown value of JobState: " + value);
+		throw new IllegalArgumentException("Unknown jobState: " + value);
 	}
 
 }

@@ -31,8 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FastLeaderElection implements LeaderElection, ApplicationContextAware {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Value("${spring.application.cluster.leader.timeout:5}")
 	private int leaderTimeout;
@@ -51,7 +51,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 
 	@Override
 	public void lookupLeader(ApplicationEvent applicationEvent) {
-		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		if (redisTemplate.hasKey(key) && redisTemplate.getExpire(key) < 0) {
 			redisTemplate.delete(key);
 		}
@@ -60,15 +60,30 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		ApplicationInfo leaderInfo;
 		if (myInfo.equals(leaderInfo = (ApplicationInfo) redisTemplate.opsForList().index(key, -1))) {
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
-			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", applicationName,
+			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", clusterName,
 					ApplicationClusterNewLeaderEvent.class.getName());
 		} else {
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
 			log.info("I am the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
-					applicationName, ApplicationClusterFollowerEvent.class.getName());
+					clusterName, ApplicationClusterFollowerEvent.class.getName());
 		}
-		log.info("Leader's info: " + leaderInfo);
+		leaderInfo.setLeader(true);
 		instanceId.setLeaderInfo(leaderInfo);
+		log.info("Leader's info: " + leaderInfo);
+
+		// Update lead info from redis
+		long size = redisTemplate.opsForList().size(key);
+		ApplicationInfo info;
+		for (int i = 0; i < size; i++) {
+			info = (ApplicationInfo) redisTemplate.opsForList().index(key, i);
+			if (info.equals(leaderInfo)) {
+				info.setLeader(true);
+				redisTemplate.opsForList().set(key, i, info);
+			} else if (info.equals(myInfo)) {
+				info.setLeaderInfo(leaderInfo);
+				redisTemplate.opsForList().set(key, i, info);
+			}
+		}
 
 		if (instanceId.isLeader()) {
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);

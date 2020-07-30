@@ -9,15 +9,11 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * @author Fred Feng
  * @since 1.0
  */
-public interface JobStore {
+public interface JobStore extends Lifecycle {
 
-	void initialize() throws Exception;
-
-	void loadExistedJobs(JobLoadingCallback callback) throws Exception;
+	void reloadJobs(JobLoadingCallback callback) throws Exception;
 
 	void addJob(Job job) throws Exception;
-
-	void saveJobDepentency(SerializableJob job) throws Exception;
 
 	void deleteJob(Job job) throws Exception;
 
@@ -25,6 +21,14 @@ public interface JobStore {
 
 	void setJobState(Job job, JobState jobState) throws Exception;
 
-	ResultSetSlice<JobInfo> getJobInfos() throws Exception;
+	JobDetail getJobDetail(Job job) throws Exception;
+
+	JobRuntime getJobRuntime(Job job) throws Exception;
+
+	JobStat getJobStat(Job job) throws Exception;
+
+	ResultSetSlice<JobInfo> getJobInfo() throws Exception;
+
+	ResultSetSlice<JobStat> getJobStat(StatType statType) throws Exception;
 
 }

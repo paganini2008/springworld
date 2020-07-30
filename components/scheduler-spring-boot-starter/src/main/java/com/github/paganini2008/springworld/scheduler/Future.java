@@ -13,6 +13,8 @@ public interface Future {
 	
 	boolean isDone();
 	
+	boolean isCancelled();
+	
 	long getNextExectionTime();
 	
 }

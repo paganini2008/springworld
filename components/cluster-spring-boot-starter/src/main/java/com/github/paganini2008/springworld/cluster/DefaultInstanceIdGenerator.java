@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class DefaultInstanceIdGenerator implements InstanceIdGenerator {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Override
 	public String generateInstanceId() {
-		return applicationName + "@" + UUID.randomUUID().toString().replace("-", "");
+		return clusterName + "@" + UUID.randomUUID().toString().replace("-", "");
 	}
 
 }

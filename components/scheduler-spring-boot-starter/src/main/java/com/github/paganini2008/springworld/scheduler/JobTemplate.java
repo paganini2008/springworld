@@ -1,5 +1,10 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * JobTemplate
@@ -10,17 +15,28 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public abstract class JobTemplate {
 
+	protected final Logger log = LoggerFactory.getLogger(getClass());
+
 	protected void runJob(Job job, Object arg) {
-		if (isRunning(job)) {
-			beforeRun(job);
-			RunningState runningState = doRun(job, arg);
-			afterRun(job, runningState);
+		final Date now = new Date();
+		if (isRunning(job) && job.shouldRun()) {
+			beforeRun(job, now);
+			try {
+				RunningState runningState = doRun(job, arg);
+				afterRun(job, now, runningState, null);
+			} catch (Exception e) {
+				if (e instanceof JobCancelledException) {
+					throw (JobCancelledException) e;
+				} else {
+					afterRun(job, now, RunningState.FAILED, e);
+				}
+			}
 		} else {
-			afterRun(job, RunningState.SKIPPED);
+			afterRun(job, now, RunningState.SKIPPED, null);
 		}
 	}
 
-	private RunningState doRun(Job job, Object arg) {
+	private RunningState doRun(Job job, Object arg) throws Exception {
 		job.onStart();
 
 		Object result = null;
@@ -45,23 +61,39 @@ public abstract class JobTemplate {
 				}
 			}
 
+			boolean run;
 			if (success) {
-				job.onSuccess(result);
+				run = job.onSuccess(result);
 			} else {
-				job.onFailure(reason);
+				run = job.onFailure(reason);
 			}
-
 			job.onEnd();
+
+			if (!run) {
+				throw new JobCancelledException(job.getSignature());
+			}
+			if (success) {
+				notifyDependencies(job, result);
+			}
 		}
-		return success ? RunningState.COMPLETED : RunningState.FAILED;
+		return RunningState.COMPLETED;
 	}
 
-	protected void beforeRun(Job job) {
+	protected void beforeRun(Job job, Date startTime) {
+		if (log.isTraceEnabled()) {
+			log.trace("Prepare to run Job: " + job.getSignature());
+		}
 	}
 
-	protected void afterRun(Job job, RunningState runningState) {
+	protected void afterRun(Job job, Date startTime, RunningState runningState, Throwable reason) {
+		if (log.isTraceEnabled()) {
+			log.trace("Job is end with state: " + runningState);
+		}
 	}
 
 	protected abstract boolean isRunning(Job job);
+
+	protected void notifyDependencies(Job job, Object result) {
+	}
 
 }

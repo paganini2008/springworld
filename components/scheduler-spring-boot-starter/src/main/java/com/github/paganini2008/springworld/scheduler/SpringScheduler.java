@@ -11,6 +11,8 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * SpringScheduler
@@ -19,6 +21,7 @@ import org.springframework.scheduling.support.SimpleTriggerContext;
  *
  * @since 1.0
  */
+@Slf4j
 public class SpringScheduler implements Scheduler {
 
 	@Autowired
@@ -90,6 +93,11 @@ public class SpringScheduler implements Scheduler {
 		}
 
 		@Override
+		public boolean isCancelled() {
+			return future.isCancelled();
+		}
+
+		@Override
 		public long getNextExectionTime() {
 			Trigger trigger;
 			if (job instanceof PeriodicJob) {
@@ -100,6 +108,7 @@ public class SpringScheduler implements Scheduler {
 			try {
 				return trigger.nextExecutionTime(new SimpleTriggerContext()).getTime();
 			} catch (RuntimeException e) {
+				log.error(e.getMessage(), e);
 				return -1L;
 			}
 		}

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum RunningState {
 
-	FAILED(0), RUNNING(1), COMPLETED(2), SKIPPED(3);
+	FAILED(0), COMPLETED(2), SKIPPED(3);
 
 	private final int value;
 
@@ -26,7 +26,7 @@ public enum RunningState {
 
 	@JsonValue
 	public String getRepr() {
-		return this.name();
+		return this.name().toLowerCase();
 	}
 
 	@JsonCreator

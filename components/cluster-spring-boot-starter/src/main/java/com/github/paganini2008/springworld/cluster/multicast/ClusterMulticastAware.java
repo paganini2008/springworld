@@ -19,8 +19,8 @@ import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender
  */
 public class ClusterMulticastAware implements ApplicationListener<ContextRefreshedEvent> {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
@@ -30,7 +30,7 @@ public class ClusterMulticastAware implements ApplicationListener<ContextRefresh
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		final String channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":active";
+		final String channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":active";
 		ApplicationInfo applicationInfo = instanceId.getApplicationInfo();
 		redisMessageSender.sendMessage(channel, applicationInfo);
 	}

@@ -8,6 +8,6 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface JobLoadingCallback {
 
-	void afterLoad(Job job);
+	void postLoad(Job job, Object attachment);
 
 }

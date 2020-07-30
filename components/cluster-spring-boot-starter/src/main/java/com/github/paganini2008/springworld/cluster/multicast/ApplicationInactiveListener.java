@@ -29,22 +29,22 @@ public class ApplicationInactiveListener implements RedisMessageHandler {
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name:default}")
+	private String clusterName;
 
 	@Override
 	public void onMessage(String channel, Object message) {
 		final ApplicationInfo applicationInfo = (ApplicationInfo) message;
-		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName;
+		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		redisTemplate.opsForList().remove(key, 1, applicationInfo);
-		
-		multicastGroup.removeChannel(applicationInfo.getId());
+
+		multicastGroup.removeChannel(applicationInfo.getApplicationName(), applicationInfo.getId());
 		multicastListenerContainer.fireOnInactive(applicationInfo);
 	}
 
 	@Override
 	public String getChannel() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":member:*";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":member:*";
 	}
 
 }
