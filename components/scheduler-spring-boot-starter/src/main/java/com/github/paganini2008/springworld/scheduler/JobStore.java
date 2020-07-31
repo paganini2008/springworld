@@ -11,7 +11,7 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  */
 public interface JobStore extends Lifecycle {
 
-	void reloadJobs(JobLoadingCallback callback) throws Exception;
+	void reloadJobs() throws Exception;
 
 	void addJob(Job job) throws Exception;
 

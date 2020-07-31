@@ -1,9 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -13,11 +11,13 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
+import com.github.paganini2008.devtools.proxy.Aspect;
+import com.github.paganini2008.devtools.reflection.MethodUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -27,6 +27,7 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
  *
  * @since 1.0
  */
+@Slf4j
 public class SeparatedJobStore extends EmbeddedJobStore {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -35,15 +36,15 @@ public class SeparatedJobStore extends EmbeddedJobStore {
 	private DataSource dataSource;
 
 	@Override
-	protected void loadJob(Tuple tuple, JobLoadingCallback callback) {
+	protected void loadJob(Tuple tuple, JobLoadingMode callback) {
 		Job job = new JobConfig(tuple);
 		int jobId = (Integer) tuple.get("jobId");
 		String json = getTriggerDescription(jobId);
-		Map<String, Object> data;
+		Map<String, Object> config;
 		try {
-			data = objectMapper.readValue(json, HashMap.class);
+			config = objectMapper.readValue(json, HashMap.class);
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException(e.getMessage(), e);
 		}
 		JobType jobType = JobType.valueOf((Integer) tuple.get("jobType"));
 		callback.postLoad(job, tuple.get("attachment"));
@@ -62,25 +63,65 @@ public class SeparatedJobStore extends EmbeddedJobStore {
 		}
 	}
 
-	private static class CronJobConfig implements InvocationHandler {
+	/**
+	 * 
+	 * SerializableJobAspect
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	private static class SerializableJobAspect implements Aspect {
 
-		private final Job instance;
-		private final Job cronJob;
-		private final Map<String, Object> config;
+		private final Map<String, Object> data;
 
-		CronJobConfig(Job instance) {
-			this.instance = instance;
-			this.cronJob = (CronJob) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { CronJob.class }, this);
+		SerializableJobAspect(Map<String, Object> data) {
+			this.data = data;
 		}
 
 		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			String methodName = method.getName();
-			if ("getCronExcpetion".equals(methodName)) {
-				return config.get("cron");
-			} else {
-				return method.invoke(instance, args);
+		public Object call(Object target, Method method, Object[] args) {
+			final String methodName = method.getName();
+			if ("getDependencies".equals(methodName)) {
+				return data.get("dependencies");
 			}
+			return MethodUtils.invokeMethod(target, method, args);
+		}
+
+		@Override
+		public void catchException(Object target, Method method, Object[] args, Throwable e) {
+			log.info(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * 
+	 * CronJobAspect
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	private static class CronJobAspect implements Aspect {
+
+		private final Map<String, Object> data;
+
+		CronJobAspect(Map<String, Object> data) {
+			this.data = data;
+		}
+
+		@Override
+		public Object call(Object target, Method method, Object[] args) {
+			final String methodName = method.getName();
+			if ("getCronExpression".equals(methodName)) {
+				return data.get("cron");
+			}
+			return MethodUtils.invokeMethod(target, method, args);
+		}
+
+		@Override
+		public void catchException(Object target, Method method, Object[] args, Throwable e) {
+			log.info(e.getMessage(), e);
 		}
 
 	}

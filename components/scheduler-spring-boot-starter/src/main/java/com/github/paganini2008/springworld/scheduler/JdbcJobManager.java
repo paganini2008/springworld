@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * JdbcJobManager
@@ -11,10 +13,14 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * @author Fred Feng
  * @since 1.0
  */
-public class JdbcJobManager extends AbstractJobManager implements JobManager {
+@Slf4j
+public class JdbcJobManager implements JobManager {
 
 	@Autowired
 	private JobStore jobStore;
+
+	@Autowired
+	private ScheduleManager scheduleManager;
 
 	@Override
 	public void configure() throws Exception {
@@ -51,11 +57,30 @@ public class JdbcJobManager extends AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	protected void setJobState(Job job, JobState jobState) throws JobException {
-		try {
-			jobStore.setJobState(job, jobState);
-		} catch (Exception e) {
-			throw new JobException(e.getMessage(), e);
+	public void pauseJob(Job job) throws JobException {
+		if (scheduleManager.hasScheduled(job)) {
+			try {
+				jobStore.setJobState(job, JobState.PAUSED);
+				if (log.isTraceEnabled()) {
+					log.trace("Pause the job: " + job.getSignature());
+				}
+			} catch (Exception e) {
+				throw new JobException(e.getMessage(), e);
+			}
+		}
+	}
+
+	@Override
+	public void resumeJob(Job job) throws JobException {
+		if (scheduleManager.hasScheduled(job)) {
+			try {
+				jobStore.setJobState(job, JobState.RUNNING);
+				if (log.isTraceEnabled()) {
+					log.trace("Pause the job: " + job.getSignature());
+				}
+			} catch (Exception e) {
+				throw new JobException(e.getMessage(), e);
+			}
 		}
 	}
 

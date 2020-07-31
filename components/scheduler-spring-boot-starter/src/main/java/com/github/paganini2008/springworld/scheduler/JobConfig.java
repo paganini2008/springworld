@@ -32,8 +32,6 @@ public class JobConfig implements Job {
 	public String getGroupName() {
 		return config.getProperty("groupName");
 	}
-	
-	
 
 	public Tuple getConfig() {
 		return config;

@@ -48,6 +48,12 @@ public class EmbeddedJobStore implements JobStore {
 	@Autowired
 	private DataSource dataSource;
 
+	@Autowired
+	private JobLoadingMode jobLoadingMode;
+
+	@Autowired
+	private ScheduleManager scheduleManager;
+
 	@Override
 	public void configure() throws SQLException {
 		Connection connection = null;
@@ -65,7 +71,7 @@ public class EmbeddedJobStore implements JobStore {
 	}
 
 	@Override
-	public void reloadJobs(JobLoadingCallback callback) throws SQLException {
+	public void reloadJobs() throws SQLException {
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {
@@ -78,13 +84,14 @@ public class EmbeddedJobStore implements JobStore {
 		}
 		if (CollectionUtils.isNotEmpty(dataList)) {
 			for (Tuple tuple : dataList) {
-				loadJob(tuple, callback);
+				Job job = jobLoadingMode.defineJob(GenericJobDefinition.load(tuple));
+				scheduleManager.schedule(job, tuple.get("attachment"));
 			}
 		}
 		log.info("Reload and schedule all customized jobs ok.");
 	}
 
-	protected void loadJob(Tuple tuple, JobLoadingCallback callback) {
+	protected void loadJob(Tuple tuple, JobLoadingMode callback) {
 		final String jobClassName = (String) tuple.get("jobClassName");
 		Class<?> jobClass = ClassUtils.forName(jobClassName);
 		if (!Job.class.isAssignableFrom(jobClass)) {

@@ -12,14 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * AbstractJobManager
+ * DefaultScheduleManager
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public abstract class AbstractJobManager implements JobManager {
+public class DefaultScheduleManager implements ScheduleManager {
 
 	@Autowired
 	private Scheduler scheduler;
@@ -31,7 +31,7 @@ public abstract class AbstractJobManager implements JobManager {
 	private final Observable trigger = Observable.unrepeatable();
 
 	@Override
-	public void schedule(final Job job, final Object attachment)throws JobException{
+	public void schedule(final Job job, final Object attachment) {
 		trigger.addObserver((trigger, ignored) -> {
 			if (!hasScheduled(job)) {
 				if (job instanceof CronJob) {
@@ -53,15 +53,13 @@ public abstract class AbstractJobManager implements JobManager {
 				} else {
 					throw new JobException("Please implement the job interface for CronJob or ScheduledJob.");
 				}
-
-				setJobState(job, JobState.SCHEDULING);
 				log.info("Schedule job '" + job.getSignature() + "' ok. Currently scheduling's size is " + countOfScheduling());
 			}
 		});
 	}
 
 	@Override
-	public void unscheduleJob(Job job)throws JobException {
+	public void unscheduleJob(Job job) {
 		if (hasScheduled(job)) {
 			Future future = schedulingCache.remove(job);
 			if (future != null) {
@@ -72,33 +70,8 @@ public abstract class AbstractJobManager implements JobManager {
 	}
 
 	@Override
-	public boolean hasScheduled(Job job) throws JobException {
-		return hasJob(job) && schedulingCache.containsKey(job);
-	}
-
-	@Override
-	public void runJob(Job job, Object attachment) {
-		scheduler.runJob(job, attachment);
-	}
-
-	@Override
-	public void pauseJob(Job job) throws JobException {
-		if (hasScheduled(job)) {
-			setJobState(job, JobState.PAUSED);
-			if (log.isTraceEnabled()) {
-				log.trace("Pause the job: " + job.getSignature());
-			}
-		}
-	}
-
-	@Override
-	public void resumeJob(Job job) throws  JobException {
-		if (hasScheduled(job)) {
-			setJobState(job, JobState.RUNNING);
-			if (log.isTraceEnabled()) {
-				log.trace("Resume the job: " + job.getSignature());
-			}
-		}
+	public boolean hasScheduled(Job job) {
+		return schedulingCache.containsKey(job);
 	}
 
 	@Override
@@ -108,12 +81,17 @@ public abstract class AbstractJobManager implements JobManager {
 	}
 
 	@Override
+	public void runJob(Job job, Object attachment) {
+		scheduler.runJob(job, attachment);
+	}
+
+	@Override
 	public int countOfScheduling() {
 		return schedulingCache.size();
 	}
 
 	@Override
-	public Future getFuture(Job job) throws JobException {
+	public Future getFuture(Job job) {
 		if (!schedulingCache.containsKey(job)) {
 			throw new JobException("Not scheduling");
 		}
@@ -127,7 +105,5 @@ public abstract class AbstractJobManager implements JobManager {
 		}
 		schedulingCache.clear();
 	}
-
-	protected abstract void setJobState(Job job, JobState jobState) throws JobException;
 
 }
