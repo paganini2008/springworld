@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.date.DateUtils;
+import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +52,8 @@ public class DefaultScheduleManager implements ScheduleManager {
 			} else {
 				throw new JobException("Only support for CronJob or PeriodicJob.");
 			}
+			
+			ApplicationContextUtils.getBean(JobManager.class);
 			log.info("Schedule job '{}' ok. Current scheduling's number is {}", job.getSignature(), countOfScheduling());
 		});
 	}
@@ -90,7 +93,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Override
 	public JobFuture getFuture(Job job) {
 		if (!schedulingCache.containsKey(job)) {
-			throw new JobException("Not scheduling");
+			throw new JobException("Not scheduling job");
 		}
 		return schedulingCache.get(job);
 	}

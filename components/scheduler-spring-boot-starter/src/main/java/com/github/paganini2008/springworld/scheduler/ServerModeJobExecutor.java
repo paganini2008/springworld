@@ -16,13 +16,13 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 /**
  * 
- * DirectJobExecutor
+ * ServerModeJobExecutor
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class DirectJobExecutor extends JobTemplate implements JobExecutor {
+public class ServerModeJobExecutor extends JobTemplate implements JobExecutor {
 
 	@Autowired
 	private JobDependency jobDependency;

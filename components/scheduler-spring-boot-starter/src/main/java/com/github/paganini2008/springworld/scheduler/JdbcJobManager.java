@@ -203,7 +203,7 @@ public class JdbcJobManager implements JobManager {
 		}
 	}
 
-	private void setJobState(Job job, JobState jobState) throws SQLException {
+	public void setJobState(Job job, JobState jobState) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();

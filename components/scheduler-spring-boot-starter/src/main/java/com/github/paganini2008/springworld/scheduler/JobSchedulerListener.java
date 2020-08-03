@@ -29,7 +29,7 @@ public class JobSchedulerListener implements ApplicationListener<ApplicationClus
 	@Autowired
 	private ScheduleManager scheduleManager;
 
-	@Autowired
+	@Autowired(required = false)
 	private JobBeanInitializer jobBeanInitializer;
 
 	@Value("${spring.application.cluster.scheduler.launcher.inititalDelay:5}")
@@ -47,13 +47,15 @@ public class JobSchedulerListener implements ApplicationListener<ApplicationClus
 
 	@Override
 	public boolean execute() {
-		try {
-			jobBeanInitializer.loadJobs();
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+		if (jobBeanInitializer != null) {
+			try {
+				jobBeanInitializer.loadJobs();
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
 		}
 		scheduleManager.doSchedule();
-		return true;
+		return jobBeanInitializer != null;
 	}
 
 	@PreDestroy

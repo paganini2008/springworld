@@ -23,16 +23,16 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * EmbeddedSchedulerAutoConfiguration
+ * EmbeddedModeSchedulerConfiguration
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Configuration
-@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "embedded", matchIfMissing = true)
+@ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "embedded", matchIfMissing = true)
 @Import({ JobManagerController.class, ScheduleManagerController.class })
-public class EmbeddedSchedulerAutoConfiguration {
+public class EmbeddedModeSchedulerConfiguration {
 
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
@@ -47,7 +47,7 @@ public class EmbeddedSchedulerAutoConfiguration {
 
 		@Bean("target-job-executor")
 		public JobExecutor directJobExecutor() {
-			return new DirectJobExecutor();
+			return new ServerModeJobExecutor();
 		}
 
 		@Bean
@@ -123,6 +123,12 @@ public class EmbeddedSchedulerAutoConfiguration {
 	@ConditionalOnMissingBean(JobBeanLoader.class)
 	public JobBeanLoader jobBeanLoader() {
 		return new EmbeddedModeJobBeanLoader();
+	}
+	
+	@Bean
+	@ConditionalOnMissingBean(JobExecutor.class)
+	public JobExecutor jobExecutor() {
+		return new EmbeddedModeJobExecutor();
 	}
 
 	@Bean(initMethod = "configure", destroyMethod = "close")

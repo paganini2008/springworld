@@ -46,7 +46,7 @@ public enum TriggerType {
 		} else if (job instanceof PeriodicJob) {
 			return TriggerType.PERIODIC;
 		}
-		throw new IllegalStateException("Unknown job class: " + job.getClass());
+		throw new IllegalArgumentException("Unknown job class: " + job.getClass());
 	}
 
 }

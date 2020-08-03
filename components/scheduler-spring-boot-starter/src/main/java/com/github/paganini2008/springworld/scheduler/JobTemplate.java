@@ -19,21 +19,21 @@ public abstract class JobTemplate {
 
 	protected final void runJob(Job job, Object attachment) {
 		final Date now = new Date();
+		beforeRun(job, now);
+		RunningState runningState = RunningState.SKIPPED;
+		Throwable reason = null;
 		if (isRunning(job) && job.shouldRun()) {
-			beforeRun(job, now);
 			try {
-				RunningState runningState = doRun(job, attachment);
-				afterRun(job, now, runningState, null);
-			} catch (Exception e) {
+				runningState = doRun(job, attachment);
+			} catch (Throwable e) {
 				if (e instanceof JobCancelledException) {
 					throw (JobCancelledException) e;
-				} else {
-					afterRun(job, now, RunningState.FAILED, e);
 				}
+				reason = e;
+				runningState = RunningState.FAILED;
 			}
-		} else {
-			afterRun(job, now, RunningState.SKIPPED, null);
 		}
+		afterRun(job, now, runningState, reason);
 	}
 
 	protected RunningState doRun(Job job, Object arg) throws Exception {

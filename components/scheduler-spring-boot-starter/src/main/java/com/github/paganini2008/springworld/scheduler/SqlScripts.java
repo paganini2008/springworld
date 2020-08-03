@@ -21,7 +21,7 @@ public abstract class SqlScripts {
 	public static final String DEF_INSERT_JOB_EXCEPTION = "insert into cluster_job_exception(trace_id, job_id, exception_content) values (?,?,?)";
 	public static final String DEF_INSERT_JOB_TRIGGER = "insert into cluster_job_trigger(job_id, trigger_type, trigger_description) values (?,?,?)";
 
-	public static final String DEF_UPDATE_JOB_RUNTIME_START = "update cluster_job_runtime set job_state=?, last_execution_time=?, next_execution_time=? where job_id=(select id from cluster_job_detail where job_name=? and job_class_name=?)";
+	public static final String DEF_UPDATE_JOB_RUNTIME_START = "update cluster_job_runtime set job_state=?, last_execution_time=?, next_execution_time=? where job_id=(select job_id from cluster_job_detail where job_name=? and job_class_name=?)";
 	public static final String DEF_UPDATE_JOB_RUNTIME_END = "update cluster_job_runtime set job_state=?, last_running_state=?, last_completion_time=? where job_id=(select job_id from cluster_job_detail where job_name=? and job_class_name=?)";
 	public static final String DEF_UPDATE_JOB_STATE = "update cluster_job_runtime set job_state=? where job_name=? and job_class_name=?";
 

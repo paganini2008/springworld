@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -16,20 +17,21 @@ import org.springframework.web.client.RestTemplate;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * SchedulerServerAutoConfiguration
+ * ServerModeSchedulerConfiguration
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Configuration
-@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "server")
-public class SchedulerServerAutoConfiguration {
+@ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "server")
+public class ServerModeSchedulerConfiguration {
 
 	@Slf4j
 	@Configuration
@@ -141,7 +143,7 @@ public class SchedulerServerAutoConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(JobExecutor.class)
 		public JobExecutor jobExecutor() {
-			return new DirectJobExecutor();
+			return new ServerModeJobExecutor();
 		}
 
 		@Bean
@@ -152,6 +154,7 @@ public class SchedulerServerAutoConfiguration {
 	}
 
 	@Configuration
+	@ConditionalOnBean(ClusterMulticastGroup.class)
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.loadbalance", havingValue = "true")
 	public static class LoadBalancingConfig {
 
@@ -163,7 +166,7 @@ public class SchedulerServerAutoConfiguration {
 
 		@Bean("target-job-executor")
 		public JobExecutor directJobExecutor() {
-			return new DirectJobExecutor();
+			return new ServerModeJobExecutor();
 		}
 
 		@Bean

@@ -16,7 +16,7 @@ import lombok.Getter;
  * @since 1.0
  */
 @Getter
-public class JobRuntime implements Serializable{
+public class JobRuntime implements Serializable {
 
 	private static final long serialVersionUID = -6283587791317006889L;
 	private int jobId;
