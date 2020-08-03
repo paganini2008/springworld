@@ -9,11 +9,11 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface Scheduler {
 
-	Future schedule(Job job, Object attachment, String cron);
+	JobFuture schedule(Job job, Object attachment, String cron);
 
-	Future scheduleWithFixedDelay(Job job, Object attachment, long delay, long period);
+	JobFuture scheduleWithFixedDelay(Job job, Object attachment, long delay, long period);
 
-	Future scheduleAtFixedRate(Job job, Object attachment, long delay, long period);
+	JobFuture scheduleAtFixedRate(Job job, Object attachment, long delay, long period);
 
 	void runJob(Job job, Object attachment);
 

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SpringScheduler implements Scheduler {
 
+	@Qualifier("cluster-job-scheduler")
 	@Autowired
 	private TaskScheduler taskScheduler;
 
@@ -34,20 +36,20 @@ public class SpringScheduler implements Scheduler {
 	private boolean loadbalanced;
 
 	@Override
-	public Future schedule(Job job, Object arg, String cron) {
+	public JobFuture schedule(Job job, Object arg, String cron) {
 		ScheduledFuture<?> future = taskScheduler.schedule(wrapJob(job, arg), new CronTrigger(cron));
 		return new FutureImpl(job, future);
 	}
 
 	@Override
-	public Future scheduleWithFixedDelay(Job job, Object arg, long delay, long period) {
+	public JobFuture scheduleWithFixedDelay(Job job, Object arg, long delay, long period) {
 		ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(wrapJob(job, arg), new Date(System.currentTimeMillis() + delay),
 				period);
 		return new FutureImpl(job, future);
 	}
 
 	@Override
-	public Future scheduleAtFixedRate(Job job, Object arg, long delay, long period) {
+	public JobFuture scheduleAtFixedRate(Job job, Object arg, long delay, long period) {
 		ScheduledFuture<?> future = taskScheduler.scheduleAtFixedRate(wrapJob(job, arg), new Date(System.currentTimeMillis() + delay),
 				period);
 		return new FutureImpl(job, future);
@@ -72,7 +74,7 @@ public class SpringScheduler implements Scheduler {
 	 *
 	 * @since 1.0
 	 */
-	private static class FutureImpl implements Future {
+	private static class FutureImpl implements JobFuture {
 
 		private final Job job;
 		private final ScheduledFuture<?> future;

@@ -8,13 +8,13 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface JobPersistence {
 
-	default void addJob(Job job) throws JobException {
+	default void addJob(Job job) {
 	}
 
-	default void deleteJob(Job job) throws JobException {
+	default void deleteJob(Job job) {
 	}
 
-	default boolean hasJob(Job job) throws JobException {
+	default boolean hasJob(Job job) {
 		return true;
 	}
 

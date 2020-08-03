@@ -5,16 +5,36 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 /**
  * 
  * JobManager
- * 
+ *
  * @author Fred Feng
- * @version 1.0
+ * @since 1.0
  */
-public interface JobManager extends JobPersistence, Lifecycle {
+public interface JobManager extends Lifecycle {
 
-	void pauseJob(Job job);
+	default void addJob(Job job) throws Exception {
+	}
 
-	void resumeJob(Job job);
+	default void deleteJob(Job job) throws Exception {
+	}
 
-	ResultSetSlice<JobStat> getJobInfos();
+	default boolean hasJob(Job job) throws Exception {
+		return true;
+	}
+
+	void pauseJob(Job job) throws Exception;
+
+	void resumeJob(Job job) throws Exception;
+
+	JobDetail getJobDetail(Job job) throws Exception;
+
+	TriggerDetail getTriggerDetail(Job job) throws Exception;
+
+	JobRuntime getJobRuntime(Job job) throws Exception;
+
+	JobStat getJobStat(Job job) throws Exception;
+
+	ResultSetSlice<JobInfo> getJobInfo() throws Exception;
+
+	ResultSetSlice<JobStat> getJobStat(StatType statType) throws Exception;
 
 }

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum RunningState {
 
-	FAILED(0), COMPLETED(2), SKIPPED(3);
+	FAILED(0), COMPLETED(2), SKIPPED(3), RUNNING(99);
 
 	private final int value;
 

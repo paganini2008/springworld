@@ -8,7 +8,7 @@ package com.github.paganini2008.springworld.scheduler;
  *
  * @since 1.0
  */
-public interface ScheduleManager {
+public interface ScheduleManager extends Lifecycle {
 
 	void schedule(Job job, Object attachment);
 
@@ -21,9 +21,7 @@ public interface ScheduleManager {
 	void unscheduleJob(Job job);
 
 	int countOfScheduling();
-	
-	Future getFuture(Job job);
-	
-	void close();
+
+	JobFuture getFuture(Job job);
 
 }

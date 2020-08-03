@@ -17,12 +17,12 @@ public abstract class JobTemplate {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	protected void runJob(Job job, Object arg) {
+	protected final void runJob(Job job, Object attachment) {
 		final Date now = new Date();
 		if (isRunning(job) && job.shouldRun()) {
 			beforeRun(job, now);
 			try {
-				RunningState runningState = doRun(job, arg);
+				RunningState runningState = doRun(job, attachment);
 				afterRun(job, now, runningState, null);
 			} catch (Exception e) {
 				if (e instanceof JobCancelledException) {
@@ -36,7 +36,7 @@ public abstract class JobTemplate {
 		}
 	}
 
-	private RunningState doRun(Job job, Object arg) throws Exception {
+	protected RunningState doRun(Job job, Object arg) throws Exception {
 		job.onStart();
 
 		Object result = null;

@@ -14,39 +14,34 @@ import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 
  * DirectJobExecutor
- *
+ * 
  * @author Fred Feng
+ *
  * @since 1.0
  */
-@Slf4j
 public class DirectJobExecutor extends JobTemplate implements JobExecutor {
-
-	@Autowired
-	private JobManager jobManager;
 
 	@Autowired
 	private JobDependency jobDependency;
 
 	@Autowired
-	private JobStore jobStore;
+	private JobManager jobManager;
 
 	@Autowired
 	private DataSource dataSource;
 
 	@Override
-	public void execute(Job job, Object arg) {
-		runJob(job, arg);
+	public void execute(Job job, Object attachment) {
+		runJob(job, attachment);
 	}
 
 	@Override
 	protected boolean isRunning(Job job) {
 		try {
-			return jobStore.getJobRuntime(job).getJobState() == JobState.RUNNING;
+			return jobManager.getJobRuntime(job).getJobState() == JobState.RUNNING;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			return false;
@@ -59,21 +54,6 @@ public class DirectJobExecutor extends JobTemplate implements JobExecutor {
 	}
 
 	@Override
-	protected void beforeRun(Job job, Date startTime) {
-		super.beforeRun(job, startTime);
-		Connection connection = null;
-		try {
-			connection = dataSource.getConnection();
-			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_START,
-					new Object[] { JobState.RUNNING.getValue(), startTime, job.getJobName(), job.getJobClassName() });
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-		} finally {
-			JdbcUtils.closeQuietly(connection);
-		}
-	}
-
-	@Override
 	protected void afterRun(Job job, Date startTime, RunningState runningState, Throwable reason) {
 		super.afterRun(job, startTime, runningState, reason);
 		final Date endTime = new Date();
@@ -82,9 +62,8 @@ public class DirectJobExecutor extends JobTemplate implements JobExecutor {
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
 
-			long nextExecutionTime = jobManager.getFuture(job).getNextExectionTime();
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_END, new Object[] { JobState.SCHEDULING.getValue(),
-					runningState.getValue(), endTime, new Date(nextExecutionTime), job.getJobName(), job.getJobClassName() });
+					runningState.getValue(), endTime, job.getJobName(), job.getJobClassName() });
 
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
 					new Object[] { job.getJobName(), job.getJobClassName() });
@@ -99,6 +78,8 @@ public class DirectJobExecutor extends JobTemplate implements JobExecutor {
 				break;
 			case SKIPPED:
 				skipped = 1;
+				break;
+			default:
 				break;
 			}
 
@@ -122,5 +103,4 @@ public class DirectJobExecutor extends JobTemplate implements JobExecutor {
 		}
 
 	}
-
 }

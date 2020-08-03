@@ -1,7 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.cron4j.CRON;
 import com.github.paganini2008.devtools.cron4j.Task;
@@ -18,44 +18,42 @@ import com.github.paganini2008.devtools.cron4j.TaskExecutor.TaskFuture;
  */
 public class Cron4jScheduler implements Scheduler {
 
+	@Qualifier("cluster-job-scheduler")
 	@Autowired
 	private TaskExecutor taskExecutor;
 
 	@Autowired
 	private JobExecutor jobExecutor;
 
-	@Value("${spring.application.cluster.scheduler.loadbalance.enabled:true}")
-	private boolean loadbalanced;
-
 	@Override
-	public Future schedule(Job job, Object arg, String cron) {
-		TaskFuture taskFuture = taskExecutor.schedule(wrapJob(job, arg), CRON.parse(cron));
+	public JobFuture schedule(Job job, Object attachment, String cron) {
+		TaskFuture taskFuture = taskExecutor.schedule(wrapJob(job, attachment), CRON.parse(cron));
 		return new FutureImpl(taskFuture);
 	}
 
 	@Override
-	public Future scheduleWithFixedDelay(Job job, Object arg, long delay, long period) {
-		TaskFuture taskFuture = taskExecutor.scheduleWithFixedDelay(wrapJob(job, arg), delay, period);
+	public JobFuture scheduleWithFixedDelay(Job job, Object attachment, long delay, long period) {
+		TaskFuture taskFuture = taskExecutor.scheduleWithFixedDelay(wrapJob(job, attachment), delay, period);
 		return new FutureImpl(taskFuture);
 	}
 
 	@Override
-	public Future scheduleAtFixedRate(Job job, Object arg, long delay, long period) {
-		TaskFuture taskFuture = taskExecutor.scheduleAtFixedRate(wrapJob(job, arg), delay, period);
+	public JobFuture scheduleAtFixedRate(Job job, Object attachment, long delay, long period) {
+		TaskFuture taskFuture = taskExecutor.scheduleAtFixedRate(wrapJob(job, attachment), delay, period);
 		return new FutureImpl(taskFuture);
 	}
 
 	@Override
-	public void runJob(Job job, Object arg) {
-		jobExecutor.execute(job, arg);
+	public void runJob(Job job, Object attachment) {
+		jobExecutor.execute(job, attachment);
 	}
 
-	protected Task wrapJob(final Job job, final Object arg) {
+	protected Task wrapJob(final Job job, final Object attachment) {
 		return new Task() {
 
 			@Override
 			public boolean execute() {
-				jobExecutor.execute(job, arg);
+				jobExecutor.execute(job, attachment);
 				return true;
 			}
 		};
@@ -69,7 +67,7 @@ public class Cron4jScheduler implements Scheduler {
 	 *
 	 * @since 1.0
 	 */
-	private static class FutureImpl implements Future {
+	private static class FutureImpl implements JobFuture {
 
 		private final TaskFuture taskFuture;
 

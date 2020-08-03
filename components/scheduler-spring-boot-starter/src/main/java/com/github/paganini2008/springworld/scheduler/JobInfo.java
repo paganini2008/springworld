@@ -24,7 +24,7 @@ public class JobInfo implements Serializable {
 	private String jobName;
 	private String jobClassName;
 	private String groupName;
-	private JobType jobType;
+	private TriggerType jobType;
 	private String description;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date createDate;
@@ -50,7 +50,7 @@ public class JobInfo implements Serializable {
 	}
 
 	public void setJobType(int jobType) {
-		this.jobType = JobType.valueOf(jobType);
+		this.jobType = TriggerType.valueOf(jobType);
 	}
 
 	public void setDescription(String description) {

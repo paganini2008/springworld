@@ -5,19 +5,19 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * 
- * JobType
+ * TriggerType
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public enum JobType {
+public enum TriggerType {
 
-	CRON(0), PERIODIC(1), SERIALIZABLE(2);
+	CRON(0), PERIODIC(1);
 
 	private final int value;
 
-	private JobType(int value) {
+	private TriggerType(int value) {
 		this.value = value;
 	}
 
@@ -31,8 +31,8 @@ public enum JobType {
 	}
 
 	@JsonCreator
-	public static JobType valueOf(int value) {
-		for (JobType jobType : JobType.values()) {
+	public static TriggerType valueOf(int value) {
+		for (TriggerType jobType : TriggerType.values()) {
 			if (jobType.getValue() == value) {
 				return jobType;
 			}
@@ -40,15 +40,13 @@ public enum JobType {
 		throw new IllegalArgumentException("Unknown job type: " + value);
 	}
 
-	public static JobType valueOf(Job job) {
+	public static TriggerType valueOf(Job job) {
 		if (job instanceof CronJob) {
-			return JobType.CRON;
+			return TriggerType.CRON;
 		} else if (job instanceof PeriodicJob) {
-			return JobType.PERIODIC;
-		} else if (job instanceof SerializableJob) {
-			return JobType.SERIALIZABLE;
+			return TriggerType.PERIODIC;
 		}
-		throw new IllegalArgumentException("Unknown job class: " + job.getClass());
+		throw new IllegalStateException("Unknown job class: " + job.getClass());
 	}
 
 }

@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
-import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 /**
  * 
@@ -19,38 +17,34 @@ import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils
  */
 public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
 
-	@Qualifier("directJobExecutor")
+	@Qualifier("target-job-executor")
 	@Autowired
 	private JobExecutor jobExecutor;
 
+	@Autowired
+	private JobBeanLoader jobBeanLoader;
+
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
-		final JobParameter jobParameter = (JobParameter) message;
-		final String[] data = jobParameter.getSignature().split("@", 2);
-		final String jobName = data[0];
-		final String jobClassName = data[1];
-		Class<?> jobClass = ClassUtils.forName(jobClassName);
-		if (!Job.class.isAssignableFrom(jobClass)) {
-			throw new JobException("Class '" + jobClass.getName() + "' is not a implementor of Job interface.");
-		}
-		Job job = (Job) ApplicationContextUtils.getBean(jobName, jobClass);
-		if (job == null) {
-			job = (Job) ApplicationContextUtils.getBean(jobClass, bean -> {
-				return ((Job) bean).getJobName().equals(jobName);
-			});
-		}
-		if (job == null) {
-			throw new JobBeanNotFoundException(jobClassName);
+		acceptJob((JobParameter) message);
+	}
+
+	public void acceptJob(JobParameter jobParameter) {
+		Job job;
+		try {
+			job = jobBeanLoader.defineJob(jobParameter);
+		} catch (Exception e) {
+			throw new JobException(e.getMessage(), e);
 		}
 		jobExecutor.execute(job, jobParameter.getArgument());
 	}
 
 	@Override
 	public String getTopic() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + applicationName + ":scheduler:loadbalance";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
 	}
 
 }

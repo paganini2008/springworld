@@ -21,7 +21,7 @@ public class JobDependency extends Observable {
 	@Autowired
 	private Scheduler scheduler;
 
-	public void addDependency(SerializableJob job) {
+	public void addDependency(Job job) {
 		for (String signature : job.getDependencies()) {
 			addObserver(signature, (ob, result) -> {
 				scheduler.runJob(job, result);
