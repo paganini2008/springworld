@@ -5,7 +5,6 @@ import java.util.concurrent.ScheduledFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.support.CronTrigger;
@@ -31,9 +30,6 @@ public class SpringScheduler implements Scheduler {
 
 	@Autowired
 	private JobExecutor jobExecutor;
-
-	@Value("${spring.application.cluster.scheduler.loadbalance.enabled:true}")
-	private boolean loadbalanced;
 
 	@Override
 	public JobFuture schedule(Job job, Object arg, String cron) {

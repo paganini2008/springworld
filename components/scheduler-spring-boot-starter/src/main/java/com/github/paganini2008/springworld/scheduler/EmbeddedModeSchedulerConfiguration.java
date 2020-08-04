@@ -47,7 +47,7 @@ public class EmbeddedModeSchedulerConfiguration {
 
 		@Bean("target-job-executor")
 		public JobExecutor directJobExecutor() {
-			return new ServerModeJobExecutor();
+			return new ConsumerModeJobExecutor();
 		}
 
 		@Bean

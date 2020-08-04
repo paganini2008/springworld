@@ -50,9 +50,6 @@ public class JdbcJobManager implements JobManager {
 	private DataSource dataSource;
 
 	@Autowired
-	private ScheduleManager scheduleManager;
-
-	@Autowired
 	private JobDependency jobDependency;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -81,7 +78,7 @@ public class JdbcJobManager implements JobManager {
 
 	@Override
 	public void pauseJob(Job job) throws SQLException {
-		if (hasJob(job) && scheduleManager.hasScheduled(job)) {
+		if (hasJob(job) && hasJobState(job, JobState.SCHEDULING)) {
 			try {
 				setJobState(job, JobState.PAUSED);
 				if (log.isTraceEnabled()) {
@@ -95,9 +92,9 @@ public class JdbcJobManager implements JobManager {
 
 	@Override
 	public void resumeJob(Job job) throws SQLException {
-		if (hasJob(job) && scheduleManager.hasScheduled(job)) {
+		if (hasJob(job) && hasJobState(job, JobState.PAUSED)) {
 			try {
-				setJobState(job, JobState.RUNNING);
+				setJobState(job, JobState.SCHEDULING);
 				if (log.isTraceEnabled()) {
 					log.trace("Pause the job: " + job.getSignature());
 				}
@@ -177,15 +174,19 @@ public class JdbcJobManager implements JobManager {
 	@Override
 	public void deleteJob(Job job) throws SQLException {
 		checkJobSignature(job);
-		if (hasJob(job)) {
-			Connection connection = null;
-			try {
-				connection = dataSource.getConnection();
-				JdbcUtils.update(connection, SqlScripts.DEF_DELETE_JOB_DETAIL, new Object[] { job.getJobName(), job.getJobClassName() });
-				log.info("Delete job '" + job.getSignature() + "' ok.");
-			} finally {
-				JdbcUtils.closeQuietly(connection);
-			}
+		if (!hasJob(job)) {
+			throw new JobBeanNotFoundException(job.getSignature());
+		}
+		if (!hasJobState(job, JobState.NOT_SCHEDULED)) {
+			throw new JobException("Please unschedule the job before you delete it.");
+		}
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			JdbcUtils.update(connection, SqlScripts.DEF_DELETE_JOB_DETAIL, new Object[] { job.getJobName(), job.getJobClassName() });
+			log.info("Delete job '" + job.getSignature() + "' ok.");
+		} finally {
+			JdbcUtils.closeQuietly(connection);
 		}
 	}
 
@@ -203,6 +204,7 @@ public class JdbcJobManager implements JobManager {
 		}
 	}
 
+	@Override
 	public void setJobState(Job job, JobState jobState) throws SQLException {
 		Connection connection = null;
 		try {
@@ -212,6 +214,12 @@ public class JdbcJobManager implements JobManager {
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
+	}
+
+	@Override
+	public boolean hasJobState(Job job, JobState jobState) throws SQLException {
+		JobRuntime jobRuntime = getJobRuntime(job);
+		return jobRuntime.getJobState() == jobState;
 	}
 
 	@Override
@@ -228,7 +236,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public TriggerDetail getTriggerDetail(Job job) throws Exception {
+	public TriggerDetail getTriggerDetail(Job job) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
@@ -241,7 +249,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobRuntime getJobRuntime(Job job) throws Exception {
+	public JobRuntime getJobRuntime(Job job) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
@@ -254,7 +262,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobStat getJobStat(Job job) throws Exception {
+	public JobStat getJobStat(Job job) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
@@ -290,7 +298,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public ResultSetSlice<JobStat> getJobStat(StatType statType) throws Exception {
+	public ResultSetSlice<JobStat> getJobStat(StatType statType) throws SQLException {
 		String extraColumns = "", extraGroupingColumns = "";
 		if (statType != null) {
 			extraColumns = ", " + statType.getExtraColumns();

@@ -3,12 +3,16 @@ package com.github.paganini2008.springworld.scheduler;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.devtools.ExceptionUtils;
+import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 /**
@@ -19,13 +23,19 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
  *
  * @since 1.0
  */
-public class EmbeddedModeJobExecutor extends ServerModeJobExecutor {
+public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor {
+
+	@Autowired
+	private JobManager jobManager;
 
 	@Autowired
 	private ScheduleManager scheduleManager;
 
 	@Autowired
 	private DataSource dataSource;
+
+	@Autowired
+	private JobDependency jobDependency;
 
 	@Override
 	protected void beforeRun(Job job, Date startTime) {
@@ -41,6 +51,76 @@ public class EmbeddedModeJobExecutor extends ServerModeJobExecutor {
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
+	}
+
+	@Override
+	public void execute(Job job, Object attachment) {
+		runJob(job, attachment);
+	}
+
+	@Override
+	protected boolean isRunning(Job job) {
+		try {
+			return jobManager.hasJobState(job, JobState.RUNNING);
+		} catch (Exception e) {
+			throw new JobException(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	protected void notifyDependencies(Job job, Object result) {
+		jobDependency.notifyDependencies(job, result);
+	}
+
+	@Override
+	protected void afterRun(Job job, Date startTime, RunningState runningState, Throwable reason) {
+		super.afterRun(job, startTime, runningState, reason);
+		final Date endTime = new Date();
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			connection.setAutoCommit(false);
+
+			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_END, new Object[] { JobState.SCHEDULING.getValue(),
+					runningState.getValue(), endTime, job.getJobName(), job.getJobClassName() });
+
+			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
+					new Object[] { job.getJobName(), job.getJobClassName() });
+			int jobId = (Integer) tuple.get("jobId");
+			int complete = 0, failed = 0, skipped = 0;
+			switch (runningState) {
+			case COMPLETED:
+				complete = 1;
+				break;
+			case FAILED:
+				failed = 1;
+				break;
+			case SKIPPED:
+				skipped = 1;
+				break;
+			default:
+				break;
+			}
+
+			int traceId = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_TRACE,
+					new Object[] { jobId, runningState.getValue(), complete, failed, skipped, startTime, endTime });
+
+			if (reason != null) {
+				String[] traces = ExceptionUtils.toArray(reason);
+				List<Object[]> argsList = new ArrayList<Object[]>();
+				for (String trace : traces) {
+					argsList.add(new Object[] { traceId, jobId, trace });
+				}
+				JdbcUtils.batchUpdate(connection, SqlScripts.DEF_INSERT_JOB_EXCEPTION, argsList);
+			}
+			connection.commit();
+		} catch (SQLException e) {
+			log.error(e.getMessage(), e);
+			JdbcUtils.rollbackQuietly(connection);
+		} finally {
+			JdbcUtils.closeQuietly(connection);
+		}
+
 	}
 
 }

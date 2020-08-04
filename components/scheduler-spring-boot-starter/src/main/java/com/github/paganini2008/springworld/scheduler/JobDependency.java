@@ -19,12 +19,12 @@ public class JobDependency extends Observable {
 	}
 
 	@Autowired
-	private Scheduler scheduler;
+	private JobExecutor jobExecutor;
 
 	public void addDependency(Job job) {
 		for (String signature : job.getDependencies()) {
 			addObserver(signature, (ob, result) -> {
-				scheduler.runJob(job, result);
+				jobExecutor.execute(job, result);
 			});
 		}
 	}

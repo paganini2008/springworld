@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -29,13 +30,17 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
+@Slf4j
 @Configuration
 @ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "server")
 public class ServerModeSchedulerConfiguration {
 
-	@Slf4j
+	public ServerModeSchedulerConfiguration() {
+		log.info("Cluster scheduler mode is server.");
+	}
+
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring")
+	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring", matchIfMissing = true)
 	public static class SpringSchedulerConfig {
 
 		@Value("${spring.application.cluster.scheduler.poolSize:8}")
@@ -81,8 +86,9 @@ public class ServerModeSchedulerConfiguration {
 	}
 
 	@Configuration
+	@Import({ JobManagerController.class })
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.side", havingValue = "producer")
-	public static class ProducerConfig {
+	public static class ProducerModeConfig {
 
 		@Bean
 		public JobSchedulerListener jobSchedulerListener() {
@@ -101,6 +107,11 @@ public class ServerModeSchedulerConfiguration {
 			return new JdbcJobManager();
 		}
 
+		@Bean
+		public JobDependency jobDependency() {
+			return new JobDependency();
+		}
+
 		@Bean(initMethod = "configure", destroyMethod = "close")
 		@ConditionalOnMissingBean(ScheduleManager.class)
 		public ScheduleManager scheduleManager() {
@@ -112,6 +123,11 @@ public class ServerModeSchedulerConfiguration {
 			return new ServerModeJobBeanLoader();
 		}
 
+		@Bean
+		public JobExecutor jobExecutor() {
+			return new ProducerModeJobExecutor();
+		}
+
 		@Bean("scheduler-httpclient")
 		@ConditionalOnMissingBean(RestTemplate.class)
 		public RestTemplate restTemplate() {
@@ -121,8 +137,9 @@ public class ServerModeSchedulerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.side", havingValue = "consumer")
-	public static class ConsumerConfig {
+	@Import({ ScheduleManagerController.class })
+	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.side", havingValue = "consumer", matchIfMissing = true)
+	public static class ConsumerModeConfig {
 
 		@Bean
 		public NotScheduledJobBeanPostProcessor notScheduledJobBeanPostProcessor() {
@@ -143,7 +160,7 @@ public class ServerModeSchedulerConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(JobExecutor.class)
 		public JobExecutor jobExecutor() {
-			return new ServerModeJobExecutor();
+			return new ConsumerModeJobExecutor();
 		}
 
 		@Bean
@@ -165,8 +182,8 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean("target-job-executor")
-		public JobExecutor directJobExecutor() {
-			return new ServerModeJobExecutor();
+		public JobExecutor consumerModeJobExecutor() {
+			return new ConsumerModeJobExecutor();
 		}
 
 		@Bean

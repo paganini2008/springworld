@@ -41,7 +41,7 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 		TriggerDetail triggerDetail = jobManager.getTriggerDetail(job);
 		Map<String, Object> data;
 		try {
-			data = objectMapper.readValue(triggerDetail.getTriggerDesciption(), HashMap.class);
+			data = objectMapper.readValue(triggerDetail.getTriggerDescription(), HashMap.class);
 		} catch (IOException e) {
 			throw new IllegalStateException(e.getMessage(), e);
 		}

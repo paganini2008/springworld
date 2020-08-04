@@ -7,7 +7,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -17,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * @since 1.0
  */
+@Slf4j
 public class JobBeanProxy implements Job {
 
 	private final JobParameter jobParameter;
@@ -64,8 +68,9 @@ public class JobBeanProxy implements Job {
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
 		HttpEntity<JobParameter> requestEntity = new HttpEntity<JobParameter>(jobParameter, headers);
-		restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-		return null;
+		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+		log.info(responseEntity.toString());
+		return responseEntity.getBody();
 	}
 
 }

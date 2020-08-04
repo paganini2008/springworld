@@ -25,6 +25,10 @@ public interface JobManager extends Lifecycle {
 
 	void resumeJob(Job job) throws Exception;
 
+	boolean hasJobState(Job job, JobState jobState) throws Exception;
+
+	void setJobState(Job job, JobState jobState) throws Exception;
+
 	JobDetail getJobDetail(Job job) throws Exception;
 
 	TriggerDetail getTriggerDetail(Job job) throws Exception;

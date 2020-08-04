@@ -16,13 +16,13 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 /**
  * 
- * ServerModeJobExecutor
+ * ConsumerModeJobExecutor
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class ServerModeJobExecutor extends JobTemplate implements JobExecutor {
+public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor {
 
 	@Autowired
 	private JobDependency jobDependency;
@@ -41,10 +41,9 @@ public class ServerModeJobExecutor extends JobTemplate implements JobExecutor {
 	@Override
 	protected boolean isRunning(Job job) {
 		try {
-			return jobManager.getJobRuntime(job).getJobState() == JobState.RUNNING;
+			return jobManager.hasJobState(job, JobState.RUNNING);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return false;
+			throw new JobException(e.getMessage(), e);
 		}
 	}
 

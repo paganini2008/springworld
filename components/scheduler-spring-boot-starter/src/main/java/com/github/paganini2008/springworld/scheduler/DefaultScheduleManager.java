@@ -52,8 +52,13 @@ public class DefaultScheduleManager implements ScheduleManager {
 			} else {
 				throw new JobException("Only support for CronJob or PeriodicJob.");
 			}
-			
-			ApplicationContextUtils.getBean(JobManager.class);
+
+			JobManager jobManager = ApplicationContextUtils.getBean(JobManager.class);
+			try {
+				jobManager.setJobState(job, JobState.SCHEDULING);
+			} catch (Exception e) {
+				throw new JobException(e.getMessage(), e);
+			}
 			log.info("Schedule job '{}' ok. Current scheduling's number is {}", job.getSignature(), countOfScheduling());
 		});
 	}
@@ -64,6 +69,12 @@ public class DefaultScheduleManager implements ScheduleManager {
 			JobFuture future = schedulingCache.remove(job);
 			if (future != null) {
 				future.cancel();
+			}
+			JobManager jobManager = ApplicationContextUtils.getBean(JobManager.class);
+			try {
+				jobManager.setJobState(job, JobState.NOT_SCHEDULED);
+			} catch (Exception e) {
+				throw new JobException(e.getMessage(), e);
 			}
 			log.info("Unschedule job: " + job.getSignature());
 		}

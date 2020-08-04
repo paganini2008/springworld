@@ -18,7 +18,7 @@ public class TriggerDetail implements Serializable {
 	private static final long serialVersionUID = 866085363330905946L;
 	private Integer jobId;
 	private TriggerType triggerType;
-	private String triggerDesciption;
+	private String triggerDescription;
 
 	public void setJobId(Integer jobId) {
 		this.jobId = jobId;
@@ -28,8 +28,8 @@ public class TriggerDetail implements Serializable {
 		this.triggerType = TriggerType.valueOf(triggerType);
 	}
 
-	public void setTriggerDesciption(String triggerDesciption) {
-		this.triggerDesciption = triggerDesciption;
+	public void setTriggerDescription(String triggerDescription) {
+		this.triggerDescription = triggerDescription;
 	}
 
 }
