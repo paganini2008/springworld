@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 
- * ScheduleManagerController
+ * JobController
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @RestController
-@RequestMapping("/schedule/manager")
-public class ScheduleManagerController {
+@RequestMapping("/job")
+public class JobController {
 
 	@Autowired
 	private JobExecutor jobExecutor;
@@ -25,11 +25,15 @@ public class ScheduleManagerController {
 	@Autowired
 	private JobBeanLoader jobBeanLoader;
 
-	@PostMapping("/runJob")
-	public ResponseEntity<String> runJob(@RequestBody JobParameter jobParameter) throws Exception {
+	@Autowired
+	private JobManager jobManager;
+
+	@PostMapping("/run")
+	public ResponseEntity<JobResult> runJob(@RequestBody JobParameter jobParameter) throws Exception {
 		Job job = jobBeanLoader.defineJob(jobParameter);
-		jobExecutor.execute(job, jobParameter.getArgument());
-		return ResponseEntity.ok("ok");
+		jobExecutor.execute(job, jobParameter.getAttachment());
+		JobResult jobResult = JobResult.success(jobManager.getJobRuntime(job).getJobState(), "ok");
+		return ResponseEntity.ok(jobResult);
 	}
 
 }

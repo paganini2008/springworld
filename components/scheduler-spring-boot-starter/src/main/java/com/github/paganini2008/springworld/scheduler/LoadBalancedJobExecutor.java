@@ -41,11 +41,15 @@ public class LoadBalancedJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	public void execute(Job job, Object attachment) {
-		runJob(job, attachment);
+		try {
+			runJob(job, attachment);
+		} catch (Throwable e) {
+			throw new JobTerminationException(e.getMessage(), e);
+		}
 	}
 
 	@Override
-	protected final void beforeRun(Job job, Date startTime) {
+	protected void beforeRun(Job job, Date startTime) {
 		super.beforeRun(job, startTime);
 		Connection connection = null;
 		try {
@@ -69,9 +73,9 @@ public class LoadBalancedJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected boolean isRunning(Job job) {
+	protected boolean isScheduling(Job job) {
 		try {
-			return jobManager.hasJobState(job, JobState.RUNNING);
+			return jobManager.hasJobState(job, JobState.SCHEDULING);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}

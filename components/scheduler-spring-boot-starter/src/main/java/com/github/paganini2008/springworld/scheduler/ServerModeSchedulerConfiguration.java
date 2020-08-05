@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.util.ErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
@@ -58,10 +59,13 @@ public class ServerModeSchedulerConfiguration {
 			threadPoolTaskScheduler.setThreadNamePrefix("cluster-task-scheduler-");
 			threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
 			threadPoolTaskScheduler.setAwaitTerminationSeconds(60);
-			threadPoolTaskScheduler.setErrorHandler(e -> {
-				log.error(e.getMessage(), e);
-			});
+			threadPoolTaskScheduler.setErrorHandler(errorHandler());
 			return threadPoolTaskScheduler;
+		}
+
+		@Bean("scheduler-error-handler")
+		public ErrorHandler errorHandler() {
+			return new DefaultErrorHandler();
 		}
 	}
 
@@ -83,6 +87,21 @@ public class ServerModeSchedulerConfiguration {
 					new PooledThreadFactory("cluster-task-scheduler-"));
 			return new ThreadPoolTaskExecutor(executor);
 		}
+
+		@Bean("scheduler-error-handler")
+		public ErrorHandler errorHandler() {
+			return new DefaultErrorHandler();
+		}
+	}
+
+	@Slf4j
+	public static class DefaultErrorHandler implements ErrorHandler {
+
+		@Override
+		public void handleError(Throwable e) {
+			log.error(e.getMessage(), e);
+		}
+
 	}
 
 	@Configuration
@@ -137,7 +156,7 @@ public class ServerModeSchedulerConfiguration {
 	}
 
 	@Configuration
-	@Import({ ScheduleManagerController.class })
+	@Import({ JobController.class })
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.side", havingValue = "consumer", matchIfMissing = true)
 	public static class ConsumerModeConfig {
 

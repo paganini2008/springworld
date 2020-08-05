@@ -62,7 +62,7 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 	 *
 	 * @since 1.0
 	 */
-	static class PeriodicJobAspect implements Aspect {
+	private static class PeriodicJobAspect implements Aspect {
 
 		private final Map<String, Object> data;
 
@@ -101,7 +101,7 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 	 *
 	 * @since 1.0
 	 */
-	static class CronJobAspect implements Aspect {
+	private static class CronJobAspect implements Aspect {
 
 		private final Map<String, Object> data;
 

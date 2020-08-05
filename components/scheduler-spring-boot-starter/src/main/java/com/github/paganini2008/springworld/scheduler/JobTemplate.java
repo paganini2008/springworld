@@ -19,21 +19,23 @@ public abstract class JobTemplate {
 
 	protected final void runJob(Job job, Object attachment) {
 		final Date now = new Date();
-		beforeRun(job, now);
 		RunningState runningState = RunningState.SKIPPED;
 		Throwable reason = null;
-		if (isRunning(job) && job.shouldRun()) {
-			try {
+		try {
+			beforeRun(job, now);
+			if (isScheduling(job) && job.shouldRun()) {
 				runningState = doRun(job, attachment);
-			} catch (Throwable e) {
-				if (e instanceof JobCancelledException) {
-					throw (JobCancelledException) e;
-				}
-				reason = e;
-				runningState = RunningState.FAILED;
 			}
+		} catch (Throwable e) {
+			if (e instanceof JobCancellationException) {
+				runningState = RunningState.COMPLETED;
+				throw (JobCancellationException) e;
+			}
+			runningState = RunningState.FAILED;
+			reason = e;
+		} finally {
+			afterRun(job, now, runningState, reason);
 		}
-		afterRun(job, now, runningState, reason);
 	}
 
 	protected RunningState doRun(Job job, Object arg) throws Exception {
@@ -61,16 +63,16 @@ public abstract class JobTemplate {
 				}
 			}
 
-			boolean run;
+			boolean continueRun;
 			if (success) {
-				run = job.onSuccess(result);
+				continueRun = job.onSuccess(result);
 			} else {
-				run = job.onFailure(reason);
+				continueRun = job.onFailure(reason);
 			}
 			job.onEnd();
 
-			if (!run) {
-				throw new JobCancelledException(job.getSignature());
+			if (!continueRun) {
+				throw new JobCancellationException(job.getSignature());
 			}
 			if (success) {
 				notifyDependencies(job, result);
@@ -91,7 +93,7 @@ public abstract class JobTemplate {
 		}
 	}
 
-	protected abstract boolean isRunning(Job job);
+	protected abstract boolean isScheduling(Job job);
 
 	protected void notifyDependencies(Job job, Object result) {
 	}

@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.scheduler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.util.ErrorHandler;
 
 import com.github.paganini2008.devtools.cron4j.CRON;
 import com.github.paganini2008.devtools.cron4j.Task;
@@ -24,6 +25,10 @@ public class Cron4jScheduler implements Scheduler {
 
 	@Autowired
 	private JobExecutor jobExecutor;
+
+	@Qualifier("scheduler-error-handler")
+	@Autowired
+	private ErrorHandler errorHandler;
 
 	@Override
 	public JobFuture schedule(Job job, Object attachment, String cron) {
@@ -56,6 +61,13 @@ public class Cron4jScheduler implements Scheduler {
 				jobExecutor.execute(job, attachment);
 				return true;
 			}
+
+			@Override
+			public boolean onError(Throwable cause) {
+				errorHandler.handleError(cause);
+				return true;
+			}
+
 		};
 	}
 

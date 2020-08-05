@@ -35,13 +35,30 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	public void execute(Job job, Object attachment) {
-		runJob(job, attachment);
+		try {
+			runJob(job, attachment);
+		} catch (Throwable t) {
+			if (t instanceof JobCancellationException) {
+				JobCancellationException jce = (JobCancellationException) t;
+				Throwable target = jce.getCause();
+				if (target != null) {
+					log.warn(target.getMessage(), target);
+				}
+				try {
+					jobManager.setJobState(job, JobState.FINISHED);
+				} catch (Exception e) {
+					throw new JobTerminationException(e.getMessage(), e);
+				}
+			} else {
+				throw new JobTerminationException(t.getMessage(), t);
+			}
+		}
 	}
 
 	@Override
-	protected boolean isRunning(Job job) {
+	protected boolean isScheduling(Job job) {
 		try {
-			return jobManager.hasJobState(job, JobState.RUNNING);
+			return jobManager.hasJobState(job, JobState.SCHEDULING);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}

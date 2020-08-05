@@ -39,15 +39,18 @@ public class NotManagedJobBeanInitializer implements JobBeanInitializer {
 		List<Tuple> dataList = null;
 		try {
 			connection = dataSource.getConnection();
-			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_ALL_JOB_DETAIL);
+			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_NOT_SCHEDULED_JOB_DETAIL);
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
 		if (CollectionUtils.isNotEmpty(dataList)) {
+			JobParameter jobParameter;
+			Job job;
 			for (Tuple tuple : dataList) {
-				Job job = jobBeanLoader.defineJob(tuple.toBean(JobParameter.class));
+				jobParameter = tuple.toBean(JobParameter.class);
+				job = jobBeanLoader.defineJob(jobParameter);
 				if (job == null || job.managedByApplicationContext()) {
 					continue;
 				}

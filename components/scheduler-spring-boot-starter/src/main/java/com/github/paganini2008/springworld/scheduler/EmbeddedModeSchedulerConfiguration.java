@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.util.ErrorHandler;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
@@ -29,10 +30,15 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
+@Slf4j
 @Configuration
 @ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "embedded", matchIfMissing = true)
-@Import({ JobManagerController.class, ScheduleManagerController.class })
+@Import({ JobManagerController.class, JobController.class })
 public class EmbeddedModeSchedulerConfiguration {
+	
+	public EmbeddedModeSchedulerConfiguration() {
+		log.info("Cluster scheduler mode is embedded.");
+	}
 
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
@@ -46,7 +52,7 @@ public class EmbeddedModeSchedulerConfiguration {
 		}
 
 		@Bean("target-job-executor")
-		public JobExecutor directJobExecutor() {
+		public JobExecutor customerModeJobExecutor() {
 			return new ConsumerModeJobExecutor();
 		}
 
@@ -57,7 +63,6 @@ public class EmbeddedModeSchedulerConfiguration {
 
 	}
 
-	@Slf4j
 	@Configuration
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring", matchIfMissing = true)
 	public static class SpringSchedulerConfig {
@@ -77,10 +82,13 @@ public class EmbeddedModeSchedulerConfiguration {
 			threadPoolTaskScheduler.setThreadNamePrefix("cluster-task-scheduler-");
 			threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
 			threadPoolTaskScheduler.setAwaitTerminationSeconds(60);
-			threadPoolTaskScheduler.setErrorHandler(e -> {
-				log.error(e.getMessage(), e);
-			});
+			threadPoolTaskScheduler.setErrorHandler(errorHandler());
 			return threadPoolTaskScheduler;
+		}
+
+		@Bean("scheduler-error-handler")
+		public ErrorHandler errorHandler() {
+			return new DefaultErrorHandler();
 		}
 	}
 
@@ -102,6 +110,21 @@ public class EmbeddedModeSchedulerConfiguration {
 					new PooledThreadFactory("cluster-task-scheduler-"));
 			return new ThreadPoolTaskExecutor(executor);
 		}
+
+		@Bean("scheduler-error-handler")
+		public ErrorHandler errorHandler() {
+			return new DefaultErrorHandler();
+		}
+	}
+
+	@Slf4j
+	public static class DefaultErrorHandler implements ErrorHandler {
+
+		@Override
+		public void handleError(Throwable e) {
+			log.error(e.getMessage(), e);
+		}
+
 	}
 
 	@Bean
@@ -124,7 +147,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	public JobBeanLoader jobBeanLoader() {
 		return new EmbeddedModeJobBeanLoader();
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean(JobExecutor.class)
 	public JobExecutor jobExecutor() {

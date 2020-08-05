@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +29,12 @@ public class JobBeanProxy implements Job {
 	@Qualifier("scheduler-httpclient")
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Autowired
+	private ScheduleManager scheduleManager;
+
+	@Autowired
+	private JobManager jobManager;
 
 	@Value("${spring.application.cluster.scheduler.server.hostUrl}")
 	private String hostUrl;
@@ -63,14 +70,31 @@ public class JobBeanProxy implements Job {
 
 	@Override
 	public Object execute(Object result) {
-		final String url = hostUrl + "/schedule/manager/runJob";
+		final String url = hostUrl + "/job/run";
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
 		HttpEntity<JobParameter> requestEntity = new HttpEntity<JobParameter>(jobParameter, headers);
-		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+		ResponseEntity<JobResult> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);
 		log.info(responseEntity.toString());
-		return responseEntity.getBody();
+		if (responseEntity.getStatusCode() == HttpStatus.OK) {
+			JobResult jobResult = responseEntity.getBody();
+			if (jobResult.getJobState() == JobState.FINISHED) {
+				scheduleManager.unscheduleJob(this);
+				try {
+					jobManager.setJobState(this, JobState.FINISHED);
+				} catch (Exception e) {
+					throw new JobTerminationException(e.getMessage(), e);
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public boolean onFailure(Throwable e) {
+		log.error(e.getMessage(), e);
+		return true;
 	}
 
 }

@@ -70,13 +70,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 			if (future != null) {
 				future.cancel();
 			}
-			JobManager jobManager = ApplicationContextUtils.getBean(JobManager.class);
-			try {
-				jobManager.setJobState(job, JobState.NOT_SCHEDULED);
-			} catch (Exception e) {
-				throw new JobException(e.getMessage(), e);
-			}
-			log.info("Unschedule job: " + job.getSignature());
+			log.info("Unschedule the job: " + job.getSignature());
 		}
 	}
 
@@ -88,7 +82,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Override
 	public void doSchedule() {
 		trigger.notifyObservers();
-		log.info("Run all jobs now.");
+		log.info("Do all schedules of jobs now.");
 	}
 
 	@Override

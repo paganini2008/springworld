@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum JobState {
 
-	NOT_SCHEDULED(1), SCHEDULING(2), RUNNING(3), PAUSED(4), FINISHED(5);
+	NOT_SCHEDULED(0), SCHEDULING(1), RUNNING(2), PAUSED(3), FINISHED(4);
 
 	private JobState(int value) {
 		this.value = value;
@@ -23,7 +23,7 @@ public enum JobState {
 	public int getValue() {
 		return value;
 	}
-	
+
 	@JsonValue
 	public String getRepr() {
 		return this.name().toLowerCase();

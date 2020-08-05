@@ -21,17 +21,17 @@ public class JobParameter {
 	private String jobName;
 	private String jobClassName;
 	private String signature;
-	private Object argument;
+	private Object attachment;
 
 	public JobParameter() {
 	}
 
-	public JobParameter(String signature, String goupName, String jobName, String jobClassName, Object argument) {
+	public JobParameter(String signature, String goupName, String jobName, String jobClassName, Object attachment) {
 		this.signature = signature;
 		this.groupName = goupName;
 		this.jobName = jobName;
 		this.jobClassName = jobClassName;
-		this.argument = argument;
+		this.attachment = attachment;
 	}
 
 	public String toString() {
