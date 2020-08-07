@@ -28,9 +28,6 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	private JobDependency jobDependency;
 
 	@Autowired
-	private JobManager jobManager;
-
-	@Autowired
 	private DataSource dataSource;
 
 	@Override
@@ -40,11 +37,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	protected boolean isScheduling(Job job) {
-		try {
-			return jobManager.hasJobState(job, JobState.SCHEDULING);
-		} catch (Exception e) {
-			throw new JobException(e.getMessage(), e);
-		}
+		return true;
 	}
 
 	@Override

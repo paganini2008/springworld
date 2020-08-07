@@ -25,7 +25,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Autowired
 	private Scheduler scheduler;
 
-	private final Map<Job, JobFuture> schedulingCache = new ConcurrentHashMap<Job, JobFuture>();
+	private final Map<String, JobFuture> schedulingCache = new ConcurrentHashMap<String, JobFuture>();
 	private final Observable trigger = Observable.unrepeatable();
 
 	@Override
@@ -36,17 +36,17 @@ public class DefaultScheduleManager implements ScheduleManager {
 				return;
 			}
 			if (job instanceof CronJob) {
-				schedulingCache.put(job, scheduler.schedule(job, attachment, ((CronJob) job).getCronExpression()));
+				schedulingCache.put(job.getSignature(), scheduler.schedule(job, attachment, ((CronJob) job).getCronExpression()));
 			} else if (job instanceof PeriodicJob) {
 				final PeriodicJob periodicJob = (PeriodicJob) job;
 				long delay = DateUtils.convertToMillis(periodicJob.getDelay(), periodicJob.getDelayTimeUnit());
 				long period = DateUtils.convertToMillis(periodicJob.getPeriod(), periodicJob.getPeriodTimeUnit());
 				switch (periodicJob.getSchedulingMode()) {
 				case FIXED_DELAY:
-					schedulingCache.put(job, scheduler.scheduleWithFixedDelay(job, attachment, delay, period));
+					schedulingCache.put(job.getSignature(), scheduler.scheduleWithFixedDelay(job, attachment, delay, period));
 					break;
 				case FIXED_RATE:
-					schedulingCache.put(job, scheduler.scheduleAtFixedRate(job, attachment, delay, period));
+					schedulingCache.put(job.getSignature(), scheduler.scheduleAtFixedRate(job, attachment, delay, period));
 					break;
 				}
 			} else {
@@ -66,7 +66,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Override
 	public void unscheduleJob(Job job) {
 		if (hasScheduled(job)) {
-			JobFuture future = schedulingCache.remove(job);
+			JobFuture future = schedulingCache.remove(job.getSignature());
 			if (future != null) {
 				future.cancel();
 			}
@@ -76,7 +76,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 
 	@Override
 	public boolean hasScheduled(Job job) {
-		return schedulingCache.containsKey(job);
+		return schedulingCache.containsKey(job.getSignature());
 	}
 
 	@Override
@@ -97,15 +97,15 @@ public class DefaultScheduleManager implements ScheduleManager {
 
 	@Override
 	public JobFuture getFuture(Job job) {
-		if (!schedulingCache.containsKey(job)) {
+		if (!hasScheduled(job)) {
 			throw new JobException("Not scheduling job");
 		}
-		return schedulingCache.get(job);
+		return schedulingCache.get(job.getSignature());
 	}
 
 	@Override
 	public void close() {
-		for (Map.Entry<Job, JobFuture> entry : schedulingCache.entrySet()) {
+		for (Map.Entry<String, JobFuture> entry : schedulingCache.entrySet()) {
 			entry.getValue().cancel();
 		}
 		schedulingCache.clear();

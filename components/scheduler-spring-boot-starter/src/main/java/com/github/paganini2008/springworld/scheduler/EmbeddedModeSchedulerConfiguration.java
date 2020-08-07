@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
@@ -41,6 +43,7 @@ public class EmbeddedModeSchedulerConfiguration {
 		log.info("Cluster scheduler mode is embedded.");
 	}
 
+	@Order(Ordered.LOWEST_PRECEDENCE - 10)
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.loadbalance", havingValue = "true")
@@ -48,12 +51,12 @@ public class EmbeddedModeSchedulerConfiguration {
 
 		@Primary
 		@Bean
-		public JobExecutor loadBalancedJobExecutor() {
-			return new LoadBalancedJobExecutor();
+		public JobExecutor jobExecutor() {
+			return new EmbeddedModeLoadBalancer();
 		}
 
 		@Bean("target-job-executor")
-		public JobExecutor customerModeJobExecutor() {
+		public JobExecutor consumerModeJobExecutor() {
 			return new ConsumerModeJobExecutor();
 		}
 

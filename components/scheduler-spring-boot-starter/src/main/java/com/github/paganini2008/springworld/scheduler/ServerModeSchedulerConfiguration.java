@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
@@ -21,6 +23,7 @@ import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springworld.scheduler.OnServerModeCondition.ServerMode;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +45,7 @@ public class ServerModeSchedulerConfiguration {
 	}
 
 	@Configuration
+	@ConditionalOnServerMode(ServerMode.PRODUCER)
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring", matchIfMissing = true)
 	public static class SpringSchedulerConfig {
 
@@ -66,6 +70,7 @@ public class ServerModeSchedulerConfiguration {
 	}
 
 	@Configuration
+	@ConditionalOnServerMode(ServerMode.PRODUCER)
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "cron4j")
 	public static class Cron4jSchedulerConfig {
 
@@ -85,14 +90,9 @@ public class ServerModeSchedulerConfiguration {
 		}
 	}
 
-	@Bean("scheduler-error-handler")
-	public ErrorHandler schedulerErrorHandler() {
-		return new SchedulerErrorHandler();
-	}
-
 	@Configuration
 	@Import({ JobManagerController.class })
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.side", havingValue = "producer")
+	@ConditionalOnServerMode(ServerMode.PRODUCER)
 	public static class ProducerModeConfig {
 
 		@Bean
@@ -139,11 +139,17 @@ public class ServerModeSchedulerConfiguration {
 			return new RestTemplate();
 		}
 
+		@Bean("scheduler-error-handler")
+		public ErrorHandler schedulerErrorHandler() {
+			return new SchedulerErrorHandler();
+		}
+
 	}
 
+	@Order(Ordered.LOWEST_PRECEDENCE - 1)
 	@Configuration
 	@Import({ JobController.class })
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.side", havingValue = "consumer", matchIfMissing = true)
+	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	public static class ConsumerModeConfig {
 
 		@Bean
@@ -175,7 +181,9 @@ public class ServerModeSchedulerConfiguration {
 
 	}
 
+	@Order(Ordered.LOWEST_PRECEDENCE - 10)
 	@Configuration
+	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	@ConditionalOnBean(ClusterMulticastGroup.class)
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.loadbalance", havingValue = "true")
 	public static class LoadBalancingConfig {
@@ -183,7 +191,7 @@ public class ServerModeSchedulerConfiguration {
 		@Primary
 		@Bean
 		public JobExecutor jobExecutor() {
-			return new LoadBalancedJobExecutor();
+			return new ConsumerModeLoadBalancer();
 		}
 
 		@Bean("target-job-executor")

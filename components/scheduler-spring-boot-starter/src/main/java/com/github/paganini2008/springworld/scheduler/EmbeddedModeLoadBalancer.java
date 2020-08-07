@@ -16,13 +16,13 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGro
 
 /**
  * 
- * LoadBalancedJobExecutor
+ * EmbeddedModeLoadBalancer
  *
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class LoadBalancedJobExecutor extends JobTemplate implements JobExecutor {
+public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor {
 
 	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;

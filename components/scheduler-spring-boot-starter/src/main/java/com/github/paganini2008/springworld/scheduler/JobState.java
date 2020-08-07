@@ -20,11 +20,11 @@ public enum JobState {
 
 	private final int value;
 
+	@JsonValue
 	public int getValue() {
 		return value;
 	}
 
-	@JsonValue
 	public String getRepr() {
 		return this.name().toLowerCase();
 	}

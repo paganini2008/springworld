@@ -89,4 +89,20 @@ public class JobBeanProxy implements Job {
 		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		return this.getSignature().hashCode() * 31;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof JobBeanProxy) {
+			if (obj == this) {
+				return true;
+			}
+			return ((JobBeanProxy) obj).getSignature().equals(this.getSignature());
+		}
+		return false;
+	}
+
 }

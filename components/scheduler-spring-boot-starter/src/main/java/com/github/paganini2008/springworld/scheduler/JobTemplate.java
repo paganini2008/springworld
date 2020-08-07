@@ -22,9 +22,11 @@ public abstract class JobTemplate {
 		RunningState runningState = RunningState.SKIPPED;
 		Throwable reason = null;
 		try {
-			beforeRun(job, now);
-			if (isScheduling(job) && job.shouldRun()) {
-				runningState = doRun(job, attachment);
+			if (isScheduling(job)) {
+				beforeRun(job, now);
+				if (job.shouldRun()) {
+					runningState = doRun(job, attachment);
+				}
 			}
 		} catch (JobTerminationException e) {
 			reason = e.getCause();
