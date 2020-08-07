@@ -15,7 +15,8 @@ import com.github.paganini2008.springworld.scheduler.OnServerModeCondition.Serve
  * ConditionalOnServerMode
  * 
  * @author Fred Feng
- * @created 2019-05
+ *
+ * @since 1.0
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
