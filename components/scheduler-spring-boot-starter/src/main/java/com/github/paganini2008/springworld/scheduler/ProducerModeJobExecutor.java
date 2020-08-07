@@ -48,11 +48,7 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	public void execute(Job job, Object attachment) {
-		try {
-			runJob(job, attachment);
-		} catch (Throwable e) {
-			throw new JobTerminationException(e.getMessage(), e);
-		}
+		runJob(job, attachment);
 	}
 
 	@Override
@@ -61,6 +57,17 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 			return jobManager.hasJobState(job, JobState.SCHEDULING);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	protected void cancel(Job job, RunningState runningState, Throwable reason) {
+		scheduleManager.unscheduleJob(job);
+
+		try {
+			jobManager.setJobState(job, JobState.FINISHED);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	}
 

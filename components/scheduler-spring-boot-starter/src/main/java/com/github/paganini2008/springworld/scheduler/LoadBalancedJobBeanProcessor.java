@@ -32,7 +32,7 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 		acceptJob((JobParameter) message);
 	}
 
-	public void acceptJob(JobParameter jobParameter) {
+	private void acceptJob(JobParameter jobParameter) {
 		Job job;
 		try {
 			job = jobBeanLoader.defineJob(jobParameter);

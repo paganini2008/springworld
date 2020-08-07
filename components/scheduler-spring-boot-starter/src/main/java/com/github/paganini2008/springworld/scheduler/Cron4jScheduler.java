@@ -58,7 +58,7 @@ public class Cron4jScheduler implements Scheduler {
 
 			@Override
 			public boolean execute() {
-				jobExecutor.execute(job, attachment);
+				runJob(job, attachment);
 				return true;
 			}
 

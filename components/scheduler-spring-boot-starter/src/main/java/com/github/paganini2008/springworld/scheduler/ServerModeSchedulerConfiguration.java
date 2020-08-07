@@ -3,6 +3,7 @@ package com.github.paganini2008.springworld.scheduler;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -53,19 +54,14 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean("cluster-job-scheduler")
-		public TaskScheduler taskScheduler() {
+		public TaskScheduler taskScheduler(@Qualifier("scheduler-error-handler") ErrorHandler errorHandler) {
 			ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
 			threadPoolTaskScheduler.setPoolSize(poolSize);
 			threadPoolTaskScheduler.setThreadNamePrefix("cluster-task-scheduler-");
 			threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
 			threadPoolTaskScheduler.setAwaitTerminationSeconds(60);
-			threadPoolTaskScheduler.setErrorHandler(errorHandler());
+			threadPoolTaskScheduler.setErrorHandler(errorHandler);
 			return threadPoolTaskScheduler;
-		}
-
-		@Bean("scheduler-error-handler")
-		public ErrorHandler errorHandler() {
-			return new DefaultErrorHandler();
 		}
 	}
 
@@ -87,21 +83,11 @@ public class ServerModeSchedulerConfiguration {
 					new PooledThreadFactory("cluster-task-scheduler-"));
 			return new ThreadPoolTaskExecutor(executor);
 		}
-
-		@Bean("scheduler-error-handler")
-		public ErrorHandler errorHandler() {
-			return new DefaultErrorHandler();
-		}
 	}
 
-	@Slf4j
-	public static class DefaultErrorHandler implements ErrorHandler {
-
-		@Override
-		public void handleError(Throwable e) {
-			log.error(e.getMessage(), e);
-		}
-
+	@Bean("scheduler-error-handler")
+	public ErrorHandler schedulerErrorHandler() {
+		return new SchedulerErrorHandler();
 	}
 
 	@Configuration

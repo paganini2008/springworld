@@ -30,12 +30,6 @@ public class JobBeanProxy implements Job {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Autowired
-	private ScheduleManager scheduleManager;
-
-	@Autowired
-	private JobManager jobManager;
-
 	@Value("${spring.application.cluster.scheduler.server.hostUrl}")
 	private String hostUrl;
 
@@ -80,12 +74,7 @@ public class JobBeanProxy implements Job {
 		if (responseEntity.getStatusCode() == HttpStatus.OK) {
 			JobResult jobResult = responseEntity.getBody();
 			if (jobResult.getJobState() == JobState.FINISHED) {
-				scheduleManager.unscheduleJob(this);
-				try {
-					jobManager.setJobState(this, JobState.FINISHED);
-				} catch (Exception e) {
-					throw new JobTerminationException(e.getMessage(), e);
-				}
+				throw new JobTerminationException(this);
 			}
 		}
 		return null;
@@ -93,6 +82,9 @@ public class JobBeanProxy implements Job {
 
 	@Override
 	public boolean onFailure(Throwable e) {
+		if (e instanceof JobTerminationException) {
+			return false;
+		}
 		log.error(e.getMessage(), e);
 		return true;
 	}

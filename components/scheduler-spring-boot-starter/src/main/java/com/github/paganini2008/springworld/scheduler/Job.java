@@ -9,7 +9,7 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface Job extends JobDefinition {
 
-	default void onStart() {
+	default void prepare() {
 	}
 
 	default boolean onSuccess(Object result) {
@@ -18,9 +18,6 @@ public interface Job extends JobDefinition {
 
 	default boolean onFailure(Throwable e) {
 		return true;
-	}
-
-	default void onEnd() {
 	}
 
 	default boolean shouldRun() {

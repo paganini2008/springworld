@@ -58,25 +58,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	public void execute(Job job, Object attachment) {
-		try {
-			runJob(job, attachment);
-		} catch (Throwable t) {
-			if (t instanceof JobCancellationException) {
-				JobCancellationException jce = (JobCancellationException) t;
-				Throwable target = jce.getCause();
-				if (target != null) {
-					log.warn(target.getMessage(), target);
-				}
-				scheduleManager.unscheduleJob(job);
-				try {
-					jobManager.setJobState(job, JobState.FINISHED);
-				} catch (Exception e) {
-					throw new JobTerminationException(e.getMessage(), e);
-				}
-			} else {
-				throw new JobTerminationException(t.getMessage(), t);
-			}
-		}
+		runJob(job, attachment);
 	}
 
 	@Override
@@ -91,6 +73,17 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Override
 	protected void notifyDependencies(Job job, Object result) {
 		jobDependency.notifyDependencies(job, result);
+	}
+
+	@Override
+	protected void cancel(Job job, RunningState runningState, Throwable reason) {
+		scheduleManager.unscheduleJob(job);
+
+		try {
+			jobManager.setJobState(job, JobState.FINISHED);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 
 	@Override

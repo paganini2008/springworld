@@ -26,20 +26,21 @@ public abstract class JobTemplate {
 			if (isScheduling(job) && job.shouldRun()) {
 				runningState = doRun(job, attachment);
 			}
+		} catch (JobTerminationException e) {
+			reason = e.getCause();
+			runningState = RunningState.COMPLETED;
+			cancel(job, runningState, reason);
 		} catch (Throwable e) {
-			if (e instanceof JobCancellationException) {
-				runningState = RunningState.COMPLETED;
-				throw (JobCancellationException) e;
-			}
-			runningState = RunningState.FAILED;
 			reason = e;
+			runningState = RunningState.FAILED;
+			throw new JobException("An exception occured during job running.", e);
 		} finally {
 			afterRun(job, now, runningState, reason);
 		}
 	}
 
-	protected RunningState doRun(Job job, Object arg) throws Exception {
-		job.onStart();
+	protected RunningState doRun(Job job, Object arg) {
+		job.prepare();
 
 		Object result = null;
 		Throwable reason = null;
@@ -69,10 +70,9 @@ public abstract class JobTemplate {
 			} else {
 				continueRun = job.onFailure(reason);
 			}
-			job.onEnd();
 
 			if (!continueRun) {
-				throw new JobCancellationException(job.getSignature());
+				throw reason != null ? new JobTerminationException(job, reason) : new JobTerminationException(job);
 			}
 			if (success) {
 				notifyDependencies(job, result);
@@ -96,6 +96,9 @@ public abstract class JobTemplate {
 	protected abstract boolean isScheduling(Job job);
 
 	protected void notifyDependencies(Job job, Object result) {
+	}
+
+	protected void cancel(Job job, RunningState runningState, Throwable reason) {
 	}
 
 }

@@ -41,11 +41,7 @@ public class LoadBalancedJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	public void execute(Job job, Object attachment) {
-		try {
-			runJob(job, attachment);
-		} catch (Throwable e) {
-			throw new JobTerminationException(e.getMessage(), e);
-		}
+		runJob(job, attachment);
 	}
 
 	@Override
