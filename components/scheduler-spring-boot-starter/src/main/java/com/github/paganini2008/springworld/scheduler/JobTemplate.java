@@ -76,7 +76,7 @@ public abstract class JobTemplate {
 			if (!continueRun) {
 				throw reason != null ? new JobTerminationException(job, reason) : new JobTerminationException(job);
 			}
-			if (success) {
+			if (success && result != null) {
 				notifyDependencies(job, result);
 			}
 		}

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum TriggerType {
 
-	CRON(0), PERIODIC(1);
+	CRON(1), PERIODIC(2), SERIAL(3);
 
 	private final int value;
 
@@ -21,13 +21,9 @@ public enum TriggerType {
 		this.value = value;
 	}
 
+	@JsonValue
 	public int getValue() {
 		return value;
-	}
-
-	@JsonValue
-	public String getRepr() {
-		return this.name().toLowerCase();
 	}
 
 	@JsonCreator

@@ -27,6 +27,7 @@ public class JobDetail implements Serializable {
 	private String groupName;
 	private String description;
 	private String attachment;
+	private String email;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date createDate;
 

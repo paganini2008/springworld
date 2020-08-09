@@ -29,17 +29,17 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
-		acceptJob((JobParameter) message);
+		acceptJob((JobParam) message);
 	}
 
-	private void acceptJob(JobParameter jobParameter) {
+	private void acceptJob(final JobParam jobParam) {
 		Job job;
 		try {
-			job = jobBeanLoader.defineJob(jobParameter);
+			job = jobBeanLoader.loadJobBean(jobParam.getJobKey());
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
-		jobExecutor.execute(job, jobParameter.getAttachment());
+		jobExecutor.execute(job, jobParam.getAttachment());
 	}
 
 	@Override

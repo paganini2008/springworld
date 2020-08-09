@@ -11,7 +11,8 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  */
 public interface JobManager extends Lifecycle {
 
-	default void addJob(Job job) throws Exception {
+	default int addJob(Job job, String attachment) throws Exception {
+		return 0;
 	}
 
 	default void deleteJob(Job job) throws Exception {
@@ -31,7 +32,7 @@ public interface JobManager extends Lifecycle {
 
 	JobDetail getJobDetail(Job job) throws Exception;
 
-	TriggerDetail getTriggerDetail(Job job) throws Exception;
+	JobTrigger getJobTrigger(Job job) throws Exception;
 
 	JobRuntime getJobRuntime(Job job) throws Exception;
 

@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "embedded", matchIfMissing = true)
-@Import({ JobManagerController.class, JobController.class })
+@Import({ JobAdminController.class, JobController.class })
 public class EmbeddedModeSchedulerConfiguration {
 
 	public EmbeddedModeSchedulerConfiguration() {
@@ -156,8 +156,13 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public JobDependency jobDependency() {
-		return new JobDependency();
+	public JobDependencyObservable jobDependencyObservable() {
+		return new JobDependencyObservable();
+	}
+
+	@Bean
+	public JobDependencyDetector jobDependencyDetector() {
+		return new JobDependencyDetector();
 	}
 
 }

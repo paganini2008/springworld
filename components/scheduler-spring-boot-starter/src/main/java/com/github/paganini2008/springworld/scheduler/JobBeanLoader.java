@@ -8,6 +8,6 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface JobBeanLoader {
 
-	Job defineJob(JobParameter jobParameter) throws Exception;
+	Job loadJobBean(JobKey jobKey) throws Exception;
 
 }

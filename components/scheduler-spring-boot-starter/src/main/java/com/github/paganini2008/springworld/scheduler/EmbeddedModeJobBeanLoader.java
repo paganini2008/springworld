@@ -21,13 +21,13 @@ public class EmbeddedModeJobBeanLoader implements JobBeanLoader {
 	private final Map<String, Job> temporaryJobBeans = new ConcurrentHashMap<String, Job>();
 
 	@Override
-	public Job defineJob(JobParameter jobParameter) {
-		final String jobClassName = jobParameter.getJobClassName();
+	public Job loadJobBean(JobKey jobKey) {
+		final String jobClassName = jobKey.getJobClassName();
 		Class<?> jobClass = ClassUtils.forName(jobClassName);
 		if (!Job.class.isAssignableFrom(jobClass)) {
 			throw new JobException("Class '" + jobClass.getName() + "' is not a implementor of interface " + Job.class.getName());
 		}
-		final String jobName = jobParameter.getJobName();
+		final String jobName = jobKey.getJobName();
 		Job job = (Job) ApplicationContextUtils.getBean(jobName, jobClass);
 		if (job == null) {
 			job = (Job) ApplicationContextUtils.getBean(jobClass, bean -> {
@@ -35,11 +35,11 @@ public class EmbeddedModeJobBeanLoader implements JobBeanLoader {
 			});
 		}
 		if (job == null) {
-			job = MapUtils.get(temporaryJobBeans, jobParameter.getSignature(), () -> {
+			job = MapUtils.get(temporaryJobBeans, jobKey.getSignature(), () -> {
 				return (Job) BeanUtils.instantiate(jobClass);
 			});
-			if (!job.getSignature().equals(jobParameter.getSignature())) {
-				throw new JobBeanNotFoundException(jobParameter.getSignature());
+			if (!job.getSignature().equals(jobKey.getSignature())) {
+				throw new JobBeanNotFoundException(jobKey.getSignature());
 			}
 		}
 		return job;

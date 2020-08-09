@@ -1,14 +1,9 @@
 package com.github.paganini2008.springworld.scheduler;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.devtools.proxy.JdkProxyFactory;
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
@@ -31,27 +26,54 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 	@Autowired
 	private JobManager jobManager;
 
-	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final ProxyFactory proxyFactory = new JdkProxyFactory();
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Job defineJob(JobParameter jobParameter) throws Exception {
-		Job job = ApplicationContextUtils.autowireBean(new JobBeanProxy(jobParameter));
-		TriggerDetail triggerDetail = jobManager.getTriggerDetail(job);
-		Map<String, Object> data;
-		try {
-			data = objectMapper.readValue(triggerDetail.getTriggerDescription(), HashMap.class);
-		} catch (IOException e) {
-			throw new IllegalStateException(e.getMessage(), e);
-		}
-		switch (triggerDetail.getTriggerType()) {
+	public Job loadJobBean(JobKey jobKey) throws Exception {
+		Job job = ApplicationContextUtils.autowireBean(new JobBeanProxy(jobKey));
+		JobTrigger trigger = jobManager.getJobTrigger(job);
+		TriggerDescription triggerDescription = trigger.getTriggerDescription();
+		switch (trigger.getTriggerType()) {
 		case CRON:
-			return (Job) proxyFactory.getProxy(job, new CronJobAspect(data), CronJob.class);
+			return (Job) proxyFactory.getProxy(job, new CronJobAspect(triggerDescription), CronJob.class);
 		case PERIODIC:
-			return (Job) proxyFactory.getProxy(job, new PeriodicJobAspect(data), PeriodicJob.class);
+			return (Job) proxyFactory.getProxy(job, new PeriodicJobAspect(triggerDescription), PeriodicJob.class);
+		case SERIAL:
+			return (Job) proxyFactory.getProxy(job, new SerialJobAspect(triggerDescription), SerialJob.class);
 		}
-		return null;
+		throw new UnsupportedOperationException("Unknown trigger type: " + trigger.getTriggerType().name());
+	}
+
+	/**
+	 * 
+	 * SerialJobAspect
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	private static class SerialJobAspect implements Aspect {
+
+		private final TriggerDescription data;
+
+		SerialJobAspect(TriggerDescription data) {
+			this.data = data;
+		}
+
+		@Override
+		public Object call(Object target, Method method, Object[] args) {
+			final String methodName = method.getName();
+			if ("getDependencies".equals(methodName)) {
+				return data.getDependencies();
+			}
+			return MethodUtils.invokeMethod(target, method, args);
+		}
+
+		@Override
+		public void catchException(Object target, Method method, Object[] args, Throwable e) {
+			log.info(e.getMessage(), e);
+		}
+
 	}
 
 	/**
@@ -64,9 +86,9 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 	 */
 	private static class PeriodicJobAspect implements Aspect {
 
-		private final Map<String, Object> data;
+		private final TriggerDescription data;
 
-		PeriodicJobAspect(Map<String, Object> data) {
+		PeriodicJobAspect(TriggerDescription data) {
 			this.data = data;
 		}
 
@@ -74,15 +96,15 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 		public Object call(Object target, Method method, Object[] args) {
 			final String methodName = method.getName();
 			if ("getDelay".equals(methodName)) {
-				return Long.parseLong((String) data.get("delay"));
-			} else if ("getDelayTimeUnit".equals(methodName)) {
-				return TimeUnit.valueOf((String) data.get("delayTimeUnit"));
+				return data.getDelay();
+			} else if ("getDelaySchedulingUnit".equals(methodName)) {
+				return data.getDelaySchedulingUnit();
 			} else if ("getPeriod".equals(methodName)) {
-				return Long.parseLong((String) data.get("period"));
-			} else if ("getPeriodTimeUnit".equals(methodName)) {
-				return TimeUnit.valueOf((String) data.get("periodTimeUnit"));
+				return data.getPeriod();
+			} else if ("getPeriodSchedulingUnit".equals(methodName)) {
+				return data.getPeriodSchedulingUnit();
 			} else if ("getSchedulingMode".equals(methodName)) {
-				return SchedulingMode.valueOf((String) data.get("schedulingMode"));
+				return data.getSchedulingMode();
 			}
 			return MethodUtils.invokeMethod(target, method, args);
 		}
@@ -103,9 +125,9 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 	 */
 	private static class CronJobAspect implements Aspect {
 
-		private final Map<String, Object> data;
+		private final TriggerDescription data;
 
-		CronJobAspect(Map<String, Object> data) {
+		CronJobAspect(TriggerDescription data) {
 			this.data = data;
 		}
 
@@ -113,7 +135,7 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 		public Object call(Object target, Method method, Object[] args) {
 			final String methodName = method.getName();
 			if ("getCronExpression".equals(methodName)) {
-				return (String) data.get("cron");
+				return data.getCron();
 			}
 			return MethodUtils.invokeMethod(target, method, args);
 		}

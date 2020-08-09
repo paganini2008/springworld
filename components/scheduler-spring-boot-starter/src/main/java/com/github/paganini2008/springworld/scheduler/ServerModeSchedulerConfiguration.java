@@ -91,7 +91,7 @@ public class ServerModeSchedulerConfiguration {
 	}
 
 	@Configuration
-	@Import({ JobManagerController.class })
+	@Import({ JobAdminController.class })
 	@ConditionalOnServerMode(ServerMode.PRODUCER)
 	public static class ProducerModeConfig {
 
@@ -113,8 +113,8 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public JobDependency jobDependency() {
-			return new JobDependency();
+		public JobDependencyObservable jobDependency() {
+			return new JobDependencyObservable();
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
@@ -164,8 +164,8 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public JobDependency jobDependency() {
-			return new JobDependency();
+		public JobDependencyObservable jobDependency() {
+			return new JobDependencyObservable();
 		}
 
 		@Bean

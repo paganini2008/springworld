@@ -2,13 +2,13 @@ package com.github.paganini2008.springworld.scheduler;
 
 /**
  * 
- * JobDefinition
+ * JobProperties
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public interface JobDefinition {
+public interface JobProperties {
 
 	default String getJobName() {
 		String simpleName = getClass().getSimpleName();
@@ -20,7 +20,7 @@ public interface JobDefinition {
 	}
 
 	default String getSignature() {
-		return getJobName() + "@" + getJobClassName();
+		return getGroupName() + ":" + getJobName() + "@" + getJobClassName();
 	}
 
 	String getGroupName();
@@ -33,15 +33,7 @@ public interface JobDefinition {
 		return 0;
 	}
 
-	default String getAttachment() {
-		return null;
-	}
-
-	default boolean managedByApplicationContext() {
-		return true;
-	}
-
-	default String[] getDependencies() {
-		return new String[0];
+	default String getEmail() {
+		return "";
 	}
 }

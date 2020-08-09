@@ -17,5 +17,27 @@ public interface JobFuture {
 	boolean isCancelled();
 
 	long getNextExectionTime();
+	
+	static final JobFuture EMPTY = new JobFuture() {
+		
+		@Override
+		public boolean isDone() {
+			return false;
+		}
+		
+		@Override
+		public boolean isCancelled() {
+			return false;
+		}
+		
+		@Override
+		public long getNextExectionTime() {
+			return System.currentTimeMillis();
+		}
+		
+		@Override
+		public void cancel() {
+		}
+	};
 
 }

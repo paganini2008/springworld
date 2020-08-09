@@ -7,7 +7,7 @@ package com.github.paganini2008.springworld.scheduler;
  * @author Fred Feng
  * @since 1.0
  */
-public interface Job extends JobDefinition {
+public interface Job extends JobProperties {
 
 	default void prepare() {
 	}
@@ -21,6 +21,10 @@ public interface Job extends JobDefinition {
 	}
 
 	default boolean shouldRun() {
+		return true;
+	}
+	
+	default boolean managedByApplicationContext() {
 		return true;
 	}
 

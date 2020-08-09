@@ -6,19 +6,19 @@ import lombok.Getter;
 
 /**
  * 
- * TriggerDetail
+ * JobTrigger
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Getter
-public class TriggerDetail implements Serializable {
+public class JobTrigger implements Serializable {
 
 	private static final long serialVersionUID = 866085363330905946L;
 	private Integer jobId;
 	private TriggerType triggerType;
-	private String triggerDescription;
+	private TriggerDescription triggerDescription;
 
 	public void setJobId(Integer jobId) {
 		this.jobId = jobId;
@@ -29,7 +29,7 @@ public class TriggerDetail implements Serializable {
 	}
 
 	public void setTriggerDescription(String triggerDescription) {
-		this.triggerDescription = triggerDescription;
+		this.triggerDescription = JacksonUtils.parseJson(triggerDescription, TriggerDescription.class);
 	}
 
 }

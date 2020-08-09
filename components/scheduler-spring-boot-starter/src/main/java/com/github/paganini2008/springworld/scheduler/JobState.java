@@ -25,10 +25,6 @@ public enum JobState {
 		return value;
 	}
 
-	public String getRepr() {
-		return this.name().toLowerCase();
-	}
-
 	@JsonCreator
 	public static JobState valueOf(int value) {
 		for (JobState jobState : JobState.values()) {

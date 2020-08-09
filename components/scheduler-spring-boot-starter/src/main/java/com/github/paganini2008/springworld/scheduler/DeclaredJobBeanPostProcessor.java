@@ -26,8 +26,8 @@ public class DeclaredJobBeanPostProcessor implements BeanPostProcessor {
 		if (bean instanceof Job) {
 			Job job = (Job) bean;
 			try {
-				jobManager.addJob(job);
-				scheduleManager.schedule(job, job.getAttachment());
+				jobManager.addJob(job, null);
+				scheduleManager.schedule(job);
 			} catch (Exception e) {
 				throw new BeanInitializationException(e.getMessage(), e);
 			}

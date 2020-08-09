@@ -7,6 +7,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
@@ -25,6 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotManagedJobBeanInitializer implements JobBeanInitializer {
 
+	@Value("${spring.application.name}")
+	private String applicationName;
+
 	@Autowired
 	private DataSource dataSource;
 
@@ -39,25 +43,25 @@ public class NotManagedJobBeanInitializer implements JobBeanInitializer {
 		List<Tuple> dataList = null;
 		try {
 			connection = dataSource.getConnection();
-			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_ALL_JOB_DETAIL);
+			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DETAIL_BY_GROUP_NAME, new Object[] { applicationName });
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
 		if (CollectionUtils.isNotEmpty(dataList)) {
-			JobParameter jobParameter;
+			JobKey jobKey;
 			Job job;
 			for (Tuple tuple : dataList) {
-				jobParameter = tuple.toBean(JobParameter.class);
-				job = jobBeanLoader.defineJob(jobParameter);
+				jobKey = tuple.toBean(JobKey.class);
+				job = jobBeanLoader.loadJobBean(jobKey);
 				if (job == null || job.managedByApplicationContext()) {
 					continue;
 				}
 				if (scheduleManager.hasScheduled(job)) {
 					continue;
 				}
-				scheduleManager.schedule(job, tuple.get("attachment"));
+				scheduleManager.schedule(job);
 				log.info("Reload and schedule Job '{}' ok.", job.getSignature());
 			}
 		}

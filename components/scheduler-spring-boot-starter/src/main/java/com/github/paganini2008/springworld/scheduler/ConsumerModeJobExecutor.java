@@ -25,7 +25,7 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor {
 
 	@Autowired
-	private JobDependency jobDependency;
+	private JobDependencyObservable jobDependencyObservable;
 
 	@Autowired
 	private DataSource dataSource;
@@ -42,7 +42,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	protected void notifyDependencies(Job job, Object result) {
-		jobDependency.notifyDependencies(job, result);
+		jobDependencyObservable.notifyDependencies(job, result);
 	}
 
 	@Override

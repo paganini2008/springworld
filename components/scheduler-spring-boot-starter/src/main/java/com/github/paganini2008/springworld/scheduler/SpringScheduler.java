@@ -99,7 +99,7 @@ public class SpringScheduler implements Scheduler {
 		public long getNextExectionTime() {
 			Trigger trigger;
 			if (job instanceof PeriodicJob) {
-				trigger = new PeriodicTrigger(((PeriodicJob) job).getPeriod(), ((PeriodicJob) job).getPeriodTimeUnit());
+				trigger = new PeriodicTrigger(((PeriodicJob) job).getPeriod(), ((PeriodicJob) job).getPeriodSchedulingUnit().getTimeUnit());
 			} else {
 				trigger = new CronTrigger(((CronJob) job).getCronExpression());
 			}

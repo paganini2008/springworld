@@ -23,7 +23,7 @@ public class NotScheduledJobBeanPostProcessor implements BeanPostProcessor {
 		if (bean instanceof Job) {
 			Job job = (Job) bean;
 			try {
-				jobManager.addJob(job);
+				jobManager.addJob(job, null);
 			} catch (Exception e) {
 				throw new BeanInitializationException(e.getMessage(), e);
 			}

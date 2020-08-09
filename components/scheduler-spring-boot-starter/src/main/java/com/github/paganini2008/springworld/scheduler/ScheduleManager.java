@@ -10,11 +10,9 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface ScheduleManager extends Lifecycle {
 
-	void schedule(Job job, Object attachment);
+	void schedule(Job job);
 
 	void doSchedule();
-
-	void runJob(Job job, Object attachment);
 
 	boolean hasScheduled(Job job);
 

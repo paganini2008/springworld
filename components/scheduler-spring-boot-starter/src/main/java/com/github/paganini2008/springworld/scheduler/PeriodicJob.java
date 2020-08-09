@@ -1,7 +1,5 @@
 package com.github.paganini2008.springworld.scheduler;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * 
  * PeriodicJob
@@ -15,14 +13,14 @@ public interface PeriodicJob extends Job {
 		return getPeriod();
 	}
 
-	default TimeUnit getDelayTimeUnit() {
-		return getPeriodTimeUnit();
+	default SchedulingUnit getDelaySchedulingUnit() {
+		return getPeriodSchedulingUnit();
 	}
 
 	long getPeriod();
 
-	default TimeUnit getPeriodTimeUnit() {
-		return TimeUnit.MILLISECONDS;
+	default SchedulingUnit getPeriodSchedulingUnit() {
+		return SchedulingUnit.SECONDS;
 	}
 
 	default SchedulingMode getSchedulingMode() {

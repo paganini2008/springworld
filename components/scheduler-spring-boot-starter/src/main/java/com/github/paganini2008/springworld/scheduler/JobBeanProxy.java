@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JobBeanProxy implements Job {
 
-	private final JobParameter jobParameter;
+	private final JobKey jobKey;
 
 	@Qualifier("scheduler-httpclient")
 	@Autowired
@@ -33,28 +33,28 @@ public class JobBeanProxy implements Job {
 	@Value("${spring.application.cluster.scheduler.server.hostUrl}")
 	private String hostUrl;
 
-	public JobBeanProxy(JobParameter jobParameter) {
-		this.jobParameter = jobParameter;
+	public JobBeanProxy(JobKey jobKey) {
+		this.jobKey = jobKey;
 	}
 
 	@Override
 	public String getSignature() {
-		return jobParameter.getSignature();
+		return jobKey.getSignature();
 	}
 
 	@Override
 	public String getJobName() {
-		return jobParameter.getJobName();
+		return jobKey.getJobName();
 	}
 
 	@Override
 	public String getJobClassName() {
-		return jobParameter.getJobClassName();
+		return jobKey.getJobClassName();
 	}
 
 	@Override
 	public String getGroupName() {
-		return jobParameter.getGroupName();
+		return jobKey.getGroupName();
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class JobBeanProxy implements Job {
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
-		HttpEntity<JobParameter> requestEntity = new HttpEntity<JobParameter>(jobParameter, headers);
+		HttpEntity<JobParam> requestEntity = new HttpEntity<JobParam>(new JobParam(jobKey, result), headers);
 		ResponseEntity<JobResult> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);
 		log.info(responseEntity.toString());
 		if (responseEntity.getStatusCode() == HttpStatus.OK) {

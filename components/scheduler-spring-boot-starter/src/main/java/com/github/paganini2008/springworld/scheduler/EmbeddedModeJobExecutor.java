@@ -38,7 +38,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	private DataSource dataSource;
 
 	@Autowired
-	private JobDependency jobDependency;
+	private JobDependencyObservable jobDependency;
 
 	@Override
 	protected void beforeRun(Job job, Date startTime) {
