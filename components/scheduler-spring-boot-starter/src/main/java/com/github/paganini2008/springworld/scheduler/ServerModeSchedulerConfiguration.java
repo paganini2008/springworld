@@ -96,8 +96,8 @@ public class ServerModeSchedulerConfiguration {
 	public static class ProducerModeConfig {
 
 		@Bean
-		public JobSchedulerListener jobSchedulerListener() {
-			return new JobSchedulerListener();
+		public JobSchedulerStarterListener jobSchedulerListener() {
+			return new JobSchedulerStarterListener();
 		}
 
 		@Bean

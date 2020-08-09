@@ -127,8 +127,8 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public JobSchedulerListener jobSchedulerListener() {
-		return new JobSchedulerListener();
+	public JobSchedulerStarterListener jobSchedulerStarterListener() {
+		return new JobSchedulerStarterListener();
 	}
 
 	@Bean
@@ -163,6 +163,11 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Bean
 	public JobDependencyDetector jobDependencyDetector() {
 		return new JobDependencyDetector();
+	}
+	
+	@Bean
+	public JobAdmin embeddedModeJobAdmin() {
+		return new EmbeddedModeJobAdmin();
 	}
 
 }

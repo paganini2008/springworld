@@ -17,14 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * JobSchedulerListener
+ * JobSchedulerStarterListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class JobSchedulerListener implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable {
+public class JobSchedulerStarterListener implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable {
 
 	@Autowired
 	private ScheduleManager scheduleManager;
