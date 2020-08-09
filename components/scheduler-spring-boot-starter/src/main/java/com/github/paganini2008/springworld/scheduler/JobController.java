@@ -23,14 +23,14 @@ public class JobController {
 	private JobExecutor jobExecutor;
 
 	@Autowired
-	private JobBeanLoader jobBeanFactory;
+	private JobBeanLoader jobBeanLoader;
 
 	@Autowired
 	private JobManager jobManager;
 
 	@PostMapping("/run")
 	public ResponseEntity<JobResult> runJob(@RequestBody JobParam jobParam) throws Exception {
-		Job job = jobBeanFactory.loadJobBean(jobParam.getJobKey());
+		Job job = jobBeanLoader.loadJobBean(jobParam.getJobKey());
 		jobExecutor.execute(job, jobParam.getAttachment());
 		JobResult jobResult = JobResult.success(jobManager.getJobRuntime(job).getJobState(), "ok");
 		return ResponseEntity.ok(jobResult);

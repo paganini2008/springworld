@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.util.Date;
+
 /**
  * 
  * JobFuture
@@ -16,25 +18,25 @@ public interface JobFuture {
 
 	boolean isCancelled();
 
-	long getNextExectionTime();
-	
+	long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime);
+
 	static final JobFuture EMPTY = new JobFuture() {
-		
+
 		@Override
 		public boolean isDone() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isCancelled() {
 			return false;
 		}
-		
+
 		@Override
-		public long getNextExectionTime() {
+		public long getNextExectionTime(Date lastExecutionTime, Date lastCompletionTime) {
 			return System.currentTimeMillis();
 		}
-		
+
 		@Override
 		public void cancel() {
 		}

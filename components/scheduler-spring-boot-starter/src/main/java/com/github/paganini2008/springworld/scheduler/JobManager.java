@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.sql.SQLException;
+
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 
 /**
@@ -11,35 +13,35 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  */
 public interface JobManager extends Lifecycle {
 
-	default int addJob(Job job, String attachment) throws Exception {
+	default int addJob(Job job, String attachment) throws SQLException {
 		return 0;
 	}
 
-	default void deleteJob(Job job) throws Exception {
+	default void deleteJob(Job job) throws SQLException {
 	}
 
-	default boolean hasJob(Job job) throws Exception {
+	default boolean hasJob(Job job) throws SQLException {
 		return true;
 	}
 
-	void pauseJob(Job job) throws Exception;
+	void pauseJob(Job job) throws SQLException;
 
-	void resumeJob(Job job) throws Exception;
+	void resumeJob(Job job) throws SQLException;
 
-	boolean hasJobState(Job job, JobState jobState) throws Exception;
+	boolean hasJobState(Job job, JobState jobState) throws SQLException;
 
-	void setJobState(Job job, JobState jobState) throws Exception;
+	void setJobState(Job job, JobState jobState) throws SQLException;
 
-	JobDetail getJobDetail(Job job) throws Exception;
+	JobDetail getJobDetail(Job job) throws SQLException;
 
-	JobTrigger getJobTrigger(Job job) throws Exception;
+	JobTrigger getJobTrigger(Job job) throws SQLException;
 
-	JobRuntime getJobRuntime(Job job) throws Exception;
+	JobRuntime getJobRuntime(Job job) throws SQLException;
 
-	JobStat getJobStat(Job job) throws Exception;
+	JobStat getJobStat(Job job) throws SQLException;
 
-	ResultSetSlice<JobInfo> getJobInfo() throws Exception;
+	ResultSetSlice<JobInfo> getJobInfo() throws SQLException;
 
-	ResultSetSlice<JobStat> getJobStat(StatType statType) throws Exception;
+	ResultSetSlice<JobStat> getJobStat(StatType statType) throws SQLException;
 
 }

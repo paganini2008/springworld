@@ -69,9 +69,14 @@ public class JobBeanProxy implements Job {
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
 		HttpEntity<JobParam> requestEntity = new HttpEntity<JobParam>(new JobParam(jobKey, result), headers);
-		ResponseEntity<JobResult> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);
-		log.info(responseEntity.toString());
-		if (responseEntity.getStatusCode() == HttpStatus.OK) {
+		ResponseEntity<JobResult> responseEntity = null;
+		try {
+			responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);
+			log.info(responseEntity.toString());
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		if (responseEntity != null && responseEntity.getStatusCode() == HttpStatus.OK) {
 			JobResult jobResult = responseEntity.getBody();
 			if (jobResult.getJobState() == JobState.FINISHED) {
 				throw new JobTerminationException(this);

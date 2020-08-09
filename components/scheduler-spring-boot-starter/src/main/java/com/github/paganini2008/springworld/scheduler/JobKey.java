@@ -61,9 +61,25 @@ public class JobKey implements Serializable {
 		String jobClassName = signature.substring(endPosition + 1);
 		return new JobKey(groupName, jobName, jobClassName, signature);
 	}
-	
+
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
+	}
+
+	@Override
+	public int hashCode() {
+		return getSignature().hashCode() * 31;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof JobKey) {
+			return ((JobKey) obj).getSignature().equals(getSignature());
+		}
+		return false;
 	}
 
 }

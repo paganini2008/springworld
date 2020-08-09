@@ -71,13 +71,9 @@ public class JdbcJobManager implements JobManager {
 	@Override
 	public void pauseJob(Job job) throws SQLException {
 		if (hasJob(job) && hasJobState(job, JobState.SCHEDULING)) {
-			try {
-				setJobState(job, JobState.PAUSED);
-				if (log.isTraceEnabled()) {
-					log.trace("Pause the job: " + job.getSignature());
-				}
-			} catch (Exception e) {
-				throw new JobException(e.getMessage(), e);
+			setJobState(job, JobState.PAUSED);
+			if (log.isTraceEnabled()) {
+				log.trace("Pause the job: " + job.getSignature());
 			}
 		}
 	}
@@ -85,13 +81,9 @@ public class JdbcJobManager implements JobManager {
 	@Override
 	public void resumeJob(Job job) throws SQLException {
 		if (hasJob(job) && hasJobState(job, JobState.PAUSED)) {
-			try {
-				setJobState(job, JobState.SCHEDULING);
-				if (log.isTraceEnabled()) {
-					log.trace("Pause the job: " + job.getSignature());
-				}
-			} catch (Exception e) {
-				throw new JobException(e.getMessage(), e);
+			setJobState(job, JobState.SCHEDULING);
+			if (log.isTraceEnabled()) {
+				log.trace("Pause the job: " + job.getSignature());
 			}
 		}
 	}
@@ -206,7 +198,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobDetail getJobDetail(Job job) throws Exception {
+	public JobDetail getJobDetail(Job job) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();

@@ -30,7 +30,7 @@ public class JobSchedulerStarterListener implements ApplicationListener<Applicat
 	private ScheduleManager scheduleManager;
 
 	@Autowired(required = false)
-	private JobBeanInitializer jobBeanInitializer;
+	private TransientJobBeanInitializer jobBeanInitializer;
 
 	@Value("${spring.application.cluster.scheduler.launcher.inititalDelay:5}")
 	private int inititalDelay;
@@ -49,7 +49,7 @@ public class JobSchedulerStarterListener implements ApplicationListener<Applicat
 	public boolean execute() {
 		if (jobBeanInitializer != null) {
 			try {
-				jobBeanInitializer.loadJobs();
+				jobBeanInitializer.initizlizeJobBeans();
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}

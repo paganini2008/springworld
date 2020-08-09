@@ -18,12 +18,12 @@ public abstract class JobTemplate {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	protected final void runJob(Job job, Object attachment) {
-		final Date now = new Date();
 		RunningState runningState = RunningState.SKIPPED;
 		Throwable reason = null;
+		final Date startTime = new Date();
 		try {
 			if (isScheduling(job)) {
-				beforeRun(job, now);
+				beforeRun(job, startTime);
 				if (job.shouldRun()) {
 					runningState = doRun(job, attachment);
 				}
@@ -37,7 +37,7 @@ public abstract class JobTemplate {
 			runningState = RunningState.FAILED;
 			throw new JobException("An exception occured during job running.", e);
 		} finally {
-			afterRun(job, now, runningState, reason);
+			afterRun(job, startTime, runningState, reason);
 		}
 	}
 

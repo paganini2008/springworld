@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "embedded", matchIfMissing = true)
-@Import({ JobAdminController.class, JobController.class })
+@Import({ JobAdminController.class })
 public class EmbeddedModeSchedulerConfiguration {
 
 	public EmbeddedModeSchedulerConfiguration() {
@@ -122,8 +122,8 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public NotManagedJobBeanInitializer notManagedJobBeanInitializer() {
-		return new NotManagedJobBeanInitializer();
+	public TransientJobBeanInitializer embeddedModeTransientJobBeanInitializer() {
+		return new EmbeddedModeTransientJobBeanInitializer();
 	}
 
 	@Bean
@@ -164,7 +164,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	public JobDependencyDetector jobDependencyDetector() {
 		return new JobDependencyDetector();
 	}
-	
+
 	@Bean
 	public JobAdmin embeddedModeJobAdmin() {
 		return new EmbeddedModeJobAdmin();

@@ -11,6 +11,8 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 
+import com.github.paganini2008.devtools.date.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -96,7 +98,7 @@ public class SpringScheduler implements Scheduler {
 		}
 
 		@Override
-		public long getNextExectionTime() {
+		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime) {
 			Trigger trigger;
 			if (job instanceof PeriodicJob) {
 				trigger = new PeriodicTrigger(((PeriodicJob) job).getPeriod(), ((PeriodicJob) job).getPeriodSchedulingUnit().getTimeUnit());
@@ -104,13 +106,21 @@ public class SpringScheduler implements Scheduler {
 				trigger = new CronTrigger(((CronJob) job).getCronExpression());
 			}
 			try {
-				return trigger.nextExecutionTime(new SimpleTriggerContext()).getTime();
+				return trigger
+						.nextExecutionTime(new SimpleTriggerContext(lastExecutionTime, lastActualExecutionTime, lastActualExecutionTime))
+						.getTime();
 			} catch (RuntimeException e) {
 				log.error(e.getMessage(), e);
 				return -1L;
 			}
 		}
 
+	}
+
+	public static void main(String[] args) {
+		Trigger trigger = new CronTrigger("*/5 * * * * ?");
+		final Date date = DateUtils.setTime(new Date(), 22, 0, 5);
+		System.out.println(DateUtils.format(trigger.nextExecutionTime(new SimpleTriggerContext(date, date, date))));
 	}
 
 }

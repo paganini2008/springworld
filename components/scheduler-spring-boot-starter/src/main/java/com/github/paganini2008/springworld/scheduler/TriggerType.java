@@ -41,6 +41,8 @@ public enum TriggerType {
 			return TriggerType.CRON;
 		} else if (job instanceof PeriodicJob) {
 			return TriggerType.PERIODIC;
+		} else if (job instanceof SerialJob) {
+			return TriggerType.SERIAL;
 		}
 		throw new IllegalArgumentException("Unknown job class: " + job.getClass());
 	}

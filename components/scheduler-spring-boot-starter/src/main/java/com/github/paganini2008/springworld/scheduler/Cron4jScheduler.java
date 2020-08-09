@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.ErrorHandler;
@@ -103,7 +105,7 @@ public class Cron4jScheduler implements Scheduler {
 		}
 
 		@Override
-		public long getNextExectionTime() {
+		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime) {
 			return taskFuture.getDetail().nextExectionTime();
 		}
 

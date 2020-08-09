@@ -17,14 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * NotManagedJobBeanInitializer
+ * EmbedddModeTransientJobBeanInitializer
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class NotManagedJobBeanInitializer implements JobBeanInitializer {
+public class EmbeddedModeTransientJobBeanInitializer implements TransientJobBeanInitializer {
 
 	@Value("${spring.application.name}")
 	private String applicationName;
@@ -38,7 +38,7 @@ public class NotManagedJobBeanInitializer implements JobBeanInitializer {
 	@Autowired
 	private JobBeanLoader jobBeanLoader;
 
-	public void loadJobs() throws Exception {
+	public void initizlizeJobBeans() throws Exception {
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {

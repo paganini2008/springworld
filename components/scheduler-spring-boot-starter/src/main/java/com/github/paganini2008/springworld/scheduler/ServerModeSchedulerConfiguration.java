@@ -96,14 +96,14 @@ public class ServerModeSchedulerConfiguration {
 	public static class ProducerModeConfig {
 
 		@Bean
-		public JobSchedulerStarterListener jobSchedulerListener() {
+		public JobSchedulerStarterListener jobSchedulerStarterListener() {
 			return new JobSchedulerStarterListener();
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(JobBeanInitializer.class)
-		public JobBeanInitializer jobBeanInitializer() {
-			return new NotManagedJobBeanInitializer();
+		@ConditionalOnMissingBean(TransientJobBeanInitializer.class)
+		public TransientJobBeanInitializer serverModeTransientJobBeanInitializer() {
+			return new ServerModeTransientJobBeanInitializer();
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
@@ -113,7 +113,12 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public JobDependencyObservable jobDependency() {
+		public JobAdmin serverModeJobAdmin() {
+			return new ServerModeJobAdmin();
+		}
+
+		@Bean
+		public JobDependencyObservable jobDependencyObservable() {
 			return new JobDependencyObservable();
 		}
 
@@ -148,7 +153,7 @@ public class ServerModeSchedulerConfiguration {
 
 	@Order(Ordered.LOWEST_PRECEDENCE - 1)
 	@Configuration
-	@Import({ JobController.class })
+	@Import({ JobController.class, JobAdminController.class })
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	public static class ConsumerModeConfig {
 
@@ -169,6 +174,11 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
+		public JobDependencyDetector jobDependencyDetector() {
+			return new JobDependencyDetector();
+		}
+
+		@Bean
 		@ConditionalOnMissingBean(JobExecutor.class)
 		public JobExecutor jobExecutor() {
 			return new ConsumerModeJobExecutor();
@@ -177,6 +187,11 @@ public class ServerModeSchedulerConfiguration {
 		@Bean
 		public JobBeanLoader jobBeanLoader() {
 			return new EmbeddedModeJobBeanLoader();
+		}
+
+		@Bean
+		public JobAdmin jobAdmin() {
+			return new EmbeddedModeJobAdmin();
 		}
 
 	}

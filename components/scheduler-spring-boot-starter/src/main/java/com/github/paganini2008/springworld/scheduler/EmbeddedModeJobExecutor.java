@@ -38,7 +38,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	private DataSource dataSource;
 
 	@Autowired
-	private JobDependencyObservable jobDependency;
+	private JobDependencyObservable jobDependencyObservable;
 
 	@Override
 	protected void beforeRun(Job job, Date startTime) {
@@ -46,7 +46,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			long nextExecutionTime = scheduleManager.getFuture(job).getNextExectionTime();
+			long nextExecutionTime = scheduleManager.getFuture(job).getNextExectionTime(startTime, startTime);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_START, new Object[] { JobState.RUNNING.getValue(),
 					new Timestamp(nextExecutionTime), startTime, job.getJobName(), job.getJobClassName() });
 		} catch (SQLException e) {
@@ -72,7 +72,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	protected void notifyDependencies(Job job, Object result) {
-		jobDependency.notifyDependencies(job, result);
+		jobDependencyObservable.notifyDependencies(job, result);
 	}
 
 	@Override

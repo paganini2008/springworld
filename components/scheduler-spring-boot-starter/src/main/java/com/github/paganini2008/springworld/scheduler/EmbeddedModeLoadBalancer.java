@@ -50,7 +50,7 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			long nextExecutionTime = scheduleManager.getFuture(job).getNextExectionTime();
+			long nextExecutionTime = scheduleManager.getFuture(job).getNextExectionTime(startTime, startTime);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_START, new Object[] { JobState.RUNNING.getValue(),
 					new Timestamp(nextExecutionTime), startTime, job.getJobName(), job.getJobClassName() });
 		} catch (SQLException e) {
