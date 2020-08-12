@@ -30,8 +30,8 @@ public class JobDependencyObservable extends Observable {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	public void addDependency(final SerialJob job) {
-		for (String dependency : job.getDependencies()) {
+	public void addDependency(final Job job, final String[] dependencies) {
+		for (String dependency : dependencies) {
 			addObserver(dependency, (ob, attachment) -> {
 				jobExecutor.execute(job, attachment);
 			});

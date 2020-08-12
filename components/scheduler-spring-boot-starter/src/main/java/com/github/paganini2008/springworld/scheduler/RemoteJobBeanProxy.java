@@ -15,14 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * JobBeanProxy
+ * RemoteJobBeanProxy
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class JobBeanProxy implements Job {
+public class RemoteJobBeanProxy implements Job {
 
 	private final JobKey jobKey;
 
@@ -33,7 +33,7 @@ public class JobBeanProxy implements Job {
 	@Value("${spring.application.cluster.scheduler.server.hostUrl}")
 	private String hostUrl;
 
-	public JobBeanProxy(JobKey jobKey) {
+	public RemoteJobBeanProxy(JobKey jobKey) {
 		this.jobKey = jobKey;
 	}
 
@@ -101,11 +101,11 @@ public class JobBeanProxy implements Job {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof JobBeanProxy) {
+		if (obj instanceof RemoteJobBeanProxy) {
 			if (obj == this) {
 				return true;
 			}
-			return ((JobBeanProxy) obj).getSignature().equals(this.getSignature());
+			return ((RemoteJobBeanProxy) obj).getSignature().equals(this.getSignature());
 		}
 		return false;
 	}

@@ -17,7 +17,7 @@ import lombok.Setter;
  * @since 1.0
  */
 @Setter
-public class JobKey implements Serializable {
+public final class JobKey implements Serializable {
 
 	private static final long serialVersionUID = 3147872689801742981L;
 	private String groupName;

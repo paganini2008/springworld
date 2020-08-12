@@ -32,6 +32,9 @@ public class Cron4jScheduler implements Scheduler {
 	@Autowired
 	private ErrorHandler errorHandler;
 
+	@Autowired
+	private JobDependencyObservable jobDependencyObservable;
+
 	@Override
 	public JobFuture schedule(Job job, Object attachment, String cron) {
 		TaskFuture taskFuture = taskExecutor.schedule(wrapJob(job, attachment), CRON.parse(cron));
@@ -48,6 +51,12 @@ public class Cron4jScheduler implements Scheduler {
 	public JobFuture scheduleAtFixedRate(Job job, Object attachment, long delay, long period) {
 		TaskFuture taskFuture = taskExecutor.scheduleAtFixedRate(wrapJob(job, attachment), delay, period);
 		return new FutureImpl(taskFuture);
+	}
+
+	@Override
+	public JobFuture scheduleWithDependency(Job job, String[] dependencies) {
+		jobDependencyObservable.addDependency(job, dependencies);
+		return JobFuture.EMPTY;
 	}
 
 	@Override

@@ -27,9 +27,6 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Autowired
 	private JobManager jobManager;
 
-	@Autowired
-	private JobDependencyObservable jobDependencyObservable;
-
 	private final Map<String, JobFuture> schedulingCache = new ConcurrentHashMap<String, JobFuture>();
 	private final Observable trigger = Observable.unrepeatable();
 
@@ -54,11 +51,12 @@ public class DefaultScheduleManager implements ScheduleManager {
 			} catch (Exception e) {
 				throw new JobException(e.getMessage(), e);
 			}
-			
+
 			final String attachment = jobDetail.getAttachment();
 
 			if (job instanceof CronJob) {
-				schedulingCache.put(job.getSignature(), scheduler.schedule(job, attachment, ((CronJob) job).getCronExpression()));
+				final CronJob cronJob = (CronJob) job;
+				schedulingCache.put(job.getSignature(), scheduler.schedule(job, attachment, cronJob.getCronExpression()));
 			} else if (job instanceof PeriodicJob) {
 				final PeriodicJob periodicJob = (PeriodicJob) job;
 				long delay = DateUtils.convertToMillis(periodicJob.getDelay(), periodicJob.getDelaySchedulingUnit().getTimeUnit());
@@ -72,9 +70,8 @@ public class DefaultScheduleManager implements ScheduleManager {
 					break;
 				}
 			} else if (job instanceof SerialJob) {
-				SerialJob serialJob = (SerialJob) job;
-				schedulingCache.put(serialJob.getSignature(), JobFuture.EMPTY);
-				jobDependencyObservable.addDependency(serialJob);
+				final SerialJob serialJob = (SerialJob) job;
+				schedulingCache.put(serialJob.getSignature(), scheduler.scheduleWithDependency(job, serialJob.getDependencies()));
 			} else {
 				throw new JobException("Only support for CronJob, PeriodicJob and SerialJob.");
 			}

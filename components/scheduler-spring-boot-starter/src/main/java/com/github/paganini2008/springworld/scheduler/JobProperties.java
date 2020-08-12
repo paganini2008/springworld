@@ -19,11 +19,11 @@ public interface JobProperties {
 		return getClass().getName();
 	}
 
+	String getGroupName();
+	
 	default String getSignature() {
 		return getGroupName() + ":" + getJobName() + "@" + getJobClassName();
 	}
-
-	String getGroupName();
 
 	default String getDescription() {
 		return "";

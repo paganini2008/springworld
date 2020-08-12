@@ -1,7 +1,5 @@
 package com.github.paganini2008.springworld.scheduler;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.paganini2008.devtools.StringUtils;
@@ -19,9 +17,8 @@ import lombok.Getter;
  */
 @Getter
 @JsonInclude(value = Include.NON_NULL)
-public class TriggerDescription implements Serializable {
-
-	private static final long serialVersionUID = -6796406296041227349L;
+public class TriggerDescription {
+	
 	private String cron;
 	private Long delay;
 	private SchedulingUnit delaySchedulingUnit;
@@ -77,9 +74,8 @@ public class TriggerDescription implements Serializable {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
-	
+
 	public static void main(String[] args) {
-		TriggerDescription triggerDescription = new TriggerDescription();
 		String str = "{\"cron\":\"0 0 1 * * ?\"}";
 		System.out.println(JacksonUtils.parseJson(str, TriggerDescription.class));
 	}

@@ -33,6 +33,9 @@ public class SpringScheduler implements Scheduler {
 	@Autowired
 	private JobExecutor jobExecutor;
 
+	@Autowired
+	private JobDependencyObservable jobDependencyObservable;
+
 	@Override
 	public JobFuture schedule(Job job, Object arg, String cron) {
 		ScheduledFuture<?> future = taskScheduler.schedule(wrapJob(job, arg), new CronTrigger(cron));
@@ -51,6 +54,12 @@ public class SpringScheduler implements Scheduler {
 		ScheduledFuture<?> future = taskScheduler.scheduleAtFixedRate(wrapJob(job, arg), new Date(System.currentTimeMillis() + delay),
 				period);
 		return new FutureImpl(job, future);
+	}
+
+	@Override
+	public JobFuture scheduleWithDependency(Job job, String[] dependencies) {
+		jobDependencyObservable.addDependency(job, dependencies);
+		return JobFuture.EMPTY;
 	}
 
 	@Override
