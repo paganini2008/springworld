@@ -35,20 +35,16 @@ public class EmbeddedModeJobAdmin implements ClusterMessageListener, JobAdmin {
 	}
 
 	public void deleteJob(JobKey jobKey) {
-		Job job;
 		try {
-			job = jobBeanLoader.loadJobBean(jobKey);
-			jobManager.deleteJob(job);
+			jobManager.deleteJob(jobKey);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
 	}
 
 	public boolean hasJob(JobKey jobKey) {
-		Job job;
 		try {
-			job = jobBeanLoader.loadJobBean(jobKey);
-			return jobManager.hasJob(job);
+			return jobManager.hasJob(jobKey);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}

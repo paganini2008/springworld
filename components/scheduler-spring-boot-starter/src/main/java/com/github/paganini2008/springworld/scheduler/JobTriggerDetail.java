@@ -6,21 +6,21 @@ import lombok.Getter;
 
 /**
  * 
- * JobTrigger
+ * JobTriggerDetail
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Getter
-public class JobTrigger implements Serializable {
+public class JobTriggerDetail implements Serializable {
 
 	private static final long serialVersionUID = 866085363330905946L;
-	private Integer jobId;
+	private int jobId;
 	private TriggerType triggerType;
 	private TriggerDescription triggerDescription;
 
-	public void setJobId(Integer jobId) {
+	public void setJobId(int jobId) {
 		this.jobId = jobId;
 	}
 

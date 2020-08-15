@@ -45,12 +45,12 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected void beforeRun(Job job, Date startTime) {
-		super.beforeRun(job, startTime);
+	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
+		super.beforeRun(jobKey, job, startTime);
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			long nextExecutionTime = scheduleManager.getFuture(job).getNextExectionTime(startTime, startTime);
+			long nextExecutionTime = scheduleManager.getJobFuture(jobKey).getNextExectionTime(startTime, startTime);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_START, new Object[] { JobState.RUNNING.getValue(),
 					new Timestamp(nextExecutionTime), startTime, job.getJobName(), job.getJobClassName() });
 		} catch (SQLException e) {
@@ -61,16 +61,16 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected final RunningState doRun(Job job, Object attachment) {
+	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment) {
 		final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-		clusterMulticastGroup.unicast(job.getGroupName(), topic, new JobParam(JobKey.of(job.getSignature()), attachment));
+		clusterMulticastGroup.unicast(job.getGroupName(), topic, new JobParam(jobKey, attachment));
 		return RunningState.RUNNING;
 	}
 
 	@Override
-	protected boolean isScheduling(Job job) {
+	protected boolean isScheduling(JobKey jobKey, Job job) {
 		try {
-			return jobManager.hasJobState(job, JobState.SCHEDULING);
+			return jobManager.hasJobState(jobKey, JobState.SCHEDULING);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}

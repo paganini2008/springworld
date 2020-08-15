@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Observable;
-import com.github.paganini2008.devtools.date.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,18 +26,19 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Autowired
 	private JobManager jobManager;
 
-	private final Map<String, JobFuture> schedulingCache = new ConcurrentHashMap<String, JobFuture>();
+	private final Map<JobKey, JobFuture> schedulingCache = new ConcurrentHashMap<JobKey, JobFuture>();
 	private final Observable trigger = Observable.unrepeatable();
 
 	@Override
 	public void schedule(final Job job) {
 		trigger.addObserver((trigger, ignored) -> {
-			if (hasScheduled(job)) {
-				log.warn("Job '{}' has been scheduled.", job.getSignature());
+			JobKey jobKey = JobKey.of(job);
+			if (hasScheduled(jobKey)) {
+				log.warn("Job '{}' has been scheduled.", jobKey);
 				return;
 			}
 			try {
-				if (jobManager.hasJobState(job, JobState.FINISHED)) {
+				if (jobManager.hasJobState(jobKey, JobState.FINISHED)) {
 					return;
 				}
 			} catch (Exception e) {
@@ -47,63 +47,42 @@ public class DefaultScheduleManager implements ScheduleManager {
 
 			JobDetail jobDetail;
 			try {
-				jobDetail = jobManager.getJobDetail(job);
+				jobDetail = jobManager.getJobDetail(jobKey);
 			} catch (Exception e) {
 				throw new JobException(e.getMessage(), e);
 			}
 
 			final String attachment = jobDetail.getAttachment();
-
-			if (job instanceof CronJob) {
-				final CronJob cronJob = (CronJob) job;
-				schedulingCache.put(job.getSignature(), scheduler.schedule(job, attachment, cronJob.getCronExpression()));
-			} else if (job instanceof PeriodicJob) {
-				final PeriodicJob periodicJob = (PeriodicJob) job;
-				long delay = DateUtils.convertToMillis(periodicJob.getDelay(), periodicJob.getDelaySchedulingUnit().getTimeUnit());
-				long period = DateUtils.convertToMillis(periodicJob.getPeriod(), periodicJob.getPeriodSchedulingUnit().getTimeUnit());
-				switch (periodicJob.getSchedulingMode()) {
-				case FIXED_DELAY:
-					schedulingCache.put(job.getSignature(), scheduler.scheduleWithFixedDelay(job, attachment, delay, period));
-					break;
-				case FIXED_RATE:
-					schedulingCache.put(job.getSignature(), scheduler.scheduleAtFixedRate(job, attachment, delay, period));
-					break;
-				}
-			} else if (job instanceof SerialJob) {
-				final SerialJob serialJob = (SerialJob) job;
-				schedulingCache.put(serialJob.getSignature(), scheduler.scheduleWithDependency(job, serialJob.getDependencies()));
-			} else {
-				throw new JobException("Only support for CronJob, PeriodicJob and SerialJob.");
-			}
+			schedulingCache.put(jobKey, job.getTrigger().fire(scheduler, job, attachment));
 
 			try {
-				jobManager.setJobState(job, JobState.SCHEDULING);
+				jobManager.setJobState(jobKey, JobState.SCHEDULING);
 			} catch (Exception e) {
 				throw new JobException(e.getMessage(), e);
 			}
-			log.info("Schedule job '{}' ok. Current scheduling's number is {}", job.getSignature(), countOfScheduling());
+			log.info("Schedule job '{}' ok. Current scheduling's number is {}", jobKey, countOfScheduling());
 		});
 	}
 
 	@Override
-	public void unscheduleJob(Job job) {
-		if (hasScheduled(job)) {
-			JobFuture future = schedulingCache.remove(job.getSignature());
+	public void unscheduleJob(JobKey jobKey) {
+		if (hasScheduled(jobKey)) {
+			JobFuture future = schedulingCache.remove(jobKey);
 			if (future != null) {
 				future.cancel();
 			}
 			try {
-				jobManager.setJobState(job, JobState.NOT_SCHEDULED);
+				jobManager.setJobState(jobKey, JobState.NOT_SCHEDULED);
 			} catch (Exception e) {
 				throw new JobException(e.getMessage(), e);
 			}
-			log.info("Unschedule the job: " + job.getSignature());
+			log.info("Unschedule the job: " + jobKey);
 		}
 	}
 
 	@Override
-	public boolean hasScheduled(Job job) {
-		return schedulingCache.containsKey(job.getSignature());
+	public boolean hasScheduled(JobKey jobKey) {
+		return schedulingCache.containsKey(jobKey);
 	}
 
 	@Override
@@ -118,16 +97,16 @@ public class DefaultScheduleManager implements ScheduleManager {
 	}
 
 	@Override
-	public JobFuture getFuture(Job job) {
-		if (!hasScheduled(job)) {
+	public JobFuture getJobFuture(JobKey jobKey) {
+		if (!hasScheduled(jobKey)) {
 			throw new JobException("Not scheduling job");
 		}
-		return schedulingCache.get(job.getSignature());
+		return schedulingCache.get(jobKey);
 	}
 
 	@Override
 	public void close() {
-		for (Map.Entry<String, JobFuture> entry : schedulingCache.entrySet()) {
+		for (Map.Entry<JobKey, JobFuture> entry : schedulingCache.entrySet()) {
 			entry.getValue().cancel();
 		}
 		schedulingCache.clear();

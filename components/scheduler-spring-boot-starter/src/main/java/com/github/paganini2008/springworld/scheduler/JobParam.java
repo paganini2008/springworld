@@ -39,7 +39,8 @@ public class JobParam implements Serializable {
 		JobParam jobParam = new JobParam();
 		jobParam.setJobKey(JobKey.of("1:2@3"));
 		jobParam.setAttachment("Hello world!");
-		System.out.println(JacksonUtils.toJsonString(jobParam));
+		String json = JacksonUtils.toJsonString(jobParam);
+		System.out.println(JacksonUtils.parseJson(json, JobParam.class));
 	}
 
 }

@@ -15,16 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * RemoteJobBeanProxy
+ * ServerModeJobBeanProxy
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class RemoteJobBeanProxy implements Job {
+public class ServerModeJobBeanProxy implements Job {
 
 	private final JobKey jobKey;
+	private final Trigger trigger;
 
 	@Qualifier("scheduler-httpclient")
 	@Autowired
@@ -33,13 +34,9 @@ public class RemoteJobBeanProxy implements Job {
 	@Value("${spring.application.cluster.scheduler.server.hostUrl}")
 	private String hostUrl;
 
-	public RemoteJobBeanProxy(JobKey jobKey) {
+	public ServerModeJobBeanProxy(JobKey jobKey, Trigger trigger) {
 		this.jobKey = jobKey;
-	}
-
-	@Override
-	public String getSignature() {
-		return jobKey.getSignature();
+		this.trigger = trigger;
 	}
 
 	@Override
@@ -58,12 +55,17 @@ public class RemoteJobBeanProxy implements Job {
 	}
 
 	@Override
+	public Trigger getTrigger() {
+		return trigger;
+	}
+
+	@Override
 	public boolean managedByApplicationContext() {
 		return false;
 	}
 
 	@Override
-	public Object execute(Object result) {
+	public Object execute(JobKey jobKey, Object result) {
 		final String url = hostUrl + "/job/run";
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -79,35 +81,15 @@ public class RemoteJobBeanProxy implements Job {
 		if (responseEntity != null && responseEntity.getStatusCode() == HttpStatus.OK) {
 			JobResult jobResult = responseEntity.getBody();
 			if (jobResult.getJobState() == JobState.FINISHED) {
-				throw new JobTerminationException(this);
+				throw new JobTerminationException(jobKey);
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public boolean onFailure(Throwable e) {
-		if (e instanceof JobTerminationException) {
-			return false;
-		}
+	public void onFailure(JobKey jobKey, Throwable e) {
 		log.error(e.getMessage(), e);
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		return this.getSignature().hashCode() * 31;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof RemoteJobBeanProxy) {
-			if (obj == this) {
-				return true;
-			}
-			return ((RemoteJobBeanProxy) obj).getSignature().equals(this.getSignature());
-		}
-		return false;
 	}
 
 }

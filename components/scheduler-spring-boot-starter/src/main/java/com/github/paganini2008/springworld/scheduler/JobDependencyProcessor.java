@@ -35,8 +35,8 @@ public class JobDependencyProcessor implements RedisMessageHandler {
 	@Override
 	public void onMessage(String channel, Object message) throws Exception {
 		JobParam jobParam = (JobParam) message;
-		log.info("Dependent Job: " + jobParam.getJobKey().getSignature());
-		jobDependencyObservable.executeDependency(jobParam.getJobKey().getSignature(), jobParam.getAttachment());
+		log.info("Dependent Job: " + jobParam.getJobKey());
+		jobDependencyObservable.executeDependency(jobParam.getJobKey(), jobParam.getAttachment());
 	}
 
 }

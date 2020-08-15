@@ -36,18 +36,18 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected boolean isScheduling(Job job) {
+	protected boolean isScheduling(JobKey jobKey, Job job) {
 		return true;
 	}
 
 	@Override
-	protected void notifyDependencies(Job job, Object result) {
-		jobDependencyObservable.notifyDependencies(job, result);
+	protected void notifyDependencies(JobKey jobKey, Job job, Object result) {
+		jobDependencyObservable.notifyDependencies(jobKey, result);
 	}
 
 	@Override
-	protected void afterRun(Job job, Date startTime, RunningState runningState, Throwable reason) {
-		super.afterRun(job, startTime, runningState, reason);
+	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason) {
+		super.afterRun(jobKey, job, startTime, runningState, reason);
 		final Date endTime = new Date();
 		Connection connection = null;
 		try {

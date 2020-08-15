@@ -18,7 +18,7 @@ import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils
  */
 public class EmbeddedModeJobBeanLoader implements JobBeanLoader {
 
-	private final Map<String, Job> temporaryJobBeans = new ConcurrentHashMap<String, Job>();
+	private final Map<JobKey, Job> temporaryJobBeans = new ConcurrentHashMap<JobKey, Job>();
 
 	@Override
 	public Job loadJobBean(JobKey jobKey) {
@@ -35,11 +35,11 @@ public class EmbeddedModeJobBeanLoader implements JobBeanLoader {
 			});
 		}
 		if (job == null) {
-			job = MapUtils.get(temporaryJobBeans, jobKey.getSignature(), () -> {
+			job = MapUtils.get(temporaryJobBeans, jobKey, () -> {
 				return (Job) BeanUtils.instantiate(jobClass);
 			});
-			if (!job.getSignature().equals(jobKey.getSignature())) {
-				throw new JobBeanNotFoundException(jobKey.getSignature());
+			if (!JobKey.of(job).equals(jobKey)) {
+				throw new JobBeanNotFoundException(jobKey.toString());
 			}
 		}
 		return job;

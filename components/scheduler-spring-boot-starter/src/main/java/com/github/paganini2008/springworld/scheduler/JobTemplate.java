@@ -18,37 +18,38 @@ public abstract class JobTemplate {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	protected final void runJob(Job job, Object attachment) {
+		final Date startTime = new Date();
 		RunningState runningState = RunningState.SKIPPED;
 		Throwable reason = null;
-		final Date startTime = new Date();
+		JobKey jobKey = JobKey.of(job);
 		try {
-			if (isScheduling(job)) {
-				beforeRun(job, startTime);
-				if (job.shouldRun()) {
-					runningState = doRun(job, attachment);
+			if (isScheduling(jobKey, job)) {
+				beforeRun(jobKey, job, startTime);
+				if (job.shouldRun(jobKey)) {
+					runningState = doRun(jobKey, job, attachment);
 				}
 			}
 		} catch (JobTerminationException e) {
 			reason = e.getCause();
 			runningState = RunningState.COMPLETED;
-			cancel(job, runningState, reason);
+			cancel(jobKey, job, runningState, reason);
 		} catch (Throwable e) {
 			reason = e;
 			runningState = RunningState.FAILED;
 			throw new JobException("An exception occured during job running.", e);
 		} finally {
-			afterRun(job, startTime, runningState, reason);
+			afterRun(jobKey, job, startTime, runningState, reason);
 		}
 	}
 
-	protected RunningState doRun(Job job, Object arg) {
-		job.prepare();
+	protected RunningState doRun(JobKey jobKey, Job job, Object argument) {
+		job.prepare(jobKey);
 
 		Object result = null;
 		Throwable reason = null;
 		boolean success = false;
 		try {
-			result = job.execute(arg);
+			result = job.execute(jobKey, argument);
 			success = true;
 		} catch (Throwable e) {
 			reason = e;
@@ -57,7 +58,7 @@ public abstract class JobTemplate {
 			if (!success) {
 				for (int i = 0; i < job.getRetries(); i++) {
 					try {
-						result = job.execute(arg);
+						result = job.execute(jobKey, argument);
 						success = true;
 						break;
 					} catch (Throwable e) {
@@ -66,41 +67,36 @@ public abstract class JobTemplate {
 				}
 			}
 
-			boolean continueRun;
 			if (success) {
-				continueRun = job.onSuccess(result);
+				job.onSuccess(jobKey, result);
 			} else {
-				continueRun = job.onFailure(reason);
-			}
-
-			if (!continueRun) {
-				throw reason != null ? new JobTerminationException(job, reason) : new JobTerminationException(job);
+				job.onFailure(jobKey, reason);
 			}
 			if (success && result != null) {
-				notifyDependencies(job, result);
+				notifyDependencies(jobKey, job, result);
 			}
 		}
 		return RunningState.COMPLETED;
 	}
 
-	protected void beforeRun(Job job, Date startTime) {
+	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
 		if (log.isTraceEnabled()) {
-			log.trace("Prepare to run Job: " + job.getSignature());
+			log.trace("Prepare to run Job: " + jobKey);
 		}
 	}
 
-	protected void afterRun(Job job, Date startTime, RunningState runningState, Throwable reason) {
+	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason) {
 		if (log.isTraceEnabled()) {
 			log.trace("Job is end with state: " + runningState);
 		}
 	}
 
-	protected abstract boolean isScheduling(Job job);
+	protected abstract boolean isScheduling(JobKey jobKey, Job job);
 
-	protected void notifyDependencies(Job job, Object result) {
+	protected void notifyDependencies(JobKey jobKey, Job job, Object result) {
 	}
 
-	protected void cancel(Job job, RunningState runningState, Throwable reason) {
+	protected void cancel(JobKey jobKey, Job job, RunningState runningState, Throwable reason) {
 	}
 
 }

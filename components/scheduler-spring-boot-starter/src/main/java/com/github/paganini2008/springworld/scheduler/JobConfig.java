@@ -15,10 +15,9 @@ import lombok.Setter;
 @Setter
 public class JobConfig {
 
+	private String groupName;
 	private String jobName;
 	private String jobClassName;
-	private String groupName;
-	private String cron;
 	private TriggerType triggerType;
 	private TriggerDescription triggerDescription;
 	private String description;

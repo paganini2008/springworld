@@ -38,14 +38,14 @@ public class JobDependencyObservable extends Observable {
 		}
 	}
 
-	public void executeDependency(String signature, Object attachment) {
-		notifyObservers(signature, attachment);
+	public void executeDependency(JobKey jobKey, Object attachment) {
+		notifyObservers(jobKey.getIdentifier(), attachment);
 	}
 
-	public void notifyDependencies(Job job, Object result) {
+	public void notifyDependencies(JobKey jobKey, Object result) {
 		final String channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:dependency:"
-				+ job.getSignature();
-		JobParam jobParam = new JobParam(JobKey.of(job.getSignature()), result);
+				+ jobKey.getIdentifier();
+		JobParam jobParam = new JobParam(jobKey, result);
 		redisMessageSender.sendMessage(channel, jobParam);
 	}
 

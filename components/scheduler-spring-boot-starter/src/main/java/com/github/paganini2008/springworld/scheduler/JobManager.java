@@ -17,28 +17,28 @@ public interface JobManager extends Lifecycle {
 		return 0;
 	}
 
-	default void deleteJob(Job job) throws SQLException {
+	default void deleteJob(JobKey jobKey) throws SQLException {
 	}
 
-	default boolean hasJob(Job job) throws SQLException {
+	default boolean hasJob(JobKey jobKey) throws SQLException {
 		return true;
 	}
 
-	void pauseJob(Job job) throws SQLException;
+	void pauseJob(JobKey jobKey) throws SQLException;
 
-	void resumeJob(Job job) throws SQLException;
+	void resumeJob(JobKey jobKey) throws SQLException;
 
-	boolean hasJobState(Job job, JobState jobState) throws SQLException;
+	boolean hasJobState(JobKey jobKey, JobState jobState) throws SQLException;
 
-	void setJobState(Job job, JobState jobState) throws SQLException;
+	void setJobState(JobKey jobKey, JobState jobState) throws SQLException;
 
-	JobDetail getJobDetail(Job job) throws SQLException;
+	JobDetail getJobDetail(JobKey jobKey) throws SQLException;
 
-	JobTrigger getJobTrigger(Job job) throws SQLException;
+	JobTriggerDetail getJobTriggerDetail(JobKey jobKey) throws SQLException;
 
-	JobRuntime getJobRuntime(Job job) throws SQLException;
+	JobRuntime getJobRuntime(JobKey jobKey) throws SQLException;
 
-	JobStat getJobStat(Job job) throws SQLException;
+	JobStat getJobStat(JobKey jobKey) throws SQLException;
 
 	ResultSetSlice<JobInfo> getJobInfo() throws SQLException;
 

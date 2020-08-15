@@ -14,12 +14,12 @@ public interface ScheduleManager extends Lifecycle {
 
 	void doSchedule();
 
-	boolean hasScheduled(Job job);
+	boolean hasScheduled(JobKey jobKey);
 
-	void unscheduleJob(Job job);
+	void unscheduleJob(JobKey jobKey);
 
 	int countOfScheduling();
 
-	JobFuture getFuture(Job job);
+	JobFuture getJobFuture(JobKey jobKey);
 
 }

@@ -28,14 +28,14 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected final RunningState doRun(Job job, Object attachment) {
+	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment) {
 		final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-		clusterMulticastGroup.unicast(job.getGroupName(), topic, new JobParam(JobKey.of(job.getSignature()), attachment));
+		clusterMulticastGroup.unicast(job.getGroupName(), topic, new JobParam(jobKey, attachment));
 		return RunningState.RUNNING;
 	}
 
 	@Override
-	protected boolean isScheduling(Job job) {
+	protected boolean isScheduling(JobKey jobKey, Job job) {
 		return true;
 	}
 

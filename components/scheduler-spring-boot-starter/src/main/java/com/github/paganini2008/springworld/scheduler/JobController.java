@@ -32,7 +32,7 @@ public class JobController {
 	public ResponseEntity<JobResult> runJob(@RequestBody JobParam jobParam) throws Exception {
 		Job job = jobBeanLoader.loadJobBean(jobParam.getJobKey());
 		jobExecutor.execute(job, jobParam.getAttachment());
-		JobResult jobResult = JobResult.success(jobManager.getJobRuntime(job).getJobState(), "ok");
+		JobResult jobResult = JobResult.success(jobManager.getJobRuntime(jobParam.getJobKey()).getJobState(), "ok");
 		return ResponseEntity.ok(jobResult);
 	}
 

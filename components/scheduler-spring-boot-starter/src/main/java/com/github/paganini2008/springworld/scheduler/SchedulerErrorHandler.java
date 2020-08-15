@@ -26,10 +26,10 @@ public class SchedulerErrorHandler implements ErrorHandler {
 	public void handleError(Throwable t) {
 		if (t instanceof JobTerminationException) {
 			final JobTerminationException thrown = (JobTerminationException) t;
-			scheduleManager.unscheduleJob(thrown.getJob());
+			scheduleManager.unscheduleJob(thrown.getJobKey());
 
 			try {
-				jobManager.setJobState(thrown.getJob(), JobState.FINISHED);
+				jobManager.setJobState(thrown.getJobKey(), JobState.FINISHED);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}

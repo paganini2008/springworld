@@ -13,7 +13,30 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum TriggerType {
 
-	CRON(1), PERIODIC(2), SERIAL(3);
+	CRON(1) {
+
+		@Override
+		public Trigger getTrigger(TriggerDescription triggerDescription) {
+			return new CronTrigger(triggerDescription.getCron());
+		}
+
+	},
+
+	PERIODIC(2) {
+		@Override
+		public Trigger getTrigger(TriggerDescription triggerDescription) {
+			return new PeriodicTrigger(triggerDescription.getSchedulingMode(), triggerDescription.getDelay(),
+					triggerDescription.getDelaySchedulingUnit(), triggerDescription.getPeriod(),
+					triggerDescription.getPeriodSchedulingUnit());
+		}
+	},
+
+	SERIAL(3) {
+		@Override
+		public Trigger getTrigger(TriggerDescription triggerDescription) {
+			return new SerialTrigger(triggerDescription.getDependencies());
+		}
+	};
 
 	private final int value;
 
@@ -26,6 +49,8 @@ public enum TriggerType {
 		return value;
 	}
 
+	public abstract Trigger getTrigger(TriggerDescription triggerDescription);
+
 	@JsonCreator
 	public static TriggerType valueOf(int value) {
 		for (TriggerType jobType : TriggerType.values()) {
@@ -34,17 +59,6 @@ public enum TriggerType {
 			}
 		}
 		throw new IllegalArgumentException("Unknown job type: " + value);
-	}
-
-	public static TriggerType valueOf(Job job) {
-		if (job instanceof CronJob) {
-			return TriggerType.CRON;
-		} else if (job instanceof PeriodicJob) {
-			return TriggerType.PERIODIC;
-		} else if (job instanceof SerialJob) {
-			return TriggerType.SERIAL;
-		}
-		throw new IllegalArgumentException("Unknown job class: " + job.getClass());
 	}
 
 }

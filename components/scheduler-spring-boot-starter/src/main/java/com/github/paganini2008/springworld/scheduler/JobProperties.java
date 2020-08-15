@@ -20,10 +20,8 @@ public interface JobProperties {
 	}
 
 	String getGroupName();
-	
-	default String getSignature() {
-		return getGroupName() + ":" + getJobName() + "@" + getJobClassName();
-	}
+
+	Trigger getTrigger();
 
 	default String getDescription() {
 		return "";
@@ -35,5 +33,9 @@ public interface JobProperties {
 
 	default String getEmail() {
 		return "";
+	}
+
+	default boolean managedByApplicationContext() {
+		return true;
 	}
 }

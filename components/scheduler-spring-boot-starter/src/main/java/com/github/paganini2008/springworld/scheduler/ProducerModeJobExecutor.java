@@ -31,12 +31,12 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	private DataSource dataSource;
 
 	@Override
-	protected void beforeRun(Job job, Date startTime) {
-		super.beforeRun(job, startTime);
+	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
+		super.beforeRun(jobKey, job, startTime);
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			long nextExecutionTime = scheduleManager.getFuture(job).getNextExectionTime(startTime, startTime);
+			long nextExecutionTime = scheduleManager.getJobFuture(jobKey).getNextExectionTime(startTime, startTime);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_START, new Object[] { JobState.RUNNING.getValue(),
 					new Timestamp(nextExecutionTime), startTime, job.getJobName(), job.getJobClassName() });
 		} catch (SQLException e) {
@@ -52,20 +52,20 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected boolean isScheduling(Job job) {
+	protected boolean isScheduling(JobKey jobKey, Job job) {
 		try {
-			return jobManager.hasJobState(job, JobState.SCHEDULING);
+			return jobManager.hasJobState(jobKey, JobState.SCHEDULING);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
 	}
 
 	@Override
-	protected void cancel(Job job, RunningState runningState, Throwable reason) {
-		scheduleManager.unscheduleJob(job);
+	protected void cancel(JobKey jobKey, Job job, RunningState runningState, Throwable reason) {
+		scheduleManager.unscheduleJob(jobKey);
 
 		try {
-			jobManager.setJobState(job, JobState.FINISHED);
+			jobManager.setJobState(jobKey, JobState.FINISHED);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

@@ -108,11 +108,18 @@ public class SpringScheduler implements Scheduler {
 
 		@Override
 		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime) {
+			TriggerType triggerType = job.getTrigger().getTriggerType();
+			TriggerDescription triggerDescription = job.getTrigger().getTriggerDescription();
 			Trigger trigger;
-			if (job instanceof PeriodicJob) {
-				trigger = new PeriodicTrigger(((PeriodicJob) job).getPeriod(), ((PeriodicJob) job).getPeriodSchedulingUnit().getTimeUnit());
-			} else {
-				trigger = new CronTrigger(((CronJob) job).getCronExpression());
+			switch (triggerType) {
+			case CRON:
+				trigger = new PeriodicTrigger(triggerDescription.getPeriod(), triggerDescription.getPeriodSchedulingUnit().getTimeUnit());
+				break;
+			case PERIODIC:
+				trigger = new CronTrigger(triggerDescription.getCron());
+				break;
+			default:
+				throw new IllegalStateException();
 			}
 			try {
 				return trigger

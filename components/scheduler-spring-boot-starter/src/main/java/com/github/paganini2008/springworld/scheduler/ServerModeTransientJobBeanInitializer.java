@@ -54,11 +54,11 @@ public class ServerModeTransientJobBeanInitializer implements TransientJobBeanIn
 				if (job == null || job.managedByApplicationContext()) {
 					continue;
 				}
-				if (scheduleManager.hasScheduled(job)) {
+				if (scheduleManager.hasScheduled(jobKey)) {
 					continue;
 				}
 				scheduleManager.schedule(job);
-				log.info("Reload and schedule Job '{}' ok.", job.getSignature());
+				log.info("Reload and schedule Job '{}' ok.", jobKey);
 			}
 		}
 	}

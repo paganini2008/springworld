@@ -9,25 +9,19 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface Job extends JobProperties {
 
-	default void prepare() {
+	default void prepare(JobKey jobKey) {
 	}
 
-	default boolean onSuccess(Object result) {
+	default void onSuccess(JobKey jobKey, Object result) {
+	}
+
+	default void onFailure(JobKey jobKey, Throwable e) {
+	}
+
+	default boolean shouldRun(JobKey jobKey) {
 		return true;
 	}
 
-	default boolean onFailure(Throwable e) {
-		return true;
-	}
-
-	default boolean shouldRun() {
-		return true;
-	}
-	
-	default boolean managedByApplicationContext() {
-		return true;
-	}
-
-	Object execute(Object result);
+	Object execute(JobKey jobKey, Object result);
 
 }

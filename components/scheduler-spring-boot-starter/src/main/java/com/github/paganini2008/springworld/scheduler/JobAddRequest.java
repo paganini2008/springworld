@@ -2,17 +2,17 @@ package com.github.paganini2008.springworld.scheduler;
 
 /**
  * 
- * ProxyJobBean
+ * JobAddRequest
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class ProxyJobBean implements Job {
+public class JobAddRequest implements Job {
 
 	private final JobConfig jobConfig;
 
-	ProxyJobBean(JobConfig jobConfig) {
+	JobAddRequest(JobConfig jobConfig) {
 		this.jobConfig = jobConfig;
 	}
 
@@ -47,7 +47,12 @@ public class ProxyJobBean implements Job {
 	}
 
 	@Override
-	public Object execute(Object result) {
+	public Trigger getTrigger() {
+		return jobConfig.getTriggerType().getTrigger(jobConfig.getTriggerDescription());
+	}
+
+	@Override
+	public Object execute(JobKey jobKey, Object result) {
 		throw new UnsupportedOperationException();
 	}
 

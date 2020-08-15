@@ -12,20 +12,20 @@ public class JobTerminationException extends JobException {
 
 	private static final long serialVersionUID = 7325304130493602160L;
 
-	public JobTerminationException(Job job) {
+	public JobTerminationException(JobKey jobKey) {
 		super();
-		this.job = job;
+		this.jobKey = jobKey;
 	}
 
-	public JobTerminationException(Job job, Throwable e) {
+	public JobTerminationException(JobKey jobKey, Throwable e) {
 		super(e.getMessage(), e);
-		this.job = job;
+		this.jobKey = jobKey;
 	}
 
-	private final Job job;
+	private final JobKey jobKey;
 
-	public Job getJob() {
-		return job;
+	public JobKey getJobKey() {
+		return jobKey;
 	}
 
 }

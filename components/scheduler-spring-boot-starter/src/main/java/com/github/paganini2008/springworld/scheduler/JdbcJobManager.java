@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
@@ -69,29 +68,29 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public void pauseJob(Job job) throws SQLException {
-		if (hasJob(job) && hasJobState(job, JobState.SCHEDULING)) {
-			setJobState(job, JobState.PAUSED);
+	public void pauseJob(JobKey jobKey) throws SQLException {
+		if (hasJob(jobKey) && hasJobState(jobKey, JobState.SCHEDULING)) {
+			setJobState(jobKey, JobState.PAUSED);
 			if (log.isTraceEnabled()) {
-				log.trace("Pause the job: " + job.getSignature());
+				log.trace("Pause the job: " + jobKey);
 			}
 		}
 	}
 
 	@Override
-	public void resumeJob(Job job) throws SQLException {
-		if (hasJob(job) && hasJobState(job, JobState.PAUSED)) {
-			setJobState(job, JobState.SCHEDULING);
+	public void resumeJob(JobKey jobKey) throws SQLException {
+		if (hasJob(jobKey) && hasJobState(jobKey, JobState.PAUSED)) {
+			setJobState(jobKey, JobState.SCHEDULING);
 			if (log.isTraceEnabled()) {
-				log.trace("Pause the job: " + job.getSignature());
+				log.trace("Pause the job: " + jobKey);
 			}
 		}
 	}
 
 	@Override
 	public int addJob(Job job, String attachment) throws SQLException {
-		checkJobSignature(job);
-		if (hasJob(job)) {
+		JobKey jobKey = JobKey.of(job);
+		if (hasJob(jobKey)) {
 			return 0;
 		}
 		int id;
@@ -100,7 +99,7 @@ public class JdbcJobManager implements JobManager {
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
 			id = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
-				ps.setString(1, job.getSignature());
+				ps.setString(1, jobKey.getIdentifier());
 				ps.setString(2, job.getJobName());
 				ps.setString(3, job.getJobClassName());
 				ps.setString(4, job.getGroupName());
@@ -117,13 +116,14 @@ public class JdbcJobManager implements JobManager {
 			});
 
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
+				Trigger trigger = job.getTrigger();
 				ps.setInt(1, id);
-				ps.setInt(2, TriggerType.valueOf(job).getValue());
-				ps.setString(3, getTriggerDescription(job));
+				ps.setInt(2, trigger.getTriggerType().getValue());
+				ps.setString(3, JacksonUtils.toJsonString(trigger.getTriggerDescription()));
 			});
 
 			connection.commit();
-			log.info("Add job '" + job.getSignature() + "' ok.");
+			log.info("Add job '" + jobKey + "' ok.");
 			return id;
 		} catch (SQLException e) {
 			JdbcUtils.rollbackQuietly(connection);
@@ -134,45 +134,24 @@ public class JdbcJobManager implements JobManager {
 
 	}
 
-	private String getTriggerDescription(Job job) {
-		TriggerDescription data = new TriggerDescription();
-		if (job instanceof CronJob) {
-			data.setCron(((CronJob) job).getCronExpression());
-		} else if (job instanceof PeriodicJob) {
-			PeriodicJob periodicJob = (PeriodicJob) job;
-			data.setDelay(periodicJob.getDelay());
-			data.setDelaySchedulingUnit(periodicJob.getDelaySchedulingUnit());
-			data.setPeriod(periodicJob.getPeriod());
-			data.setPeriodSchedulingUnit(periodicJob.getPeriodSchedulingUnit());
-			data.setSchedulingMode(periodicJob.getSchedulingMode());
-		} else if (job instanceof SerialJob) {
-			data.setDependencies(((SerialJob) job).getDependencies());
-		} else {
-			throw new IllegalStateException("Unknown job class: " + job.getClass());
-		}
-		return JacksonUtils.toJsonString(data);
-	}
-
 	@Override
-	public void deleteJob(Job job) throws SQLException {
-		checkJobSignature(job);
-		if (!hasJob(job)) {
-			throw new JobBeanNotFoundException(job.getSignature());
+	public void deleteJob(JobKey jobKey) throws SQLException {
+		if (!hasJob(jobKey)) {
+			throw new JobBeanNotFoundException(jobKey.toString());
 		}
-		if (!hasJobState(job, JobState.NOT_SCHEDULED)) {
+		if (!hasJobState(jobKey, JobState.NOT_SCHEDULED)) {
 			throw new JobException("Please unschedule the job before you delete it.");
 		}
-		setJobState(job, JobState.FINISHED);
+		setJobState(jobKey, JobState.FINISHED);
 	}
 
 	@Override
-	public boolean hasJob(Job job) throws SQLException {
-		checkJobSignature(job);
+	public boolean hasJob(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			Integer result = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_NAME_EXISTS,
-					new Object[] { job.getJobName(), job.getJobClassName() }, Integer.class);
+					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() }, Integer.class);
 			return result != null && result.intValue() > 0;
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -180,30 +159,30 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public void setJobState(Job job, JobState jobState) throws SQLException {
+	public void setJobState(JobKey jobKey, JobState jobState) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_STATE,
-					new Object[] { jobState.getValue(), job.getJobName(), job.getJobClassName() });
+					new Object[] { jobState.getValue(), jobKey.getJobName(), jobKey.getJobClassName() });
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
 	}
 
 	@Override
-	public boolean hasJobState(Job job, JobState jobState) throws SQLException {
-		JobRuntime jobRuntime = getJobRuntime(job);
+	public boolean hasJobState(JobKey jobKey, JobState jobState) throws SQLException {
+		JobRuntime jobRuntime = getJobRuntime(jobKey);
 		return jobRuntime.getJobState() == jobState;
 	}
 
 	@Override
-	public JobDetail getJobDetail(Job job) throws SQLException {
+	public JobDetail getJobDetail(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
-					new Object[] { job.getJobName(), job.getJobClassName() });
+					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
 			return tuple.toBean(JobDetail.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -211,25 +190,25 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobTrigger getJobTrigger(Job job) throws SQLException {
+	public JobTriggerDetail getJobTriggerDetail(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_TRIGGER,
-					new Object[] { job.getJobName(), job.getJobClassName() });
-			return tuple.toBean(JobTrigger.class);
+					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
+			return tuple.toBean(JobTriggerDetail.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
 	}
 
 	@Override
-	public JobRuntime getJobRuntime(Job job) throws SQLException {
+	public JobRuntime getJobRuntime(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_RUNTIME,
-					new Object[] { job.getJobName(), job.getJobClassName() });
+					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
 			return tuple.toBean(JobRuntime.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -237,12 +216,12 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobStat getJobStat(Job job) throws SQLException {
+	public JobStat getJobStat(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_STAT,
-					new Object[] { job.getJobName(), job.getJobClassName() });
+					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
 			return tuple.toBean(JobStat.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -299,12 +278,6 @@ public class JdbcJobManager implements JobManager {
 			}
 
 		};
-	}
-
-	private static void checkJobSignature(Job job) {
-		if (StringUtils.isBlank(job.getJobName()) || StringUtils.isBlank(job.getJobClassName())) {
-			throw new JobException("Invalid job signature: " + job.getSignature());
-		}
 	}
 
 }
