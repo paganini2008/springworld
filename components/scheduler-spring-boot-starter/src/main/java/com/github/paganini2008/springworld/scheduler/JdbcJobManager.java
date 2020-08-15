@@ -100,9 +100,9 @@ public class JdbcJobManager implements JobManager {
 			connection.setAutoCommit(false);
 			id = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
 				ps.setString(1, jobKey.getIdentifier());
-				ps.setString(2, job.getJobName());
-				ps.setString(3, job.getJobClassName());
-				ps.setString(4, job.getGroupName());
+				ps.setString(2, job.getGroupName());
+				ps.setString(3, job.getJobName());
+				ps.setString(4, job.getJobClassName());
 				ps.setString(5, job.getDescription());
 				ps.setString(6, attachment);
 				ps.setString(7, job.getEmail());
@@ -151,7 +151,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Integer result = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_NAME_EXISTS,
-					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() }, Integer.class);
+					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() }, Integer.class);
 			return result != null && result.intValue() > 0;
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -164,7 +164,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_STATE,
-					new Object[] { jobState.getValue(), jobKey.getJobName(), jobKey.getJobClassName() });
+					new Object[] { jobState.getValue(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
@@ -182,7 +182,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
-					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
+					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			return tuple.toBean(JobDetail.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -195,7 +195,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_TRIGGER,
-					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
+					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			return tuple.toBean(JobTriggerDetail.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -208,7 +208,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_RUNTIME,
-					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
+					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			return tuple.toBean(JobRuntime.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -221,7 +221,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_STAT,
-					new Object[] { jobKey.getJobName(), jobKey.getJobClassName() });
+					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			return tuple.toBean(JobStat.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
