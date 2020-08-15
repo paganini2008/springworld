@@ -30,7 +30,7 @@ public class JobSchedulerStarterListener implements ApplicationListener<Applicat
 	private ScheduleManager scheduleManager;
 
 	@Autowired(required = false)
-	private TransientJobBeanInitializer jobBeanInitializer;
+	private NotManagedJobBeanInitializer jobBeanInitializer;
 
 	@Value("${spring.application.cluster.scheduler.launcher.inititalDelay:5}")
 	private int inititalDelay;

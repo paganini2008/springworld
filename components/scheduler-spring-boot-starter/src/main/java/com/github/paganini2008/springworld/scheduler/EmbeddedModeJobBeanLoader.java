@@ -38,6 +38,8 @@ public class EmbeddedModeJobBeanLoader implements JobBeanLoader {
 			job = MapUtils.get(temporaryJobBeans, jobKey, () -> {
 				return (Job) BeanUtils.instantiate(jobClass);
 			});
+		}
+		if (job != null) {
 			if (!JobKey.of(job).equals(jobKey)) {
 				throw new JobBeanNotFoundException(jobKey.toString());
 			}

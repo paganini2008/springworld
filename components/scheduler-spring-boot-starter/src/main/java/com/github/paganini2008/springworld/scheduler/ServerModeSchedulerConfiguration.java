@@ -101,9 +101,9 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(TransientJobBeanInitializer.class)
-		public TransientJobBeanInitializer serverModeTransientJobBeanInitializer() {
-			return new ServerModeTransientJobBeanInitializer();
+		@ConditionalOnMissingBean(NotManagedJobBeanInitializer.class)
+		public NotManagedJobBeanInitializer serverModeJobBeanInitializer() {
+			return new ServerModeJobBeanInitializer();
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")

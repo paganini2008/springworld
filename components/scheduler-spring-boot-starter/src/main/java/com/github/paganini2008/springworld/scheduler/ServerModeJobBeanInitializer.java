@@ -16,14 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ServerModeTransientJobBeanInitializer
+ * ServerModeJobBeanInitializer
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class ServerModeTransientJobBeanInitializer implements TransientJobBeanInitializer {
+public class ServerModeJobBeanInitializer implements NotManagedJobBeanInitializer {
 
 	@Autowired
 	private DataSource dataSource;

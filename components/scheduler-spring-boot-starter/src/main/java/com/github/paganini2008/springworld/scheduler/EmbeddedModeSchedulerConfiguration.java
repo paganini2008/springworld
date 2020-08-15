@@ -122,8 +122,8 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public TransientJobBeanInitializer embeddedModeTransientJobBeanInitializer() {
-		return new EmbeddedModeTransientJobBeanInitializer();
+	public NotManagedJobBeanInitializer embeddedModeJobBeanInitializer() {
+		return new EmbeddedModeJobBeanInitializer();
 	}
 
 	@Bean
