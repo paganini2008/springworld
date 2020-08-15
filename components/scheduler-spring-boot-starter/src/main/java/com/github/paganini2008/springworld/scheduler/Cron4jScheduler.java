@@ -114,7 +114,7 @@ public class Cron4jScheduler implements Scheduler {
 		}
 
 		@Override
-		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime) {
+		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
 			return taskFuture.getDetail().nextExectionTime();
 		}
 

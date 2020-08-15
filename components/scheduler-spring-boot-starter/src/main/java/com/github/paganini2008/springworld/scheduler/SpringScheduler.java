@@ -107,7 +107,7 @@ public class SpringScheduler implements Scheduler {
 		}
 
 		@Override
-		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime) {
+		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
 			TriggerType triggerType = job.getTrigger().getTriggerType();
 			TriggerDescription triggerDescription = job.getTrigger().getTriggerDescription();
 			Trigger trigger;
@@ -122,8 +122,7 @@ public class SpringScheduler implements Scheduler {
 				throw new IllegalStateException();
 			}
 			try {
-				return trigger
-						.nextExecutionTime(new SimpleTriggerContext(lastExecutionTime, lastActualExecutionTime, lastActualExecutionTime))
+				return trigger.nextExecutionTime(new SimpleTriggerContext(lastExecutionTime, lastActualExecutionTime, lastCompletionTime))
 						.getTime();
 			} catch (RuntimeException e) {
 				log.error(e.getMessage(), e);

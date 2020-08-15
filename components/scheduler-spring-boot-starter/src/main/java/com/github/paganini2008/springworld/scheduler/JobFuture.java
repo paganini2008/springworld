@@ -18,7 +18,7 @@ public interface JobFuture {
 
 	boolean isCancelled();
 
-	long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime);
+	long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime);
 
 	static final JobFuture EMPTY = new JobFuture() {
 
@@ -33,7 +33,7 @@ public interface JobFuture {
 		}
 
 		@Override
-		public long getNextExectionTime(Date lastExecutionTime, Date lastCompletionTime) {
+		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
 			return System.currentTimeMillis();
 		}
 

@@ -46,9 +46,9 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			long nextExecutionTime = scheduleManager.getJobFuture(jobKey).getNextExectionTime(startTime, startTime);
-			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_START, new Object[] { JobState.RUNNING.getValue(),
-					new Timestamp(nextExecutionTime), startTime, job.getJobName(), job.getJobClassName() });
+			long nextExecutionTime = scheduleManager.getJobFuture(jobKey).getNextExectionTime(startTime, startTime, startTime);
+			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_BEGIN, new Object[] { JobState.RUNNING.getValue(),
+					new Timestamp(startTime.getTime()), new Timestamp(nextExecutionTime), job.getJobName(), job.getJobClassName() });
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);
 		} finally {
@@ -95,7 +95,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
 
-			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_END, new Object[] { JobState.SCHEDULING.getValue(),
+			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END, new Object[] { JobState.SCHEDULING.getValue(),
 					runningState.getValue(), endTime, job.getJobName(), job.getJobClassName() });
 
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,

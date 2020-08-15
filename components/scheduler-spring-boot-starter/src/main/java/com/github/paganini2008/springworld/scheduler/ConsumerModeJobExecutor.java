@@ -54,7 +54,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
 
-			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNTIME_END, new Object[] { JobState.SCHEDULING.getValue(),
+			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END, new Object[] { JobState.SCHEDULING.getValue(),
 					runningState.getValue(), endTime, job.getJobName(), job.getJobClassName() });
 
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
