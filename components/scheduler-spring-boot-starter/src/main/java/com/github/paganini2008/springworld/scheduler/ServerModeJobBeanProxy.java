@@ -83,8 +83,9 @@ public class ServerModeJobBeanProxy implements Job {
 			if (jobResult.getJobState() == JobState.FINISHED) {
 				throw new JobTerminationException(jobKey);
 			}
+			return null;
 		}
-		return null;
+		throw new JobException();
 	}
 
 	@Override

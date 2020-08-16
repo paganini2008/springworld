@@ -94,6 +94,9 @@ public class ServerModeSchedulerConfiguration {
 	@ConditionalOnServerMode(ServerMode.PRODUCER)
 	public static class ProducerModeConfig {
 
+		@Value("${spring.application.cluster.scheduler.server.targetClusterName}")
+		private String targetClusterName;
+
 		@Bean
 		public JobSchedulerStarterListener jobSchedulerStarterListener() {
 			return new JobSchedulerStarterListener();
@@ -119,6 +122,13 @@ public class ServerModeSchedulerConfiguration {
 		@Bean
 		public JobDependencyObservable jobDependencyObservable() {
 			return new JobDependencyObservable();
+		}
+
+		@Bean
+		public JobDependencyDetector jobDependencyDetector() {
+			JobDependencyDetector jobDependencyDetector = new JobDependencyDetector();
+			jobDependencyDetector.setClusterName(targetClusterName);
+			return jobDependencyDetector;
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
