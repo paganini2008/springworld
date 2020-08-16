@@ -30,6 +30,9 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private DataSource dataSource;
 
+	@Autowired
+	private JobManager jobManager;
+
 	@Override
 	public void execute(Job job, Object attachment) {
 		runJob(job, attachment);
@@ -42,7 +45,13 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	protected void notifyDependencies(JobKey jobKey, Job job, Object result) {
-		jobDependencyObservable.notifyDependencies(jobKey, result);
+		try {
+			if (jobManager.hasDependencies(jobKey)) {
+				jobDependencyObservable.notifyDependencies(jobKey, result);
+			}
+		} catch (SQLException e) {
+			throw new JobException(e.getMessage(), e);
+		}
 	}
 
 	@Override

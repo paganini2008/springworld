@@ -203,6 +203,19 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
+	public boolean hasDependencies(JobKey jobKey) throws SQLException {
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			Integer rowCount = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DEPENDENCIES,
+					new Object[] { "%" + jobKey.getIdentifier() + "%" }, Integer.class);
+			return rowCount != null && rowCount.intValue() > 0;
+		} finally {
+			JdbcUtils.closeQuietly(connection);
+		}
+	}
+
+	@Override
 	public JobRuntime getJobRuntime(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {

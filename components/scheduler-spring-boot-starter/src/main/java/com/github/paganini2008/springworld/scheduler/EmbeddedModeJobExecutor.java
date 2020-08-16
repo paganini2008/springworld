@@ -73,7 +73,13 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	protected void notifyDependencies(JobKey jobKey, Job job, Object result) {
-		jobDependencyObservable.notifyDependencies(jobKey, result);
+		try {
+			if (jobManager.hasDependencies(jobKey)) {
+				jobDependencyObservable.notifyDependencies(jobKey, result);
+			}
+		} catch (SQLException e) {
+			throw new JobException(e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -130,8 +136,8 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 			}
 			connection.commit();
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
 			JdbcUtils.rollbackQuietly(connection);
+			throw new JobException(e.getMessage(), e);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}

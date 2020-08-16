@@ -36,6 +36,8 @@ public interface JobManager extends Lifecycle {
 
 	JobTriggerDetail getJobTriggerDetail(JobKey jobKey) throws SQLException;
 
+	boolean hasDependencies(JobKey jobKey) throws SQLException;
+
 	JobRuntime getJobRuntime(JobKey jobKey) throws SQLException;
 
 	JobStat getJobStat(JobKey jobKey) throws SQLException;

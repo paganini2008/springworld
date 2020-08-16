@@ -19,9 +19,9 @@ public abstract class JobTemplate {
 
 	protected final void runJob(Job job, Object attachment) {
 		final Date startTime = new Date();
+		final JobKey jobKey = JobKey.of(job);
 		RunningState runningState = RunningState.SKIPPED;
 		Throwable reason = null;
-		JobKey jobKey = JobKey.of(job);
 		try {
 			if (isScheduling(jobKey, job)) {
 				beforeRun(jobKey, job, startTime);
@@ -36,6 +36,9 @@ public abstract class JobTemplate {
 		} catch (Throwable e) {
 			reason = e;
 			runningState = RunningState.FAILED;
+			if (e instanceof JobException) {
+				throw e;
+			}
 			throw new JobException("An exception occured during job running.", e);
 		} finally {
 			afterRun(jobKey, job, startTime, runningState, reason);
@@ -72,7 +75,7 @@ public abstract class JobTemplate {
 			} else {
 				job.onFailure(jobKey, reason);
 			}
-			if (success && result != null) {
+			if (success) {
 				notifyDependencies(jobKey, job, result);
 			}
 		}
