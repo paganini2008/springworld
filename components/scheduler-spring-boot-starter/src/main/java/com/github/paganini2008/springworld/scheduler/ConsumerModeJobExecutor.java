@@ -9,6 +9,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
@@ -27,6 +28,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private JobDependencyObservable jobDependencyObservable;
 
+	@Qualifier("scheduler-ds")
 	@Autowired
 	private DataSource dataSource;
 

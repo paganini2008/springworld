@@ -20,26 +20,4 @@ public interface JobFuture {
 
 	long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime);
 
-	static final JobFuture EMPTY = new JobFuture() {
-
-		@Override
-		public boolean isDone() {
-			return false;
-		}
-
-		@Override
-		public boolean isCancelled() {
-			return false;
-		}
-
-		@Override
-		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
-			return System.currentTimeMillis();
-		}
-
-		@Override
-		public void cancel() {
-		}
-	};
-
 }

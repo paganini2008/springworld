@@ -56,8 +56,7 @@ public class Cron4jScheduler implements Scheduler {
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, String[] dependencies) {
-		jobDependencyObservable.addDependency(job, dependencies);
-		return JobFuture.EMPTY;
+		return jobDependencyObservable.addDependency(job, dependencies);
 	}
 
 	@Override

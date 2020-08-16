@@ -59,8 +59,7 @@ public class SpringScheduler implements Scheduler {
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, String[] dependencies) {
-		jobDependencyObservable.addDependency(job, dependencies);
-		return JobFuture.EMPTY;
+		return jobDependencyObservable.addDependency(job, dependencies);
 	}
 
 	@Override

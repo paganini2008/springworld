@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.collection.Tuple;
@@ -42,6 +43,7 @@ public class JdbcJobManager implements JobManager {
 		}
 	};
 
+	@Qualifier("scheduler-ds")
 	@Autowired
 	private DataSource dataSource;
 

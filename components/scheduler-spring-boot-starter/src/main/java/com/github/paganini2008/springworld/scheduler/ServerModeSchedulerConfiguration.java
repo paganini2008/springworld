@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
@@ -133,7 +132,7 @@ public class ServerModeSchedulerConfiguration {
 			return new ServerModeJobBeanLoader();
 		}
 
-		@Bean
+		@Bean("main-job-executor")
 		public JobExecutor jobExecutor() {
 			return new ProducerModeJobExecutor();
 		}
@@ -213,6 +212,11 @@ public class ServerModeSchedulerConfiguration {
 		@Bean("internal-job-bean-loader")
 		public JobBeanLoader jobBeanLoader() {
 			return new InternalJobBeanLoader();
+		}
+
+		@Bean("external-job-bean-loader")
+		public JobBeanLoader externalJobBeanLoader() {
+			return new ExternalJobBeanLoader();
 		}
 
 		@Bean("main-job-executor")

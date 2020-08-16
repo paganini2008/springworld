@@ -10,6 +10,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
@@ -34,6 +35,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private ScheduleManager scheduleManager;
 
+	@Qualifier("scheduler-ds")
 	@Autowired
 	private DataSource dataSource;
 
@@ -48,8 +50,9 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 			connection = dataSource.getConnection();
 			long nextExecutionTime = scheduleManager.getJobFuture(jobKey).getNextExectionTime(startTime, startTime, startTime);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_BEGIN,
-					new Object[] { JobState.RUNNING.getValue(), new Timestamp(startTime.getTime()), new Timestamp(nextExecutionTime),
-							jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+					new Object[] { JobState.RUNNING.getValue(), new Timestamp(startTime.getTime()),
+							nextExecutionTime > 0 ? new Timestamp(nextExecutionTime) : null, jobKey.getGroupName(), jobKey.getJobName(),
+							jobKey.getJobClassName() });
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);
 		} finally {
