@@ -22,7 +22,8 @@ public final class JobKey implements Serializable {
 	private String groupName;
 	private String jobName;
 	private String jobClassName;
-	
+	private String identifier;
+
 	public JobKey() {
 	}
 
@@ -30,6 +31,7 @@ public final class JobKey implements Serializable {
 		this.groupName = groupName;
 		this.jobName = jobName;
 		this.jobClassName = jobClassName;
+		this.identifier = groupName + ":" + jobName + "@" + jobClassName;
 	}
 
 	public String getGroupName() {
@@ -46,7 +48,7 @@ public final class JobKey implements Serializable {
 
 	@JsonValue
 	public String getIdentifier() {
-		return getGroupName() + ":" + getJobName() + "@" + getJobClassName();
+		return identifier;
 	}
 
 	public String toString() {

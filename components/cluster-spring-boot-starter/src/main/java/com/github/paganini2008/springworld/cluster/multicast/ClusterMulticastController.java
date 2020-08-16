@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,9 @@ public class ClusterMulticastController {
 	@Autowired
 	private ClusterMulticastGroup multicastGroup;
 
+	@Value("${spring.application.name}")
+	private String applicationName;
+
 	@GetMapping("/multicast")
 	public Map<String, Object> multicast(@RequestParam("c") String content) {
 		multicastGroup.multicast("*", content);
@@ -34,6 +38,12 @@ public class ClusterMulticastController {
 	@GetMapping("/unicast")
 	public Map<String, Object> unicast(@RequestParam("c") String content) {
 		multicastGroup.unicast("*", content);
+		return resultMap(content);
+	}
+
+	@GetMapping("/unicast2")
+	public Map<String, Object> unicast2(@RequestParam("c") String content) {
+		multicastGroup.unicast(applicationName, "*", content);
 		return resultMap(content);
 	}
 

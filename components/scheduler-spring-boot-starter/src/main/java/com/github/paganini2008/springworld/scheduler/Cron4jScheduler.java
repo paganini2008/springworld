@@ -25,6 +25,7 @@ public class Cron4jScheduler implements Scheduler {
 	@Autowired
 	private TaskExecutor taskExecutor;
 
+	@Qualifier("main-job-executor")
 	@Autowired
 	private JobExecutor jobExecutor;
 

@@ -27,8 +27,8 @@ public class JobAdminController {
 	private JobAdmin jobAdmin;
 
 	@PostMapping("/addJob")
-	public ResponseEntity<JobResult> addJob(@RequestBody JobParam jobParam) {
-		jobAdmin.addJob(jobParam);
+	public ResponseEntity<JobResult> addJob(@RequestBody JobConfig jobConfig) {
+		jobAdmin.addJob(jobConfig);
 		return ResponseEntity.ok(JobResult.success(JobState.NOT_SCHEDULED, "ok"));
 	}
 

@@ -55,10 +55,10 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 			connection.setAutoCommit(false);
 
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END, new Object[] { JobState.SCHEDULING.getValue(),
-					runningState.getValue(), endTime, job.getGroupName(), job.getJobName(), job.getJobClassName() });
+					runningState.getValue(), endTime, jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
-					new Object[] { job.getJobName(), job.getJobClassName() });
+					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			int jobId = (Integer) tuple.get("jobId");
 			int complete = 0, failed = 0, skipped = 0;
 			switch (runningState) {
@@ -88,8 +88,8 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 			}
 			connection.commit();
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
 			JdbcUtils.rollbackQuietly(connection);
+			throw new JobException(e.getMessage(), e);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}

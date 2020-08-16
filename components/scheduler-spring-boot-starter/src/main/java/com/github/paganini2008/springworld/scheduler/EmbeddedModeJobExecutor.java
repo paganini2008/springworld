@@ -49,7 +49,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 			long nextExecutionTime = scheduleManager.getJobFuture(jobKey).getNextExectionTime(startTime, startTime, startTime);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_BEGIN,
 					new Object[] { JobState.RUNNING.getValue(), new Timestamp(startTime.getTime()), new Timestamp(nextExecutionTime),
-							job.getGroupName(), job.getJobName(), job.getJobClassName() });
+							jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);
 		} finally {
@@ -97,10 +97,10 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 			connection.setAutoCommit(false);
 
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END, new Object[] { JobState.SCHEDULING.getValue(),
-					runningState.getValue(), endTime, job.getJobName(), job.getJobClassName() });
+					runningState.getValue(), endTime, jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
-					new Object[] { job.getJobName(), job.getJobClassName() });
+					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			int jobId = (Integer) tuple.get("jobId");
 			int complete = 0, failed = 0, skipped = 0;
 			switch (runningState) {

@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.sql.SQLException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -19,6 +21,9 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;
 
+	@Autowired
+	private JobManager jobManager;
+
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
@@ -29,8 +34,16 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 
 	@Override
 	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment) {
-		final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-		clusterMulticastGroup.unicast(job.getGroupName(), topic, new JobParam(jobKey, attachment));
+		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
+			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
+			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment));
+		} else {
+			try {
+				jobManager.setJobState(jobKey, JobState.SCHEDULING);
+			} catch (SQLException e) {
+				throw new JobException(e.getMessage(), e);
+			}
+		}
 		return RunningState.RUNNING;
 	}
 

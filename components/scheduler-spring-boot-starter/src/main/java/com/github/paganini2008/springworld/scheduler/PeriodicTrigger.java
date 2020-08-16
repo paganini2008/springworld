@@ -18,6 +18,14 @@ public class PeriodicTrigger implements Trigger {
 	private final SchedulingUnit periodSchedulingUnit;
 	private final SchedulingMode schedulingMode;
 
+	public PeriodicTrigger(long period, SchedulingUnit periodSchedulingUnit) {
+		this(SchedulingMode.FIXED_RATE, period, periodSchedulingUnit);
+	}
+
+	public PeriodicTrigger(SchedulingMode schedulingMode, long period, SchedulingUnit periodSchedulingUnit) {
+		this(schedulingMode, period, periodSchedulingUnit, period, periodSchedulingUnit);
+	}
+
 	public PeriodicTrigger(SchedulingMode schedulingMode, long delay, SchedulingUnit delaySchedulingUnit, long period,
 			SchedulingUnit periodSchedulingUnit) {
 		this.delay = delay;

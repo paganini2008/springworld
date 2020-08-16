@@ -7,6 +7,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.collection.CollectionUtils;
@@ -35,10 +36,22 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	@Autowired
 	private ScheduleManager scheduleManager;
 
+	@Qualifier("internal-job-bean-loader")
 	@Autowired
-	private JobBeanLoader jobBeanLoader;
+	private JobBeanLoader internalJobBeanLoader;
+
+	@Qualifier("external-job-bean-loader")
+	@Autowired(required = false)
+	private JobBeanLoader externalJobBeanLoader;
 
 	public void initizlizeJobBeans() throws Exception {
+		refreshInternalJobBeans();
+		if (externalJobBeanLoader != null) {
+			refreshExternalJobBeans();
+		}
+	}
+
+	private void refreshInternalJobBeans() {
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {
@@ -54,7 +67,48 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 			Job job;
 			for (Tuple tuple : dataList) {
 				jobKey = tuple.toBean(JobKey.class);
-				job = jobBeanLoader.loadJobBean(jobKey);
+				try {
+					job = internalJobBeanLoader.loadJobBean(jobKey);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+					continue;
+				}
+				if (job == null || job.managedByApplicationContext()) {
+					continue;
+				}
+				if (scheduleManager.hasScheduled(jobKey)) {
+					continue;
+				}
+				scheduleManager.schedule(job);
+				log.info("Reload and schedule Job '{}' ok.", jobKey);
+			}
+		}
+	}
+
+	private void refreshExternalJobBeans() {
+		Connection connection = null;
+		List<Tuple> dataList = null;
+		try {
+			connection = dataSource.getConnection();
+			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DETAIL_BY_OTHER_GROUP_NAME,
+					new Object[] { applicationName });
+		} catch (SQLException e) {
+			throw new JobException(e.getMessage(), e);
+		} finally {
+			JdbcUtils.closeQuietly(connection);
+		}
+
+		if (CollectionUtils.isNotEmpty(dataList)) {
+			JobKey jobKey;
+			Job job;
+			for (Tuple tuple : dataList) {
+				jobKey = tuple.toBean(JobKey.class);
+				try {
+					job = externalJobBeanLoader.loadJobBean(jobKey);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+					continue;
+				}
 				if (job == null || job.managedByApplicationContext()) {
 					continue;
 				}

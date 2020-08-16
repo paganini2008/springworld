@@ -23,5 +23,6 @@ public class JobConfig {
 	private String description;
 	private String email;
 	private int retries;
+	private String attachment;
 
 }

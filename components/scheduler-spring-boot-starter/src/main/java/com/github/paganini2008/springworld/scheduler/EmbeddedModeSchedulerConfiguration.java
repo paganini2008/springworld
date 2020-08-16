@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
@@ -35,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "embedded", matchIfMissing = true)
+@ConditionalOnProperty(name = "spring.application.cluster.scheduler.deployMode", havingValue = "embedded", matchIfMissing = true)
 @Import({ JobAdminController.class })
 public class EmbeddedModeSchedulerConfiguration {
 
@@ -46,11 +45,10 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.loadbalance", havingValue = "true")
-	public static class LoadBalancingConfig {
+	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "loadbalance", matchIfMissing = true)
+	public static class LoadBalanceConfig {
 
-		@Primary
-		@Bean
+		@Bean("main-job-executor")
 		public JobExecutor jobExecutor() {
 			return new EmbeddedModeLoadBalancer();
 		}
@@ -65,6 +63,33 @@ public class EmbeddedModeSchedulerConfiguration {
 			return new LoadBalancedJobBeanProcessor();
 		}
 
+		@Bean("external-job-bean-loader")
+		public JobBeanLoader externalJobBeanLoader() {
+			return new ExternalJobBeanLoader();
+		}
+
+		@Bean("internal-job-bean-loader")
+		public JobBeanLoader jobBeanLoader() {
+			return new InternalJobBeanLoader();
+		}
+
+	}
+
+	@Order(Ordered.LOWEST_PRECEDENCE - 10)
+	@Configuration
+	@ConditionalOnBean(ClusterMulticastGroup.class)
+	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "master-slave")
+	public static class MasterSlaveConfig {
+
+		@Bean("internal-job-bean-loader")
+		public JobBeanLoader jobBeanLoader() {
+			return new InternalJobBeanLoader();
+		}
+
+		@Bean("main-job-executor")
+		public JobExecutor jobExecutor() {
+			return new EmbeddedModeJobExecutor();
+		}
 	}
 
 	@Configuration
@@ -129,18 +154,6 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Bean
 	public JobSchedulerStarterListener jobSchedulerStarterListener() {
 		return new JobSchedulerStarterListener();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(JobBeanLoader.class)
-	public JobBeanLoader jobBeanLoader() {
-		return new EmbeddedModeJobBeanLoader();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(JobExecutor.class)
-	public JobExecutor jobExecutor() {
-		return new EmbeddedModeJobExecutor();
 	}
 
 	@Bean(initMethod = "configure", destroyMethod = "close")

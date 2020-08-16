@@ -29,12 +29,12 @@ public class ServerModeJobAdmin implements JobAdmin {
 	private String hostUrl;
 
 	@Override
-	public void addJob(JobParam jobParam) {
+	public void addJob(JobConfig jobConfig) {
 		final String url = hostUrl + "/job/manager/addJob";
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
 		headers.setContentType(type);
-		HttpEntity<JobParam> requestEntity = new HttpEntity<JobParam>(jobParam, headers);
+		HttpEntity<JobConfig> requestEntity = new HttpEntity<JobConfig>(jobConfig, headers);
 		ResponseEntity<JobResult> responseEntity = null;
 		try {
 			responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);

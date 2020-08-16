@@ -6,13 +6,13 @@ import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils
 
 /**
  * 
- * ServerModeJobBeanLoader
+ * ExternalJobBeanLoader
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class ServerModeJobBeanLoader implements JobBeanLoader {
+public class ExternalJobBeanLoader implements JobBeanLoader {
 
 	@Autowired
 	private JobManager jobManager;
@@ -22,8 +22,7 @@ public class ServerModeJobBeanLoader implements JobBeanLoader {
 		final JobTriggerDetail triggerDetail = jobManager.getJobTriggerDetail(jobKey);
 		TriggerType triggerType = triggerDetail.getTriggerType();
 		TriggerDescription triggerDescription = triggerDetail.getTriggerDescription();
-		return ApplicationContextUtils.autowireBean(new ServerModeJobBeanProxy(jobKey, triggerType.getTrigger(triggerDescription)));
-
+		return ApplicationContextUtils.autowireBean(new ExternalJobBeanProxy(jobKey, triggerType.getTrigger(triggerDescription)));
 	}
 
 }

@@ -24,6 +24,7 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 	@Autowired
 	private JobExecutor jobExecutor;
 
+	@Qualifier("internal-job-bean-loader")
 	@Autowired
 	private JobBeanLoader jobBeanLoader;
 

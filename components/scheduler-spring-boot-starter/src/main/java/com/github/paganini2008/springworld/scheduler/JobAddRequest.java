@@ -56,4 +56,9 @@ public class JobAddRequest implements Job {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public boolean managedByApplicationContext() {
+		return false;
+	}
+
 }

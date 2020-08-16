@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.sql.SQLException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -8,14 +10,17 @@ import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
- * JobAdmin
+ * EmbeddedModeJobAdmin
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
+@Slf4j
 public class EmbeddedModeJobAdmin implements ClusterMessageListener, JobAdmin {
 
 	@Value("${spring.application.cluster.name}")
@@ -25,13 +30,10 @@ public class EmbeddedModeJobAdmin implements ClusterMessageListener, JobAdmin {
 	private JobManager jobManager;
 
 	@Autowired
-	private JobBeanLoader jobBeanLoader;
-
-	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;
 
-	public void addJob(JobParam jobParam) {
-		clusterMulticastGroup.unicast(jobParam.getJobKey().getGroupName(), getTopic(), jobParam);
+	public void addJob(JobConfig jobConfig) {
+		clusterMulticastGroup.unicast(jobConfig.getGroupName(), getTopic(), jobConfig);
 	}
 
 	public void deleteJob(JobKey jobKey) {
@@ -52,13 +54,12 @@ public class EmbeddedModeJobAdmin implements ClusterMessageListener, JobAdmin {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, Object message) {
-		final JobParam jobParam = (JobParam) message;
-		Job job;
+		final JobConfig jobConfig = (JobConfig) message;
+		Job job = new JobAddRequest(jobConfig);
 		try {
-			job = jobBeanLoader.loadJobBean(jobParam.getJobKey());
-			jobManager.addJob(job, (String) jobParam.getAttachment());
-		} catch (Exception e) {
-			throw new JobException(e.getMessage(), e);
+			jobManager.addJob(job, jobConfig.getAttachment());
+		} catch (SQLException e) {
+			log.error(e.getMessage(), e);
 		}
 	}
 

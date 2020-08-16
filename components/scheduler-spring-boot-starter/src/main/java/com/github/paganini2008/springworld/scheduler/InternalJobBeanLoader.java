@@ -8,24 +8,33 @@ import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
- * EmbeddedModeJobBeanLoader
+ * InternalJobBeanLoader
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class EmbeddedModeJobBeanLoader implements JobBeanLoader {
+@Slf4j
+public class InternalJobBeanLoader implements JobBeanLoader {
 
-	private final Map<JobKey, Job> temporaryJobBeans = new ConcurrentHashMap<JobKey, Job>();
+	private final Map<JobKey, Job> notManagedJobBeans = new ConcurrentHashMap<JobKey, Job>();
 
 	@Override
 	public Job loadJobBean(JobKey jobKey) {
 		final String jobClassName = jobKey.getJobClassName();
-		Class<?> jobClass = ClassUtils.forName(jobClassName);
+		Class<?> jobClass;
+		try {
+			jobClass = ClassUtils.forName(jobClassName);
+		} catch (RuntimeException e) {
+			log.warn("Can not load JobClass by name '" + jobClassName + "' into job instance.");
+			return null;
+		}
 		if (!Job.class.isAssignableFrom(jobClass)) {
-			throw new JobException("Class '" + jobClass.getName() + "' is not a implementor of interface " + Job.class.getName());
+			throw new JobException("Class '" + jobClass.getName() + "' is not a instance of interface '" + Job.class.getName() + "'.");
 		}
 		final String jobName = jobKey.getJobName();
 		Job job = (Job) ApplicationContextUtils.getBean(jobName, jobClass);
@@ -35,7 +44,7 @@ public class EmbeddedModeJobBeanLoader implements JobBeanLoader {
 			});
 		}
 		if (job == null) {
-			job = MapUtils.get(temporaryJobBeans, jobKey, () -> {
+			job = MapUtils.get(notManagedJobBeans, jobKey, () -> {
 				return (Job) BeanUtils.instantiate(jobClass);
 			});
 		}

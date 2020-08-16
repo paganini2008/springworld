@@ -10,7 +10,7 @@ package com.github.paganini2008.springworld.scheduler;
  */
 public interface JobAdmin {
 
-	void addJob(JobParam jobParam);
+	void addJob(JobConfig jobConfig);
 
 	void deleteJob(JobKey jobKey);
 

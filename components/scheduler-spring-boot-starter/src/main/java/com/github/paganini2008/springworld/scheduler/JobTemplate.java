@@ -87,7 +87,7 @@ public abstract class JobTemplate {
 
 	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason) {
 		if (log.isTraceEnabled()) {
-			log.trace("Job is end with state: " + runningState);
+			log.trace("Job is ending with state: " + runningState);
 		}
 	}
 

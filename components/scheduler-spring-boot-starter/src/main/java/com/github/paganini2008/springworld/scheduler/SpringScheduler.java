@@ -30,6 +30,7 @@ public class SpringScheduler implements Scheduler {
 	@Autowired
 	private TaskScheduler taskScheduler;
 
+	@Qualifier("main-job-executor")
 	@Autowired
 	private JobExecutor jobExecutor;
 
@@ -112,14 +113,14 @@ public class SpringScheduler implements Scheduler {
 			TriggerDescription triggerDescription = job.getTrigger().getTriggerDescription();
 			Trigger trigger;
 			switch (triggerType) {
-			case CRON:
+			case PERIODIC:
 				trigger = new PeriodicTrigger(triggerDescription.getPeriod(), triggerDescription.getPeriodSchedulingUnit().getTimeUnit());
 				break;
-			case PERIODIC:
+			case CRON:
 				trigger = new CronTrigger(triggerDescription.getCron());
 				break;
 			default:
-				throw new IllegalStateException();
+				throw new IllegalStateException("For triggerType: " + triggerType);
 			}
 			try {
 				return trigger.nextExecutionTime(new SimpleTriggerContext(lastExecutionTime, lastActualExecutionTime, lastCompletionTime))

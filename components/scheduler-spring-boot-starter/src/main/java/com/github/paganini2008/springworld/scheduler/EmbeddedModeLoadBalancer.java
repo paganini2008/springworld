@@ -53,9 +53,9 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 			long nextExecutionTime = scheduleManager.getJobFuture(jobKey).getNextExectionTime(startTime, startTime, startTime);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_BEGIN,
 					new Object[] { JobState.RUNNING.getValue(), new Timestamp(startTime.getTime()), new Timestamp(nextExecutionTime),
-							job.getGroupName(), job.getJobName(), job.getJobClassName() });
+							jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
+			throw new JobException(e.getMessage(), e);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
@@ -63,8 +63,16 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 
 	@Override
 	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment) {
-		final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-		clusterMulticastGroup.unicast(job.getGroupName(), topic, new JobParam(jobKey, attachment));
+		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
+			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
+			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment));
+		} else {
+			try {
+				jobManager.setJobState(jobKey, JobState.SCHEDULING);
+			} catch (SQLException e) {
+				throw new JobException(e.getMessage(), e);
+			}
+		}
 		return RunningState.RUNNING;
 	}
 
@@ -72,7 +80,7 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	protected boolean isScheduling(JobKey jobKey, Job job) {
 		try {
 			return jobManager.hasJobState(jobKey, JobState.SCHEDULING);
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		}
 	}

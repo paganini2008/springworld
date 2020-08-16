@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "spring.application.cluster.scheduler.mode", havingValue = "server")
+@ConditionalOnProperty(name = "spring.application.cluster.scheduler.deployMode", havingValue = "server")
 public class ServerModeSchedulerConfiguration {
 
 	public ServerModeSchedulerConfiguration() {
@@ -179,17 +179,6 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(JobExecutor.class)
-		public JobExecutor jobExecutor() {
-			return new ConsumerModeJobExecutor();
-		}
-
-		@Bean
-		public JobBeanLoader jobBeanLoader() {
-			return new EmbeddedModeJobBeanLoader();
-		}
-
-		@Bean
 		public JobAdmin jobAdmin() {
 			return new EmbeddedModeJobAdmin();
 		}
@@ -200,11 +189,33 @@ public class ServerModeSchedulerConfiguration {
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.loadbalance", havingValue = "true")
-	public static class LoadBalancingConfig {
+	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "master-slave")
+	public static class MasterSlaveConfig {
 
-		@Primary
-		@Bean
+		@Bean("main-job-executor")
+		public JobExecutor jobExecutor() {
+			return new ConsumerModeJobExecutor();
+		}
+
+		@Bean("internal-job-bean-loader")
+		public JobBeanLoader jobBeanLoader() {
+			return new InternalJobBeanLoader();
+		}
+	}
+
+	@Order(Ordered.LOWEST_PRECEDENCE - 10)
+	@Configuration
+	@ConditionalOnServerMode(ServerMode.CONSUMER)
+	@ConditionalOnBean(ClusterMulticastGroup.class)
+	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "loadbalance", matchIfMissing = true)
+	public static class LoadBalanceConfig {
+
+		@Bean("internal-job-bean-loader")
+		public JobBeanLoader jobBeanLoader() {
+			return new InternalJobBeanLoader();
+		}
+
+		@Bean("main-job-executor")
 		public JobExecutor jobExecutor() {
 			return new ConsumerModeLoadBalancer();
 		}

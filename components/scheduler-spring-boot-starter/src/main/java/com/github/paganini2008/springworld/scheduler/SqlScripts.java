@@ -27,6 +27,7 @@ public abstract class SqlScripts {
 
 	public static final String DEF_SELECT_ALL_JOB_DETAIL = "select * from cluster_job_detail";
 	public static final String DEF_SELECT_JOB_DETAIL_BY_GROUP_NAME = "select * from cluster_job_detail where group_name=?";
+	public static final String DEF_SELECT_JOB_DETAIL_BY_OTHER_GROUP_NAME = "select * from cluster_job_detail where group_name!=?";
 	public static final String DEF_SELECT_JOB_NAME_EXISTS = "select count(*) from cluster_job_detail where group_name=? and job_name=? and job_class_name=?";
 	public static final String DEF_SELECT_JOB_TRIGGER = "select * from cluster_job_trigger where job_id=(select job_id from cluster_job_detail where group_name=? and job_name=? and job_class_name=?)";
 	public static final String DEF_SELECT_JOB_RUNTIME = "select * from cluster_job_runtime where job_id=(select job_id from cluster_job_detail where group_name=? and job_name=? and job_class_name=?)";

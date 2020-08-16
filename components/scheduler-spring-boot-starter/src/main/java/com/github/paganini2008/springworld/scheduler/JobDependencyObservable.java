@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.Observable;
@@ -24,6 +25,7 @@ public class JobDependencyObservable extends Observable {
 	@Autowired
 	private RedisMessageSender redisMessageSender;
 
+	@Qualifier("main-job-executor")
 	@Autowired
 	private JobExecutor jobExecutor;
 
