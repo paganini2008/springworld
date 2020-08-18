@@ -28,7 +28,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private JobDependencyObservable jobDependencyObservable;
 
-	@Qualifier("scheduler-ds")
+	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
 	private DataSource dataSource;
 
@@ -46,10 +46,10 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void notifyDependencies(JobKey jobKey, Job job, Object result) {
+	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 		try {
 			if (jobManager.hasDependencies(jobKey)) {
-				jobDependencyObservable.notifyDependencies(jobKey, result);
+				jobDependencyObservable.notifyDependants(jobKey, result);
 			}
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);

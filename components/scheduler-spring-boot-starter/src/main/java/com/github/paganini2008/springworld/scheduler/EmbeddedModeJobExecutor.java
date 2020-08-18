@@ -75,10 +75,10 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void notifyDependencies(JobKey jobKey, Job job, Object result) {
+	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 		try {
 			if (jobManager.hasDependencies(jobKey)) {
-				jobDependencyObservable.notifyDependencies(jobKey, result);
+				jobDependencyObservable.notifyDependants(jobKey, result);
 			}
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);

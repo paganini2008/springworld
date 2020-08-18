@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.paganini2008.devtools.Assert;
+import com.github.paganini2008.devtools.StringUtils;
 
 import lombok.Setter;
 
@@ -19,6 +21,8 @@ import lombok.Setter;
 public final class JobKey implements Serializable {
 
 	private static final long serialVersionUID = 3147872689801742981L;
+	private static final String IDENTIFIER_FORMAT = "%s.%s@%s";
+	private static final String IDENTIFIER_PATTERN = "[\\w\\-]+\\.\\w+\\@[\\w.]+";
 	private String groupName;
 	private String jobName;
 	private String jobClassName;
@@ -31,7 +35,7 @@ public final class JobKey implements Serializable {
 		this.groupName = groupName;
 		this.jobName = jobName;
 		this.jobClassName = jobClassName;
-		this.identifier = groupName + ":" + jobName + "@" + jobClassName;
+		this.identifier = String.format(IDENTIFIER_FORMAT, groupName, jobName, jobClassName);
 	}
 
 	public String getGroupName() {
@@ -72,6 +76,7 @@ public final class JobKey implements Serializable {
 	}
 
 	public static JobKey of(final Job job) {
+		Assert.isNull(job, "Job instance must be required.");
 		String groupName = job.getGroupName();
 		String jobName = job.getJobName();
 		String jobClassName = job.getJobClassName();
@@ -80,7 +85,10 @@ public final class JobKey implements Serializable {
 
 	@JsonCreator
 	public static JobKey of(String identifier) {
-		int startPosition = identifier.indexOf(":");
+		if (StringUtils.isBlank(identifier) || !identifier.matches(IDENTIFIER_PATTERN)) {
+			throw new IllegalArgumentException("Invalid identifier: " + identifier);
+		}
+		int startPosition = identifier.indexOf(".");
 		int endPosition = identifier.lastIndexOf("@");
 		String groupName = identifier.substring(0, startPosition);
 		String jobName = identifier.substring(startPosition + 1, endPosition);

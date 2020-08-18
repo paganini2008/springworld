@@ -76,7 +76,7 @@ public abstract class JobTemplate {
 				job.onFailure(jobKey, reason);
 			}
 			if (success) {
-				notifyDependencies(jobKey, job, result);
+				notifyDependants(jobKey, job, result);
 			}
 		}
 		return RunningState.COMPLETED;
@@ -96,7 +96,7 @@ public abstract class JobTemplate {
 
 	protected abstract boolean isScheduling(JobKey jobKey, Job job);
 
-	protected void notifyDependencies(JobKey jobKey, Job job, Object result) {
+	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 	}
 
 	protected void cancel(JobKey jobKey, Job job, RunningState runningState, Throwable reason) {

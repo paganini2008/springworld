@@ -28,7 +28,7 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private JobManager jobManager;
 
-	@Qualifier("scheduler-ds")
+	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
 	private DataSource dataSource;
 

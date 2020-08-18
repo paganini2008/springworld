@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
@@ -20,11 +21,8 @@ public class JobDependencyProcessor implements RedisMessageHandler {
 
 	public static final String BEAN_NAME = "jobDependencyProcessor";
 
-	private final String clusterName;
-
-	public JobDependencyProcessor(String clusterName) {
-		this.clusterName = clusterName;
-	}
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
 
 	@Autowired
 	private JobDependencyObservable jobDependencyObservable;
@@ -36,8 +34,10 @@ public class JobDependencyProcessor implements RedisMessageHandler {
 
 	@Override
 	public void onMessage(String channel, Object message) throws Exception {
-		JobParam jobParam = (JobParam) message;
-		log.info("Dependent Job: " + jobParam.getJobKey());
+		final JobParam jobParam = (JobParam) message;
+		if (log.isTraceEnabled()) {
+			log.trace("Dependent Job: " + jobParam.getJobKey());
+		}
 		jobDependencyObservable.executeDependency(jobParam.getJobKey(), jobParam.getAttachment());
 	}
 

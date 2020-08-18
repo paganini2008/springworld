@@ -152,8 +152,8 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public JobSchedulerStarterListener jobSchedulerStarterListener() {
-		return new JobSchedulerStarterListener();
+	public SchedulerStarterListener jobSchedulerStarterListener() {
+		return new DefaultSchedulerStarterListener();
 	}
 
 	@Bean(initMethod = "configure", destroyMethod = "close")
@@ -170,7 +170,7 @@ public class EmbeddedModeSchedulerConfiguration {
 
 	@Bean
 	public JobDependencyObservable jobDependencyObservable() {
-		return new JobDependencyObservable();
+		return new DefaultJobDependencyObservable();
 	}
 
 	@Bean

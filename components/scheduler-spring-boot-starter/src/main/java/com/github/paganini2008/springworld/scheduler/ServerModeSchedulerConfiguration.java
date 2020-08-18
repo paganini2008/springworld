@@ -94,18 +94,14 @@ public class ServerModeSchedulerConfiguration {
 	@ConditionalOnServerMode(ServerMode.PRODUCER)
 	public static class ProducerModeConfig {
 
-		@Value("${spring.application.cluster.scheduler.server.targetClusterName}")
-		private String targetClusterName;
-
 		@Bean
-		public JobSchedulerStarterListener jobSchedulerStarterListener() {
-			return new JobSchedulerStarterListener();
+		public SchedulerStarterListener jobSchedulerStarterListener() {
+			return new DefaultSchedulerStarterListener();
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(NotManagedJobBeanInitializer.class)
-		public NotManagedJobBeanInitializer serverModeJobBeanInitializer() {
-			return new ServerModeJobBeanInitializer();
+		public NotManagedJobBeanInitializer producerModeJobBeanInitializer() {
+			return new ProducerModeJobBeanInitializer();
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
@@ -121,14 +117,12 @@ public class ServerModeSchedulerConfiguration {
 
 		@Bean
 		public JobDependencyObservable jobDependencyObservable() {
-			return new JobDependencyObservable();
+			return new DefaultJobDependencyObservable();
 		}
 
 		@Bean
 		public JobDependencyDetector jobDependencyDetector() {
-			JobDependencyDetector jobDependencyDetector = new JobDependencyDetector();
-			jobDependencyDetector.setClusterName(targetClusterName);
-			return jobDependencyDetector;
+			return new JobDependencyDetector();
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
@@ -170,6 +164,16 @@ public class ServerModeSchedulerConfiguration {
 		public NotScheduledJobBeanPostProcessor notScheduledJobBeanPostProcessor() {
 			return new NotScheduledJobBeanPostProcessor();
 		}
+		
+		@Bean
+		public SchedulerStarterListener jobSchedulerStarterListener() {
+			return new ConsumerModeSchedulerStarterListener();
+		} 
+		
+		@Bean
+		public NotManagedJobBeanInitializer consumerModeJobBeanInitializer() {
+			return new ConsumerModeJobBeanInitializer();
+		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
 		@ConditionalOnMissingBean(JobManager.class)
@@ -178,8 +182,8 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public JobDependencyObservable jobDependency() {
-			return new JobDependencyObservable();
+		public JobDependencyObservable jobDependencyObservable() {
+			return new DefaultJobDependencyObservable();
 		}
 
 		@Bean

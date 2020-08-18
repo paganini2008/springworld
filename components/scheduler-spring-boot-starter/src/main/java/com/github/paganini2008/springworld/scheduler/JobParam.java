@@ -34,14 +34,5 @@ public class JobParam implements Serializable {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
-	
-	public static void main(String[] args) {
-		JobParam jobParam = new JobParam();
-		jobParam.setJobKey(JobKey.of("tester:healthCheckJob@com.allyes.springboot.tester.job.HealthCheckJob"));
-		jobParam.setAttachment("Hello world!");
-		String json = JacksonUtils.toJsonString(jobParam);
-		System.out.println(json);
-		System.out.println(JacksonUtils.parseJson(json, JobParam.class));
-	}
 
 }
