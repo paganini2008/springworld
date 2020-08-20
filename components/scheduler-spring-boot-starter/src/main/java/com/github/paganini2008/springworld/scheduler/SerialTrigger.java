@@ -1,7 +1,5 @@
 package com.github.paganini2008.springworld.scheduler;
 
-import com.github.paganini2008.devtools.ArrayUtils;
-
 /**
  * 
  * SerializableTrigger
@@ -26,7 +24,7 @@ public class SerialTrigger implements Trigger {
 	@Override
 	public TriggerDescription getTriggerDescription() {
 		TriggerDescription data = new TriggerDescription();
-		data.setDependencies(ArrayUtils.join(dependencies, ","));
+		data.setDependencies(dependencies);
 		return data;
 	}
 

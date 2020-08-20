@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
-import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
@@ -63,8 +63,8 @@ public class JobDependencyFuture implements JobFuture {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			Date latestDate = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_LATEST_EXECUTION_TIME_OF_JOB_DEPENDENCIES,
-					new Object[] { ArrayUtils.join(dependencies, ",") }, Date.class);
+			Date latestDate = JdbcUtils.fetchOne(connection, String.format(SqlScripts.DEF_SELECT_LATEST_EXECUTION_TIME_OF_JOB_DEPENDENCIES,
+					StringUtils.join(dependencies, "'", "'", ",")), Date.class);
 			return latestDate != null ? latestDate.getTime() : -1L;
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);

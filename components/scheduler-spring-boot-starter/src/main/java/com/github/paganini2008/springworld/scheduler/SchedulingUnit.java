@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum SchedulingUnit {
 
-	SECONDS(0, TimeUnit.SECONDS), MINUTES(0, TimeUnit.MINUTES), HOURS(0, TimeUnit.HOURS), DAYS(0, TimeUnit.DAYS);
+	SECONDS(0, TimeUnit.SECONDS), MINUTES(1, TimeUnit.MINUTES), HOURS(2, TimeUnit.HOURS), DAYS(3, TimeUnit.DAYS);
 
 	private final int value;
 	private final TimeUnit timeUnit;
@@ -23,7 +23,6 @@ public enum SchedulingUnit {
 	private SchedulingUnit(int value, TimeUnit timeUnit) {
 		this.value = value;
 		this.timeUnit = timeUnit;
-
 	}
 
 	@JsonValue

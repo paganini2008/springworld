@@ -20,9 +20,7 @@ public class ExternalJobBeanLoader implements JobBeanLoader {
 	@Override
 	public Job loadJobBean(JobKey jobKey) throws Exception {
 		final JobTriggerDetail triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-		TriggerType triggerType = triggerDetail.getTriggerType();
-		TriggerDescription triggerDescription = triggerDetail.getTriggerDescription();
-		return ApplicationContextUtils.autowireBean(new ExternalJobBeanProxy(jobKey, triggerType.getTrigger(triggerDescription)));
+		return ApplicationContextUtils.autowireBean(new ExternalJobBeanProxy(jobKey, triggerDetail));
 	}
 
 }

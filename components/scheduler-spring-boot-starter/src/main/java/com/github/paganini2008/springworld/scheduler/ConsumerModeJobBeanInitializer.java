@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
@@ -41,6 +41,9 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	@Autowired
 	private JobDependencyObservable jobDependencyObservable;
 
+	@Autowired
+	private JobFutureHolder jobFutureHolder;
+
 	public void initizlizeJobBeans() throws Exception {
 		Connection connection = null;
 		List<Tuple> dataList = null;
@@ -66,9 +69,9 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 					continue;
 				}
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-				String dependencies = triggerDetail.getTriggerDescription().getDependencies();
-				if (StringUtils.isNotBlank(dependencies) && !jobDependencyObservable.hasDependency(jobKey)) {
-					jobDependencyObservable.addDependency(job, dependencies.split(","));
+				String[] dependencies = triggerDetail.getTriggerDescription().getDependencies();
+				if (ArrayUtils.isNotEmpty(dependencies) && !(jobFutureHolder.get(jobKey) instanceof JobDependencyFuture)) {
+					jobFutureHolder.add(jobKey, jobDependencyObservable.addDependency(job, dependencies));
 				}
 			}
 		}

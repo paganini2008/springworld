@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ServerModeJobBeanProxy implements Job {
 
 	private final JobKey jobKey;
-	private final Trigger trigger;
+	private final JobTriggerDetail triggerDetail;
 
 	@Qualifier("scheduler-httpclient")
 	@Autowired
@@ -34,9 +34,9 @@ public class ServerModeJobBeanProxy implements Job {
 	@Value("${spring.application.cluster.scheduler.server.hostUrl}")
 	private String hostUrl;
 
-	public ServerModeJobBeanProxy(JobKey jobKey, Trigger trigger) {
+	public ServerModeJobBeanProxy(JobKey jobKey, JobTriggerDetail triggerDetail) {
 		this.jobKey = jobKey;
-		this.trigger = trigger;
+		this.triggerDetail = triggerDetail;
 	}
 
 	@Override
@@ -55,8 +55,13 @@ public class ServerModeJobBeanProxy implements Job {
 	}
 
 	@Override
-	public Trigger getTrigger() {
-		return trigger;
+	public TriggerType getTriggerType() {
+		return triggerDetail.getTriggerType();
+	}
+
+	@Override
+	public TriggerDescription getTriggerDescription() {
+		return triggerDetail.getTriggerDescription();
 	}
 
 	@Override

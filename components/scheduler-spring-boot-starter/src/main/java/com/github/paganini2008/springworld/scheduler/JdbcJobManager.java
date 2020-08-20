@@ -43,7 +43,7 @@ public class JdbcJobManager implements JobManager {
 		}
 	};
 
-	@Qualifier("scheduler-ds")
+	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
 	private DataSource dataSource;
 
@@ -118,10 +118,9 @@ public class JdbcJobManager implements JobManager {
 			});
 
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
-				Trigger trigger = job.getTrigger();
 				ps.setInt(1, id);
-				ps.setInt(2, trigger.getTriggerType().getValue());
-				ps.setString(3, JacksonUtils.toJsonString(trigger.getTriggerDescription()));
+				ps.setInt(2, job.getTriggerType().getValue());
+				ps.setString(3, JacksonUtils.toJsonString(job.getTriggerDescription()));
 			});
 
 			connection.commit();

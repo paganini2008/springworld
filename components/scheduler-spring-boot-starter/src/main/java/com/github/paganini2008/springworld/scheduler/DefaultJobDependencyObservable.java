@@ -2,8 +2,6 @@ package com.github.paganini2008.springworld.scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,8 +39,6 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 	@Autowired
 	private JobExecutor jobExecutor;
 
-	private final Map<JobKey, JobFuture> jobFutures = new ConcurrentHashMap<JobKey, JobFuture>();
-
 	@Override
 	public JobFuture addDependency(final Job job, final String[] dependencies) {
 		List<Observer> obs = new ArrayList<Observer>();
@@ -58,21 +54,7 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 				log.trace("Job dependency: {} --> {}", dependency, job);
 			}
 		}
-		final JobKey jobKey = JobKey.of(job);
-		jobFutures.put(jobKey, new JobDependencyFuture(obs.toArray(new Observer[0]), dependencies, this));
-		return jobFutures.get(jobKey);
-	}
-
-	@Override
-	public void cancelDependency(JobKey jobKey) {
-		if (hasDependency(jobKey)) {
-			jobFutures.remove(jobKey).cancel();
-		}
-	}
-
-	@Override
-	public boolean hasDependency(JobKey jobKey) {
-		return jobFutures.containsKey(jobKey);
+		return new JobDependencyFuture(obs.toArray(new Observer[0]), dependencies, this);
 	}
 
 	@Override

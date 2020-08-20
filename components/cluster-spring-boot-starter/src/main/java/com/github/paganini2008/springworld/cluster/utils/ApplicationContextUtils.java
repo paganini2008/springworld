@@ -19,11 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 
  * ApplicationContextUtils
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 @SuppressWarnings("unchecked")
 @Component

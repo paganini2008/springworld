@@ -2,7 +2,6 @@ package com.github.paganini2008.springworld.scheduler;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.github.paganini2008.devtools.StringUtils;
 
 /**
  * 
@@ -35,9 +34,7 @@ public enum TriggerType {
 	SERIAL(3) {
 		@Override
 		public Trigger getTrigger(TriggerDescription triggerDescription) {
-			return new SerialTrigger(
-					StringUtils.isNotBlank(triggerDescription.getDependencies()) ? triggerDescription.getDependencies().split(",")
-							: new String[0]);
+			return new SerialTrigger(triggerDescription.getDependencies());
 		}
 	};
 

@@ -132,6 +132,11 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
+		public JobFutureHolder jobFutureHolder() {
+			return new JobFutureHolder();
+		}
+
+		@Bean
 		public JobBeanLoader jobBeanLoader() {
 			return new ServerModeJobBeanLoader();
 		}
@@ -164,12 +169,12 @@ public class ServerModeSchedulerConfiguration {
 		public NotScheduledJobBeanPostProcessor notScheduledJobBeanPostProcessor() {
 			return new NotScheduledJobBeanPostProcessor();
 		}
-		
+
 		@Bean
 		public SchedulerStarterListener jobSchedulerStarterListener() {
 			return new ConsumerModeSchedulerStarterListener();
-		} 
-		
+		}
+
 		@Bean
 		public NotManagedJobBeanInitializer consumerModeJobBeanInitializer() {
 			return new ConsumerModeJobBeanInitializer();
@@ -189,6 +194,11 @@ public class ServerModeSchedulerConfiguration {
 		@Bean
 		public JobDependencyDetector jobDependencyDetector() {
 			return new JobDependencyDetector();
+		}
+
+		@Bean
+		public JobFutureHolder jobFutureHolder() {
+			return new JobFutureHolder();
 		}
 
 		@Bean

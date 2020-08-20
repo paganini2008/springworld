@@ -11,11 +11,11 @@ package com.github.paganini2008.springworld.scheduler;
 public class ExternalJobBeanProxy implements Job {
 
 	private final JobKey jobKey;
-	private final Trigger trigger;
+	private final JobTriggerDetail triggerDetail;
 
-	public ExternalJobBeanProxy(JobKey jobKey, Trigger trigger) {
+	public ExternalJobBeanProxy(JobKey jobKey, JobTriggerDetail triggerDetail) {
 		this.jobKey = jobKey;
-		this.trigger = trigger;
+		this.triggerDetail = triggerDetail;
 	}
 
 	@Override
@@ -34,8 +34,13 @@ public class ExternalJobBeanProxy implements Job {
 	}
 
 	@Override
-	public Trigger getTrigger() {
-		return trigger;
+	public TriggerType getTriggerType() {
+		return triggerDetail.getTriggerType();
+	}
+
+	@Override
+	public TriggerDescription getTriggerDescription() {
+		return triggerDetail.getTriggerDescription();
 	}
 
 	@Override
@@ -47,7 +52,5 @@ public class ExternalJobBeanProxy implements Job {
 	public boolean managedByApplicationContext() {
 		return false;
 	}
-	
-	
 
 }

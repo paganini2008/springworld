@@ -11,10 +11,6 @@ package com.github.paganini2008.springworld.scheduler;
 public interface JobDependencyObservable {
 
 	JobFuture addDependency(Job job, String[] dependencies);
-	
-	boolean hasDependency(JobKey jobKey);
-	
-	void cancelDependency(JobKey jobKey);
 
 	void executeDependency(JobKey jobKey, Object attachment);
 

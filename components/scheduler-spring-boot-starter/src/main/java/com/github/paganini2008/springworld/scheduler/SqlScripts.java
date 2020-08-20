@@ -32,7 +32,7 @@ public abstract class SqlScripts {
 	public static final String DEF_SELECT_JOB_NAME_EXISTS = "select count(*) from cluster_job_detail where group_name=? and job_name=? and job_class_name=?";
 	public static final String DEF_SELECT_JOB_TRIGGER = "select * from cluster_job_trigger where job_id=(select job_id from cluster_job_detail where group_name=? and job_name=? and job_class_name=?)";
 	public static final String DEF_SELECT_JOB_DEPENDENCIES = "select count(*) from cluster_job_trigger where trigger_type=3 and trigger_description like ?";
-	public static final String DEF_SELECT_LATEST_EXECUTION_TIME_OF_JOB_DEPENDENCIES = "select min(next_execution_time) from cluster_job_runtime where next_execution_time is not null and job_id in (select job_id from cluster_job_detail where identifier in (?))";
+	public static final String DEF_SELECT_LATEST_EXECUTION_TIME_OF_JOB_DEPENDENCIES = "select min(next_execution_time) from cluster_job_runtime where next_execution_time is not null and job_id in (select job_id from cluster_job_detail where identifier in (%s))";
 	public static final String DEF_SELECT_JOB_RUNTIME = "select * from cluster_job_runtime where job_id=(select job_id from cluster_job_detail where group_name=? and job_name=? and job_class_name=?)";
 	public static final String DEF_SELECT_JOB_STAT = "select job_id, sum(complete) as completeCount, sum(failed) as failedCount, sum(skipped) as skippedCount from cluster_job_trace where job_id=(select job_id from cluster_job_detail where group_name=? and job_name=? and job_class_name=?)";
 

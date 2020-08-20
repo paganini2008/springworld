@@ -34,7 +34,7 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	@Autowired
 	private ScheduleManager scheduleManager;
 
-	@Qualifier("scheduler-ds")
+	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
 	private DataSource dataSource;
 

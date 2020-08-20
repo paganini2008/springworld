@@ -108,8 +108,8 @@ public class SpringScheduler implements Scheduler {
 
 		@Override
 		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
-			TriggerType triggerType = job.getTrigger().getTriggerType();
-			TriggerDescription triggerDescription = job.getTrigger().getTriggerDescription();
+			TriggerType triggerType = job.getTriggerType();
+			TriggerDescription triggerDescription = job.getTriggerDescription();
 			Trigger trigger;
 			switch (triggerType) {
 			case PERIODIC:

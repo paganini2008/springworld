@@ -1,8 +1,5 @@
 package com.github.paganini2008.springworld.scheduler;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Observable;
@@ -26,12 +23,14 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Autowired
 	private JobManager jobManager;
 
-	private final Map<JobKey, JobFuture> schedulingCache = new ConcurrentHashMap<JobKey, JobFuture>();
-	private final Observable trigger = Observable.unrepeatable();
+	@Autowired
+	private JobFutureHolder jobFutureHolder;
+
+	private final Observable jobTrigger = Observable.unrepeatable();
 
 	@Override
 	public void schedule(final Job job) {
-		trigger.addObserver((trigger, ignored) -> {
+		jobTrigger.addObserver((jobTrigger, ignored) -> {
 			JobKey jobKey = JobKey.of(job);
 			if (hasScheduled(jobKey)) {
 				log.warn("Job '{}' has been scheduled.", jobKey);
@@ -52,8 +51,10 @@ public class DefaultScheduleManager implements ScheduleManager {
 				throw new JobException(e.getMessage(), e);
 			}
 
-			final String attachment = jobDetail.getAttachment();
-			schedulingCache.put(jobKey, job.getTrigger().fire(scheduler, job, attachment));
+			String attachment = jobDetail.getAttachment();
+			TriggerType triggerType = job.getTriggerType();
+			Trigger trigger = triggerType.getTrigger(job.getTriggerDescription());
+			jobFutureHolder.add(jobKey, trigger.fire(scheduler, job, attachment));
 
 			try {
 				jobManager.setJobState(jobKey, JobState.SCHEDULING);
@@ -67,10 +68,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 	@Override
 	public void unscheduleJob(JobKey jobKey) {
 		if (hasScheduled(jobKey)) {
-			JobFuture future = schedulingCache.remove(jobKey);
-			if (future != null) {
-				future.cancel();
-			}
+			jobFutureHolder.cancel(jobKey);
 			try {
 				jobManager.setJobState(jobKey, JobState.NOT_SCHEDULED);
 			} catch (Exception e) {
@@ -82,18 +80,18 @@ public class DefaultScheduleManager implements ScheduleManager {
 
 	@Override
 	public boolean hasScheduled(JobKey jobKey) {
-		return schedulingCache.containsKey(jobKey);
+		return jobFutureHolder.hasKey(jobKey);
 	}
 
 	@Override
 	public void doSchedule() {
-		trigger.notifyObservers();
+		jobTrigger.notifyObservers();
 		log.info("Do all schedules of jobs now.");
 	}
 
 	@Override
 	public int countOfScheduling() {
-		return schedulingCache.size();
+		return jobFutureHolder.size();
 	}
 
 	@Override
@@ -101,15 +99,12 @@ public class DefaultScheduleManager implements ScheduleManager {
 		if (!hasScheduled(jobKey)) {
 			throw new JobException("Not scheduling job");
 		}
-		return schedulingCache.get(jobKey);
+		return jobFutureHolder.get(jobKey);
 	}
 
 	@Override
 	public void close() {
-		for (Map.Entry<JobKey, JobFuture> entry : schedulingCache.entrySet()) {
-			entry.getValue().cancel();
-		}
-		schedulingCache.clear();
+		jobFutureHolder.clear();
 	}
 
 }

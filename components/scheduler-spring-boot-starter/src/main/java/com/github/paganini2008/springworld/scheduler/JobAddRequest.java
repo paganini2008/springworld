@@ -47,8 +47,13 @@ public class JobAddRequest implements Job {
 	}
 
 	@Override
-	public Trigger getTrigger() {
-		return jobConfig.getTriggerType().getTrigger(jobConfig.getTriggerDescription());
+	public TriggerType getTriggerType() {
+		return jobConfig.getTriggerType();
+	}
+
+	@Override
+	public TriggerDescription getTriggerDescription() {
+		return jobConfig.getTriggerDescription();
 	}
 
 	@Override
