@@ -7,10 +7,10 @@
 		<version>2.0-RC3</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>scheduler-spring-boot-starter</artifactId>
+	<artifactId>myjob-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 
-	<name>scheduler-spring-boot-starter</name>
+	<name>myjob-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>
