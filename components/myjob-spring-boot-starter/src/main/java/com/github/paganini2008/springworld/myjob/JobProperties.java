@@ -21,7 +21,9 @@ public interface JobProperties {
 		return getClass().getName();
 	}
 
-	String getGroupName();
+	default String getGroupName() {
+		throw new NotImplementedException("Please define a groupName for the job.");
+	}
 
 	default TriggerBuilder buildTrigger() {
 		throw new NotImplementedException("Please define a triggerBuilder for the job.");

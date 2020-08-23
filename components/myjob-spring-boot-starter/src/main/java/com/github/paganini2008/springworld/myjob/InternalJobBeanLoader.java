@@ -45,13 +45,8 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 		}
 		if (job == null) {
 			job = MapUtils.get(notManagedJobBeans, jobKey, () -> {
-				return (Job) BeanUtils.instantiate(jobClass);
+				return ApplicationContextUtils.autowireBean((Job) BeanUtils.instantiate(jobClass));
 			});
-		}
-		if (job != null) {
-			if (!JobKey.of(job).equals(jobKey)) {
-				throw new JobBeanNotFoundException(jobKey.toString());
-			}
 		}
 		return job;
 	}
