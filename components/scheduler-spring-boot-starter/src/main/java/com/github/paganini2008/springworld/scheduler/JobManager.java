@@ -13,7 +13,7 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  */
 public interface JobManager extends Lifecycle {
 
-	default int addJob(Job job, String attachment) throws SQLException {
+	default int persistJob(Job job, String attachment) throws SQLException {
 		return 0;
 	}
 

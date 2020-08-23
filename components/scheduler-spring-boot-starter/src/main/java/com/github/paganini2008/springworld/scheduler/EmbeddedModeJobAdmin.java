@@ -3,14 +3,6 @@ package com.github.paganini2008.springworld.scheduler;
 import java.sql.SQLException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
-import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -20,52 +12,41 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
-public class EmbeddedModeJobAdmin implements ClusterMessageListener, JobAdmin {
-
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
+public class EmbeddedModeJobAdmin implements JobAdmin {
 
 	@Autowired
 	private JobManager jobManager;
 
-	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	public JobState persistJob(JobConfig jobConfig) {
+		Job job = JobPersistRequest.build(jobConfig);
+		try {
+			jobManager.persistJob(job, jobConfig.getAttachment());
+			return jobManager.getJobRuntime(JobKey.of(job)).getJobState();
+		} catch (SQLException e) {
+			throw new JobException(e.getMessage(), e);
+		}
 
-	public void addJob(JobConfig jobConfig) {
-		clusterMulticastGroup.unicast(jobConfig.getGroupName(), getTopic(), jobConfig);
 	}
 
-	public void deleteJob(JobKey jobKey) {
+	public JobState deleteJob(JobKey jobKey) {
 		try {
 			jobManager.deleteJob(jobKey);
-		} catch (Exception e) {
-			throw new JobException(e.getMessage(), e);
-		}
-	}
-
-	public boolean hasJob(JobKey jobKey) {
-		try {
-			return jobManager.hasJob(jobKey);
-		} catch (Exception e) {
-			throw new JobException(e.getMessage(), e);
-		}
-	}
-
-	@Override
-	public void onMessage(ApplicationInfo applicationInfo, Object message) {
-		final JobConfig jobConfig = (JobConfig) message;
-		Job job = new JobAddRequest(jobConfig);
-		try {
-			jobManager.addJob(job, jobConfig.getAttachment());
+			return jobManager.getJobRuntime(jobKey).getJobState();
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
+			throw new JobException(e.getMessage(), e);
 		}
 	}
 
-	@Override
-	public String getTopic() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:add";
+	public JobState hasJob(JobKey jobKey) {
+		try {
+			if (jobManager.hasJob(jobKey)) {
+				return jobManager.getJobRuntime(jobKey).getJobState();
+			} else {
+				return JobState.NONE;
+			}
+		} catch (SQLException e) {
+			throw new JobException(e.getMessage(), e);
+		}
 	}
 
 }

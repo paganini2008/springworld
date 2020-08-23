@@ -34,13 +34,9 @@ public class ExternalJobBeanProxy implements Job {
 	}
 
 	@Override
-	public TriggerType getTriggerType() {
-		return triggerDetail.getTriggerType();
-	}
-
-	@Override
-	public TriggerDescription getTriggerDescription() {
-		return triggerDetail.getTriggerDescription();
+	public TriggerBuilder buildTrigger() {
+		return TriggerBuilder.newTrigger(triggerDetail.getTriggerType()).setStartDate(triggerDetail.getStartDate())
+				.setEndDate(triggerDetail.getEndDate()).setTriggerDescription(triggerDetail.getTriggerDescription());
 	}
 
 	@Override

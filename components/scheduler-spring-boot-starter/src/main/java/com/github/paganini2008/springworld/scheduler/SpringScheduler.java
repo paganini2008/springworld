@@ -1,7 +1,11 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,6 +15,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 
+import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.date.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,24 +42,47 @@ public class SpringScheduler implements Scheduler {
 	@Autowired
 	private JobDependencyObservable jobDependencyObservable;
 
+	private final Map<ScheduledFuture<?>, Trigger> futureTriggers = new ConcurrentHashMap<ScheduledFuture<?>, Trigger>();
+
 	@Override
-	public JobFuture schedule(Job job, Object arg, String cron) {
-		ScheduledFuture<?> future = taskScheduler.schedule(wrapJob(job, arg), new CronTrigger(cron));
-		return new FutureImpl(job, future);
+	public JobFuture schedule(Job job, Object attachment, Date startDate) {
+		ScheduledFuture<?> future = taskScheduler.schedule(wrapJob(job, attachment), startDate);
+		return new JobFutureImpl(future);
 	}
 
 	@Override
-	public JobFuture scheduleWithFixedDelay(Job job, Object arg, long delay, long period) {
-		ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(wrapJob(job, arg), new Date(System.currentTimeMillis() + delay),
-				period);
-		return new FutureImpl(job, future);
+	public JobFuture schedule(Job job, Object attachment, String cronExpression) {
+		ScheduledFuture<?> future = taskScheduler.schedule(wrapJob(job, attachment), new CronTrigger(cronExpression));
+		futureTriggers.put(future, new CronTrigger(cronExpression));
+		return new JobFutureImpl(future);
 	}
 
 	@Override
-	public JobFuture scheduleAtFixedRate(Job job, Object arg, long delay, long period) {
-		ScheduledFuture<?> future = taskScheduler.scheduleAtFixedRate(wrapJob(job, arg), new Date(System.currentTimeMillis() + delay),
-				period);
-		return new FutureImpl(job, future);
+	public JobFuture schedule(Job job, Object attachment, String cronExpression, Date startDate) {
+		return schedule(() -> {
+			return schedule(job, attachment, cronExpression);
+		}, startDate);
+	}
+
+	@Override
+	public JobFuture scheduleWithFixedDelay(Job job, Object attachment, long period, Date startDate) {
+		ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(wrapJob(job, attachment), startDate, period);
+		futureTriggers.put(future, getPeriodicTrigger(startDate.getTime() - System.currentTimeMillis(), period, false));
+		return new JobFutureImpl(future);
+	}
+
+	@Override
+	public JobFuture scheduleAtFixedRate(Job job, Object attachment, long period, Date startDate) {
+		ScheduledFuture<?> future = taskScheduler.scheduleAtFixedRate(wrapJob(job, attachment), startDate, period);
+		futureTriggers.put(future, getPeriodicTrigger(startDate.getTime() - System.currentTimeMillis(), period, true));
+		return new JobFutureImpl(future);
+	}
+
+	private PeriodicTrigger getPeriodicTrigger(long delay, long period, boolean fixedRate) {
+		PeriodicTrigger periodicTrigger = new PeriodicTrigger(period, TimeUnit.MILLISECONDS);
+		periodicTrigger.setInitialDelay(delay);
+		periodicTrigger.setFixedRate(fixedRate);
+		return periodicTrigger;
 	}
 
 	@Override
@@ -63,37 +91,59 @@ public class SpringScheduler implements Scheduler {
 	}
 
 	@Override
-	public void runJob(Job job, Object arg) {
-		jobExecutor.execute(job, arg);
+	public JobFuture scheduleWithDependency(Job job, String[] dependencies, Date startDate) {
+		return schedule(() -> {
+			return scheduleWithDependency(job, dependencies);
+		}, startDate);
 	}
 
-	protected Runnable wrapJob(Job job, Object arg) {
+	private JobFuture schedule(Supplier<JobFuture> supplier, Date startDate) {
+		final Observable canceller = Observable.unrepeatable();
+		final ScheduledFuture<?> taskFuture = taskScheduler.schedule(new Runnable() {
+			@Override
+			public void run() {
+				final JobFuture target = supplier.get();
+				canceller.addObserver((ob, arg) -> {
+					target.cancel();
+				});
+			}
+		}, startDate);
+		return new DelayedJobFuture(taskFuture, canceller);
+	}
+
+	@Override
+	public void runJob(Job job, Object attachment) {
+		jobExecutor.execute(job, attachment);
+	}
+
+	protected Runnable wrapJob(Job job, Object attachment) {
 		return () -> {
-			runJob(job, arg);
+			runJob(job, attachment);
 		};
 	}
 
 	/**
 	 * 
-	 * FutureImpl
+	 * JobFutureImpl
 	 * 
 	 * @author Fred Feng
 	 *
 	 * @since 1.0
 	 */
-	private static class FutureImpl implements JobFuture {
+	class JobFutureImpl implements JobFuture {
 
-		private final Job job;
 		private final ScheduledFuture<?> future;
 
-		FutureImpl(Job job, ScheduledFuture<?> future) {
-			this.job = job;
+		JobFutureImpl(ScheduledFuture<?> future) {
 			this.future = future;
 		}
 
 		@Override
 		public void cancel() {
-			future.cancel(true);
+			try {
+				future.cancel(false);
+			} catch (Exception ignored) {
+			}
 		}
 
 		@Override
@@ -108,18 +158,9 @@ public class SpringScheduler implements Scheduler {
 
 		@Override
 		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
-			TriggerType triggerType = job.getTriggerType();
-			TriggerDescription triggerDescription = job.getTriggerDescription();
-			Trigger trigger;
-			switch (triggerType) {
-			case PERIODIC:
-				trigger = new PeriodicTrigger(triggerDescription.getPeriod(), triggerDescription.getPeriodSchedulingUnit().getTimeUnit());
-				break;
-			case CRON:
-				trigger = new CronTrigger(triggerDescription.getCron());
-				break;
-			default:
-				throw new IllegalStateException("For triggerType: " + triggerType);
+			Trigger trigger = futureTriggers.get(future);
+			if (trigger == null) {
+				return -1L;
 			}
 			try {
 				return trigger.nextExecutionTime(new SimpleTriggerContext(lastExecutionTime, lastActualExecutionTime, lastCompletionTime))
@@ -130,6 +171,30 @@ public class SpringScheduler implements Scheduler {
 			}
 		}
 
+	}
+
+	/**
+	 * 
+	 * DelayedJobFuture
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	class DelayedJobFuture extends JobFutureImpl {
+
+		DelayedJobFuture(ScheduledFuture<?> future, Observable canceller) {
+			super(future);
+			this.canceller = canceller;
+		}
+
+		private final Observable canceller;
+
+		@Override
+		public void cancel() {
+			super.cancel();
+			canceller.notifyObservers();
+		}
 	}
 
 	public static void main(String[] args) {

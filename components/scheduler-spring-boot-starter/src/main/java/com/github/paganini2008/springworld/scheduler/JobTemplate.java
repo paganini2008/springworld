@@ -1,6 +1,9 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,24 @@ import org.slf4j.LoggerFactory;
 public abstract class JobTemplate {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
+	private final List<JobListener> jobListeners = new CopyOnWriteArrayList<JobListener>();
+
+	public void addJobListener(JobListener listener) {
+		if (listener != null) {
+			jobListeners.add(listener);
+			Collections.sort(jobListeners, (a, b) -> {
+				return a.getOrder() - b.getOrder();
+			});
+		}
+	}
+
+	public void removeJobListener(JobListener listener) {
+		if (listener != null) {
+			while (jobListeners.contains(listener)) {
+				jobListeners.remove(listener);
+			}
+		}
+	}
 
 	protected final void runJob(Job job, Object attachment) {
 		final Date startTime = new Date();
@@ -32,7 +53,7 @@ public abstract class JobTemplate {
 		} catch (JobTerminationException e) {
 			reason = e.getCause();
 			runningState = RunningState.COMPLETED;
-			cancel(jobKey, job, runningState, reason);
+			cancel(jobKey, job, runningState, e.getMessage(), reason);
 		} catch (Throwable e) {
 			reason = e;
 			runningState = RunningState.FAILED;
@@ -82,15 +103,21 @@ public abstract class JobTemplate {
 		return RunningState.COMPLETED;
 	}
 
-	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
+	protected void beforeRun(JobKey jobKey, Job job, Date startDate) {
 		if (log.isTraceEnabled()) {
 			log.trace("Prepare to run Job: " + jobKey);
 		}
+		for (JobListener listener : jobListeners) {
+			listener.beforeRun(jobKey, startDate);
+		}
 	}
 
-	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason) {
+	protected void afterRun(JobKey jobKey, Job job, Date startDate, RunningState runningState, Throwable reason) {
 		if (log.isTraceEnabled()) {
 			log.trace("Job is ending with state: " + runningState);
+		}
+		for (JobListener listener : jobListeners) {
+			listener.afterRun(jobKey, startDate, runningState, reason);
 		}
 	}
 
@@ -99,7 +126,7 @@ public abstract class JobTemplate {
 	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 	}
 
-	protected void cancel(JobKey jobKey, Job job, RunningState runningState, Throwable reason) {
+	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
 	}
 
 }

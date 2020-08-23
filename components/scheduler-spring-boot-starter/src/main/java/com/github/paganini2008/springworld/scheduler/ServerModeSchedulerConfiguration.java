@@ -156,6 +156,11 @@ public class ServerModeSchedulerConfiguration {
 		public ErrorHandler schedulerErrorHandler() {
 			return new SchedulerErrorHandler();
 		}
+		
+		@Bean
+		public SchedulerDeadlineProcessor schedulerDeadlineProcessor() {
+			return new SchedulerDeadlineProcessor();
+		}
 
 	}
 

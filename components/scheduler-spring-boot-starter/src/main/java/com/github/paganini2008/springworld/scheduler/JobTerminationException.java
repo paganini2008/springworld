@@ -17,6 +17,11 @@ public class JobTerminationException extends JobException {
 		this.jobKey = jobKey;
 	}
 
+	public JobTerminationException(JobKey jobKey, String reason) {
+		super(reason);
+		this.jobKey = jobKey;
+	}
+
 	public JobTerminationException(JobKey jobKey, Throwable e) {
 		super(e.getMessage(), e);
 		this.jobKey = jobKey;

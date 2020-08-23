@@ -20,7 +20,11 @@
 			<artifactId>jbcrypt</artifactId>
 			<version>0.4</version>
 		</dependency>
-
+<dependency>
+    <groupId>cn.hutool</groupId>
+    <artifactId>hutool-all</artifactId>
+    <version>5.3.10</version>
+</dependency>
 		<dependency>
 			<groupId>com.github.paganini2008</groupId>
 			<artifactId>devtools-cron4j</artifactId>

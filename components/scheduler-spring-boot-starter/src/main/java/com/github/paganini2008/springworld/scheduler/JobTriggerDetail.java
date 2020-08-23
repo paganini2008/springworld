@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Getter;
 
@@ -18,6 +19,8 @@ public class JobTriggerDetail implements Serializable {
 	private static final long serialVersionUID = 866085363330905946L;
 	private int jobId;
 	private TriggerType triggerType;
+	private Date startDate;
+	private Date endDate;
 	private TriggerDescription triggerDescription;
 
 	public void setJobId(int jobId) {
@@ -30,6 +33,14 @@ public class JobTriggerDetail implements Serializable {
 
 	public void setTriggerDescription(String triggerDescription) {
 		this.triggerDescription = JacksonUtils.parseJson(triggerDescription, TriggerDescription.class);
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 }

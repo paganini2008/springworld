@@ -28,20 +28,20 @@ public class JobAdminController {
 
 	@PostMapping("/addJob")
 	public ResponseEntity<JobResult> addJob(@RequestBody JobConfig jobConfig) {
-		jobAdmin.addJob(jobConfig);
-		return ResponseEntity.ok(JobResult.success(JobState.NOT_SCHEDULED, "ok"));
+		JobState jobState = jobAdmin.persistJob(jobConfig);
+		return ResponseEntity.ok(JobResult.success(jobState, "ok"));
 	}
 
 	@GetMapping("/hasJob")
 	public ResponseEntity<JobResult> hasJob(@RequestBody JobKey jobKey) {
-		jobAdmin.hasJob(jobKey);
-		return ResponseEntity.ok(JobResult.success(JobState.SCHEDULING, "ok"));
+		JobState jobState = jobAdmin.hasJob(jobKey);
+		return ResponseEntity.ok(JobResult.success(jobState, "ok"));
 	}
 
 	@DeleteMapping("/deleteJob")
 	public ResponseEntity<JobResult> deleteJob(@RequestBody JobKey jobKey) {
-		jobAdmin.deleteJob(jobKey);
-		return ResponseEntity.ok(JobResult.success(JobState.FINISHED, "ok"));
+		JobState jobState = jobAdmin.deleteJob(jobKey);
+		return ResponseEntity.ok(JobResult.success(jobState, "ok"));
 	}
 
 	@GetMapping("/list")

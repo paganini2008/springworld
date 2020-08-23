@@ -182,5 +182,10 @@ public class EmbeddedModeSchedulerConfiguration {
 	public JobAdmin embeddedModeJobAdmin() {
 		return new EmbeddedModeJobAdmin();
 	}
+	
+	@Bean
+	public SchedulerDeadlineProcessor schedulerDeadlineProcessor() {
+		return new SchedulerDeadlineProcessor();
+	}
 
 }

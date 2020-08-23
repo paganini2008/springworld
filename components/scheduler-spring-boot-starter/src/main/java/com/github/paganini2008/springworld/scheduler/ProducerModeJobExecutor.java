@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 /**
@@ -65,13 +66,18 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void cancel(JobKey jobKey, Job job, RunningState runningState, Throwable reason) {
+	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
 		scheduleManager.unscheduleJob(jobKey);
-
 		try {
-			jobManager.setJobState(jobKey, JobState.FINISHED);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			jobManager.deleteJob(jobKey);
+		} catch (SQLException e) {
+			throw new JobException(e.getMessage(), e);
+		}
+		if (StringUtils.isNotBlank(msg)) {
+			log.info(msg);
+		}
+		if (reason != null) {
+			log.error(reason.getMessage(), reason);
 		}
 	}
 

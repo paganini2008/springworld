@@ -13,30 +13,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum TriggerType {
 
-	CRON(1) {
+	CRON(1),
 
-		@Override
-		public Trigger getTrigger(TriggerDescription triggerDescription) {
-			return new CronTrigger(triggerDescription.getCron());
-		}
+	PERIODIC(2),
 
-	},
-
-	PERIODIC(2) {
-		@Override
-		public Trigger getTrigger(TriggerDescription triggerDescription) {
-			return new PeriodicTrigger(triggerDescription.getSchedulingMode(), triggerDescription.getDelay(),
-					triggerDescription.getDelaySchedulingUnit(), triggerDescription.getPeriod(),
-					triggerDescription.getPeriodSchedulingUnit());
-		}
-	},
-
-	SERIAL(3) {
-		@Override
-		public Trigger getTrigger(TriggerDescription triggerDescription) {
-			return new SerialTrigger(triggerDescription.getDependencies());
-		}
-	};
+	SERIAL(3);
 
 	private final int value;
 
@@ -48,8 +29,6 @@ public enum TriggerType {
 	public int getValue() {
 		return value;
 	}
-
-	public abstract Trigger getTrigger(TriggerDescription triggerDescription);
 
 	@JsonCreator
 	public static TriggerType valueOf(int value) {

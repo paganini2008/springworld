@@ -29,7 +29,7 @@ public class ServerModeJobAdmin implements JobAdmin {
 	private String hostUrl;
 
 	@Override
-	public void addJob(JobConfig jobConfig) {
+	public JobState persistJob(JobConfig jobConfig) {
 		final String url = hostUrl + "/job/manager/addJob";
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -38,7 +38,8 @@ public class ServerModeJobAdmin implements JobAdmin {
 		ResponseEntity<JobResult> responseEntity = null;
 		try {
 			responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);
-			log.info(responseEntity.toString());
+			log.trace(responseEntity.toString());
+			return responseEntity.getBody().getJobState();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new JobException(e.getMessage(), e);
@@ -46,7 +47,7 @@ public class ServerModeJobAdmin implements JobAdmin {
 	}
 
 	@Override
-	public void deleteJob(JobKey jobKey) {
+	public JobState deleteJob(JobKey jobKey) {
 		final String url = hostUrl + "/job/manager/deleteJob";
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -55,7 +56,8 @@ public class ServerModeJobAdmin implements JobAdmin {
 		ResponseEntity<JobResult> responseEntity = null;
 		try {
 			responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);
-			log.info(responseEntity.toString());
+			log.trace(responseEntity.toString());
+			return responseEntity.getBody().getJobState();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new JobException(e.getMessage(), e);
@@ -63,7 +65,7 @@ public class ServerModeJobAdmin implements JobAdmin {
 	}
 
 	@Override
-	public boolean hasJob(JobKey jobKey) {
+	public JobState hasJob(JobKey jobKey) {
 		final String url = hostUrl + "/job/manager/hasJob";
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -72,8 +74,8 @@ public class ServerModeJobAdmin implements JobAdmin {
 		ResponseEntity<JobResult> responseEntity = null;
 		try {
 			responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JobResult.class);
-			log.info(responseEntity.toString());
-			return true;
+			log.trace(responseEntity.toString());
+			return responseEntity.getBody().getJobState();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new JobException(e.getMessage(), e);

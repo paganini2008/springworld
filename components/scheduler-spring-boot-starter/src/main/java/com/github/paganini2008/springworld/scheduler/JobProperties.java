@@ -21,9 +21,7 @@ public interface JobProperties {
 
 	String getGroupName();
 
-	TriggerType getTriggerType();
-
-	TriggerDescription getTriggerDescription();
+	TriggerBuilder buildTrigger();
 
 	default String getDescription() {
 		return "";

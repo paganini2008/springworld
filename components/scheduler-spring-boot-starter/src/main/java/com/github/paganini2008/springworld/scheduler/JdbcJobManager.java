@@ -90,49 +90,72 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public int addJob(Job job, String attachment) throws SQLException {
-		JobKey jobKey = JobKey.of(job);
+	public int persistJob(Job job, String attachment) throws SQLException {
+		final JobKey jobKey = JobKey.of(job);
 		if (hasJob(jobKey)) {
+			Connection connection = null;
+			try {
+				connection = dataSource.getConnection();
+				connection.setAutoCommit(false);
+				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL, new Object[] { job.getDescription(), attachment,
+						job.getEmail(), job.getRetries(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+
+				TriggerBuilder triggerBuilder = job.buildTrigger();
+				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER, new Object[] { triggerBuilder.getTriggerType().getValue(),
+						JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()),
+						new Timestamp(triggerBuilder.getStartDate().getTime()), new Timestamp(triggerBuilder.getEndDate().getTime()),
+						jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+				connection.commit();
+				log.info("Merge job info '{}' ok.", jobKey);
+			} catch (SQLException e) {
+				JdbcUtils.rollbackQuietly(connection);
+				throw e;
+			} finally {
+				JdbcUtils.closeQuietly(connection);
+			}
 			return 0;
+		} else {
+			int id;
+			Connection connection = null;
+			try {
+				connection = dataSource.getConnection();
+				connection.setAutoCommit(false);
+				id = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
+					ps.setString(1, jobKey.getIdentifier());
+					ps.setString(2, job.getGroupName());
+					ps.setString(3, job.getJobName());
+					ps.setString(4, job.getJobClassName());
+					ps.setString(5, job.getDescription());
+					ps.setString(6, attachment);
+					ps.setString(7, job.getEmail());
+					ps.setInt(8, job.getRetries());
+					ps.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+				});
+
+				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_RUNTIME, ps -> {
+					ps.setInt(1, id);
+					ps.setInt(2, JobState.NOT_SCHEDULED.getValue());
+				});
+
+				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
+					TriggerBuilder triggerBuilder = job.buildTrigger();
+					ps.setInt(1, id);
+					ps.setInt(2, triggerBuilder.getTriggerType().getValue());
+					ps.setString(3, JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()));
+					ps.setTimestamp(4, new Timestamp(triggerBuilder.getStartDate().getTime()));
+					ps.setTimestamp(5, new Timestamp(triggerBuilder.getEndDate().getTime()));
+				});
+
+				connection.commit();
+				log.info("Add job info '{}' ok.", jobKey);
+				return id;
+			} catch (SQLException e) {
+				JdbcUtils.rollbackQuietly(connection);
+				throw e;
+			} finally {
+				JdbcUtils.closeQuietly(connection);
+			}
 		}
-		int id;
-		Connection connection = null;
-		try {
-			connection = dataSource.getConnection();
-			connection.setAutoCommit(false);
-			id = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
-				ps.setString(1, jobKey.getIdentifier());
-				ps.setString(2, job.getGroupName());
-				ps.setString(3, job.getJobName());
-				ps.setString(4, job.getJobClassName());
-				ps.setString(5, job.getDescription());
-				ps.setString(6, attachment);
-				ps.setString(7, job.getEmail());
-				ps.setInt(8, job.getRetries());
-				ps.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
-			});
-
-			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_RUNTIME, ps -> {
-				ps.setInt(1, id);
-				ps.setInt(2, JobState.NOT_SCHEDULED.getValue());
-			});
-
-			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
-				ps.setInt(1, id);
-				ps.setInt(2, job.getTriggerType().getValue());
-				ps.setString(3, JacksonUtils.toJsonString(job.getTriggerDescription()));
-			});
-
-			connection.commit();
-			log.info("Add job '" + jobKey + "' ok.");
-			return id;
-		} catch (SQLException e) {
-			JdbcUtils.rollbackQuietly(connection);
-			throw e;
-		} finally {
-			JdbcUtils.closeQuietly(connection);
-		}
-
 	}
 
 	@Override

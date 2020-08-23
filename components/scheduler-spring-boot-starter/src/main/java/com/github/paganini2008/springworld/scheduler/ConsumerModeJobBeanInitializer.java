@@ -69,7 +69,7 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 					continue;
 				}
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-				String[] dependencies = triggerDetail.getTriggerDescription().getDependencies();
+				String[] dependencies = triggerDetail.getTriggerDescription().getSerial().getDependencies();
 				if (ArrayUtils.isNotEmpty(dependencies) && !(jobFutureHolder.get(jobKey) instanceof JobDependencyFuture)) {
 					jobFutureHolder.add(jobKey, jobDependencyObservable.addDependency(job, dependencies));
 				}

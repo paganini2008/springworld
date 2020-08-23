@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.scheduler;
 
+import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +22,8 @@ public class JobConfig {
 	private String jobClassName;
 	private TriggerType triggerType;
 	private TriggerDescription triggerDescription;
+	private Date startDate;
+	private Date endDate;
 	private String description;
 	private String email;
 	private int retries;

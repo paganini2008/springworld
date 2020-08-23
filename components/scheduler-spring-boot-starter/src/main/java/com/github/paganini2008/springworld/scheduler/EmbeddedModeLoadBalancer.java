@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -85,6 +86,23 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 			return jobManager.hasJobState(jobKey, JobState.SCHEDULING);
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
+		scheduleManager.unscheduleJob(jobKey);
+		try {
+			jobManager.deleteJob(jobKey);
+		} catch (SQLException e) {
+			throw new JobException(e.getMessage(), e);
+		}
+
+		if (StringUtils.isNotBlank(msg)) {
+			log.info(msg);
+		}
+		if (reason != null) {
+			log.error(reason.getMessage(), reason);
 		}
 	}
 

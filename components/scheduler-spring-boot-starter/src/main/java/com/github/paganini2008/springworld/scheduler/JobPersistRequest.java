@@ -2,17 +2,17 @@ package com.github.paganini2008.springworld.scheduler;
 
 /**
  * 
- * JobAddRequest
+ * JobPersistRequest
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class JobAddRequest implements Job {
+public class JobPersistRequest implements Job {
 
 	private final JobConfig jobConfig;
 
-	JobAddRequest(JobConfig jobConfig) {
+	JobPersistRequest(JobConfig jobConfig) {
 		this.jobConfig = jobConfig;
 	}
 
@@ -47,13 +47,9 @@ public class JobAddRequest implements Job {
 	}
 
 	@Override
-	public TriggerType getTriggerType() {
-		return jobConfig.getTriggerType();
-	}
-
-	@Override
-	public TriggerDescription getTriggerDescription() {
-		return jobConfig.getTriggerDescription();
+	public TriggerBuilder buildTrigger() {
+		return TriggerBuilder.newTrigger(jobConfig.getTriggerType()).setStartDate(jobConfig.getStartDate())
+				.setEndDate(jobConfig.getEndDate()).setTriggerDescription(jobConfig.getTriggerDescription());
 	}
 
 	@Override
@@ -64,6 +60,10 @@ public class JobAddRequest implements Job {
 	@Override
 	public boolean managedByApplicationContext() {
 		return false;
+	}
+
+	public static JobPersistRequest build(JobConfig jobConfig) {
+		return new JobPersistRequest(jobConfig);
 	}
 
 }

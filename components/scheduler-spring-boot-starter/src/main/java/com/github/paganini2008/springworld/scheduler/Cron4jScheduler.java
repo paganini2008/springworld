@@ -1,11 +1,13 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import java.util.Date;
+import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.ErrorHandler;
 
+import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.cron4j.CRON;
 import com.github.paganini2008.devtools.cron4j.Task;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
@@ -37,26 +39,63 @@ public class Cron4jScheduler implements Scheduler {
 	private JobDependencyObservable jobDependencyObservable;
 
 	@Override
-	public JobFuture schedule(Job job, Object attachment, String cron) {
-		TaskFuture taskFuture = taskExecutor.schedule(wrapJob(job, attachment), CRON.parse(cron));
-		return new FutureImpl(taskFuture);
+	public JobFuture schedule(Job job, Object attachment, Date startDate) {
+		TaskFuture taskFuture = taskExecutor.schedule(wrapJob(job, attachment), startDate.getTime() - System.currentTimeMillis());
+		return new JobFutureImpl(taskFuture);
 	}
 
 	@Override
-	public JobFuture scheduleWithFixedDelay(Job job, Object attachment, long delay, long period) {
-		TaskFuture taskFuture = taskExecutor.scheduleWithFixedDelay(wrapJob(job, attachment), delay, period);
-		return new FutureImpl(taskFuture);
+	public JobFuture schedule(Job job, Object attachment, String cronExpression) {
+		TaskFuture taskFuture = taskExecutor.schedule(wrapJob(job, attachment), CRON.parse(cronExpression));
+		return new JobFutureImpl(taskFuture);
 	}
 
 	@Override
-	public JobFuture scheduleAtFixedRate(Job job, Object attachment, long delay, long period) {
-		TaskFuture taskFuture = taskExecutor.scheduleAtFixedRate(wrapJob(job, attachment), delay, period);
-		return new FutureImpl(taskFuture);
+	public JobFuture schedule(Job job, Object attachment, String cronExpression, Date startDate) {
+		return schedule(() -> {
+			return schedule(job, attachment, cronExpression);
+		}, startDate);
+	}
+
+	@Override
+	public JobFuture scheduleWithFixedDelay(Job job, Object attachment, long period, Date startDate) {
+		TaskFuture taskFuture = taskExecutor.scheduleWithFixedDelay(wrapJob(job, attachment),
+				startDate.getTime() - System.currentTimeMillis(), period);
+		return new JobFutureImpl(taskFuture);
+	}
+
+	@Override
+	public JobFuture scheduleAtFixedRate(Job job, Object attachment, long period, Date startDate) {
+		TaskFuture taskFuture = taskExecutor.scheduleAtFixedRate(wrapJob(job, attachment), startDate.getTime() - System.currentTimeMillis(),
+				period);
+		return new JobFutureImpl(taskFuture);
 	}
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, String[] dependencies) {
 		return jobDependencyObservable.addDependency(job, dependencies);
+	}
+
+	@Override
+	public JobFuture scheduleWithDependency(Job job, String[] dependencies, Date startDate) {
+		return schedule(() -> {
+			return jobDependencyObservable.addDependency(job, dependencies);
+		}, startDate);
+	}
+
+	private JobFuture schedule(Supplier<JobFuture> supplier, Date startDate) {
+		final Observable canceller = Observable.unrepeatable();
+		final TaskFuture taskFuture = taskExecutor.schedule(new Task() {
+			@Override
+			public boolean execute() {
+				final JobFuture target = supplier.get();
+				canceller.addObserver((ob, arg) -> {
+					target.cancel();
+				});
+				return true;
+			}
+		}, startDate.getTime() - System.currentTimeMillis());
+		return new DelayedJobFuture(taskFuture, canceller);
 	}
 
 	@Override
@@ -84,17 +123,17 @@ public class Cron4jScheduler implements Scheduler {
 
 	/**
 	 * 
-	 * FutureImpl
+	 * JobFutureImpl
 	 * 
 	 * @author Fred Feng
 	 *
 	 * @since 1.0
 	 */
-	private static class FutureImpl implements JobFuture {
+	private static class JobFutureImpl implements JobFuture {
 
 		private final TaskFuture taskFuture;
 
-		FutureImpl(TaskFuture taskFuture) {
+		JobFutureImpl(TaskFuture taskFuture) {
 			this.taskFuture = taskFuture;
 		}
 
@@ -116,6 +155,31 @@ public class Cron4jScheduler implements Scheduler {
 		@Override
 		public long getNextExectionTime(Date lastExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
 			return taskFuture.getDetail().nextExectionTime();
+		}
+
+	}
+
+	/**
+	 * 
+	 * DelayedJobFuture
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	private static class DelayedJobFuture extends JobFutureImpl {
+
+		private final Observable canceller;
+
+		DelayedJobFuture(TaskFuture taskFuture, Observable canceller) {
+			super(taskFuture);
+			this.canceller = canceller;
+		}
+
+		@Override
+		public void cancel() {
+			super.cancel();
+			canceller.notifyObservers();
 		}
 
 	}

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.github.paganini2008.devtools.beans.ToStringBuilder;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -15,6 +16,7 @@ import lombok.Getter;
  * @since 1.0
  */
 @Getter
+@Setter
 public class JobResult implements Serializable {
 
 	private static final long serialVersionUID = -6257798137365527003L;
@@ -39,14 +41,6 @@ public class JobResult implements Serializable {
 		this.msg = msg;
 	}
 
-	public void setJobState(int jobState) {
-		this.jobState = JobState.valueOf(jobState);
-	}
-
-	public void setJobState(JobState jobState) {
-		this.jobState = jobState;
-	}
-	
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
