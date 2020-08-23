@@ -111,8 +111,13 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public JobAdmin serverModeJobAdmin() {
+		public JobAdmin jobAdmin() {
 			return new ServerModeJobAdmin();
+		}
+
+		@Bean
+		public ScheduleAdmin scheduleAdmin() {
+			return new ServerModeScheduleAdmin();
 		}
 
 		@ConditionalOnMissingBean(RestTemplate.class)
@@ -166,7 +171,7 @@ public class ServerModeSchedulerConfiguration {
 
 	@Order(Ordered.LOWEST_PRECEDENCE - 1)
 	@Configuration
-	@Import({ JobAdminController.class })
+	@Import({ JobController.class })
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	public static class ConsumerModeConfig {
 

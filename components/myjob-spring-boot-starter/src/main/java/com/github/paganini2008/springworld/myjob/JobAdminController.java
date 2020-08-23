@@ -22,6 +22,9 @@ public class JobAdminController {
 
 	@Autowired
 	private JobAdmin jobAdmin;
+	
+	@Autowired
+	private ScheduleAdmin scheduleAdmin;
 
 	@PostMapping("/persistJob")
 	public ResponseEntity<JobResult> persistJob(@RequestBody JobConfig jobConfig) {
@@ -44,6 +47,18 @@ public class JobAdminController {
 	@PostMapping("/triggerJob")
 	public ResponseEntity<JobResult> triggerJob(@RequestBody JobParam jobParam) {
 		JobState jobState = jobAdmin.triggerJob(jobParam.getJobKey(), jobParam.getAttachment());
+		return ResponseEntity.ok(JobResult.success(jobState, "ok"));
+	}
+
+	@PostMapping("/unscheduleJob")
+	public ResponseEntity<JobResult> unscheduleJob(@RequestBody JobKey jobKey) {
+		JobState jobState = scheduleAdmin.unscheduleJob(jobKey);
+		return ResponseEntity.ok(JobResult.success(jobState, "ok"));
+	}
+
+	@PostMapping("/scheduleJob")
+	public ResponseEntity<JobResult> scheduleJob(@RequestBody JobKey jobKey) {
+		JobState jobState = scheduleAdmin.scheduleJob(jobKey);
 		return ResponseEntity.ok(JobResult.success(jobState, "ok"));
 	}
 

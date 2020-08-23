@@ -34,10 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ServerModeJobAdmin implements JobAdmin {
 
 	@Autowired
-	private RestTemplate restTemplate;
+	private JobManager jobManager;
 
 	@Autowired
-	private JobManager jobManager;
+	private RestTemplate restTemplate;
 
 	@Value("${spring.application.cluster.scheduler.server.targetHostUrl:}")
 	private String hostUrls;
@@ -75,14 +75,6 @@ public class ServerModeJobAdmin implements JobAdmin {
 			} else {
 				return JobState.NONE;
 			}
-		} catch (SQLException e) {
-			throw new JobException(e.getMessage(), e);
-		}
-	}
-
-	public void getJobInfo() {
-		try {
-			jobManager.getJobInfo();
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		}

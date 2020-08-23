@@ -37,15 +37,12 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 		try {
 			jobClass = ClassUtils.forName(jobClassName);
 		} catch (RuntimeException e) {
-			log.warn("Can not load JobClass by name '" + jobClassName + "' into job instance.");
+			if (log.isTraceEnabled()) {
+				log.trace("Can not load JobClass by name '" + jobClassName + "' into job instance.");
+			}
 			return null;
 		}
-		if (NotManagedJob.class.isAssignableFrom(jobClass)) {
-			NotManagedJob target = ApplicationContextUtils.autowireBean((NotManagedJob) BeanUtils.instantiate(jobClass));
-			JobDetail jobDetail = jobManager.getJobDetail(jobKey);
-			return (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), Job.class);
-
-		} else if (Job.class.isAssignableFrom(jobClass)) {
+		if (Job.class.isAssignableFrom(jobClass)) {
 			final String jobName = jobKey.getJobName();
 			Job job = (Job) ApplicationContextUtils.getBean(jobName, jobClass);
 			if (job == null) {
@@ -57,10 +54,22 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				throw new JobBeanNotFoundException(jobKey.getIdentifier());
 			}
 			return job;
+		} else if (NotManagedJob.class.isAssignableFrom(jobClass)) {
+			NotManagedJob target = ApplicationContextUtils.autowireBean((NotManagedJob) BeanUtils.instantiate(jobClass));
+			JobDetail jobDetail = jobManager.getJobDetail(jobKey);
+			return (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), Job.class);
 		}
 		throw new JobException("Class '" + jobClass.getName() + "' is not a instance of interface '" + Job.class.getName() + "'.");
 	}
 
+	/**
+	 * 
+	 * JobBeanAspect
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
 	private static class JobBeanAspect implements Aspect {
 
 		private final JobDetail jobDetail;
@@ -85,6 +94,8 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				return jobDetail.getEmail();
 			case "getRetries":
 				return jobDetail.getRetries();
+			case "buildTrigger":
+				return null;
 			default:
 				return MethodUtils.invokeMethod(target, method, args);
 			}
