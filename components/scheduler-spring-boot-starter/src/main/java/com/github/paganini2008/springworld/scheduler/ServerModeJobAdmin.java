@@ -152,6 +152,7 @@ public class ServerModeJobAdmin extends RestTemplate implements JobAdmin {
 				if (jobResult.getJobState() == JobState.FINISHED) {
 					throw new JobTerminationException(jobKey);
 				}
+				return responseEntity.getBody().getJobState();
 			} else {
 				throw new RestClientException("Bad state of restClient: " + responseEntity);
 			}

@@ -109,6 +109,7 @@ public class ServerModeSchedulerConfiguration {
 			return new JdbcJobManager();
 		}
 
+		@ConditionalOnMissingBean(JobAdmin.class)
 		@Bean
 		public JobAdmin serverModeJobAdmin() {
 			return new ServerModeJobAdmin();
@@ -143,12 +144,6 @@ public class ServerModeSchedulerConfiguration {
 		@Bean("main-job-executor")
 		public JobExecutor jobExecutor() {
 			return new ProducerModeJobExecutor();
-		}
-
-		@Bean("scheduler-httpclient")
-		@ConditionalOnMissingBean(ServerModeJobAdmin.class)
-		public ServerModeJobAdmin restTemplate() {
-			return new ServerModeJobAdmin();
 		}
 
 		@Bean("scheduler-error-handler")
