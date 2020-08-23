@@ -16,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
-import org.springframework.web.client.RestTemplate;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
@@ -147,16 +146,16 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean("scheduler-httpclient")
-		@ConditionalOnMissingBean(RestTemplate.class)
-		public RestTemplate restTemplate() {
-			return new RestTemplate();
+		@ConditionalOnMissingBean(SchedulerRestTemplate.class)
+		public SchedulerRestTemplate restTemplate() {
+			return new SchedulerRestTemplate();
 		}
 
 		@Bean("scheduler-error-handler")
 		public ErrorHandler schedulerErrorHandler() {
 			return new SchedulerErrorHandler();
 		}
-		
+
 		@Bean
 		public SchedulerDeadlineProcessor schedulerDeadlineProcessor() {
 			return new SchedulerDeadlineProcessor();

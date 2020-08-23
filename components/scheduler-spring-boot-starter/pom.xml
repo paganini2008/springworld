@@ -14,17 +14,19 @@
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>
+	
+		<dependency>
+			<groupId>org.springframework.retry</groupId>
+			<artifactId>spring-retry</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
-			<groupId>org.mindrot</groupId>
-			<artifactId>jbcrypt</artifactId>
-			<version>0.4</version>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<scope>provided</scope>
 		</dependency>
-<dependency>
-    <groupId>cn.hutool</groupId>
-    <artifactId>hutool-all</artifactId>
-    <version>5.3.10</version>
-</dependency>
+
 		<dependency>
 			<groupId>com.github.paganini2008</groupId>
 			<artifactId>devtools-cron4j</artifactId>

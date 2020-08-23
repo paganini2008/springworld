@@ -33,6 +33,13 @@ public class JobResult implements Serializable {
 		return jobResult;
 	}
 
+	public static JobResult failure(String msg) {
+		JobResult jobResult = new JobResult();
+		jobResult.setSuccess(true);
+		jobResult.setMsg(msg);
+		return jobResult;
+	}
+
 	public void setSuccess(boolean success) {
 		this.success = success;
 	}

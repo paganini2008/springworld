@@ -74,6 +74,7 @@ public class TriggerDescription {
 
 	@Data
 	public static class Serial {
+		
 		private String[] dependencies;
 
 		public Serial(String[] dependencies) {
