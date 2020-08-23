@@ -31,10 +31,10 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 	private JobManager jobManager;
 
 	public JobState persistJob(JobConfig jobConfig) {
-		Job job = JobPersistRequest.build(jobConfig);
+		JobDef jobDef = JobPersistRequest.build(jobConfig);
 		try {
-			jobManager.persistJob(job, jobConfig.getAttachment());
-			return jobManager.getJobRuntime(JobKey.of(job)).getJobState();
+			jobManager.persistJob(jobDef, jobConfig.getAttachment());
+			return jobManager.getJobRuntime(JobKey.of(jobDef)).getJobState();
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		}
@@ -75,7 +75,5 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 			throw new JobException(e.getMessage(), e);
 		}
 	}
-	
-	
 
 }

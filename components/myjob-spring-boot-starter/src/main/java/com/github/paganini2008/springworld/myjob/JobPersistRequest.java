@@ -8,7 +8,7 @@ package com.github.paganini2008.springworld.myjob;
  *
  * @since 1.0
  */
-public class JobPersistRequest implements Job {
+public class JobPersistRequest implements JobDef {
 
 	private final JobConfig jobConfig;
 
@@ -19,6 +19,11 @@ public class JobPersistRequest implements Job {
 	@Override
 	public String getJobName() {
 		return jobConfig.getJobName();
+	}
+
+	@Override
+	public String getGroupName() {
+		return jobConfig.getGroupName();
 	}
 
 	@Override
@@ -42,24 +47,9 @@ public class JobPersistRequest implements Job {
 	}
 
 	@Override
-	public String getGroupName() {
-		return jobConfig.getGroupName();
-	}
-
-	@Override
 	public TriggerBuilder buildTrigger() {
 		return TriggerBuilder.newTrigger(jobConfig.getTriggerType()).setStartDate(jobConfig.getStartDate())
 				.setEndDate(jobConfig.getEndDate()).setTriggerDescription(jobConfig.getTriggerDescription());
-	}
-
-	@Override
-	public Object execute(JobKey jobKey, Object result) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean managedByApplicationContext() {
-		return false;
 	}
 
 	public static JobPersistRequest build(JobConfig jobConfig) {

@@ -90,17 +90,17 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public int persistJob(Job job, String attachment) throws SQLException {
-		final JobKey jobKey = JobKey.of(job);
+	public int persistJob(JobDef jobDef, String attachment) throws SQLException {
+		final JobKey jobKey = JobKey.of(jobDef);
 		if (hasJob(jobKey)) {
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
 				connection.setAutoCommit(false);
-				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL, new Object[] { job.getDescription(), attachment,
-						job.getEmail(), job.getRetries(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL, new Object[] { jobDef.getDescription(), attachment,
+						jobDef.getEmail(), jobDef.getRetries(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
-				TriggerBuilder triggerBuilder = job.buildTrigger();
+				TriggerBuilder triggerBuilder = jobDef.buildTrigger();
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER,
 						new Object[] { triggerBuilder.getTriggerType().getValue(),
 								JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()),
@@ -124,13 +124,13 @@ public class JdbcJobManager implements JobManager {
 				connection.setAutoCommit(false);
 				id = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
 					ps.setString(1, jobKey.getIdentifier());
-					ps.setString(2, job.getGroupName());
-					ps.setString(3, job.getJobName());
-					ps.setString(4, job.getJobClassName());
-					ps.setString(5, job.getDescription());
+					ps.setString(2, jobDef.getGroupName());
+					ps.setString(3, jobDef.getJobName());
+					ps.setString(4, jobDef.getJobClassName());
+					ps.setString(5, jobDef.getDescription());
 					ps.setString(6, attachment);
-					ps.setString(7, job.getEmail());
-					ps.setInt(8, job.getRetries());
+					ps.setString(7, jobDef.getEmail());
+					ps.setInt(8, jobDef.getRetries());
 					ps.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
 				});
 
@@ -140,7 +140,7 @@ public class JdbcJobManager implements JobManager {
 				});
 
 				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
-					TriggerBuilder triggerBuilder = job.buildTrigger();
+					TriggerBuilder triggerBuilder = jobDef.buildTrigger();
 					ps.setInt(1, id);
 					ps.setInt(2, triggerBuilder.getTriggerType().getValue());
 					ps.setString(3, JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()));

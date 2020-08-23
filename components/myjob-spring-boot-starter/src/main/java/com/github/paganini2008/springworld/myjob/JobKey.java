@@ -75,11 +75,11 @@ public final class JobKey implements Serializable {
 		return false;
 	}
 
-	public static JobKey of(final Job job) {
-		Assert.isNull(job, "Job instance must be required.");
-		String groupName = job.getGroupName();
-		String jobName = job.getJobName();
-		String jobClassName = job.getJobClassName();
+	public static JobKey of(final JobDef jobDef) {
+		Assert.isNull(jobDef, "JobDef instance must be required.");
+		String groupName = jobDef.getGroupName();
+		String jobName = jobDef.getJobName();
+		String jobClassName = jobDef.getJobClassName();
 		return new JobKey(groupName, jobName, jobClassName);
 	}
 

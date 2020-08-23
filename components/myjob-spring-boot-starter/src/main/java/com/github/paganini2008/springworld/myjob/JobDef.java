@@ -1,16 +1,14 @@
 package com.github.paganini2008.springworld.myjob;
 
-import com.github.paganini2008.devtools.NotImplementedException;
-
 /**
  * 
- * JobProperties
+ * JobDef
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public interface JobProperties {
+public interface JobDef {
 
 	default String getJobName() {
 		String simpleName = getClass().getSimpleName();
@@ -21,13 +19,9 @@ public interface JobProperties {
 		return getClass().getName();
 	}
 
-	default String getGroupName() {
-		throw new NotImplementedException("Please define a groupName for the job.");
-	}
-
-	default TriggerBuilder buildTrigger() {
-		throw new NotImplementedException("Please define a triggerBuilder for the job.");
-	}
+	String getGroupName();
+	
+	TriggerBuilder buildTrigger();
 
 	default String getDescription() {
 		return "";
@@ -38,10 +32,6 @@ public interface JobProperties {
 	}
 
 	default String getEmail() {
-		return "";
-	}
-
-	default boolean managedByApplicationContext() {
-		return true;
+		return null;
 	}
 }
