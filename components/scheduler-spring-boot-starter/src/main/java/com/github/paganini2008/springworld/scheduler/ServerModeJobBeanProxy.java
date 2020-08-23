@@ -1,7 +1,6 @@
 package com.github.paganini2008.springworld.scheduler;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestClientException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +19,8 @@ public class ServerModeJobBeanProxy implements Job {
 	private final JobKey jobKey;
 	private final JobTriggerDetail triggerDetail;
 
-	@Qualifier("scheduler-httpclient")
 	@Autowired
-	private SchedulerRestTemplate restTemplate;
+	private JobAdmin jobAdmin;
 
 	public ServerModeJobBeanProxy(JobKey jobKey, JobTriggerDetail triggerDetail) {
 		this.jobKey = jobKey;
@@ -58,7 +56,7 @@ public class ServerModeJobBeanProxy implements Job {
 	@Override
 	public Object execute(JobKey jobKey, Object result) {
 		try {
-			restTemplate.triggerJob(jobKey, result);
+			jobAdmin.triggerJob(jobKey, result);
 		} catch (RestClientException e) {
 			throw new JobException(e.getMessage(), e);
 		}

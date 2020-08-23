@@ -101,10 +101,12 @@ public class JdbcJobManager implements JobManager {
 						job.getEmail(), job.getRetries(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
 				TriggerBuilder triggerBuilder = job.buildTrigger();
-				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER, new Object[] { triggerBuilder.getTriggerType().getValue(),
-						JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()),
-						new Timestamp(triggerBuilder.getStartDate().getTime()), new Timestamp(triggerBuilder.getEndDate().getTime()),
-						jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER,
+						new Object[] { triggerBuilder.getTriggerType().getValue(),
+								JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()),
+								triggerBuilder.getStartDate() != null ? new Timestamp(triggerBuilder.getStartDate().getTime()) : null,
+								triggerBuilder.getEndDate() != null ? new Timestamp(triggerBuilder.getEndDate().getTime()) : null,
+								jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 				connection.commit();
 				log.info("Merge job info '{}' ok.", jobKey);
 			} catch (SQLException e) {
@@ -142,8 +144,9 @@ public class JdbcJobManager implements JobManager {
 					ps.setInt(1, id);
 					ps.setInt(2, triggerBuilder.getTriggerType().getValue());
 					ps.setString(3, JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()));
-					ps.setTimestamp(4, new Timestamp(triggerBuilder.getStartDate().getTime()));
-					ps.setTimestamp(5, new Timestamp(triggerBuilder.getEndDate().getTime()));
+					ps.setTimestamp(4,
+							triggerBuilder.getStartDate() != null ? new Timestamp(triggerBuilder.getStartDate().getTime()) : null);
+					ps.setTimestamp(5, triggerBuilder.getEndDate() != null ? new Timestamp(triggerBuilder.getEndDate().getTime()) : null);
 				});
 
 				connection.commit();

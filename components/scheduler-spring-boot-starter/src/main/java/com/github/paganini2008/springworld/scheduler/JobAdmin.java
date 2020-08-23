@@ -16,4 +16,6 @@ public interface JobAdmin {
 
 	JobState hasJob(JobKey jobKey);
 
+	JobState triggerJob(JobKey jobKey, Object attachment);
+
 }

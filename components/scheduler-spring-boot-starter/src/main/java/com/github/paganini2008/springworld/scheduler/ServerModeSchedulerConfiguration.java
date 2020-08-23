@@ -146,9 +146,9 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean("scheduler-httpclient")
-		@ConditionalOnMissingBean(SchedulerRestTemplate.class)
-		public SchedulerRestTemplate restTemplate() {
-			return new SchedulerRestTemplate();
+		@ConditionalOnMissingBean(ServerModeJobAdmin.class)
+		public ServerModeJobAdmin restTemplate() {
+			return new ServerModeJobAdmin();
 		}
 
 		@Bean("scheduler-error-handler")
@@ -165,7 +165,7 @@ public class ServerModeSchedulerConfiguration {
 
 	@Order(Ordered.LOWEST_PRECEDENCE - 1)
 	@Configuration
-	@Import({ JobController.class, JobAdminController.class })
+	@Import({ JobAdminController.class })
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	public static class ConsumerModeConfig {
 
