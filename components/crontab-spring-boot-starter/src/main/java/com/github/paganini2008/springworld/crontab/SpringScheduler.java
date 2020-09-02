@@ -31,11 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SpringScheduler implements Scheduler {
 
-	@Qualifier("cluster-job-scheduler")
+	@Qualifier(BeanNames.CLUSTER_JOB_SCHEDULER)
 	@Autowired
 	private TaskScheduler taskScheduler;
 
-	@Qualifier("main-job-executor")
+	@Qualifier(BeanNames.MAIN_JOB_EXECUTOR)
 	@Autowired
 	private JobExecutor jobExecutor;
 

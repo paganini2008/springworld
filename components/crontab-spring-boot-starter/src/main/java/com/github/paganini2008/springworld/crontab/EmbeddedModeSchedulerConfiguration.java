@@ -106,7 +106,7 @@ public class EmbeddedModeSchedulerConfiguration {
 			return new SpringScheduler();
 		}
 
-		@Bean("cluster-job-scheduler")
+		@Bean(name = BeanNames.CLUSTER_JOB_SCHEDULER, destroyMethod = "shutdown")
 		public TaskScheduler taskScheduler(@Qualifier("scheduler-error-handler") ErrorHandler errorHandler) {
 			ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
 			threadPoolTaskScheduler.setPoolSize(poolSize);
@@ -130,7 +130,8 @@ public class EmbeddedModeSchedulerConfiguration {
 			return new Cron4jScheduler();
 		}
 
-		@Bean("cluster-job-scheduler")
+		@ConditionalOnMissingBean(TaskExecutor.class)
+		@Bean(name = BeanNames.CLUSTER_JOB_SCHEDULER, destroyMethod = "close")
 		public TaskExecutor taskExecutor() {
 			ScheduledExecutorService executor = Executors.newScheduledThreadPool(poolSize,
 					new PooledThreadFactory("cluster-task-scheduler-"));

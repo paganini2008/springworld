@@ -17,12 +17,11 @@
 		<module>fastjpa-spring-boot-starter</module>
 		<module>config-spring-boot-starter</module>
 		<module>authorization-spring-boot-starter</module>
-		<!-- <module>crontab-spring-boot-starter</module> -->
+		<module>crontab-spring-boot-starter</module>
 		<module>redisplus-spring-boot-starter</module>
 		<module>cluster-spring-boot-starter</module>
 		<module>cached-spring-boot-starter</module>
 		<module>transport-spring-boot-starter</module>
-		<module>myjob-spring-boot-starter</module>
 		<module>jdbcplus-spring-boot-starter</module>
 		<module>jdbc-spring-boot-starter</module>
 		<module>xmemcached-spring-boot-starter</module>

@@ -23,11 +23,11 @@ import com.github.paganini2008.devtools.cron4j.TaskExecutor.TaskFuture;
  */
 public class Cron4jScheduler implements Scheduler {
 
-	@Qualifier("cluster-job-scheduler")
+	@Qualifier(BeanNames.CLUSTER_JOB_SCHEDULER)
 	@Autowired
 	private TaskExecutor taskExecutor;
 
-	@Qualifier("main-job-executor")
+	@Qualifier(BeanNames.MAIN_JOB_EXECUTOR)
 	@Autowired
 	private JobExecutor jobExecutor;
 
