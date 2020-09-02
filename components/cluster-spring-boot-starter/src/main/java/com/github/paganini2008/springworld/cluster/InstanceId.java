@@ -32,22 +32,28 @@ public final class InstanceId {
 	@Value("${spring.application.name}")
 	private String applicationName;
 
+	@Value("${server.port}")
+	private int port;
+
+	@Value("${server.servlet.context-path:}")
+	private String contextPath;
+
 	@Value("${spring.application.cluster.id:}")
 	private String id;
 
-	@Value("${spring.application.cluster.hostName:}")
-	private String hostName;
+	@Value("${spring.application.cluster.weight:1}")
+	private int weight;
 
-	@Value("${server.port}")
-	private int serverPort;
+	@Value("${spring.application.cluster.applicationContextPath:}")
+	private String applicationContextPath;
+
+	@Setter
+	@Getter
+	private Contact contact;
 
 	@Setter
 	@Getter
 	private ApplicationInfo leaderInfo;
-
-	@Getter
-	@Value("${spring.application.cluster.weight:1}")
-	private int weight;
 
 	public String get() {
 		if (StringUtils.isBlank(id)) {
@@ -68,20 +74,25 @@ public final class InstanceId {
 		return get().equals(leaderInfo.getId());
 	}
 
-	public String getHostName() {
-		if (StringUtils.isBlank(hostName)) {
-			hostName = NetUtils.getLocalHost();
-		}
-		return hostName;
-	}
-
 	public long getStartTime() {
 		return startTime;
 	}
 
+	public int getWeight() {
+		return weight;
+	}
+
 	public ApplicationInfo getApplicationInfo() {
-		return new ApplicationInfo(get(), clusterName, applicationName, getHostName(), serverPort, getWeight(), getStartTime(),
-				getLeaderInfo());
+		ApplicationInfo applicationInfo = new ApplicationInfo(get(), clusterName, applicationName, getLeaderInfo());
+		applicationInfo.setWeight(getWeight());
+		applicationInfo.setStartTime(getStartTime());
+		applicationInfo.setContact(contact);
+		String applicationContextPath = this.applicationContextPath;
+		if (StringUtils.isBlank(applicationContextPath)) {
+			applicationContextPath = "http://" + NetUtils.getLocalHost() + ":" + port + contextPath;
+		}
+		applicationInfo.setApplicationContextPath(applicationContextPath);
+		return applicationInfo;
 	}
 
 	public String toString() {

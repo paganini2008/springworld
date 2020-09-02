@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.redisplus.BeanNames;
@@ -88,6 +89,8 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		if (instanceId.isLeader()) {
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
 		}
+		
+		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext));
 	}
 
 	@Override

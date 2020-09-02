@@ -18,8 +18,8 @@ import org.springframework.context.annotation.Configuration;
 public class ApplicationPropertiesKeeperConfig {
 
 	@Bean
-	public ApplicationPropertiesKeeper getApplicationPropertiesKeeper(ApplicationProperties applicationProperties) {
-		ApplicationPropertiesKeeper keeper = new ApplicationPropertiesKeeper();
+	public ApplicationPropertiesKeeper2 getApplicationPropertiesKeeper(ApplicationProperties applicationProperties) {
+		ApplicationPropertiesKeeper2 keeper = new ApplicationPropertiesKeeper2();
 		keeper.setApplicationProperties(applicationProperties);
 		return keeper;
 	}
