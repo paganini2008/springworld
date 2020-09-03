@@ -26,7 +26,7 @@ public abstract class GeneralResultSetSlice<T> implements ResultSetSlice<T> {
 		this.em = em;
 	}
 
-	public int totalCount() {
+	public int rowCount() {
 		Query query = em.createNativeQuery(getCountableSql(sql), Integer.class);
 		if (arguments != null && arguments.length > 0) {
 			int index = 1;

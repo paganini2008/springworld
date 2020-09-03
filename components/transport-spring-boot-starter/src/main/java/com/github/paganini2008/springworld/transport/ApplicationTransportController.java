@@ -76,7 +76,7 @@ public class ApplicationTransportController {
 		String location;
 		for (Object data : dataList) {
 			applicationInfo = (ApplicationInfo) data;
-			location = StringUtils.isNotBlank(hostUrl) ? hostUrl + PATH_API : applicationInfo.getContextPath() + PATH_API;
+			location = StringUtils.isNotBlank(hostUrl) ? hostUrl + PATH_API : applicationInfo.getApplicationContextPath() + PATH_API;
 			locations.add(location);
 		}
 		return ResponseEntity.ok(locations.toArray(new String[0]));

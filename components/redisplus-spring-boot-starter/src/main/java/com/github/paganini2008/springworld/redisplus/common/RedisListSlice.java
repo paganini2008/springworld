@@ -26,7 +26,7 @@ public class RedisListSlice<T> implements ResultSetSlice<T> {
 	}
 
 	@Override
-	public int totalCount() {
+	public int rowCount() {
 		Number number = redisTemplate.opsForList().size(key);
 		return number != null ? number.intValue() : 0;
 	}

@@ -484,8 +484,8 @@ public class JdbcJobManager implements JobManager {
 		return new ResultSetSlice<JobInfo>() {
 
 			@Override
-			public int totalCount() {
-				return delegate.totalCount();
+			public int rowCount() {
+				return delegate.rowCount();
 			}
 
 			@Override
@@ -513,8 +513,8 @@ public class JdbcJobManager implements JobManager {
 		return new ResultSetSlice<JobStat>() {
 
 			@Override
-			public int totalCount() {
-				return delegate.totalCount();
+			public int rowCount() {
+				return delegate.rowCount();
 			}
 
 			@Override

@@ -30,7 +30,7 @@ public class NativeQueryResultSetSlice<E> implements ResultSetSlice<E> {
 		this.entityClass = entityClass;
 	}
 
-	public int totalCount() {
+	public int rowCount() {
 		Query query = em.createNativeQuery(getCountableSql(sql), Integer.class);
 		if (arguments != null && arguments.length > 0) {
 			int index = 1;
@@ -43,7 +43,7 @@ public class NativeQueryResultSetSlice<E> implements ResultSetSlice<E> {
 	}
 
 	protected String getCountableSql(String sql) {
-		return new StringBuilder("select count(1) as rowCount from (").append(sql).append(")").toString();
+		return new StringBuilder("select count(*) as rowCount from (").append(sql).append(")").toString();
 	}
 
 	@SuppressWarnings("unchecked")

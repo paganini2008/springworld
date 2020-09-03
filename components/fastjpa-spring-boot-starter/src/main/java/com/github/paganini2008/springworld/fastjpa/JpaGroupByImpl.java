@@ -11,15 +11,14 @@ import javax.persistence.criteria.Selection;
 
 import com.github.paganini2008.devtools.jdbc.PageRequest;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
-import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 
 /**
  * 
  * JpaGroupByImpl
  * 
  * @author Fred Feng
- * 
- * 
+ *
+ * @since 1.0
  */
 public class JpaGroupByImpl<E> implements JpaGroupBy<E>, JpaResultSet<E> {
 
@@ -66,8 +65,13 @@ public class JpaGroupByImpl<E> implements JpaGroupBy<E>, JpaResultSet<E> {
 		return rowSet.getResult(requiredType);
 	}
 
-	public int totalCount() {
-		return rowSet.totalCount();
+	public int rowCount() {
+		return rowSet.rowCount();
+	}
+
+	public JpaPageQuery<E> setTotalRecords(int totalRecords) {
+		rowSet.setTotalRecords(totalRecords);
+		return this;
 	}
 
 	public List<E> list(int maxResults, int firstResult) {
@@ -78,7 +82,7 @@ public class JpaGroupByImpl<E> implements JpaGroupBy<E>, JpaResultSet<E> {
 		return rowSet.list(pageRequest);
 	}
 
-	public <T> ResultSetSlice<T> setTransformer(Transformer<E, T> transformer) {
+	public <T> JpaPageQuery<T> setTransformer(Transformer<E, T> transformer) {
 		return rowSet.setTransformer(transformer);
 	}
 

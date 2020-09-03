@@ -4,17 +4,16 @@ import java.util.List;
 
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Selection;
 
 import com.github.paganini2008.devtools.converter.ConvertUtils;
-import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 
 /**
  * 
  * JpaResultSetImpl
  * 
  * @author Fred Feng
- * 
+ *
+ * @since 1.0
  */
 public class JpaResultSetImpl<E> implements JpaResultSet<E> {
 
@@ -26,6 +25,13 @@ public class JpaResultSetImpl<E> implements JpaResultSet<E> {
 		this.model = model;
 		this.query = query;
 		this.customQuery = customQuery;
+	}
+
+	private int totalRecords;
+
+	public JpaPageQuery<E> setTotalRecords(int totalRecords) {
+		this.totalRecords = totalRecords;
+		return this;
 	}
 
 	public <T> T getResult(Class<T> requiredType) {
@@ -44,22 +50,15 @@ public class JpaResultSetImpl<E> implements JpaResultSet<E> {
 		return null;
 	}
 
-	public int totalCount() {
-		final List<Selection<?>> selectionList = query.getSelection().getCompoundSelectionItems();
-		Tuple tuple = customQuery.getSingleResult(builder -> {
-			query.multiselect(Fields.count(1).toExpression(model, builder));
-			return query;
-		});
-		query.multiselect(selectionList);
-		Object result = tuple.get(0);
-		return result instanceof Number ? ((Number) result).intValue() : 0;
+	public int rowCount() {
+		return totalRecords;
 	}
 
 	public List<E> list(int maxResults, int firstResult) {
 		return setTransformer(Transformers.asBean(model.getType())).list(maxResults, firstResult);
 	}
 
-	public <T> ResultSetSlice<T> setTransformer(Transformer<E, T> transformer) {
+	public <T> JpaPageQuery<T> setTransformer(Transformer<E, T> transformer) {
 		return new JpaResultSetSlice<E, T>(model, query, customQuery, transformer);
 	}
 }

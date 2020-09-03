@@ -7,41 +7,37 @@ import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Selection;
 
-import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
-
 /**
  * 
  * JpaResultSetSlice
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
-public class JpaResultSetSlice<E, T> implements ResultSetSlice<T> {
+public class JpaResultSetSlice<E, T> implements JpaPageQuery<T> {
 
 	private final Model<E> model;
 	private final CriteriaQuery<Tuple> query;
 	private final JpaCustomQuery<?> customQuery;
 	private final Transformer<E, T> transformer;
 
-	JpaResultSetSlice(Model<E> model, CriteriaQuery<Tuple> query, JpaCustomQuery<?> customQuery,
-			Transformer<E, T> transformer) {
+	JpaResultSetSlice(Model<E> model, CriteriaQuery<Tuple> query, JpaCustomQuery<?> customQuery, Transformer<E, T> transformer) {
 		this.model = model;
 		this.query = query;
 		this.customQuery = customQuery;
 		this.transformer = transformer;
 	}
 
-	public int totalCount() {
-		final List<Selection<?>> selectionList = query.getSelection().getCompoundSelectionItems();
-		Tuple tuple = customQuery.getSingleResult(builder -> {
-			query.multiselect(Fields.count(Fields.root()).toExpression(model, builder));
-			return query;
-		});
-		query.multiselect(selectionList);
-		Object result = tuple.get(0);
-		return result instanceof Number ? ((Number) result).intValue() : 0;
+	private int totalRecords;
+
+	public int rowCount() {
+		return totalRecords;
+	}
+
+	public JpaPageQuery<T> setTotalRecords(int totalRecords) {
+		this.totalRecords = totalRecords;
+		return this;
 	}
 
 	public List<T> list(int maxResults) {

@@ -17,8 +17,8 @@ import javax.persistence.criteria.Subquery;
  * JpaQueryImpl
  * 
  * @author Fred Feng
- * 
- * 
+ *
+ * @since 1.0
  */
 public class JpaQueryImpl<E> implements JpaQuery<E> {
 
@@ -27,14 +27,12 @@ public class JpaQueryImpl<E> implements JpaQuery<E> {
 		this.query = query;
 		this.builder = builder;
 		this.customQuery = customQuery;
-		this.rowSet = new JpaResultSetImpl<E>(model, query, customQuery);
 	}
 
 	private final Model<E> model;
 	private final CriteriaQuery<Tuple> query;
 	private final CriteriaBuilder builder;
 	private final JpaCustomQuery<?> customQuery;
-	private final JpaResultSet<E> rowSet;
 
 	public JpaQuery<E> filter(Filter filter) {
 		if (filter != null) {
@@ -49,7 +47,7 @@ public class JpaQueryImpl<E> implements JpaQuery<E> {
 			paths.add(field.toExpression(model, builder));
 		}
 		query.groupBy(paths);
-		return new JpaGroupByImpl<E>(model, query, builder, rowSet);
+		return new JpaGroupByImpl<E>(model, query, builder, new JpaResultSetImpl<E>(model, query, customQuery));
 	}
 
 	public <X> JpaSubQuery<X, X> subQuery(Class<X> entityClass, String alias) {
@@ -74,7 +72,7 @@ public class JpaQueryImpl<E> implements JpaQuery<E> {
 			}
 			query.multiselect(selections);
 		}
-		return rowSet;
+		return new JpaResultSetImpl<E>(model, query, customQuery);
 	}
 
 	public JpaResultSet<E> select(ColumnList columnList) {
@@ -85,7 +83,7 @@ public class JpaQueryImpl<E> implements JpaQuery<E> {
 			}
 			query.multiselect(selections);
 		}
-		return rowSet;
+		return new JpaResultSetImpl<E>(model, query, customQuery);
 	}
 
 	public JpaQuery<E> sort(JpaSort... sorts) {

@@ -35,7 +35,7 @@ public class EnhancedJdbcTemplateResultSetSlice<T> implements ResultSetSlice<T> 
 	}
 
 	@Override
-	public int totalCount() {
+	public int rowCount() {
 		final String execution = pageableSql.countableSql();
 		if (log.isTraceEnabled()) {
 			log.trace("Execute Sql: " + execution);
