@@ -26,11 +26,10 @@ import lombok.Setter;
 /**
  * 
  * ApplicationPropertiesConfig
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Getter
 @Setter
@@ -53,13 +52,13 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 
 	private String repo = DEFAULT_CONFIG_REPO;
 
-	private GitConfig git = new GitConfig();
+	private Git git = new Git();
 
 	@Bean(destroyMethod = "clearInterval")
 	public ApplicationProperties applicationProperties() throws Exception {
 		switch (repo) {
 		case DEFAULT_CONFIG_REPO:
-			return fetchGitConfigProperties();
+			return createGitConfigProperties();
 		case "svn":
 		case "db":
 			throw new NotImplementedException(repo);
@@ -68,7 +67,7 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 		}
 	}
 
-	protected ApplicationProperties fetchGitConfigProperties() throws Exception {
+	protected ApplicationProperties createGitConfigProperties() throws Exception {
 		GitConfigProperties configProperties = new GitConfigProperties();
 		configProperties.setUrl(git.getUri());
 		configProperties.setBranch(git.getBranch());
@@ -92,7 +91,7 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 	}
 
 	@Data
-	public static class GitConfig {
+	public static class Git {
 
 		private String uri;
 		private String branch;

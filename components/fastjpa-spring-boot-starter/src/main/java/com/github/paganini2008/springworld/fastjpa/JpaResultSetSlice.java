@@ -7,6 +7,8 @@ import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Selection;
 
+import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
+
 /**
  * 
  * JpaResultSetSlice
@@ -15,7 +17,7 @@ import javax.persistence.criteria.Selection;
  *
  * @since 1.0
  */
-public class JpaResultSetSlice<E, T> implements JpaPageQuery<T> {
+public class JpaResultSetSlice<E, T> implements ResultSetSlice<T> {
 
 	private final Model<E> model;
 	private final CriteriaQuery<Tuple> query;
@@ -29,15 +31,15 @@ public class JpaResultSetSlice<E, T> implements JpaPageQuery<T> {
 		this.transformer = transformer;
 	}
 
-	private int totalRecords;
-
 	public int rowCount() {
-		return totalRecords;
-	}
-
-	public JpaPageQuery<T> setTotalRecords(int totalRecords) {
-		this.totalRecords = totalRecords;
-		return this;
+		final List<Selection<?>> selectionList = query.getSelection().getCompoundSelectionItems();
+		Tuple tuple = customQuery.getSingleResult(builder -> {
+			query.multiselect(Fields.count(Fields.root()).toExpression(model, builder));
+			return query;
+		});
+		query.multiselect(selectionList);
+		Object result = tuple.get(0);
+		return result instanceof Number ? ((Number) result).intValue() : 0;
 	}
 
 	public List<T> list(int maxResults) {

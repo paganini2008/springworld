@@ -13,11 +13,10 @@ import com.github.paganini2008.springworld.config.examples.ConfigTestController;
 /**
  * 
  * EnableApplicationPropertiesKeeper
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

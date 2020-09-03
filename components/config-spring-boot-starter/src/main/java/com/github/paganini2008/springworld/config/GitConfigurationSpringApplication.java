@@ -17,6 +17,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+import com.github.paganini2008.devtools.Console;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.io.FileUtils;
 import com.github.paganini2008.devtools.io.PathUtils;
@@ -24,11 +25,10 @@ import com.github.paganini2008.devtools.io.PathUtils;
 /**
  * 
  * GitConfigurationSpringApplication
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 public class GitConfigurationSpringApplication extends ExternalConfigurationSpringApplication {
 
@@ -106,14 +106,13 @@ public class GitConfigurationSpringApplication extends ExternalConfigurationSpri
 							|| fileName.endsWith(".yaml");
 				});
 			} else {
-				System.out
-						.println("[Warning] Config home '" + searchDir + "'  doesn't exist and default configuration will be overwrited.");
+				Console.logf("[Warning] Configuration home '%s' doesn't exist and will be overwrited by default settings.", searchDir);
 			}
 		} else {
 			fileArray = FileUtils.getFiles(fileNames.clone());
 		}
 
-		if (fileArray == null && useDefaultSettings) {
+		if (fileArray == null || useDefaultSettings) {
 			File globalConfigDir = FileUtils.getFile(localRepo, searchPath, GLOBAL_CONFIG_NAME, env);
 			if (globalConfigDir.exists()) {
 				fileArray = globalConfigDir.listFiles((file) -> {
@@ -125,7 +124,7 @@ public class GitConfigurationSpringApplication extends ExternalConfigurationSpri
 		}
 
 		if (fileArray == null || fileArray.length == 0) {
-			throw new IOException("No matched config files on this searchPath.");
+			throw new IOException("No matched config files on this searchPath: " + searchPath);
 		}
 		List<File> configFiles = new ArrayList<File>();
 		configFiles.addAll(Arrays.asList(fileArray));
@@ -157,7 +156,7 @@ public class GitConfigurationSpringApplication extends ExternalConfigurationSpri
 					}
 				}
 			} else {
-				System.out.println("[Warning] ConfigFile '" + configFile + "' is not existed.");
+				Console.logf("[Warning] ConfigFile '%s' is not existed.", configFile);
 			}
 		}
 	}

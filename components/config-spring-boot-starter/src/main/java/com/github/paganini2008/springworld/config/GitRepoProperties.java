@@ -11,6 +11,7 @@ import java.util.Properties;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
+import com.github.paganini2008.devtools.Console;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.io.FileUtils;
 import com.github.paganini2008.devtools.io.IOUtils;
@@ -142,8 +143,7 @@ public class GitRepoProperties extends ApplicationProperties {
 					return fileName.endsWith(".properties");
 				});
 			} else {
-				System.out
-						.println("[Warning] Config home '" + searchDir + "'  doesn't exist and default configuration will be overwrited.");
+				Console.logf("[Warning] Configuration home '%s' doesn't exist and will be overwrited by default settings.", searchDir);
 			}
 		} else {
 			fileArray = FileUtils.getFiles(fileNames.clone());

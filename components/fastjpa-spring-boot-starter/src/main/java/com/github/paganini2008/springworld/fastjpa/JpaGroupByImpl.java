@@ -11,6 +11,7 @@ import javax.persistence.criteria.Selection;
 
 import com.github.paganini2008.devtools.jdbc.PageRequest;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
+import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 
 /**
  * 
@@ -69,11 +70,6 @@ public class JpaGroupByImpl<E> implements JpaGroupBy<E>, JpaResultSet<E> {
 		return rowSet.rowCount();
 	}
 
-	public JpaPageQuery<E> setTotalRecords(int totalRecords) {
-		rowSet.setTotalRecords(totalRecords);
-		return this;
-	}
-
 	public List<E> list(int maxResults, int firstResult) {
 		return rowSet.list(maxResults, firstResult);
 	}
@@ -82,7 +78,7 @@ public class JpaGroupByImpl<E> implements JpaGroupBy<E>, JpaResultSet<E> {
 		return rowSet.list(pageRequest);
 	}
 
-	public <T> JpaPageQuery<T> setTransformer(Transformer<E, T> transformer) {
+	public <T> ResultSetSlice<T> setTransformer(Transformer<E, T> transformer) {
 		return rowSet.setTransformer(transformer);
 	}
 

@@ -11,7 +11,6 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EmbeddedValueResolverAware;
@@ -39,7 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApplicationPropertiesKeeper implements BeanPostProcessor, EmbeddedValueResolverAware, ApplicationContextAware {
 
-	private static final String PATTERN_PLACEHOLDER = "\\@\\{(.*)\\}";
+	private static final String DEFAULT_PLACEHOLDER_PREFIX = "@{";
+
+	private static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
+
+	private static final String DEFAULT_PLACEHOLDER_PATTERN = "\\@\\{(.*)\\}";
 
 	@Autowired
 	private ApplicationProperties applicationProperties;
@@ -50,17 +53,6 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, EmbeddedV
 
 	@Override
 	public Object postProcessBeforeInitialization(final Object bean, String beanName) throws BeansException {
-		if (bean.getClass().isAnnotationPresent(ConfigurationProperties.class)) {
-			ConfigurationProperties configurationProperties = bean.getClass().getAnnotation(ConfigurationProperties.class);
-			String prefix = configurationProperties.prefix();
-			List<Field> fields = FieldUtils.getFields(bean.getClass(), null);
-			for(Field field: fields) {
-				
-			}
-		} else {
-
-		}
-
 		List<Field> fields = FieldUtils.getFields(bean.getClass(), FieldFilters.isAnnotationPresent(Value.class));
 		if (CollectionUtils.isEmpty(fields)) {
 			return bean;
@@ -69,7 +61,7 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, EmbeddedV
 			final String propertyName = field.getName();
 			Value valueAnn = field.getAnnotation(Value.class);
 			String value = valueAnn.value();
-			if (value.startsWith("@{") && value.endsWith("}")) {
+			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
 				String key = resolvePlaceholder(value);
 				String strVal = "${" + key + "}";
 				String resultVal = stringValueResolver.resolveStringValue(strVal);
@@ -79,8 +71,8 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, EmbeddedV
 				applicationProperties.addEventListener(new PropertyChangeListener<Properties>() {
 
 					public void onEventFired(PropertyChangeEvent<Properties> event) {
-						Properties latest = event.getLatest();
-						Properties current = event.getCurrent();
+						Properties latest = event.getLatestVersion();
+						Properties current = event.getCurrentVersion();
 						Map<Object, Object> difference = MapUtils.compareDifference(latest, current);
 						if (difference != null && difference.containsKey(key)) {
 							Object previousValue = null;
@@ -112,7 +104,7 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, EmbeddedV
 	}
 
 	private static String resolvePlaceholder(String represent) {
-		String key = RegexUtils.match(represent, PATTERN_PLACEHOLDER, 0, 1, 0);
+		String key = RegexUtils.match(represent, DEFAULT_PLACEHOLDER_PATTERN, 0, 1, 0);
 		int index = key.indexOf(':');
 		if (index > 0) {
 			key = key.substring(0, index);
