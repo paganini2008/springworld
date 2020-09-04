@@ -18,22 +18,26 @@ public class GitConfigProperties extends GitRepoProperties {
 
 	private static final long serialVersionUID = 3977102427571801020L;
 
-	private final Map<String, String> defaultConfig;
+	private final Map<String, String> defaultConfiguration;
 
 	public GitConfigProperties() {
 		this(new HashMap<String, String>());
 	}
 
 	public GitConfigProperties(Map<String, String> defaultConfig) {
-		this.defaultConfig = defaultConfig;
+		this.defaultConfiguration = defaultConfig;
 	}
 
 	protected Properties createObject() throws Exception {
 		Properties p = super.createObject();
-		for (Map.Entry<String, String> entry : defaultConfig.entrySet()) {
+		for (Map.Entry<String, String> entry : defaultConfiguration.entrySet()) {
 			p.setProperty(entry.getKey(), entry.getValue());
 		}
 		return p;
+	}
+
+	public Map<String, String> getDefaultConfiguration() {
+		return defaultConfiguration;
 	}
 
 	protected void sort(File[] files) {
@@ -42,12 +46,12 @@ public class GitConfigProperties extends GitRepoProperties {
 
 	public static void main(String[] args) throws Exception {
 		GitConfigProperties gitlabProperties = new GitConfigProperties();
-		gitlabProperties.setUrl("https://git.d-linking.tech/Java/mec-syscfg.git");
-		gitlabProperties.setBranch("hlsh-v2");
-		gitlabProperties.setUsername("fengyan");
-		gitlabProperties.setPassword("20180514");
-		gitlabProperties.setSearchPath("/hlsh-config/cloud");
-		gitlabProperties.setApplicationName("zuul-service");
+		gitlabProperties.setUrl("https://glb.chinapex.com.cn/standard-me/me-config.git");
+		gitlabProperties.setBranch("master");
+		gitlabProperties.setUsername("fred.feng");
+		gitlabProperties.setPassword("Violin2020");
+		gitlabProperties.setSearchPath("me");
+		gitlabProperties.setApplicationName("me-dc-service");
 		gitlabProperties.setEnv("dev");
 		gitlabProperties.refresh();
 

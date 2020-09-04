@@ -21,12 +21,13 @@ import com.github.paganini2008.devtools.io.IOUtils;
  * GitRepoProperties
  * 
  * @author Fred Feng
- * 
+ *
+ * @since 1.0
  */
 public class GitRepoProperties extends ApplicationProperties {
 
 	private static final long serialVersionUID = 1601541498724403615L;
-	private static final String GLOBAL_CONFIG_NAME = "default-settings";
+	private static final String GLOBAL_SETTINGS_NAME = "default-settings";
 
 	private String url;
 	private String branch;
@@ -35,6 +36,7 @@ public class GitRepoProperties extends ApplicationProperties {
 	private String searchPath = "";
 	private String[] fileNames;
 	private String localRepoPath;
+	private boolean useDefaultSettings;
 
 	public String getUrl() {
 		return url;
@@ -92,6 +94,14 @@ public class GitRepoProperties extends ApplicationProperties {
 		this.localRepoPath = localRepoPath;
 	}
 
+	public boolean isUseDefaultSettings() {
+		return useDefaultSettings;
+	}
+
+	public void setUseDefaultSettings(boolean useDefaultSettings) {
+		this.useDefaultSettings = useDefaultSettings;
+	}
+
 	protected Properties createObject() throws Exception {
 		File localRepo;
 		if (StringUtils.isNotBlank(localRepoPath)) {
@@ -123,6 +133,7 @@ public class GitRepoProperties extends ApplicationProperties {
 						.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password)).call();
 				pull = true;
 			} catch (Throwable ignored) {
+				ignored.printStackTrace();
 				pull = false;
 			} finally {
 				if (git != null) {
@@ -148,18 +159,26 @@ public class GitRepoProperties extends ApplicationProperties {
 		} else {
 			fileArray = FileUtils.getFiles(fileNames.clone());
 		}
-		if (fileArray == null) {
-			File globalConfigDir = FileUtils.getFile(localRepo, searchPath, GLOBAL_CONFIG_NAME, env);
+
+		List<File> fileList = new ArrayList<File>();
+		if (fileArray != null) {
+			fileList.addAll(Arrays.asList(fileArray));
+		}
+		if (useDefaultSettings) {
+			File globalConfigDir = FileUtils.getFile(localRepo, searchPath, GLOBAL_SETTINGS_NAME, env);
 			if (globalConfigDir.exists()) {
 				fileArray = globalConfigDir.listFiles((file) -> {
 					final String fileName = file.getName().toLowerCase();
 					return fileName.endsWith(".properties");
 				});
+				if (fileArray != null) {
+					fileList.addAll(Arrays.asList(fileArray));
+				}
 			}
 		}
 
-		if (fileArray == null || fileArray.length == 0) {
-			throw new IOException("No matched config files on this searchPath.");
+		if (fileList.isEmpty()) {
+			throw new IOException("No matched config files on this searchPath: " + searchPath);
 		}
 		List<File> configFiles = new ArrayList<File>();
 		configFiles.addAll(Arrays.asList(fileArray));

@@ -30,10 +30,10 @@ import com.github.paganini2008.devtools.io.PathUtils;
  *
  * @since 1.0
  */
-public class GitConfigurationSpringApplication extends ExternalConfigurationSpringApplication {
+public class GitConfigurationSpringApplication extends RemoteConfigurationSpringApplication {
 
-	private static final String CONFIG_FILE_NAME_PREFIX = "gitcfg:";
-	private static final String GLOBAL_CONFIG_NAME = "default-settings";
+	private static final String SOURCE_NAME_PREFIX = "gitcfg:";
+	private static final String GLOBAL_SETTINGS_NAME = "default-settings";
 
 	public GitConfigurationSpringApplication(Class<?>... mainClasses) {
 		super(mainClasses);
@@ -111,26 +111,30 @@ public class GitConfigurationSpringApplication extends ExternalConfigurationSpri
 		} else {
 			fileArray = FileUtils.getFiles(fileNames.clone());
 		}
-
-		if (fileArray == null || useDefaultSettings) {
-			File globalConfigDir = FileUtils.getFile(localRepo, searchPath, GLOBAL_CONFIG_NAME, env);
+		List<File> fileList = new ArrayList<File>();
+		if (fileArray != null) {
+			fileList.addAll(Arrays.asList(fileArray));
+		}
+		if (useDefaultSettings) {
+			File globalConfigDir = FileUtils.getFile(localRepo, searchPath, GLOBAL_SETTINGS_NAME, env);
 			if (globalConfigDir.exists()) {
 				fileArray = globalConfigDir.listFiles((file) -> {
 					final String fileName = file.getName().toLowerCase();
 					return fileName.endsWith(".xml") || fileName.endsWith(".properties") || fileName.endsWith(".yml")
 							|| fileName.endsWith(".yaml");
 				});
+				if (fileArray != null) {
+					fileList.addAll(Arrays.asList(fileArray));
+				}
 			}
 		}
 
-		if (fileArray == null || fileArray.length == 0) {
+		if (fileList.isEmpty()) {
 			throw new IOException("No matched config files on this searchPath: " + searchPath);
 		}
-		List<File> configFiles = new ArrayList<File>();
-		configFiles.addAll(Arrays.asList(fileArray));
-		sort(configFiles);
+		sort(fileList);
 
-		reconfigureEnvironment(configFiles.toArray(new File[0]), environment);
+		reconfigureEnvironment(fileList.toArray(new File[0]), environment);
 	}
 
 	protected void reconfigureEnvironment(File[] configFiles, ConfigurableEnvironment environment) throws IOException {
@@ -150,15 +154,17 @@ public class GitConfigurationSpringApplication extends ExternalConfigurationSpri
 				}
 				if (loader != null) {
 					Resource resource = new FileSystemResource(configFile.getAbsolutePath());
-					List<PropertySource<?>> sources = loader.load(CONFIG_FILE_NAME_PREFIX + configFile.getName(), resource);
+					List<PropertySource<?>> sources = loader.load(SOURCE_NAME_PREFIX + configFile.getName(), resource);
 					for (PropertySource<?> source : sources) {
 						environment.getPropertySources().addLast(source);
 					}
+					System.out.println("Loading: " + configFile.getAbsolutePath());
 				}
 			} else {
 				Console.logf("[Warning] ConfigFile '%s' is not existed.", configFile);
 			}
 		}
+		System.out.println();
 	}
 
 	protected void sort(List<File> files) {

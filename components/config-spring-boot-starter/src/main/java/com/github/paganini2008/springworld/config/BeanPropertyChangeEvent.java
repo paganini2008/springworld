@@ -7,6 +7,7 @@ import com.github.paganini2008.devtools.beans.ToStringBuilder;
 /**
  * 
  * BeanPropertyChangeEvent
+ * 
  * @author Fred Feng
  *
  * @since 1.0

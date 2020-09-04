@@ -6,18 +6,17 @@ import com.github.paganini2008.devtools.beans.ToStringBuilder;
 
 /**
  * 
- * BeanChangeEvent
- *
+ * BeanObjectChangeEvent
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
-public class BeanChangeEvent extends ApplicationEvent {
+public class BeanObjectChangeEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = 4317527666421114782L;
 
-	public BeanChangeEvent(Object bean, String beanName) {
+	public BeanObjectChangeEvent(Object bean, String beanName) {
 		super(bean);
 		this.beanName = beanName;
 	}

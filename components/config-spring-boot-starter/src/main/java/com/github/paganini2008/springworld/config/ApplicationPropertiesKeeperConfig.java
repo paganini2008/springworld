@@ -6,11 +6,10 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 
  * ApplicationPropertiesKeeperConfig
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Configuration
 public class ApplicationPropertiesKeeperConfig {

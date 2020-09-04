@@ -13,21 +13,21 @@ import com.github.paganini2008.devtools.io.ResourceUtils;
 
 /**
  * 
- * ExternalConfigurationSpringApplication
+ * RemoteConfigurationSpringApplication
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public abstract class ExternalConfigurationSpringApplication extends SpringApplication {
+public abstract class RemoteConfigurationSpringApplication extends SpringApplication {
 
-	private static final String CONFIG_NAME = "springboot-cfg.properties";
-	private static final String CONFIG_NAME_PATTERN = "springboot-cfg-%s.properties";
+	private static final String DEFAULT_CONFIG_NAME = "springboot-cfg.properties";
+	private static final String DEFAULT_CONFIG_NAME_FORMAT = "springboot-cfg-%s.properties";
 	private static final String CURRENT_APPLICATION_PROFILES = "spring.profiles.active";
 	private static final String CURRENT_APPLICATION_NAME = "spring.application.name";
-	static final String CONFIGURATION_BOOT_NAME = "applicationBootstrapConfig";
+	static final String DEFAULT_BOOTSTRAP_CONFIG_NAME = "applicationBootstrapConfig";
 
-	protected ExternalConfigurationSpringApplication(Class<?>... mainClasses) {
+	protected RemoteConfigurationSpringApplication(Class<?>... mainClasses) {
 		super(mainClasses);
 	}
 
@@ -35,9 +35,9 @@ public abstract class ExternalConfigurationSpringApplication extends SpringAppli
 	protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
 		super.configureEnvironment(environment, args);
 
-		final Map<String, String> bootConfig;
+		final Map<String, String> bootstrapConfig;
 		try {
-			bootConfig = ResourceUtils.getResource(CONFIG_NAME);
+			bootstrapConfig = ResourceUtils.getResource(DEFAULT_CONFIG_NAME);
 		} catch (Exception e) {
 			throw new IOError(e);
 		}
@@ -48,29 +48,29 @@ public abstract class ExternalConfigurationSpringApplication extends SpringAppli
 			env = SystemPropertyUtils.getString(CURRENT_APPLICATION_PROFILES);
 		}
 		if (StringUtils.isBlank(env)) {
-			env = bootConfig.get(CURRENT_APPLICATION_PROFILES);
+			env = bootstrapConfig.get(CURRENT_APPLICATION_PROFILES);
 		}
 		if (StringUtils.isBlank(env)) {
 			env = "dev";
 		}
 
 		System.setProperty(CURRENT_APPLICATION_PROFILES, env);
-		bootConfig.put(CURRENT_APPLICATION_PROFILES, env);
+		bootstrapConfig.put(CURRENT_APPLICATION_PROFILES, env);
 		try {
-			Map<String, String> localConfig = ResourceUtils.getResource(String.format(CONFIG_NAME_PATTERN, env));
-			bootConfig.putAll(localConfig);
+			Map<String, String> localConfig = ResourceUtils.getResource(String.format(DEFAULT_CONFIG_NAME_FORMAT, env));
+			bootstrapConfig.putAll(localConfig);
 		} catch (Exception ignored) {
 		}
 
 		String applicationName = environment.getProperty(CURRENT_APPLICATION_NAME);
 		if (StringUtils.isBlank(applicationName)) {
-			applicationName = bootConfig.get(CURRENT_APPLICATION_NAME);
+			applicationName = bootstrapConfig.get(CURRENT_APPLICATION_NAME);
 		}
 		if (StringUtils.isBlank(applicationName)) {
-			throw new IllegalArgumentException("ApplicationName must be required.");
+			throw new IllegalArgumentException("System property '" + CURRENT_APPLICATION_NAME + "' must be required.");
 		}
 
-		environment.getPropertySources().addLast(new OriginTrackedMapPropertySource(CONFIGURATION_BOOT_NAME, bootConfig));
+		environment.getPropertySources().addLast(new OriginTrackedMapPropertySource(DEFAULT_BOOTSTRAP_CONFIG_NAME, bootstrapConfig));
 		try {
 			applySettings(applicationName, env, environment);
 		} catch (Exception e) {

@@ -1,6 +1,6 @@
 package com.github.paganini2008.springworld.config;
 
-import static com.github.paganini2008.springworld.config.ExternalConfigurationSpringApplication.CONFIGURATION_BOOT_NAME;
+import static com.github.paganini2008.springworld.config.RemoteConfigurationSpringApplication.DEFAULT_BOOTSTRAP_CONFIG_NAME;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +40,7 @@ import lombok.Setter;
 public class ApplicationPropertiesConfig implements EnvironmentAware {
 
 	private static final String DEFAULT_CONFIG_REPO = "git";
-	private static final String EXTERNAL_APPLICATION_PROPERTIES_NAME = "externalApplicationPropertiesConfig";
+	private static final String REMOTE_APPLICATION_PROPERTIES_NAME = "remoteApplicationPropertiesConfig";
 
 	@Value("${spring.application.name}")
 	private String applicationName;
@@ -58,7 +58,7 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 	public ApplicationProperties applicationProperties() throws Exception {
 		switch (repo) {
 		case DEFAULT_CONFIG_REPO:
-			return createGitConfigProperties();
+			return gitConfigProperties();
 		case "svn":
 		case "db":
 			throw new NotImplementedException(repo);
@@ -67,7 +67,7 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 		}
 	}
 
-	protected ApplicationProperties createGitConfigProperties() throws Exception {
+	protected ApplicationProperties gitConfigProperties() throws Exception {
 		GitConfigProperties configProperties = new GitConfigProperties();
 		configProperties.setUrl(git.getUri());
 		configProperties.setBranch(git.getBranch());
@@ -76,16 +76,17 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 		configProperties.setSearchPath(git.getSearchPath());
 		configProperties.setFileNames(StringUtils.isNotBlank(git.getFileNames()) ? git.getFileNames().split(",") : new String[0]);
 		configProperties.setApplicationName(applicationName);
+		configProperties.setUseDefaultSettings(git.isUseDefaultSettings());
 		configProperties.setEnv(env);
 
 		configProperties.setInterval(git.getRefreshingInterval(), TimeUnit.SECONDS);
 
 		MutablePropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
-		if (propertySources.contains(CONFIGURATION_BOOT_NAME)) {
-			propertySources.addBefore(CONFIGURATION_BOOT_NAME,
-					new PropertiesPropertySource(EXTERNAL_APPLICATION_PROPERTIES_NAME, configProperties));
+		if (propertySources.contains(DEFAULT_BOOTSTRAP_CONFIG_NAME)) {
+			propertySources.addBefore(DEFAULT_BOOTSTRAP_CONFIG_NAME,
+					new PropertiesPropertySource(REMOTE_APPLICATION_PROPERTIES_NAME, configProperties));
 		} else {
-			propertySources.addLast(new PropertiesPropertySource(EXTERNAL_APPLICATION_PROPERTIES_NAME, configProperties));
+			propertySources.addLast(new PropertiesPropertySource(REMOTE_APPLICATION_PROPERTIES_NAME, configProperties));
 		}
 		return configProperties;
 	}
@@ -99,6 +100,7 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 		private String password;
 		private String searchPath;
 		private String fileNames;
+		private boolean useDefaultSettings;
 		private int refreshingInterval = 3 * 60;
 
 	}

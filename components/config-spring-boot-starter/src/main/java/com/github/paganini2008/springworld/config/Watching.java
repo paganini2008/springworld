@@ -6,19 +6,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Import;
-
 /**
  * 
- * EnableApplicationPropertiesKeeper
+ * Watching
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({ ApplicationPropertiesConfig.class, ApplicationPropertiesKeeperConfig.class, ConfigController.class})
-public @interface EnableApplicationPropertiesKeeper {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface Watching {
+
+	String value();
+	
 }
