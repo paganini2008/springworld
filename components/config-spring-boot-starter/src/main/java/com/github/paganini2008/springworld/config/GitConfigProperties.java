@@ -1,7 +1,6 @@
 package com.github.paganini2008.springworld.config;
 
 import java.io.File;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -42,23 +41,6 @@ public class GitConfigProperties extends GitRepoProperties {
 
 	protected void sort(File[] files) {
 		ApplicationPropertiesLoadingComparator.sort(files);
-	}
-
-	public static void main(String[] args) throws Exception {
-		GitConfigProperties gitlabProperties = new GitConfigProperties();
-		gitlabProperties.setUrl("https://glb.chinapex.com.cn/standard-me/me-config.git");
-		gitlabProperties.setBranch("master");
-		gitlabProperties.setUsername("fred.feng");
-		gitlabProperties.setPassword("Violin2020");
-		gitlabProperties.setSearchPath("me");
-		gitlabProperties.setApplicationName("me-dc-service");
-		gitlabProperties.setEnv("dev");
-		gitlabProperties.refresh();
-
-		Enumeration<?> en = gitlabProperties.propertyNames();
-		for (; en.hasMoreElements();) {
-			System.out.println(en.nextElement());
-		}
 	}
 
 }
