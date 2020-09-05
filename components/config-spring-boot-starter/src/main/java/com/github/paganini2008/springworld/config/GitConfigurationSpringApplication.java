@@ -158,13 +158,11 @@ public class GitConfigurationSpringApplication extends RemoteConfigurationSpring
 					for (PropertySource<?> source : sources) {
 						environment.getPropertySources().addLast(source);
 					}
-					System.out.println("Loading: " + configFile.getAbsolutePath());
 				}
 			} else {
 				Console.logf("[Warning] ConfigFile '%s' is not existed.", configFile);
 			}
 		}
-		System.out.println();
 	}
 
 	protected void sort(List<File> files) {

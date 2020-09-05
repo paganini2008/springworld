@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
@@ -34,8 +33,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Configuration
-@ConditionalOnWebApplication
-@ConditionalOnResource(resources = { "classpath:springboot-cfg.properties" })
+@ConditionalOnResource(resources = { "classpath:settings.properties" })
 @ConfigurationProperties(prefix = "spring.config")
 public class ApplicationPropertiesConfig implements EnvironmentAware {
 
@@ -101,7 +99,7 @@ public class ApplicationPropertiesConfig implements EnvironmentAware {
 		private String searchPath;
 		private String fileNames;
 		private boolean useDefaultSettings;
-		private int refreshingInterval = 3 * 60;
+		private int refreshingInterval = 1 * 60;
 
 	}
 

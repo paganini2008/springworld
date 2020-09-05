@@ -180,12 +180,11 @@ public class GitRepoProperties extends ApplicationProperties {
 		if (fileList.isEmpty()) {
 			throw new IOException("No matched config files on this searchPath: " + searchPath);
 		}
-		List<File> configFiles = new ArrayList<File>();
-		configFiles.addAll(Arrays.asList(fileArray));
-		sort(configFiles);
+		
+		sort(fileList);
 
 		final Properties p = new Properties();
-		for (File cfgFile : configFiles) {
+		for (File cfgFile : fileList) {
 			if (cfgFile.exists()) {
 				Reader in = null;
 				try {

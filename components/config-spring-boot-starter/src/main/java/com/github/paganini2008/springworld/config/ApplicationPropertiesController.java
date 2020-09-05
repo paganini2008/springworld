@@ -12,7 +12,7 @@ import com.github.paganini2008.devtools.collection.MapUtils;
 
 /**
  * 
- * ConfigController
+ * ApplicationPropertiesController
  * 
  * @author Fred Feng
  *
@@ -20,7 +20,7 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  */
 @RestController
 @RequestMapping("/config")
-public class ConfigController {
+public class ApplicationPropertiesController {
 
 	@Autowired
 	private ApplicationProperties applicationProperties;

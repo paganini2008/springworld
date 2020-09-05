@@ -18,5 +18,10 @@ public class ApplicationPropertiesKeeperConfig {
 	public ApplicationPropertiesKeeper applicationPropertiesKeeper() {
 		return new ApplicationPropertiesKeeper();
 	}
+	
+	@Bean
+	public InternalStringValueResolver internalStringValueResolver() {
+		return new InternalStringValueResolver();
+	}
 
 }

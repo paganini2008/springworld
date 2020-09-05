@@ -7,18 +7,15 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanExpressionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.EmbeddedValueResolverAware;
-import org.springframework.util.StringValueResolver;
 
 import com.github.paganini2008.devtools.ObjectUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.devtools.converter.ConvertUtils;
 import com.github.paganini2008.devtools.reflection.FieldFilters;
 import com.github.paganini2008.devtools.reflection.FieldUtils;
 import com.github.paganini2008.devtools.regex.RegexUtils;
@@ -34,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ApplicationPropertiesKeeper implements BeanPostProcessor, ApplicationContextAware, EmbeddedValueResolverAware {
+public class ApplicationPropertiesKeeper implements BeanPostProcessor, ApplicationContextAware {
 
 	private static final String DEFAULT_PLACEHOLDER_PREFIX = "@{";
 
@@ -45,26 +42,23 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, Applicati
 	@Autowired
 	private ApplicationProperties applicationProperties;
 
-	private ApplicationContext applicationContext;
+	@Autowired
+	private InternalStringValueResolver stringValueResolver;
 
-	private StringValueResolver stringValueResolver;
+	private ApplicationContext applicationContext;
 
 	@Override
 	public Object postProcessBeforeInitialization(final Object bean, String beanName) throws BeansException {
-		List<Field> fields = FieldUtils.getFields(bean.getClass(), FieldFilters.isAnnotationPresent(Watching.class));
+		List<Field> fields = FieldUtils.getFields(bean.getClass(), FieldFilters.isAnnotationPresent(Value.class));
 		if (CollectionUtils.isEmpty(fields)) {
 			return bean;
 		}
 		List<String> effectedKeys = new ArrayList<String>();
 		for (final Field field : fields) {
-			Watching valueAnn = field.getAnnotation(Watching.class);
-			String value = valueAnn.value();
+			Value valueAnn = field.getAnnotation(Value.class);
+			final String value = valueAnn.value();
 			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
 				final String key = resolvePlaceholder(value);
-				final String strVal = "${" + key + "}";
-				String stringValue = stringValueResolver.resolveStringValue(strVal);
-				Object resultVal = ConvertUtils.convertValue(stringValue, field.getType());
-				FieldUtils.writeField(bean, field, resultVal);
 				effectedKeys.add(key);
 				applicationProperties.addEventListener(event -> {
 					Properties latest = event.getLatestVersion();
@@ -72,11 +66,13 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, Applicati
 					Map<Object, Object> difference = MapUtils.compareDifference(latest, current);
 					if (difference != null && difference.containsKey(key)) {
 						Object previousValue = FieldUtils.readField(bean, field);
-						Object currentValue = stringValueResolver.resolveStringValue(strVal);
-						currentValue = ConvertUtils.convertValue(currentValue, field.getType());
+						Object currentValue = stringValueResolver.resolveStringValue(value);
+						currentValue = stringValueResolver.getBeanFactory().getTypeConverter().convertIfNecessary(currentValue,
+								field.getType(), field);
 						try {
 							FieldUtils.writeField(bean, field, currentValue);
 							currentValue = FieldUtils.readField(bean, field);
+
 							if (ObjectUtils.equals(previousValue, currentValue)) {
 								log.warn("[BeanPropertyChange] It seems true that field '" + field.getName()
 										+ "' overridden by other PropertySource. So there is nothing to happen on the property.");
@@ -98,8 +94,6 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, Applicati
 				if (log.isTraceEnabled()) {
 					log.trace("Keep watching application property: {}", key);
 				}
-			} else {
-				throw new BeanExpressionException("Watching value must start with '@{' and '}'");
 			}
 		}
 
@@ -128,17 +122,12 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, Applicati
 		if (index > 0) {
 			key = key.substring(0, index);
 		}
-		return key;
+		return key.trim();
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
-	}
-
-	@Override
-	public void setEmbeddedValueResolver(StringValueResolver resolver) {
-		this.stringValueResolver = resolver;
 	}
 
 }

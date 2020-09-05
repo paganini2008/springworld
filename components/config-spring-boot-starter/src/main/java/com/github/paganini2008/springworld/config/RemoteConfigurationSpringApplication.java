@@ -21,8 +21,8 @@ import com.github.paganini2008.devtools.io.ResourceUtils;
  */
 public abstract class RemoteConfigurationSpringApplication extends SpringApplication {
 
-	private static final String DEFAULT_CONFIG_NAME = "springboot-cfg.properties";
-	private static final String DEFAULT_CONFIG_NAME_FORMAT = "springboot-cfg-%s.properties";
+	private static final String DEFAULT_CONFIG_NAME = "settings.properties";
+	private static final String DEFAULT_CONFIG_NAME_FORMAT = "settings-%s.properties";
 	private static final String CURRENT_APPLICATION_PROFILES = "spring.profiles.active";
 	private static final String CURRENT_APPLICATION_NAME = "spring.application.name";
 	static final String DEFAULT_BOOTSTRAP_CONFIG_NAME = "applicationBootstrapConfig";
