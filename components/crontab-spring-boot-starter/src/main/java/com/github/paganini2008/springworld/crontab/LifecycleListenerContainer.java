@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
@@ -17,7 +16,7 @@ import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender
  *
  * @since 1.0
  */
-public class LifecycleListenerContainer extends Observable implements RedisMessageHandler {
+public class LifecycleListenerContainer implements RedisMessageHandler {
 
 	private final Set<LifecycleListener> lifecycleListeners = Collections.synchronizedNavigableSet(new TreeSet<LifecycleListener>());
 
@@ -25,7 +24,6 @@ public class LifecycleListenerContainer extends Observable implements RedisMessa
 	private final RedisMessageSender redisMessageSender;
 
 	public LifecycleListenerContainer(String clusterName, RedisMessageSender redisMessageSender) {
-		super(Boolean.FALSE);
 		this.clusterName = clusterName;
 		this.redisMessageSender = redisMessageSender;
 	}
