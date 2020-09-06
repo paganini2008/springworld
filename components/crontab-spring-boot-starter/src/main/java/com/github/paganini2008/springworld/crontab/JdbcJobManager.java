@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +17,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.devtools.Observable;
-import com.github.paganini2008.devtools.Observer;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
@@ -30,7 +27,6 @@ import com.github.paganini2008.springworld.crontab.model.JobQuery;
 import com.github.paganini2008.springworld.crontab.model.JobRuntime;
 import com.github.paganini2008.springworld.crontab.model.JobStat;
 import com.github.paganini2008.springworld.crontab.model.JobTriggerDetail;
-import com.github.paganini2008.springworld.crontab.model.TriggerDescription.Serial;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,7 +63,7 @@ public class JdbcJobManager implements JobManager {
 	private boolean createTable;
 
 	@Autowired
-	private JobListenerContainer jobListenerContainer;
+	private LifecycleListenerContainer lifecycleListenerContainer;
 
 	@Override
 	public void configure() throws SQLException {
@@ -85,8 +81,6 @@ public class JdbcJobManager implements JobManager {
 				JdbcUtils.closeQuietly(connection);
 			}
 		}
-
-		jobListenerContainer.addListener(new NewJobCreationListener());
 	}
 
 	@Override
@@ -121,11 +115,12 @@ public class JdbcJobManager implements JobManager {
 					Integer.class);
 			if (result != null) {
 				return result.intValue();
+			} else {
+				throw new JobBeanNotFoundException(jobKey);
 			}
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
-		return 0;
 	}
 
 	@Override
@@ -141,8 +136,9 @@ public class JdbcJobManager implements JobManager {
 			try {
 				connection = dataSource.getConnection();
 				connection.setAutoCommit(false);
-				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL, new Object[] { jobDef.getDescription(), attachment,
-						jobDef.getEmail(), jobDef.getRetries(), jobDef.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL,
+						new Object[] { jobDef.getDescription(), attachment, jobDef.getEmail(), jobDef.getRetries(), jobDef.getClusterName(),
+								jobDef.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
 				triggerBuilder = jobDef.buildTrigger();
 				triggerType = triggerBuilder.getTriggerType();
@@ -165,7 +161,7 @@ public class JdbcJobManager implements JobManager {
 				JobKey[] dependencies = triggerBuilder.getTriggerDescription().getSerial().getDependencies();
 				handleJobDependency(jobKey, jobId, dependencies);
 			}
-			jobListenerContainer.signalAll(jobKey, JobAction.REFRESH);
+			lifecycleListenerContainer.signalAll(jobKey, JobAction.REFRESH);
 			return jobId;
 		} else {
 			Connection connection = null;
@@ -214,7 +210,7 @@ public class JdbcJobManager implements JobManager {
 				handleJobDependency(jobKey, jobId, dependencies);
 			}
 
-			jobListenerContainer.signalAll(jobKey, JobAction.CREATION);
+			lifecycleListenerContainer.signalAll(jobKey, JobAction.CREATION);
 			return jobId;
 		}
 	}
@@ -225,11 +221,6 @@ public class JdbcJobManager implements JobManager {
 			for (JobKey dependency : dependencies) {
 				if (hasJob(dependency)) {
 					dependentIds.add(getJobId(dependency));
-				} else {
-					jobListenerContainer.addObserver(dependency.getIndentifier(), new FutureDependentJobUpdater(jobKey, dependency));
-					if (log.isTraceEnabled()) {
-						log.trace("Dependent job '{}' is not available now and will be triggered in the future.", dependency);
-					}
 				}
 			}
 		}
@@ -259,69 +250,6 @@ public class JdbcJobManager implements JobManager {
 		}
 	}
 
-	/**
-	 * 
-	 * FutureDependentJobUpdater
-	 * 
-	 * @author Fred Feng
-	 *
-	 * @since 1.0
-	 */
-	private class FutureDependentJobUpdater implements Observer {
-
-		private final JobKey jobKey;
-		private final JobKey dependency;
-
-		FutureDependentJobUpdater(JobKey jobKey, JobKey dependency) {
-			this.jobKey = jobKey;
-			this.dependency = dependency;
-		}
-
-		@Override
-		public void update(Observable ob, Object arg) {
-			Set<JobKey> jobKeys = new TreeSet<JobKey>();
-			jobKeys.add(dependency);
-			JobTriggerDetail triggerDetail = null;
-			try {
-				triggerDetail = getJobTriggerDetail(jobKey);
-				Serial serial = triggerDetail.getTriggerDescription().getSerial();
-				JobKey[] dependencies = serial.getDependencies();
-				if (ArrayUtils.isNotEmpty(dependencies)) {
-					jobKeys.addAll(Arrays.asList(dependencies));
-				}
-				serial.setDependencies(jobKeys.toArray(new JobKey[0]));
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
-			if (triggerDetail != null) {
-				Connection connection = null;
-				try {
-					final int jobId = getJobId(jobKey);
-					final int dependentId = getJobId(dependency);
-					connection = dataSource.getConnection();
-					connection.setAutoCommit(false);
-					JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER, new Object[] {
-							triggerDetail.getTriggerType().getValue(), JacksonUtils.toJsonString(triggerDetail.getTriggerDescription()),
-							triggerDetail.getStartDate() != null ? new Timestamp(triggerDetail.getStartDate().getTime()) : null,
-							triggerDetail.getEndDate() != null ? new Timestamp(triggerDetail.getEndDate().getTime()) : null, jobId });
-
-					JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_DEPENDENCY, ps -> {
-						ps.setInt(1, jobId);
-						ps.setInt(2, dependentId);
-					});
-					connection.commit();
-					log.info("Add job dependency '{}' to jobId {} ok.", dependency, jobId);
-				} catch (SQLException e) {
-					JdbcUtils.rollbackQuietly(connection);
-					log.error(e.getMessage(), e);
-				} finally {
-					JdbcUtils.closeQuietly(connection);
-				}
-			}
-		}
-
-	}
-
 	@Override
 	public JobState deleteJob(JobKey jobKey) throws SQLException {
 		if (!hasJob(jobKey)) {
@@ -333,7 +261,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			return setJobState(jobKey, JobState.FINISHED);
 		} finally {
-			jobListenerContainer.signalAll(jobKey, JobAction.DELETION);
+			lifecycleListenerContainer.signalAll(jobKey, JobAction.DELETION);
 		}
 	}
 
@@ -376,7 +304,10 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
-					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+					new Object[] { jobKey.getClusterName(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+			if (tuple == null) {
+				throw new JobBeanNotFoundException(jobKey);
+			}
 			return tuple.toBean(JobDetail.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -412,7 +343,7 @@ public class JdbcJobManager implements JobManager {
 
 	@Override
 	public JobKey[] getDependencies(JobKey jobKey) throws SQLException {
-		List<JobKey> jobKeys = new ArrayList<JobKey>();
+		Set<JobKey> jobKeys = new TreeSet<JobKey>();
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
@@ -434,7 +365,10 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_RUNTIME, new Object[] { jobId });
-			return tuple != null ? tuple.toBean(JobRuntime.class) : null;
+			if (tuple == null) {
+				throw new JobBeanNotFoundException(jobKey);
+			}
+			return tuple.toBean(JobRuntime.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
@@ -442,7 +376,7 @@ public class JdbcJobManager implements JobManager {
 
 	@Override
 	public JobKey[] getJobKeys(JobQuery jobQuery) throws SQLException {
-		List<JobKey> jobKeys = new ArrayList<JobKey>();
+		Set<JobKey> jobKeys = new TreeSet<JobKey>();
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {
@@ -525,23 +459,8 @@ public class JdbcJobManager implements JobManager {
 		};
 	}
 
-	/**
-	 * 
-	 * NewJobCreationListener
-	 * 
-	 * @author Fred Feng
-	 *
-	 * @since 1.0
-	 */
-	class NewJobCreationListener implements JobListener {
-
-		@Override
-		public void afterCreation(JobKey jobKey) {
-			if (log.isTraceEnabled()) {
-				log.trace("Create new Job: {}", jobKey);
-			}
-		}
-
+	public DataSource getDataSource() {
+		return dataSource;
 	}
 
 }

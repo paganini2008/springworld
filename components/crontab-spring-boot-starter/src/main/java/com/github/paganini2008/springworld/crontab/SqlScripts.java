@@ -25,7 +25,7 @@ public abstract class SqlScripts {
 	public static final String DEF_INSERT_JOB_TRIGGER = "insert into crontab_job_trigger(job_id, trigger_type, trigger_description, start_date, end_date) values (?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_DEPENDENCY = "insert into crontab_job_dependency(job_id, dependent_job_id) value (?,?)";
 
-	public static final String DEF_UPDATE_JOB_DETAIL = "update crontab_job_detail set description=?, attachment=?, email=?, retries=? where group_name=? and job_name=? and job_class_name=?";
+	public static final String DEF_UPDATE_JOB_DETAIL = "update crontab_job_detail set description=?, attachment=?, email=?, retries=? where cluster_name=? and group_name=? and job_name=? and job_class_name=?";
 	public static final String DEF_UPDATE_JOB_TRIGGER = "update crontab_job_trigger set trigger_type=?, trigger_description=?, start_date=?, end_date=? where job_id=?";
 	public static final String DEF_UPDATE_JOB_RUNNING_BEGIN = "update crontab_job_runtime set job_state=?, last_execution_time=?, next_execution_time=? where job_id=(select job_id from crontab_job_detail where group_name=? and job_name=? and job_class_name=?)";
 	public static final String DEF_UPDATE_JOB_RUNNING_END = "update crontab_job_runtime set job_state=?, last_running_state=?, last_completion_time=? where job_id=(select job_id from crontab_job_detail where group_name=? and job_name=? and job_class_name=?)";
@@ -52,6 +52,6 @@ public abstract class SqlScripts {
 	public static final String DEF_SELECT_JOB_HAS_RELATION = "select count(*) from crontab_job_dependency where dependent_job_id=?";
 
 	public static final String DEF_SELECT_JOB_INFO = "select a.*,b.* from crontab_job_detail a join crontab_job_runtime b on a.job_id=b.job_id";
-	public static final String DEF_SELECT_JOB_DETAIL = "select * from crontab_job_detail where group_name=? and job_name=? and job_class_name=?";
+	public static final String DEF_SELECT_JOB_DETAIL = "select * from crontab_job_detail where cluster_name=? and group_name=? and job_name=? and job_class_name=?";
 	public static final String DEF_SELECT_ALL_JOB_STAT = "select job_id, sum(complete) as completeCount, sum(failed) as failedCount, sum(skipped) as skippedCount {0} from crontab_job_trace group by job_id {1}";
 }

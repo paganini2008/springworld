@@ -4,13 +4,13 @@ import org.springframework.core.Ordered;
 
 /**
  * 
- * JobListener
+ * LifecycleListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public interface JobListener extends Ordered, Comparable<JobListener> {
+public interface LifecycleListener extends Ordered, Comparable<LifecycleListener> {
 
 	default void afterCreation(JobKey jobKey) {
 	}
@@ -26,7 +26,7 @@ public interface JobListener extends Ordered, Comparable<JobListener> {
 	}
 
 	@Override
-	default int compareTo(JobListener other) {
+	default int compareTo(LifecycleListener other) {
 		return other.getOrder() - getOrder();
 	}
 

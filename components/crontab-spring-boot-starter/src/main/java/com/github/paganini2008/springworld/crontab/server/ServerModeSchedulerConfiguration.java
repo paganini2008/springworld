@@ -36,11 +36,12 @@ import com.github.paganini2008.springworld.crontab.JobAdmin;
 import com.github.paganini2008.springworld.crontab.JobAdminController;
 import com.github.paganini2008.springworld.crontab.JobBeanLoader;
 import com.github.paganini2008.springworld.crontab.JobDependencyDetector;
+import com.github.paganini2008.springworld.crontab.JobDependencyFutureListener;
 import com.github.paganini2008.springworld.crontab.JobDependencyObservable;
 import com.github.paganini2008.springworld.crontab.JobExecutor;
 import com.github.paganini2008.springworld.crontab.JobFutureHolder;
-import com.github.paganini2008.springworld.crontab.JobListenerContainer;
 import com.github.paganini2008.springworld.crontab.JobManager;
+import com.github.paganini2008.springworld.crontab.LifecycleListenerContainer;
 import com.github.paganini2008.springworld.crontab.LoadBalancedJobBeanProcessor;
 import com.github.paganini2008.springworld.crontab.NotManagedJobBeanInitializer;
 import com.github.paganini2008.springworld.crontab.OnServerModeCondition.ServerMode;
@@ -82,7 +83,7 @@ public class ServerModeSchedulerConfiguration {
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring")
 	public static class SpringSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:8}")
+		@Value("${spring.application.cluster.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -107,7 +108,7 @@ public class ServerModeSchedulerConfiguration {
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "cron4j", matchIfMissing = true)
 	public static class Cron4jSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:8}")
+		@Value("${spring.application.cluster.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -219,11 +220,16 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean("job-listener-container")
-		public JobListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
+		public LifecycleListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
 				RedisMessageSender redisMessageSender) {
-			JobListenerContainer jobListenerContainer = new JobListenerContainer(clusterName, redisMessageSender);
+			LifecycleListenerContainer jobListenerContainer = new LifecycleListenerContainer(clusterName, redisMessageSender);
 			redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
 			return jobListenerContainer;
+		}
+		
+		@Bean
+		public JobDependencyFutureListener jobDependencyFutureListener() {
+			return new JobDependencyFutureListener();
 		}
 
 	}

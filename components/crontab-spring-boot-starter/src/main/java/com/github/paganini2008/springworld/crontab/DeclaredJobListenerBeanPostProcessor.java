@@ -24,13 +24,13 @@ public class DeclaredJobListenerBeanPostProcessor implements BeanPostProcessor {
 	private JobExecutor targetJobExecutor;
 
 	@Autowired
-	private JobListenerContainer jobListenerContainer;
+	private LifecycleListenerContainer lifecycleListenerContainer;
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		if (bean instanceof JobListener) {
-			JobListener jobListener = (JobListener) bean;
-			jobListenerContainer.addListener(jobListener);
+		if (bean instanceof LifecycleListener) {
+			LifecycleListener listener = (LifecycleListener) bean;
+			lifecycleListenerContainer.addListener(listener);
 		}
 
 		if (bean instanceof JobRuntimeListener) {

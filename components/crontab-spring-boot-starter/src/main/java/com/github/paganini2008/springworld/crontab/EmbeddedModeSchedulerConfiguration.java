@@ -102,7 +102,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring")
 	public static class SpringSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:8}")
+		@Value("${spring.application.cluster.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -126,7 +126,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "cron4j", matchIfMissing = true)
 	public static class Cron4jSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:8}")
+		@Value("${spring.application.cluster.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -200,6 +200,11 @@ public class EmbeddedModeSchedulerConfiguration {
 	public JobDependencyDetector jobDependencyDetector() {
 		return new JobDependencyDetector();
 	}
+	
+	@Bean
+	public JobDependencyFutureListener jobDependencyFutureListener() {
+		return new JobDependencyFutureListener();
+	}
 
 	@Bean
 	public JobAdmin embeddedModeJobAdmin() {
@@ -217,11 +222,13 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean("job-listener-container")
-	public JobListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
+	public LifecycleListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
 			RedisMessageSender redisMessageSender) {
-		JobListenerContainer jobListenerContainer = new JobListenerContainer(clusterName, redisMessageSender);
+		LifecycleListenerContainer jobListenerContainer = new LifecycleListenerContainer(clusterName, redisMessageSender);
 		redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
 		return jobListenerContainer;
 	}
+	
+	
 
 }

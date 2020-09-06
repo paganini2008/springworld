@@ -10,9 +10,7 @@ package com.github.paganini2008.springworld.crontab;
  */
 public interface JobDefinition {
 
-	default String getClusterName() {
-		return null;
-	}
+	String getClusterName();
 
 	String getGroupName();
 

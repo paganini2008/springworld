@@ -11,39 +11,38 @@ import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender
 
 /**
  * 
- * JobListenerContainer
+ * LifecycleListenerContainer
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class JobListenerContainer extends Observable implements RedisMessageHandler {
+public class LifecycleListenerContainer extends Observable implements RedisMessageHandler {
 
-	private final Set<JobListener> jobListeners = Collections.synchronizedNavigableSet(new TreeSet<JobListener>());
+	private final Set<LifecycleListener> lifecycleListeners = Collections.synchronizedNavigableSet(new TreeSet<LifecycleListener>());
 
 	private final String clusterName;
 	private final RedisMessageSender redisMessageSender;
 
-	public JobListenerContainer(String clusterName, RedisMessageSender redisMessageSender) {
+	public LifecycleListenerContainer(String clusterName, RedisMessageSender redisMessageSender) {
 		super(Boolean.FALSE);
 		this.clusterName = clusterName;
 		this.redisMessageSender = redisMessageSender;
 	}
 
-	public void addListener(JobListener jobListener) {
-		if (jobListener != null) {
-			jobListeners.add(jobListener);
+	public void addListener(LifecycleListener listener) {
+		if (listener != null) {
+			lifecycleListeners.add(listener);
 		}
 	}
 
-	public void removeListener(JobListener jobListener) {
-		if (jobListener != null) {
-			jobListeners.remove(jobListener);
+	public void removeListener(LifecycleListener listener) {
+		if (listener != null) {
+			lifecycleListeners.remove(listener);
 		}
 	}
 
 	public void signalAll(JobKey jobKey, JobAction jobAction) {
-		super.notifyObservers(jobKey.getIndentifier(), jobAction);
 		final String channel = getChannel();
 		redisMessageSender.sendMessage(channel, new JobParam(jobKey, jobAction));
 	}
@@ -51,26 +50,29 @@ public class JobListenerContainer extends Observable implements RedisMessageHand
 	@Override
 	public void onMessage(String channel, Object message) throws Exception {
 		final JobParam jobParam = (JobParam) message;
-		final JobKey jobKey = jobParam.getJobKey();
-		final JobAction jobAction = (JobAction) jobParam.getAttachment();
+		JobKey jobKey = jobParam.getJobKey();
+		JobAction jobAction = (JobAction) jobParam.getAttachment();
+		accept(jobKey, jobAction);
+	}
+
+	private void accept(JobKey jobKey, JobAction jobAction) {
 		switch (jobAction) {
 		case CREATION:
-			for (JobListener jobListener : jobListeners) {
-				jobListener.afterCreation(jobKey);
+			for (LifecycleListener listener : lifecycleListeners) {
+				listener.afterCreation(jobKey);
 			}
 			break;
 		case DELETION:
-			for (JobListener jobListener : jobListeners) {
-				jobListener.beforeDeletion(jobKey);
+			for (LifecycleListener listener : lifecycleListeners) {
+				listener.beforeDeletion(jobKey);
 			}
 			break;
 		case REFRESH:
-			for (JobListener jobListener : jobListeners) {
-				jobListener.afterRefresh(jobKey);
+			for (LifecycleListener listener : lifecycleListeners) {
+				listener.afterRefresh(jobKey);
 			}
 			break;
 		}
-
 	}
 
 	@Override

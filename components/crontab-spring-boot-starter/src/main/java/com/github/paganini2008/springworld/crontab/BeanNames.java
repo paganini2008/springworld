@@ -10,7 +10,7 @@ package com.github.paganini2008.springworld.crontab;
  */
 public abstract class BeanNames {
 
-	public static final String DATA_SOURCE = "scheduler-ds";
+	public static final String DATA_SOURCE = "crontab-ds";
 
 	public static final String CLUSTER_JOB_SCHEDULER = "cluster-job-scheduler";
 
