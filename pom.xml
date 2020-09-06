@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 	
 	<groupId>com.github.paganini2008</groupId>
-	<version>2.0-RC3</version>
+	<version>2.0-RC4</version>
     <artifactId>springworld</artifactId>
     <modules>
 	    <module>components</module>
@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>com.github.paganini2008</groupId>
 			<artifactId>devtools-lang</artifactId>
-			<version>2.0-RC3</version>
+			<version>2.0-RC4</version>
 		</dependency>
 		
 		<dependency>
