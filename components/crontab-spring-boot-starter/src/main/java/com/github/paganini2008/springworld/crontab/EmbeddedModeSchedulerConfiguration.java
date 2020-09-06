@@ -17,12 +17,12 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
 
-import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.crontab.server.ConsumerModeJobExecutor;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +41,11 @@ import lombok.extern.slf4j.Slf4j;
 public class EmbeddedModeSchedulerConfiguration {
 
 	public EmbeddedModeSchedulerConfiguration() {
-		log.info("Cluster scheduler mode is embedded.");
+		log.info("<<<                                                  >>>");
+		log.info("<<<                Crontab v2.0-RC4                  >>>");
+		log.info("<<<              Current Job Deploy Mode             >>>");
+		log.info("<<<                 [Embedded Mode]                  >>>");
+		log.info("<<<                                                  >>>");
 	}
 
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
@@ -50,12 +54,12 @@ public class EmbeddedModeSchedulerConfiguration {
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "loadbalance", matchIfMissing = true)
 	public static class LoadBalanceConfig {
 
-		@Bean("main-job-executor")
+		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
 		public JobExecutor jobExecutor() {
 			return new EmbeddedModeLoadBalancer();
 		}
 
-		@Bean("target-job-executor")
+		@Bean(BeanNames.TARGET_JOB_EXECUTOR)
 		public JobExecutor consumerModeJobExecutor() {
 			return new ConsumerModeJobExecutor();
 		}
@@ -65,12 +69,12 @@ public class EmbeddedModeSchedulerConfiguration {
 			return new LoadBalancedJobBeanProcessor();
 		}
 
-		@Bean("external-job-bean-loader")
+		@Bean(BeanNames.EXTERNAL_JOB_BEAN_LOADER)
 		public JobBeanLoader externalJobBeanLoader() {
 			return new ExternalJobBeanLoader();
 		}
 
-		@Bean("internal-job-bean-loader")
+		@Bean(BeanNames.INTERNAL_JOB_BEAN_LOADER)
 		public JobBeanLoader jobBeanLoader() {
 			return new InternalJobBeanLoader();
 		}
@@ -83,12 +87,12 @@ public class EmbeddedModeSchedulerConfiguration {
 	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "master-slave")
 	public static class MasterSlaveConfig {
 
-		@Bean("internal-job-bean-loader")
+		@Bean(BeanNames.INTERNAL_JOB_BEAN_LOADER)
 		public JobBeanLoader jobBeanLoader() {
 			return new InternalJobBeanLoader();
 		}
 
-		@Bean("main-job-executor")
+		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
 		public JobExecutor jobExecutor() {
 			return new EmbeddedModeJobExecutor();
 		}
@@ -159,7 +163,7 @@ public class EmbeddedModeSchedulerConfiguration {
 		return new EmbeddedModeJobBeanInitializer();
 	}
 
-	@Bean
+	@Bean("scheduler-starter-listener-container")
 	public SchedulerStarterListener schedulerStarterListener() {
 		return new DefaultSchedulerStarterListener();
 	}
@@ -212,19 +216,12 @@ public class EmbeddedModeSchedulerConfiguration {
 		return new SchedulerDeadlineProcessor();
 	}
 
-	@Bean
-	public JobListenerContainer jobListenerContainer() {
-		return new JobListenerContainer();
-	}
-
-	@Bean
-	public Observable newJobObservable() {
-		return Observable.unrepeatable();
-	}
-
-	@Bean
-	public JobListener newJobCreationListener() {
-		return new NewJobCreationListener();
+	@Bean("job-listener-container")
+	public JobListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
+			RedisMessageSender redisMessageSender) {
+		JobListenerContainer jobListenerContainer = new JobListenerContainer(clusterName, redisMessageSender);
+		redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
+		return jobListenerContainer;
 	}
 
 }

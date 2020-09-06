@@ -50,6 +50,7 @@ public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executabl
 	public void beforeRun(JobKey jobKey, Date startDate) {
 		Date theDeadline = deadlines.get(jobKey);
 		if (theDeadline != null && theDeadline.before(startDate)) {
+			deadlines.remove(jobKey);
 			throw new JobTerminationException(jobKey, "Job '" + jobKey + "' has terminated on deadline: " + theDeadline);
 		}
 	}

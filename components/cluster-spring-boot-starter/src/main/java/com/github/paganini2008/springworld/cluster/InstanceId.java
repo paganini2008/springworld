@@ -26,9 +26,11 @@ public final class InstanceId {
 	@Autowired
 	private InstanceIdGenerator idGenerator;
 
+	@Getter
 	@Value("${spring.application.cluster.name:default}")
 	private String clusterName;
 
+	@Getter
 	@Value("${spring.application.name}")
 	private String applicationName;
 

@@ -4,8 +4,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.devtools.Observable;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 /**
  * 
@@ -15,11 +17,18 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListe
  *
  * @since 1.0
  */
-public class JobListenerContainer implements ClusterMessageListener {
-
-	public static final String TOPIC_NAME = "jobListenerContainer";
+public class JobListenerContainer extends Observable implements RedisMessageHandler {
 
 	private final Set<JobListener> jobListeners = Collections.synchronizedNavigableSet(new TreeSet<JobListener>());
+
+	private final String clusterName;
+	private final RedisMessageSender redisMessageSender;
+
+	public JobListenerContainer(String clusterName, RedisMessageSender redisMessageSender) {
+		super(Boolean.FALSE);
+		this.clusterName = clusterName;
+		this.redisMessageSender = redisMessageSender;
+	}
 
 	public void addListener(JobListener jobListener) {
 		if (jobListener != null) {
@@ -33,8 +42,14 @@ public class JobListenerContainer implements ClusterMessageListener {
 		}
 	}
 
+	public void signalAll(JobKey jobKey, JobAction jobAction) {
+		super.notifyObservers(jobKey.getIndentifier(), jobAction);
+		final String channel = getChannel();
+		redisMessageSender.sendMessage(channel, new JobParam(jobKey, jobAction));
+	}
+
 	@Override
-	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+	public void onMessage(String channel, Object message) throws Exception {
 		final JobParam jobParam = (JobParam) message;
 		final JobKey jobKey = jobParam.getJobKey();
 		final JobAction jobAction = (JobAction) jobParam.getAttachment();
@@ -59,8 +74,8 @@ public class JobListenerContainer implements ClusterMessageListener {
 	}
 
 	@Override
-	public String getTopic() {
-		return TOPIC_NAME;
+	public String getChannel() {
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":crontab:job:action";
 	}
 
 }

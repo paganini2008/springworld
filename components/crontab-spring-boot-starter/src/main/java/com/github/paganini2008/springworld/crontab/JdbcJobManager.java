@@ -20,12 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.crontab.model.JobDetail;
 import com.github.paganini2008.springworld.crontab.model.JobInfo;
 import com.github.paganini2008.springworld.crontab.model.JobQuery;
@@ -51,13 +49,13 @@ public class JdbcJobManager implements JobManager {
 		private static final long serialVersionUID = 1L;
 
 		{
-			put("cluster_server_detail", SqlScripts.DEF_DDL_CLUSTER_DETAIL);
-			put("cluster_job_detail", SqlScripts.DEF_DDL_JOB_DETAIL);
-			put("cluster_job_trigger", SqlScripts.DEF_DDL_JOB_TRIGGER);
-			put("cluster_job_runtime", SqlScripts.DEF_DDL_JOB_RUNTIME);
-			put("cluster_job_trace", SqlScripts.DEF_DDL_JOB_TRACE);
-			put("cluster_job_exception", SqlScripts.DEF_DDL_JOB_EXCEPTION);
-			put("cluster_job_dependency", SqlScripts.DEF_DDL_JOB_DEPENDENCY);
+			put("crontab_server_detail", SqlScripts.DEF_DDL_CLUSTER_DETAIL);
+			put("crontab_job_detail", SqlScripts.DEF_DDL_JOB_DETAIL);
+			put("crontab_job_trigger", SqlScripts.DEF_DDL_JOB_TRIGGER);
+			put("crontab_job_runtime", SqlScripts.DEF_DDL_JOB_RUNTIME);
+			put("crontab_job_trace", SqlScripts.DEF_DDL_JOB_TRACE);
+			put("crontab_job_exception", SqlScripts.DEF_DDL_JOB_EXCEPTION);
+			put("crontab_job_dependency", SqlScripts.DEF_DDL_JOB_DEPENDENCY);
 		}
 	};
 
@@ -68,18 +66,8 @@ public class JdbcJobManager implements JobManager {
 	@Value("${spring.application.cluster.scheduler.createTable:true}")
 	private boolean createTable;
 
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
-
-	@Value("${spring.application.name}")
-	private String applicationName;
-
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
-
-	@Qualifier("newJobObservable")
-	@Autowired
-	private Observable newJobObservable;
+	private JobListenerContainer jobListenerContainer;
 
 	@Override
 	public void configure() throws SQLException {
@@ -98,6 +86,7 @@ public class JdbcJobManager implements JobManager {
 			}
 		}
 
+		jobListenerContainer.addListener(new NewJobCreationListener());
 	}
 
 	@Override
@@ -142,6 +131,7 @@ public class JdbcJobManager implements JobManager {
 	@Override
 	public int persistJob(JobDefinition jobDef, String attachment) throws SQLException {
 		final JobKey jobKey = JobKey.of(jobDef);
+
 		int jobId;
 		TriggerBuilder triggerBuilder;
 		TriggerType triggerType;
@@ -152,7 +142,7 @@ public class JdbcJobManager implements JobManager {
 				connection = dataSource.getConnection();
 				connection.setAutoCommit(false);
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL, new Object[] { jobDef.getDescription(), attachment,
-						jobDef.getEmail(), jobDef.getRetries(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+						jobDef.getEmail(), jobDef.getRetries(), jobDef.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
 				triggerBuilder = jobDef.buildTrigger();
 				triggerType = triggerBuilder.getTriggerType();
@@ -175,7 +165,7 @@ public class JdbcJobManager implements JobManager {
 				JobKey[] dependencies = triggerBuilder.getTriggerDescription().getSerial().getDependencies();
 				handleJobDependency(jobKey, jobId, dependencies);
 			}
-			clusterMulticastGroup.multicast(JobListenerContainer.TOPIC_NAME, new JobParam(jobKey, JobAction.REFRESH));
+			jobListenerContainer.signalAll(jobKey, JobAction.REFRESH);
 			return jobId;
 		} else {
 			Connection connection = null;
@@ -183,8 +173,8 @@ public class JdbcJobManager implements JobManager {
 				connection = dataSource.getConnection();
 				connection.setAutoCommit(false);
 				jobId = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
-					ps.setString(1, StringUtils.isNotBlank(jobDef.getClusterName()) ? jobDef.getClusterName() : clusterName);
-					ps.setString(2, StringUtils.isNotBlank(jobDef.getGroupName()) ? jobDef.getGroupName() : applicationName);
+					ps.setString(1, jobDef.getClusterName());
+					ps.setString(2, jobDef.getGroupName());
 					ps.setString(3, jobDef.getJobName());
 					ps.setString(4, jobDef.getJobClassName());
 					ps.setString(5, jobDef.getDescription());
@@ -223,7 +213,8 @@ public class JdbcJobManager implements JobManager {
 				JobKey[] dependencies = triggerBuilder.getTriggerDescription().getSerial().getDependencies();
 				handleJobDependency(jobKey, jobId, dependencies);
 			}
-			clusterMulticastGroup.multicast(JobListenerContainer.TOPIC_NAME, new JobParam(jobKey, JobAction.CREATION));
+
+			jobListenerContainer.signalAll(jobKey, JobAction.CREATION);
 			return jobId;
 		}
 	}
@@ -235,7 +226,10 @@ public class JdbcJobManager implements JobManager {
 				if (hasJob(dependency)) {
 					dependentIds.add(getJobId(dependency));
 				} else {
-					newJobObservable.addObserver(dependency.getIndentifier(), new FutureDependentJobUpdater(jobKey, dependency));
+					jobListenerContainer.addObserver(dependency.getIndentifier(), new FutureDependentJobUpdater(jobKey, dependency));
+					if (log.isTraceEnabled()) {
+						log.trace("Dependent job '{}' is not available now and will be triggered in the future.", dependency);
+					}
 				}
 			}
 		}
@@ -339,7 +333,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			return setJobState(jobKey, JobState.FINISHED);
 		} finally {
-			clusterMulticastGroup.multicast(JobListenerContainer.TOPIC_NAME, new JobParam(jobKey, JobAction.DELETION));
+			jobListenerContainer.signalAll(jobKey, JobAction.DELETION);
 		}
 	}
 
@@ -349,7 +343,8 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Integer result = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_NAME_EXISTS,
-					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() }, Integer.class);
+					new Object[] { jobKey.getClusterName(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() },
+					Integer.class);
 			return result != null && result.intValue() > 0;
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -528,6 +523,25 @@ public class JdbcJobManager implements JobManager {
 			}
 
 		};
+	}
+
+	/**
+	 * 
+	 * NewJobCreationListener
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	class NewJobCreationListener implements JobListener {
+
+		@Override
+		public void afterCreation(JobKey jobKey) {
+			if (log.isTraceEnabled()) {
+				log.trace("Create new Job: {}", jobKey);
+			}
+		}
+
 	}
 
 }

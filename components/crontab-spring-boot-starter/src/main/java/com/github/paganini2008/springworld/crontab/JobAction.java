@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.crontab;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.paganini2008.devtools.enums.EnumConstant;
 
 /**
  * 
@@ -11,19 +12,26 @@ import com.fasterxml.jackson.annotation.JsonValue;
  *
  * @since 1.0
  */
-public enum JobAction {
+public enum JobAction implements EnumConstant {
 
-	CREATION(0), DELETION(1), REFRESH(2);
+	CREATION(0, "creation"), DELETION(1, "deletion"), REFRESH(2, "refresh");
 
 	private final int value;
+	private final String repr;
 
-	private JobAction(int value) {
+	private JobAction(int value, String repr) {
 		this.value = value;
+		this.repr = repr;
 	}
 
 	@JsonValue
 	public int getValue() {
 		return value;
+	}
+
+	@Override
+	public String getRepr() {
+		return repr;
 	}
 
 	@JsonCreator

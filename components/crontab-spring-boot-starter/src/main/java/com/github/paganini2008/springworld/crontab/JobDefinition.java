@@ -13,11 +13,9 @@ public interface JobDefinition {
 	default String getClusterName() {
 		return null;
 	}
-	
-	default String getGroupName() {
-		return null;
-	}
-	
+
+	String getGroupName();
+
 	default String getJobName() {
 		String simpleName = getClass().getSimpleName();
 		return simpleName.substring(0, 1).toLowerCase().concat(simpleName.substring(1));
@@ -26,7 +24,7 @@ public interface JobDefinition {
 	default String getJobClassName() {
 		return getClass().getName();
 	}
-	
+
 	TriggerBuilder buildTrigger();
 
 	default String getDescription() {

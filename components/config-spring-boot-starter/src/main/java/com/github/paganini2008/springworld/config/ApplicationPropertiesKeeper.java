@@ -48,7 +48,7 @@ public class ApplicationPropertiesKeeper implements BeanPostProcessor, Applicati
 	private ApplicationContext applicationContext;
 
 	@Override
-	public Object postProcessBeforeInitialization(final Object bean, String beanName) throws BeansException {
+	public Object postProcessAfterInitialization(final Object bean, String beanName) throws BeansException {
 		List<Field> fields = FieldUtils.getFields(bean.getClass(), FieldFilters.isAnnotationPresent(Value.class));
 		if (CollectionUtils.isEmpty(fields)) {
 			return bean;

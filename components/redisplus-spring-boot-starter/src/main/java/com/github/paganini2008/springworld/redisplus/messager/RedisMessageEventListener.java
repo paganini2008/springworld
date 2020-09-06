@@ -25,6 +25,7 @@ public class RedisMessageEventListener implements ApplicationListener<RedisMessa
 	private final ConcurrentMap<String, Map<String, RedisMessageHandler>> channelPatternHandlers = new ConcurrentHashMap<String, Map<String, RedisMessageHandler>>();
 
 	public void onApplicationEvent(RedisMessageEvent event) {
+		
 		final String channel = event.getChannel();
 		final Object message = event.getMessage();
 		Map<String, RedisMessageHandler> handlers = channelHandlers.get(channel);
@@ -43,6 +44,9 @@ public class RedisMessageEventListener implements ApplicationListener<RedisMessa
 			}
 		}
 		for (String keyPattern : channelPatternHandlers.keySet()) {
+			if(channel.contains("job:action")) {
+				System.out.println();
+			}
 			if (matchesChannel(keyPattern, channel)) {
 				handlers = channelPatternHandlers.get(keyPattern);
 				if (handlers != null && handlers.size() > 0) {

@@ -17,7 +17,6 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
 
-import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
@@ -40,11 +39,9 @@ import com.github.paganini2008.springworld.crontab.JobDependencyDetector;
 import com.github.paganini2008.springworld.crontab.JobDependencyObservable;
 import com.github.paganini2008.springworld.crontab.JobExecutor;
 import com.github.paganini2008.springworld.crontab.JobFutureHolder;
-import com.github.paganini2008.springworld.crontab.JobListener;
 import com.github.paganini2008.springworld.crontab.JobListenerContainer;
 import com.github.paganini2008.springworld.crontab.JobManager;
 import com.github.paganini2008.springworld.crontab.LoadBalancedJobBeanProcessor;
-import com.github.paganini2008.springworld.crontab.NewJobCreationListener;
 import com.github.paganini2008.springworld.crontab.NotManagedJobBeanInitializer;
 import com.github.paganini2008.springworld.crontab.OnServerModeCondition.ServerMode;
 import com.github.paganini2008.springworld.crontab.ScheduleAdmin;
@@ -55,6 +52,7 @@ import com.github.paganini2008.springworld.crontab.SchedulerErrorHandler;
 import com.github.paganini2008.springworld.crontab.SchedulerStarterListener;
 import com.github.paganini2008.springworld.crontab.SpringScheduler;
 import com.github.paganini2008.springworld.crontab.StopWatch;
+import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,7 +70,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ServerModeSchedulerConfiguration {
 
 	public ServerModeSchedulerConfiguration() {
-		log.info("Cluster scheduler mode is server.");
+		log.info("<<<                                                  >>>");
+		log.info("<<<                Crontab v2.0-RC4                  >>>");
+		log.info("<<<              Current Job Deploy Mode             >>>");
+		log.info("<<<                 [Server Mode]                    >>>");
+		log.info("<<<                                                  >>>");
 	}
 
 	@Configuration
@@ -216,19 +218,12 @@ public class ServerModeSchedulerConfiguration {
 			return new SchedulerDeadlineProcessor();
 		}
 
-		@Bean
-		public JobListenerContainer jobListenerContainer() {
-			return new JobListenerContainer();
-		}
-
-		@Bean
-		public Observable newJobObservable() {
-			return Observable.unrepeatable();
-		}
-
-		@Bean
-		public JobListener newJobCreationListener() {
-			return new NewJobCreationListener();
+		@Bean("job-listener-container")
+		public JobListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
+				RedisMessageSender redisMessageSender) {
+			JobListenerContainer jobListenerContainer = new JobListenerContainer(clusterName, redisMessageSender);
+			redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
+			return jobListenerContainer;
 		}
 
 	}

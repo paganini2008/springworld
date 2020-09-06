@@ -27,6 +27,7 @@ public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
 			MessageHandler annotation = bean.getClass().getAnnotation(MessageHandler.class);
 			redisMessageSender.subscribeChannel(beanName, new ReflectiveRedisMessageHandler(annotation, bean));
 		}
+
 		return bean;
 	}
 
