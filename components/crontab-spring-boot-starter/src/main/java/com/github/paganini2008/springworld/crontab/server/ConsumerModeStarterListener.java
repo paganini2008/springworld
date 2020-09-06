@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.crontab.JobResult;
+import com.github.paganini2008.springworld.crontab.model.JobResult;
 
 import lombok.extern.slf4j.Slf4j;
 

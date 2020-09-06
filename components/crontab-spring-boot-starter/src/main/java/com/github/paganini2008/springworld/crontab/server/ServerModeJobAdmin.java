@@ -6,14 +6,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.github.paganini2008.springworld.crontab.JobAdmin;
-import com.github.paganini2008.springworld.crontab.JobConfig;
 import com.github.paganini2008.springworld.crontab.JobDefinition;
 import com.github.paganini2008.springworld.crontab.JobKey;
 import com.github.paganini2008.springworld.crontab.JobManager;
-import com.github.paganini2008.springworld.crontab.JobParam;
 import com.github.paganini2008.springworld.crontab.JobPersistRequest;
-import com.github.paganini2008.springworld.crontab.JobResult;
 import com.github.paganini2008.springworld.crontab.JobState;
+import com.github.paganini2008.springworld.crontab.model.JobPersistParam;
+import com.github.paganini2008.springworld.crontab.model.JobParam;
+import com.github.paganini2008.springworld.crontab.model.JobResult;
 
 /**
  * 
@@ -31,7 +31,7 @@ public class ServerModeJobAdmin implements JobAdmin {
 	@Autowired
 	private ClusterRestTemplate restTemplate;
 
-	public JobState persistJob(JobConfig jobConfig) throws Exception {
+	public JobState persistJob(JobPersistParam jobConfig) throws Exception {
 		JobDefinition jobDef = JobPersistRequest.build(jobConfig);
 		jobManager.persistJob(jobDef, jobConfig.getAttachment());
 		return jobManager.getJobRuntime(JobKey.of(jobDef)).getJobState();

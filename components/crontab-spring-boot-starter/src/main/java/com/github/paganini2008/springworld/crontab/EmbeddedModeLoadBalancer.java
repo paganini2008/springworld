@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springworld.crontab.model.JobParam;
 
 /**
  * 

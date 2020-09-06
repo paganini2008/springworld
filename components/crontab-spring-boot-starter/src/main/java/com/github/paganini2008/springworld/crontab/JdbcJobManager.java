@@ -321,6 +321,9 @@ public class JdbcJobManager implements JobManager {
 		try {
 			connection = dataSource.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_TRIGGER, new Object[] { jobId });
+			if (tuple == null) {
+				throw new JobBeanNotFoundException(jobKey);
+			}
 			return tuple.toBean(JobTriggerDetail.class);
 		} finally {
 			JdbcUtils.closeQuietly(connection);

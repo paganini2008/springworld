@@ -8,11 +8,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.github.paganini2008.springworld.crontab.JobKey;
-import com.github.paganini2008.springworld.crontab.JobResult;
-import com.github.paganini2008.springworld.crontab.JobRunningParam;
 import com.github.paganini2008.springworld.crontab.JobState;
 import com.github.paganini2008.springworld.crontab.RunningState;
 import com.github.paganini2008.springworld.crontab.StopWatch;
+import com.github.paganini2008.springworld.crontab.model.JobResult;
+import com.github.paganini2008.springworld.crontab.model.JobRunningParam;
 
 /**
  * 

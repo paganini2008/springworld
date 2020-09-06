@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.crontab;
+package com.github.paganini2008.springworld.crontab.model;
 
 import java.io.Serializable;
 

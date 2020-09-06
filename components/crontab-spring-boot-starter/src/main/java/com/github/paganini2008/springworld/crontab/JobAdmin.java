@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.crontab;
 
+import com.github.paganini2008.springworld.crontab.model.JobPersistParam;
+
 /**
  * 
  * JobAdmin
@@ -10,7 +12,7 @@ package com.github.paganini2008.springworld.crontab;
  */
 public interface JobAdmin {
 
-	JobState persistJob(JobConfig jobConfig) throws Exception;
+	JobState persistJob(JobPersistParam jobConfig) throws Exception;
 
 	JobState deleteJob(JobKey jobKey) throws Exception;
 

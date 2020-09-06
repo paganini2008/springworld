@@ -8,15 +8,15 @@ import org.springframework.http.ResponseEntity;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.crontab.JobKey;
 import com.github.paganini2008.springworld.crontab.JobManager;
-import com.github.paganini2008.springworld.crontab.JobParam;
-import com.github.paganini2008.springworld.crontab.JobResult;
 import com.github.paganini2008.springworld.crontab.JobState;
 import com.github.paganini2008.springworld.crontab.StatType;
 import com.github.paganini2008.springworld.crontab.model.JobDetail;
 import com.github.paganini2008.springworld.crontab.model.JobInfo;
 import com.github.paganini2008.springworld.crontab.model.JobQuery;
+import com.github.paganini2008.springworld.crontab.model.JobResult;
 import com.github.paganini2008.springworld.crontab.model.JobRuntime;
 import com.github.paganini2008.springworld.crontab.model.JobStat;
+import com.github.paganini2008.springworld.crontab.model.JobStateParam;
 import com.github.paganini2008.springworld.crontab.model.JobTriggerDetail;
 
 /**
@@ -50,7 +50,7 @@ public class RestJobManager implements JobManager {
 	@Override
 	public JobState setJobState(JobKey jobKey, JobState jobState) throws Exception {
 		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/setJobState",
-				HttpMethod.POST, new JobParam(jobKey, jobState), new ParameterizedTypeReference<JobResult<JobState>>() {
+				HttpMethod.POST, new JobStateParam(jobKey, jobState), new ParameterizedTypeReference<JobResult<JobState>>() {
 				});
 		return responseEntity.getBody().getData();
 	}

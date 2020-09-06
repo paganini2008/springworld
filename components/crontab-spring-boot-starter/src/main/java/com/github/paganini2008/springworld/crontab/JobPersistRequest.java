@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.crontab;
 
+import com.github.paganini2008.springworld.crontab.model.JobPersistParam;
+
 /**
  * 
  * JobPersistRequest
@@ -10,55 +12,55 @@ package com.github.paganini2008.springworld.crontab;
  */
 public class JobPersistRequest implements JobDefinition {
 
-	private final JobConfig jobConfig;
+	private final JobPersistParam persistParam;
 
-	JobPersistRequest(JobConfig jobConfig) {
-		this.jobConfig = jobConfig;
+	JobPersistRequest(JobPersistParam persistParam) {
+		this.persistParam = persistParam;
 	}
 
 	@Override
 	public String getClusterName() {
-		return jobConfig.getClusterName();
+		return persistParam.getClusterName();
 	}
 
 	@Override
 	public String getGroupName() {
-		return jobConfig.getGroupName();
+		return persistParam.getGroupName();
 	}
 
 	@Override
 	public String getJobName() {
-		return jobConfig.getJobName();
+		return persistParam.getJobName();
 	}
 
 	@Override
 	public String getJobClassName() {
-		return jobConfig.getJobClassName();
+		return persistParam.getJobClassName();
 	}
 
 	@Override
 	public String getDescription() {
-		return jobConfig.getDescription();
+		return persistParam.getDescription();
 	}
 
 	@Override
 	public int getRetries() {
-		return jobConfig.getRetries();
+		return persistParam.getRetries();
 	}
 
 	@Override
 	public String getEmail() {
-		return jobConfig.getEmail();
+		return persistParam.getEmail();
 	}
 
 	@Override
 	public TriggerBuilder buildTrigger() {
-		return TriggerBuilder.newTrigger(jobConfig.getTriggerType()).setStartDate(jobConfig.getStartDate())
-				.setEndDate(jobConfig.getEndDate()).setTriggerDescription(jobConfig.getTriggerDescription());
+		return TriggerBuilder.newTrigger(persistParam.getTriggerType()).setStartDate(persistParam.getStartDate())
+				.setEndDate(persistParam.getEndDate()).setTriggerDescription(persistParam.getTriggerDescription());
 	}
 
-	public static JobPersistRequest build(JobConfig jobConfig) {
-		return new JobPersistRequest(jobConfig);
+	public static JobPersistRequest build(JobPersistParam persistParam) {
+		return new JobPersistRequest(persistParam);
 	}
 
 }

@@ -76,7 +76,7 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 			JobTriggerDetail triggerDetail = null;
 			try {
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-				dependencies = triggerDetail.getTriggerDescription().getSerial().getDependencies();
+				dependencies = triggerDetail.getTriggerDescriptionObject().getSerial().getDependencies();
 				comparedDependencies = jobManager.getDependencies(jobKey);
 				supplyJobKeys = ArrayUtils.minus(dependencies, comparedDependencies);
 				if (ArrayUtils.isNotEmpty(supplyJobKeys)) {

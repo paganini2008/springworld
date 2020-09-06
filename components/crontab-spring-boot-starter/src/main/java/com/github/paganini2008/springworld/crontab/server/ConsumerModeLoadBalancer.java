@@ -14,11 +14,11 @@ import com.github.paganini2008.springworld.crontab.JobExecutor;
 import com.github.paganini2008.springworld.crontab.JobFutureHolder;
 import com.github.paganini2008.springworld.crontab.JobKey;
 import com.github.paganini2008.springworld.crontab.JobManager;
-import com.github.paganini2008.springworld.crontab.JobParam;
 import com.github.paganini2008.springworld.crontab.JobState;
 import com.github.paganini2008.springworld.crontab.JobTemplate;
 import com.github.paganini2008.springworld.crontab.RunningState;
 import com.github.paganini2008.springworld.crontab.StopWatch;
+import com.github.paganini2008.springworld.crontab.model.JobParam;
 
 /**
  * 

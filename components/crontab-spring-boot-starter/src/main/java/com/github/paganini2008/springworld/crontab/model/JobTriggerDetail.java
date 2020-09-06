@@ -3,6 +3,7 @@ package com.github.paganini2008.springworld.crontab.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.paganini2008.springworld.crontab.JacksonUtils;
 import com.github.paganini2008.springworld.crontab.TriggerType;
 
@@ -24,7 +25,7 @@ public class JobTriggerDetail implements Serializable {
 	private TriggerType triggerType;
 	private Date startDate;
 	private Date endDate;
-	private TriggerDescription triggerDescription;
+	private String triggerDescription;
 
 	public void setJobId(int jobId) {
 		this.jobId = jobId;
@@ -35,7 +36,16 @@ public class JobTriggerDetail implements Serializable {
 	}
 
 	public void setTriggerDescription(String triggerDescription) {
-		this.triggerDescription = JacksonUtils.parseJson(triggerDescription, TriggerDescription.class);
+		this.triggerDescription = triggerDescription;
+	}
+
+	public String getTriggerDescription() {
+		return triggerDescription;
+	}
+	
+	@JsonIgnore
+	public TriggerDescription getTriggerDescriptionObject() {
+		return JacksonUtils.parseJson(triggerDescription, TriggerDescription.class);
 	}
 
 	public void setStartDate(Date startDate) {

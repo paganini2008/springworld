@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.springworld.crontab.JobKey;
 import com.github.paganini2008.springworld.crontab.JobManager;
-import com.github.paganini2008.springworld.crontab.JobParam;
-import com.github.paganini2008.springworld.crontab.JobResult;
-import com.github.paganini2008.springworld.crontab.JobRunningParam;
 import com.github.paganini2008.springworld.crontab.JobState;
 import com.github.paganini2008.springworld.crontab.StopWatch;
 import com.github.paganini2008.springworld.crontab.model.JobDetail;
 import com.github.paganini2008.springworld.crontab.model.JobQuery;
+import com.github.paganini2008.springworld.crontab.model.JobResult;
+import com.github.paganini2008.springworld.crontab.model.JobRunningParam;
 import com.github.paganini2008.springworld.crontab.model.JobRuntime;
+import com.github.paganini2008.springworld.crontab.model.JobStateParam;
 import com.github.paganini2008.springworld.crontab.model.JobTriggerDetail;
 
 /**
@@ -68,8 +68,8 @@ public class JobManagerController {
 	}
 
 	@PostMapping("/setJobState")
-	public ResponseEntity<JobResult<JobState>> setJobState(@RequestBody JobParam jobParam) throws Exception {
-		JobState jobState = jobManager.setJobState(jobParam.getJobKey(), (JobState) jobParam.getAttachment());
+	public ResponseEntity<JobResult<JobState>> setJobState(@RequestBody JobStateParam param) throws Exception {
+		JobState jobState = jobManager.setJobState(param.getJobKey(), param.getJobState());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 

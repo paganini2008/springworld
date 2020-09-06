@@ -76,13 +76,13 @@ public class DefaultScheduleManager implements ScheduleManager {
 		Date startDate = triggerDetail.getStartDate();
 		switch (triggerDetail.getTriggerType()) {
 		case CRON:
-			String cronExpression = triggerDetail.getTriggerDescription().getCron().getExpression();
+			String cronExpression = triggerDetail.getTriggerDescriptionObject().getCron().getExpression();
 			if (startDate != null) {
 				return scheduler.schedule(job, attachment, cronExpression, startDate);
 			}
 			return scheduler.schedule(job, attachment, cronExpression);
 		case PERIODIC:
-			Periodic periodic = triggerDetail.getTriggerDescription().getPeriodic();
+			Periodic periodic = triggerDetail.getTriggerDescriptionObject().getPeriodic();
 			long periodInMs = DateUtils.convertToMillis(periodic.getPeriod(), periodic.getSchedulingUnit().getTimeUnit());
 			if (startDate == null) {
 				startDate = new Date(System.currentTimeMillis() + periodInMs);
@@ -92,7 +92,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 			}
 			return scheduler.scheduleWithFixedDelay(job, attachment, periodInMs, startDate);
 		case SERIAL:
-			JobKey[] dependencies = triggerDetail.getTriggerDescription().getSerial().getDependencies();
+			JobKey[] dependencies = triggerDetail.getTriggerDescriptionObject().getSerial().getDependencies();
 			if (startDate != null) {
 				return scheduler.scheduleWithDependency(job, dependencies, startDate);
 			}

@@ -7,11 +7,11 @@ import com.github.paganini2008.springworld.crontab.BeanNames;
 import com.github.paganini2008.springworld.crontab.Job;
 import com.github.paganini2008.springworld.crontab.JobAdmin;
 import com.github.paganini2008.springworld.crontab.JobBeanLoader;
-import com.github.paganini2008.springworld.crontab.JobConfig;
 import com.github.paganini2008.springworld.crontab.JobExecutor;
 import com.github.paganini2008.springworld.crontab.JobKey;
 import com.github.paganini2008.springworld.crontab.JobManager;
 import com.github.paganini2008.springworld.crontab.JobState;
+import com.github.paganini2008.springworld.crontab.model.JobPersistParam;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class ConsumerModeJobAdmin implements JobAdmin {
 	private JobManager jobManager;
 
 	@Override
-	public JobState persistJob(JobConfig jobConfig) {
+	public JobState persistJob(JobPersistParam jobConfig) {
 		throw new UnsupportedOperationException("persistJob");
 	}
 

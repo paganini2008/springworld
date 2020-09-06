@@ -16,7 +16,7 @@ import com.github.paganini2008.springworld.crontab.model.JobTriggerDetail;
 public class ExternalJobBeanLoader implements JobBeanLoader {
 
 	@Autowired
-	private JobManager jobManager;
+	private JobManager jobManager; 
 
 	@Override
 	public Job loadJobBean(JobKey jobKey) throws Exception {

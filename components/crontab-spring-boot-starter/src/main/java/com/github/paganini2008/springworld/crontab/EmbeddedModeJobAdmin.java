@@ -3,6 +3,8 @@ package com.github.paganini2008.springworld.crontab;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.github.paganini2008.springworld.crontab.model.JobPersistParam;
+
 /**
  * 
  * EmbeddedModeJobAdmin
@@ -28,7 +30,7 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 	@Autowired
 	private JobManager jobManager;
 
-	public JobState persistJob(JobConfig jobConfig) throws Exception {
+	public JobState persistJob(JobPersistParam jobConfig) throws Exception {
 		JobDefinition jobDef = JobPersistRequest.build(jobConfig);
 		jobManager.persistJob(jobDef, jobConfig.getAttachment());
 		return jobManager.getJobRuntime(JobKey.of(jobDef)).getJobState();

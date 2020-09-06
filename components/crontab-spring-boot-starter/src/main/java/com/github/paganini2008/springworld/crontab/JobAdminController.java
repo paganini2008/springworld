@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.paganini2008.springworld.crontab.model.JobPersistParam;
+import com.github.paganini2008.springworld.crontab.model.JobParam;
+import com.github.paganini2008.springworld.crontab.model.JobResult;
+
 /**
  * 
  * JobAdminController
@@ -27,7 +31,7 @@ public class JobAdminController {
 	private ScheduleAdmin scheduleAdmin;
 
 	@PostMapping("/persistJob")
-	public ResponseEntity<JobResult<JobState>> persistJob(@RequestBody JobConfig jobConfig) throws Exception {
+	public ResponseEntity<JobResult<JobState>> persistJob(@RequestBody JobPersistParam jobConfig) throws Exception {
 		JobState jobState = jobAdmin.persistJob(jobConfig);
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
