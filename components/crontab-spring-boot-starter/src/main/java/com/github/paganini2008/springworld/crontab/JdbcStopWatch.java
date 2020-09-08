@@ -11,9 +11,12 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
+import com.github.paganini2008.devtools.net.NetUtils;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 
 /**
  * 
@@ -24,6 +27,12 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
  * @since 1.0
  */
 public class JdbcStopWatch implements StopWatch {
+
+	@Autowired
+	private InstanceId instanceId;
+
+	@Value("${server.port}")
+	private int port;
 
 	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
@@ -80,8 +89,8 @@ public class JdbcStopWatch implements StopWatch {
 				break;
 			}
 
-			int traceId = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_TRACE,
-					new Object[] { jobId, runningState.getValue(), complete, failed, skipped, startTime, endTime });
+			int traceId = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { jobId, runningState.getValue(),
+					getSelfAddress(), instanceId.get(), complete, failed, skipped, startTime, endTime });
 
 			if (ArrayUtils.isNotEmpty(errorStackTracks)) {
 				List<Object[]> argsList = new ArrayList<Object[]>();
@@ -99,6 +108,10 @@ public class JdbcStopWatch implements StopWatch {
 			JdbcUtils.closeQuietly(connection);
 		}
 
+	}
+
+	protected String getSelfAddress() {
+		return NetUtils.getLocalHost() + ":" + port;
 	}
 
 }

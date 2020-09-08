@@ -43,9 +43,11 @@ public final class InstanceId {
 	@Value("${spring.application.cluster.id:}")
 	private String id;
 
+	@Getter
 	@Value("${spring.application.cluster.weight:1}")
 	private int weight;
 
+	@Getter
 	@Value("${spring.application.cluster.applicationContextPath:}")
 	private String applicationContextPath;
 
@@ -78,10 +80,6 @@ public final class InstanceId {
 
 	public long getStartTime() {
 		return startTime;
-	}
-
-	public int getWeight() {
-		return weight;
 	}
 
 	public ApplicationInfo getApplicationInfo() {
