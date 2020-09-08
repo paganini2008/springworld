@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus.annotations;
+package com.github.paganini2008.springworld.fastjdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,20 +8,16 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Get
+ * Update
  *
  * @author Fred Feng
- * 
- * 
  * @version 1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Get {
+public @interface Update {
 
 	String value();
-
-	boolean javaType() default true;
 
 }

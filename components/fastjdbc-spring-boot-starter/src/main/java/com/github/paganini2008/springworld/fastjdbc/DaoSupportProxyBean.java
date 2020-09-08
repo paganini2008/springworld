@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus;
+package com.github.paganini2008.springworld.fastjdbc;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -29,13 +29,13 @@ import com.github.paganini2008.devtools.converter.ConvertUtils;
 import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
-import com.github.paganini2008.springworld.jdbcplus.annotations.Arg;
-import com.github.paganini2008.springworld.jdbcplus.annotations.Example;
-import com.github.paganini2008.springworld.jdbcplus.annotations.Get;
-import com.github.paganini2008.springworld.jdbcplus.annotations.Insert;
-import com.github.paganini2008.springworld.jdbcplus.annotations.Select;
-import com.github.paganini2008.springworld.jdbcplus.annotations.Slice;
-import com.github.paganini2008.springworld.jdbcplus.annotations.Update;
+import com.github.paganini2008.springworld.fastjdbc.annotations.Arg;
+import com.github.paganini2008.springworld.fastjdbc.annotations.Example;
+import com.github.paganini2008.springworld.fastjdbc.annotations.Get;
+import com.github.paganini2008.springworld.fastjdbc.annotations.Insert;
+import com.github.paganini2008.springworld.fastjdbc.annotations.Select;
+import com.github.paganini2008.springworld.fastjdbc.annotations.Slice;
+import com.github.paganini2008.springworld.fastjdbc.annotations.Update;
 
 /**
  * 

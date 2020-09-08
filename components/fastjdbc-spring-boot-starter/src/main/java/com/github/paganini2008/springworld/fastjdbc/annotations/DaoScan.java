@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus.annotations;
+package com.github.paganini2008.springworld.fastjdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
-import com.github.paganini2008.springworld.jdbcplus.ApplicationContextUtils;
-import com.github.paganini2008.springworld.jdbcplus.DaoScannerRegistrar;
+import com.github.paganini2008.springworld.fastjdbc.ApplicationContextUtils;
+import com.github.paganini2008.springworld.fastjdbc.DaoScannerRegistrar;
 
 /**
  * 

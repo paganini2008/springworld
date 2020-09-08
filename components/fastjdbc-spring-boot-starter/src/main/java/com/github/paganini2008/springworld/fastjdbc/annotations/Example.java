@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus.annotations;
+package com.github.paganini2008.springworld.fastjdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Arg
+ * Example
  *
  * @author Fred Feng
  * 
@@ -18,8 +18,8 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Arg {
+public @interface Example {
 
-	String value();
+	String[] excludedProperties() default {};
 	
 }

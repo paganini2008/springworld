@@ -8,10 +8,10 @@
 		<version>2.0-RC4</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>jdbcplus-spring-boot-starter</artifactId>
+	<artifactId>fastjdbc-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 
-	<name>jdbcplus-spring-boot-starter</name>
+	<name>fastjdbc-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>

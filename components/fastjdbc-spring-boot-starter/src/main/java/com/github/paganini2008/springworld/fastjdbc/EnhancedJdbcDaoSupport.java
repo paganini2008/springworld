@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus;
+package com.github.paganini2008.springworld.fastjdbc;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus.annotations;
+package com.github.paganini2008.springworld.fastjdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Example
+ * Insert
  *
  * @author Fred Feng
  * 
@@ -17,9 +17,9 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Example {
+@Target(ElementType.METHOD)
+public @interface Insert {
 
-	String[] excludedProperties() default {};
+	String value();
 	
 }

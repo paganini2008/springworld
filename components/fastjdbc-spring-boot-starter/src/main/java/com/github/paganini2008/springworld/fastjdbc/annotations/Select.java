@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus.annotations;
+package com.github.paganini2008.springworld.fastjdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * 
- * Slice
+ * Select
  *
  * @author Fred Feng
  * @version 1.0
@@ -17,10 +17,8 @@ import java.util.Map;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Slice {
+public @interface Select {
 
-	Class<?> pageableSql() default Void.class;
-	
 	String value();
 
 	Class<?> elementType() default Map.class;

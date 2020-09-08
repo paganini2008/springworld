@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus;
+package com.github.paganini2008.springworld.fastjdbc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
-import com.github.paganini2008.springworld.jdbcplus.annotations.DaoScan;
+import com.github.paganini2008.springworld.fastjdbc.annotations.DaoScan;
 
 /**
  * 

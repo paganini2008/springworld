@@ -1,23 +1,30 @@
-package com.github.paganini2008.springworld.jdbcplus.annotations;
+package com.github.paganini2008.springworld.fastjdbc.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 /**
  * 
- * Dao
+ * Slice
  *
  * @author Fred Feng
  * @version 1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Dao {
+@Target(ElementType.METHOD)
+public @interface Slice {
+
+	Class<?> pageableSql() default Void.class;
 	
-	String value() default "";
-	
+	String value();
+
+	Class<?> elementType() default Map.class;
+
+	boolean javaType() default false;
+
 }

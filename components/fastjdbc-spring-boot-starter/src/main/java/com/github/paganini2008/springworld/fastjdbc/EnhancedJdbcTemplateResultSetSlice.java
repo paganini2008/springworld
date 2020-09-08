@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbcplus;
+package com.github.paganini2008.springworld.fastjdbc;
 
 import java.util.List;
 
