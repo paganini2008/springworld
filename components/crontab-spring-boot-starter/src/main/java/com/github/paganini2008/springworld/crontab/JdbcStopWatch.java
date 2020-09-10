@@ -65,7 +65,7 @@ public class JdbcStopWatch implements StopWatch {
 	}
 
 	@Override
-	public JobState finishJob(JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks) {
+	public JobState finishJob(JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks, int retries) {
 		final Date endTime = new Date();
 		Connection connection = null;
 		try {
@@ -90,7 +90,7 @@ public class JdbcStopWatch implements StopWatch {
 			}
 
 			int traceId = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { jobId, runningState.getValue(),
-					getSelfAddress(), instanceId.get(), complete, failed, skipped, startTime, endTime });
+					getSelfAddress(), instanceId.get(), complete, failed, skipped, retries, startTime, endTime });
 
 			if (ArrayUtils.isNotEmpty(errorStackTracks)) {
 				List<Object[]> argsList = new ArrayList<Object[]>();

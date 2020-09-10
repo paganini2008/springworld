@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.github.paganini2008.springworld.crontab.server.ServerModeSchedulerConfiguration;
+import com.github.paganini2008.springworld.crontab.ui.UIModeConfiguration;
 
 /**
  * 
@@ -16,6 +17,6 @@ import com.github.paganini2008.springworld.crontab.server.ServerModeSchedulerCon
  */
 @ConditionalOnWebApplication
 @Configuration
-@Import({ EmbeddedModeSchedulerConfiguration.class, ServerModeSchedulerConfiguration.class })
+@Import({ EmbeddedModeSchedulerConfiguration.class, ServerModeSchedulerConfiguration.class, UIModeConfiguration.class })
 public class CrontabAutoConfiguration {
 }

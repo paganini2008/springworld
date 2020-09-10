@@ -12,6 +12,7 @@ import com.github.paganini2008.springworld.crontab.JobExecutor;
 import com.github.paganini2008.springworld.crontab.JobKey;
 import com.github.paganini2008.springworld.crontab.JobManager;
 import com.github.paganini2008.springworld.crontab.JobTemplate;
+import com.github.paganini2008.springworld.crontab.RetryPolicy;
 import com.github.paganini2008.springworld.crontab.RunningState;
 import com.github.paganini2008.springworld.crontab.StopWatch;
 
@@ -34,9 +35,12 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private JobManager jobManager;
 
+	@Autowired
+	private RetryPolicy retryPolicy;
+
 	@Override
 	public void execute(Job job, Object attachment) {
-		runJob(job, attachment);
+		runJob(job, attachment, 0);
 	}
 
 	@Override
@@ -56,8 +60,13 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason) {
-		super.afterRun(jobKey, job, startTime, runningState, reason);
-		stopWatch.finishJob(jobKey, startTime, runningState, reason != null ? ExceptionUtils.toArray(reason) : null);
+	protected Object retry(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries) throws Throwable {
+		return retryPolicy.retryIfNecessary(jobKey, job, attachment, reason, retries);
+	}
+
+	@Override
+	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason, int retries) {
+		super.afterRun(jobKey, job, startTime, runningState, reason, retries);
+		stopWatch.finishJob(jobKey, startTime, runningState, reason != null ? ExceptionUtils.toArray(reason) : null, retries);
 	}
 }

@@ -37,7 +37,7 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Override
 	public void execute(Job job, Object attachment) {
-		runJob(job, attachment);
+		runJob(job, attachment, 0);
 	}
 
 	@Override
@@ -53,12 +53,6 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
-	}
-
-	@Override
-	protected void afterRun(JobKey jobKey, Job job, Date startDate, RunningState runningState, Throwable reason) {
-		super.afterRun(jobKey, job, startDate, runningState, reason);
-		
 	}
 
 	@Override

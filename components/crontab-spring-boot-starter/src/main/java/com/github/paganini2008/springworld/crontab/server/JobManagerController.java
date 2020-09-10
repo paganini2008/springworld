@@ -14,7 +14,7 @@ import com.github.paganini2008.springworld.crontab.StopWatch;
 import com.github.paganini2008.springworld.crontab.model.JobDetail;
 import com.github.paganini2008.springworld.crontab.model.JobQuery;
 import com.github.paganini2008.springworld.crontab.model.JobResult;
-import com.github.paganini2008.springworld.crontab.model.JobRunningParam;
+import com.github.paganini2008.springworld.crontab.model.JobRuntimeParam;
 import com.github.paganini2008.springworld.crontab.model.JobRuntime;
 import com.github.paganini2008.springworld.crontab.model.JobStateParam;
 import com.github.paganini2008.springworld.crontab.model.JobTriggerDetail;
@@ -80,15 +80,15 @@ public class JobManagerController {
 	}
 
 	@PostMapping("/startJob")
-	public ResponseEntity<JobResult<JobState>> startJob(@RequestBody JobRunningParam param) throws Exception {
+	public ResponseEntity<JobResult<JobState>> startJob(@RequestBody JobRuntimeParam param) throws Exception {
 		JobState jobState = stopWatch.startJob(param.getJobKey(), param.getStartTime());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 
 	@PostMapping("/finishJob")
-	public ResponseEntity<JobResult<JobState>> finishJob(@RequestBody JobRunningParam param) throws Exception {
+	public ResponseEntity<JobResult<JobState>> finishJob(@RequestBody JobRuntimeParam param) throws Exception {
 		JobState jobState = stopWatch.finishJob(param.getJobKey(), param.getStartTime(), param.getRunningState(),
-				param.getErrorStackTracks());
+				param.getErrorStackTracks(), param.getRetries());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 

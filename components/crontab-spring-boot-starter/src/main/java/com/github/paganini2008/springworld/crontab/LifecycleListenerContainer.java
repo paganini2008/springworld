@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springworld.crontab.model.JobParam;
+import com.github.paganini2008.springworld.crontab.model.JobActionParam;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
@@ -43,14 +43,14 @@ public class LifecycleListenerContainer implements RedisMessageHandler {
 
 	public void signalAll(JobKey jobKey, JobAction jobAction) {
 		final String channel = getChannel();
-		redisMessageSender.sendMessage(channel, new JobParam(jobKey, jobAction));
+		redisMessageSender.sendMessage(channel, new JobActionParam(jobKey, jobAction));
 	}
 
 	@Override
 	public void onMessage(String channel, Object message) throws Exception {
-		final JobParam jobParam = (JobParam) message;
+		final JobActionParam jobParam = (JobActionParam) message;
 		JobKey jobKey = jobParam.getJobKey();
-		JobAction jobAction = (JobAction) jobParam.getAttachment();
+		JobAction jobAction = jobParam.getAction();
 		accept(jobKey, jobAction);
 	}
 

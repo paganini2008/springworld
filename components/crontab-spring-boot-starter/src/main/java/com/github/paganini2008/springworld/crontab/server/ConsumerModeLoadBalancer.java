@@ -47,7 +47,7 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 
 	@Override
 	public void execute(Job job, Object attachment) {
-		runJob(job, attachment);
+		runJob(job, attachment, 0);
 	}
 
 	@Override
@@ -63,10 +63,10 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment) {
+	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries) {
 		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
 			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment));
+			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, 0));
 		} else {
 			try {
 				jobManager.setJobState(jobKey, JobState.SCHEDULING);

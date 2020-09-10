@@ -13,14 +13,14 @@ public abstract class SqlScripts {
 	public static final String DEF_DDL_JOB_DETAIL = "create table crontab_job_detail(job_id int primary key auto_increment, cluster_name varchar(45) not null, group_name varchar(45) not null, job_name varchar(255) not null, job_class_name varchar(255) not null, description varchar(255), attachment varchar(255), email varchar(45), retries int, create_date timestamp)";
 	public static final String DEF_DDL_JOB_TRIGGER = "create table crontab_job_trigger(job_id int not null, trigger_type int not null, trigger_description text not null, start_date timestamp, end_date timestamp)";
 	public static final String DEF_DDL_JOB_RUNTIME = "create table crontab_job_runtime(job_id int not null, job_state int not null, last_running_state int, last_execution_time timestamp, last_completion_time timestamp, next_execution_time timestamp)";
-	public static final String DEF_DDL_JOB_TRACE = "create table crontab_job_trace(trace_id int primary key auto_increment, job_id int not null, running_state int, address varchar(45), instance_id varchar(45), complete int, failed int, skipped int, execution_time timestamp, completion_time timestamp)";
+	public static final String DEF_DDL_JOB_TRACE = "create table crontab_job_trace(trace_id int primary key auto_increment, job_id int not null, running_state int, address varchar(45), instance_id varchar(45), complete int, failed int, skipped int, retries int, execution_time timestamp, completion_time timestamp)";
 	public static final String DEF_DDL_JOB_EXCEPTION = "create table crontab_job_exception(trace_id int not null, job_id int not null, exception_content varchar(600))";
 	public static final String DEF_DDL_JOB_DEPENDENCY = "create table crontab_job_dependency(job_id int not null, dependent_job_id int not null)";
 
 	public static final String DEF_INSERT_CLUSTER_DETAIL = "insert into crontab_server_detail(cluster_name,group_name,instance_id,context_path,start_date,contact_person,contact_email) values (?,?,?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_DETAIL = "insert into crontab_job_detail(cluster_name,group_name,job_name,job_class_name,description,attachment,email,retries,create_date) values (?,?,?,?,?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_RUNTIME = "insert into crontab_job_runtime(job_id, job_state) values (?,?)";
-	public static final String DEF_INSERT_JOB_TRACE = "insert into crontab_job_trace(job_id, running_state, address, instance_id, complete, failed, skipped, execution_time, completion_time) values (?,?,?,?,?,?,?,?,?)";
+	public static final String DEF_INSERT_JOB_TRACE = "insert into crontab_job_trace(job_id, running_state, address, instance_id, complete, failed, skipped, retries, execution_time, completion_time) values (?,?,?,?,?,?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_EXCEPTION = "insert into crontab_job_exception(trace_id, job_id, exception_content) values (?,?,?)";
 	public static final String DEF_INSERT_JOB_TRIGGER = "insert into crontab_job_trigger(job_id, trigger_type, trigger_description, start_date, end_date) values (?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_DEPENDENCY = "insert into crontab_job_dependency(job_id, dependent_job_id) value (?,?)";

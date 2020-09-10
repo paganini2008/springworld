@@ -23,6 +23,6 @@ public interface NotManagedJob {
 		return true;
 	}
 
-	Object execute(JobKey jobKey, Object result);
-	
+	Object execute(JobKey jobKey, Object attachment) throws Throwable;
+
 }

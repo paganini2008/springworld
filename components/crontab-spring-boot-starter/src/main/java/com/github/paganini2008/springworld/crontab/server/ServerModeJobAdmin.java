@@ -52,7 +52,7 @@ public class ServerModeJobAdmin implements JobAdmin {
 	@Override
 	public JobState triggerJob(JobKey jobKey, Object attachment) throws Exception {
 		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/admin/triggerJob",
-				HttpMethod.POST, new JobParam(jobKey, attachment), new ParameterizedTypeReference<JobResult<JobState>>() {
+				HttpMethod.POST, new JobParam(jobKey, attachment, 0), new ParameterizedTypeReference<JobResult<JobState>>() {
 				});
 		return responseEntity.getBody().getData();
 	}

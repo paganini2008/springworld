@@ -69,7 +69,7 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 	public void notifyDependants(JobKey jobKey, Object attachment) {
 		final String channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:dependency:"
 				+ jobKey.getIndentifier();
-		JobParam jobParam = new JobParam(jobKey, attachment);
+		JobParam jobParam = new JobParam(jobKey, attachment, 0);
 		redisMessageSender.sendMessage(channel, jobParam);
 		if (log.isTraceEnabled()) {
 			log.trace("Notify other dependants after job '{}' has done", jobKey);

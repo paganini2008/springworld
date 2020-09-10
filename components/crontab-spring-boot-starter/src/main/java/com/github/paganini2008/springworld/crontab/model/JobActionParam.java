@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.crontab.model;
 
 import com.github.paganini2008.devtools.beans.ToStringBuilder;
+import com.github.paganini2008.springworld.crontab.JobAction;
 import com.github.paganini2008.springworld.crontab.JobKey;
 
 import lombok.Getter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 
 /**
  * 
- * JobParam
+ * JobActionParam
  * 
  * @author Fred Feng
  *
@@ -16,21 +17,19 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class JobParam {
+public class JobActionParam {
 
 	private JobKey jobKey;
-	private Object attachment;
-	private int retries;
+	private JobAction action;
 
-	public JobParam() {
+	public JobActionParam() {
 	}
 
-	public JobParam(JobKey jobKey, Object attachment, int retries) {
+	public JobActionParam(JobKey jobKey, JobAction action) {
 		this.jobKey = jobKey;
-		this.attachment = attachment;
-		this.retries = retries;
+		this.action = action;
 	}
-
+	
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}

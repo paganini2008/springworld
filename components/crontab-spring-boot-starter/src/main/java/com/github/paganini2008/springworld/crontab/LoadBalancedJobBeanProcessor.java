@@ -21,11 +21,11 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@Qualifier("target-job-executor")
+	@Qualifier(BeanNames.TARGET_JOB_EXECUTOR)
 	@Autowired
 	private JobExecutor jobExecutor;
 
-	@Qualifier("internal-job-bean-loader")
+	@Qualifier(BeanNames.INTERNAL_JOB_BEAN_LOADER)
 	@Autowired
 	private JobBeanLoader jobBeanLoader;
 
