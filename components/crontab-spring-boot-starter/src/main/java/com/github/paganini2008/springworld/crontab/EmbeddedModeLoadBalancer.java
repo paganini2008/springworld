@@ -50,7 +50,7 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries) {
 		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
 			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, 0));
+			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));
 		} else {
 			try {
 				jobManager.setJobState(jobKey, JobState.SCHEDULING);
