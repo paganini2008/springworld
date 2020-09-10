@@ -32,6 +32,9 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private JobDependencyObservable jobDependencyObservable;
 
+	@Autowired
+	private RetryPolicy retryPolicy;
+
 	@Override
 	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
 		super.beforeRun(jobKey, job, startTime);
@@ -39,8 +42,8 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	public void execute(Job job, Object attachment) {
-		runJob(job, attachment, 0);
+	public void execute(Job job, Object attachment, int retries) {
+		runJob(job, attachment, retries);
 	}
 
 	@Override
@@ -78,6 +81,11 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 		if (reason != null) {
 			log.error(reason.getMessage(), reason);
 		}
+	}
+
+	@Override
+	protected Object retry(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries) throws Throwable {
+		return retryPolicy.retryIfNecessary(jobKey, job, attachment, reason, retries);
 	}
 
 	@Override

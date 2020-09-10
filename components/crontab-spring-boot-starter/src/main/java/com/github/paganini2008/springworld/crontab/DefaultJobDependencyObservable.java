@@ -45,7 +45,7 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 		List<Observer> obs = new ArrayList<Observer>(dependencies.length);
 		for (JobKey dependency : dependencies) {
 			Observer ob = (o, attachment) -> {
-				jobExecutor.execute(job, attachment);
+				jobExecutor.execute(job, attachment, 0);
 			};
 			addObserver(dependency.getIndentifier(), ob);
 			obs.add(ob);

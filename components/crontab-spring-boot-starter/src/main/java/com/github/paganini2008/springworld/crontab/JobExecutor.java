@@ -10,10 +10,10 @@ package com.github.paganini2008.springworld.crontab;
  */
 public interface JobExecutor {
 
-	void execute(Job job, Object attachment);
-	
+	void execute(Job job, Object attachment, int retries);
+
 	void addListener(JobRuntimeListener listener);
-	
+
 	void removeListener(JobRuntimeListener listener);
 
 }

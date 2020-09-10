@@ -54,7 +54,7 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 		if (job == null && externalJobBeanLoader != null) {
 			job = externalJobBeanLoader.loadJobBean(jobKey);
 		}
-		jobExecutor.execute(job, attachment);
+		jobExecutor.execute(job, attachment, 0);
 		return jobManager.getJobRuntime(jobKey).getJobState();
 	}
 

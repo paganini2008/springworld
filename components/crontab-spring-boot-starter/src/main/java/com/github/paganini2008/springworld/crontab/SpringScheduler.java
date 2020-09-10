@@ -113,7 +113,7 @@ public class SpringScheduler implements Scheduler {
 
 	@Override
 	public void runJob(Job job, Object attachment) {
-		jobExecutor.execute(job, attachment);
+		jobExecutor.execute(job, attachment, 0);
 	}
 
 	protected Runnable wrapJob(Job job, Object attachment) {

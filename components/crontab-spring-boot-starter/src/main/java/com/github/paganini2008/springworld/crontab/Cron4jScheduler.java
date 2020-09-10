@@ -100,7 +100,7 @@ public class Cron4jScheduler implements Scheduler {
 
 	@Override
 	public void runJob(Job job, Object attachment) {
-		jobExecutor.execute(job, attachment);
+		jobExecutor.execute(job, attachment, 0);
 	}
 
 	protected Task wrapJob(final Job job, final Object attachment) {

@@ -41,7 +41,7 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
-		jobExecutor.execute(job, jobParam.getAttachment());
+		jobExecutor.execute(job, jobParam.getAttachment(), jobParam.getRetries());
 	}
 
 	@Override

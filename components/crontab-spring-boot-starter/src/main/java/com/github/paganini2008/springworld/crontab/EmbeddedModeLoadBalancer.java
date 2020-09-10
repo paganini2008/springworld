@@ -36,8 +36,8 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	private String clusterName;
 
 	@Override
-	public void execute(Job job, Object attachment) {
-		runJob(job, attachment, 0);
+	public void execute(Job job, Object attachment, int retries) {
+		runJob(job, attachment, retries);
 	}
 
 	@Override

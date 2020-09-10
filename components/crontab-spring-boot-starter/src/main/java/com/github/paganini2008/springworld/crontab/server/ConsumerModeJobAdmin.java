@@ -56,7 +56,7 @@ public class ConsumerModeJobAdmin implements JobAdmin {
 	@Override
 	public JobState triggerJob(JobKey jobKey, Object attachment) throws Exception {
 		Job job = loadJobBean(jobKey);
-		jobExecutor.execute(job, attachment);
+		jobExecutor.execute(job, attachment, 0);
 		return jobManager.getJobRuntime(jobKey).getJobState();
 	}
 

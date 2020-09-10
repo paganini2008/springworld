@@ -78,6 +78,11 @@ public class EmbeddedModeSchedulerConfiguration {
 		public JobBeanLoader jobBeanLoader() {
 			return new InternalJobBeanLoader();
 		}
+		
+		@Bean
+		public RetryPolicy retryPolicy() {
+			return new FailoverRetryPolicy();
+		}
 
 	}
 
@@ -95,6 +100,11 @@ public class EmbeddedModeSchedulerConfiguration {
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
 		public JobExecutor jobExecutor() {
 			return new EmbeddedModeJobExecutor();
+		}
+
+		@Bean
+		public RetryPolicy retryPolicy() {
+			return new CurrentThreadRetryPolicy();
 		}
 	}
 
@@ -200,7 +210,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	public JobDependencyDetector jobDependencyDetector() {
 		return new JobDependencyDetector();
 	}
-	
+
 	@Bean
 	public JobDependencyFutureListener jobDependencyFutureListener() {
 		return new JobDependencyFutureListener();
@@ -228,7 +238,5 @@ public class EmbeddedModeSchedulerConfiguration {
 		redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
 		return jobListenerContainer;
 	}
-	
-	
 
 }
