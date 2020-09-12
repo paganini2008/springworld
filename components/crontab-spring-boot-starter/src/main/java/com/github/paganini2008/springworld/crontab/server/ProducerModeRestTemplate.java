@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
- * ServerModeRestTemplate
+ * ProducerModeRestTemplate
  * 
  * @author Fred Feng
  *

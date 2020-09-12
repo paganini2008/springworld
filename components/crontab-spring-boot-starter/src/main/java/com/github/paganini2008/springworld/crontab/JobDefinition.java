@@ -33,6 +33,10 @@ public interface JobDefinition {
 		return 0;
 	}
 
+	default long getTimeout() {
+		return -1L;
+	}
+
 	default String getEmail() {
 		return null;
 	}

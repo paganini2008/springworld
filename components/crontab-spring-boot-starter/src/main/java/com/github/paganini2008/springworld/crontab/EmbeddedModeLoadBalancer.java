@@ -9,6 +9,7 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.crontab.model.JobParam;
+import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 /**
  * 
@@ -34,6 +35,14 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
+	
+	@Autowired
+	private RedisUUID redisUUID;
+
+	@Override
+	protected long getTraceId(JobKey jobKey) {
+		return redisUUID.createUUID().timestamp();
+	}
 
 	@Override
 	public void execute(Job job, Object attachment, int retries) {
@@ -41,9 +50,9 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
-		super.beforeRun(jobKey, job, startTime);
-		stopWatch.startJob(jobKey, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
+		super.beforeRun(traceId, jobKey, job, startTime);
+		stopWatch.startJob(traceId, jobKey, startTime);
 	}
 
 	@Override

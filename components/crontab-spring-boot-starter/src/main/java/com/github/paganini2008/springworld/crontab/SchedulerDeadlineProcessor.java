@@ -47,7 +47,7 @@ public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executabl
 	}
 
 	@Override
-	public void beforeRun(JobKey jobKey, Date startDate) {
+	public void beforeRun(long traceId, JobKey jobKey, Date startDate) {
 		Date theDeadline = deadlines.get(jobKey);
 		if (theDeadline != null && theDeadline.before(startDate)) {
 			deadlines.remove(jobKey);

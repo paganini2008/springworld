@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,10 +36,22 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private RetryPolicy retryPolicy;
 
+	@Autowired
+	private RedisUUID redisUUID;
+	
+	@Autowired
+	private LogManager logManager;
+
 	@Override
-	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
-		super.beforeRun(jobKey, job, startTime);
-		stopWatch.startJob(jobKey, startTime);
+	protected long getTraceId(JobKey jobKey) {
+		return redisUUID.createUUID().timestamp();
+	}
+
+	@Override
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
+		setLogger(JobLoggerFactory.getLogger(log, traceId, jobKey, logManager));
+		super.beforeRun(traceId, jobKey, job, startTime);
+		stopWatch.startJob(traceId, jobKey, startTime);
 	}
 
 	@Override
@@ -89,9 +102,10 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason, int retries) {
-		super.afterRun(jobKey, job, startTime, runningState, reason, retries);
-		stopWatch.finishJob(jobKey, startTime, runningState, reason != null ? ExceptionUtils.toArray(reason) : null, retries);
+	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason,
+			int retries) {
+		super.afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
+		stopWatch.finishJob(traceId, jobKey, startTime, runningState, reason != null ? ExceptionUtils.toArray(reason) : null, retries);
 	}
 
 }

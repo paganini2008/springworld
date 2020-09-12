@@ -23,13 +23,15 @@ import lombok.Setter;
 @JsonInclude(value = Include.NON_NULL)
 public class JobRuntimeParam {
 
+	private long traceId;
 	private JobKey jobKey;
 	private Date startTime;
 	private RunningState runningState;
 	private String[] errorStackTracks;
 	private int retries;
 
-	public JobRuntimeParam(JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks, int retries) {
+	public JobRuntimeParam(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks, int retries) {
+		this.traceId = traceId;
 		this.jobKey = jobKey;
 		this.startTime = startTime;
 		this.runningState = runningState;
@@ -37,7 +39,8 @@ public class JobRuntimeParam {
 		this.retries = retries;
 	}
 
-	public JobRuntimeParam(JobKey jobKey, Date startTime) {
+	public JobRuntimeParam(long traceId, JobKey jobKey, Date startTime) {
+		this.traceId = traceId;
 		this.jobKey = jobKey;
 		this.startTime = startTime;
 	}

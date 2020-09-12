@@ -19,6 +19,7 @@ import com.github.paganini2008.springworld.crontab.JobTemplate;
 import com.github.paganini2008.springworld.crontab.RunningState;
 import com.github.paganini2008.springworld.crontab.StopWatch;
 import com.github.paganini2008.springworld.crontab.model.JobParam;
+import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 /**
  * 
@@ -45,20 +46,28 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
+	@Autowired
+	private RedisUUID redisUUID;
+
+	@Override
+	protected long getTraceId(JobKey jobKey) {
+		return redisUUID.createUUID().timestamp();
+	}
+
 	@Override
 	public void execute(Job job, Object attachment, int retries) {
 		runJob(job, attachment, retries);
 	}
 
 	@Override
-	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
-		super.beforeRun(jobKey, job, startTime);
-		handleIfDependentJob(jobKey, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
+		super.beforeRun(traceId, jobKey, job, startTime);
+		handleIfDependentJob(traceId, jobKey, startTime);
 	}
 
-	private void handleIfDependentJob(JobKey jobKey, Date startTime) {
+	private void handleIfDependentJob(long traceId, JobKey jobKey, Date startTime) {
 		if (jobFutureHolder.get(jobKey) instanceof JobDependencyFuture) {
-			stopWatch.startJob(jobKey, startTime);
+			stopWatch.startJob(traceId, jobKey, startTime);
 		}
 	}
 

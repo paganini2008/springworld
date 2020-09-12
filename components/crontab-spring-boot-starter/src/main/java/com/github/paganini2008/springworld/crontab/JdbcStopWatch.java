@@ -45,7 +45,7 @@ public class JdbcStopWatch implements StopWatch {
 	private JobFutureHolder jobFutureHolder;
 
 	@Override
-	public JobState startJob(JobKey jobKey, Date startTime) {
+	public JobState startJob(long traceId, JobKey jobKey, Date startTime) {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
@@ -65,32 +65,36 @@ public class JdbcStopWatch implements StopWatch {
 	}
 
 	@Override
-	public JobState finishJob(JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks, int retries) {
+	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks,
+			int retries) {
+		final int jobId = getJobId(jobKey);
 		final Date endTime = new Date();
 		Connection connection = null;
 		try {
-			int jobId = jobManager.getJobId(jobKey);
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END, new Object[] { JobState.SCHEDULING.getValue(),
 					runningState.getValue(), endTime, jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
-			int complete = 0, failed = 0, skipped = 0;
+			int complete = 0, failed = 0, skipped = 0, terminated = 0;
 			switch (runningState) {
 			case COMPLETED:
 				complete = 1;
 				break;
-			case FAILED:
+			case FATAL:
 				failed = 1;
 				break;
 			case SKIPPED:
 				skipped = 1;
 				break;
+			case TERMINATED:
+				terminated = 1;
+				break;
 			default:
 				break;
 			}
 
-			int traceId = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { jobId, runningState.getValue(),
-					getSelfAddress(), instanceId.get(), complete, failed, skipped, retries, startTime, endTime });
+			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { traceId, jobId, runningState.getValue(),
+					getSelfAddress(), instanceId.get(), complete, failed, skipped, terminated, retries, startTime, endTime });
 
 			if (ArrayUtils.isNotEmpty(errorStackTracks)) {
 				List<Object[]> argsList = new ArrayList<Object[]>();
@@ -101,7 +105,7 @@ public class JdbcStopWatch implements StopWatch {
 			}
 			connection.commit();
 			return JobState.SCHEDULING;
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			JdbcUtils.rollbackQuietly(connection);
 			throw new JobException(e.getMessage(), e);
 		} finally {
@@ -112,6 +116,14 @@ public class JdbcStopWatch implements StopWatch {
 
 	protected String getSelfAddress() {
 		return NetUtils.getLocalHost() + ":" + port;
+	}
+
+	private int getJobId(JobKey jobKey) {
+		try {
+			return jobManager.getJobId(jobKey);
+		} catch (Exception e) {
+			throw ExceptionUtils.wrapExeception(e);
+		}
 	}
 
 }

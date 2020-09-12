@@ -51,6 +51,7 @@ public class JdbcJobManager implements JobManager {
 			put("crontab_job_runtime", SqlScripts.DEF_DDL_JOB_RUNTIME);
 			put("crontab_job_trace", SqlScripts.DEF_DDL_JOB_TRACE);
 			put("crontab_job_exception", SqlScripts.DEF_DDL_JOB_EXCEPTION);
+			put("crontab_job_log", SqlScripts.DEF_DDL_JOB_LOG);
 			put("crontab_job_dependency", SqlScripts.DEF_DDL_JOB_DEPENDENCY);
 		}
 	};

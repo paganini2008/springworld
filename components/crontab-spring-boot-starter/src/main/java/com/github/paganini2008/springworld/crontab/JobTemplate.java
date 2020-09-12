@@ -4,6 +4,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +22,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class JobTemplate implements JobExecutor {
 
-	protected final Logger log = LoggerFactory.getLogger(getClass());
+	protected Logger log = LoggerFactory.getLogger(getClass());
 	private final Set<JobRuntimeListener> jobRuntimeListeners = Collections.synchronizedNavigableSet(new TreeSet<JobRuntimeListener>());
+	private Executor executor;
 
 	@Override
 	public void addListener(JobRuntimeListener listener) {
@@ -35,14 +40,23 @@ public abstract class JobTemplate implements JobExecutor {
 		}
 	}
 
+	public void setLogger(Logger logger) {
+		this.log = logger;
+	}
+
+	public void setExecutor(Executor executor) {
+		this.executor = executor;
+	}
+
 	protected final void runJob(Job job, Object attachment, int retries) {
 		final Date startTime = new Date();
 		final JobKey jobKey = JobKey.of(job);
+		final long traceId = getTraceId(jobKey);
 		RunningState runningState = RunningState.SKIPPED;
 		Throwable reason = null;
 		try {
 			if (isScheduling(jobKey, job)) {
-				beforeRun(jobKey, job, startTime);
+				beforeRun(traceId, jobKey, job, startTime);
 				if (job.shouldRun(jobKey)) {
 					runningState = doRun(jobKey, job, attachment, retries);
 				}
@@ -53,33 +67,53 @@ public abstract class JobTemplate implements JobExecutor {
 			cancel(jobKey, job, runningState, e.getMessage(), reason);
 		} catch (Throwable e) {
 			reason = e;
-			runningState = RunningState.FAILED;
+			runningState = RunningState.FATAL;
 			if (e instanceof JobException) {
 				throw e;
 			}
 			throw new JobException("An exception occured during job running.", e);
 		} finally {
-			afterRun(jobKey, job, startTime, runningState, reason, retries);
+			afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
 		}
 	}
 
+	protected abstract long getTraceId(JobKey jobKey);
+
 	protected RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries) {
+		if (retries > 0) {
+			if (log.isTraceEnabled()) {
+				log.trace("Retry to run job '{}' on {} times again.", jobKey, retries);
+			}
+		}
+
 		job.prepare(jobKey);
 
 		RunningState runningState = RunningState.COMPLETED;
 		Object result = null;
 		Throwable reason = null;
-		boolean success = false;
+		boolean success = false, terminated = false;
 		try {
-			result = job.execute(jobKey, attachment);
+			if (executor instanceof ExecutorService) {
+				Future<Object> future = ((ExecutorService) executor).submit(() -> {
+					return job.execute(jobKey, attachment);
+				});
+				if (job.getTimeout() > 0) {
+					result = future.get(job.getTimeout(), TimeUnit.MILLISECONDS);
+				} else {
+					result = future.get();
+				}
+			} else {
+				result = job.execute(jobKey, attachment);
+			}
 			success = true;
 		} catch (JobTerminationException e) {
+			terminated = true;
 			throw e;
 		} catch (Throwable e) {
 			reason = e;
 			success = false;
 		} finally {
-			if (!success) {
+			if (!success && !terminated) {
 				if (retries < job.getRetries()) {
 					try {
 						result = retry(jobKey, job, attachment, reason, retries + 1);
@@ -97,28 +131,31 @@ public abstract class JobTemplate implements JobExecutor {
 				job.onSuccess(jobKey, result);
 				notifyDependants(jobKey, job, result);
 			} else {
-				runningState = RunningState.FAILED;
+				printError(reason);
+
+				runningState = terminated ? RunningState.TERMINATED : RunningState.FATAL;
 				job.onFailure(jobKey, reason);
 			}
 		}
 		return runningState;
 	}
 
-	protected void beforeRun(JobKey jobKey, Job job, Date startDate) {
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startDate) {
 		if (log.isTraceEnabled()) {
-			log.trace("Prepare to run Job: " + jobKey);
+			log.trace("Prepare to run Job: {}, traceId: {}", jobKey, traceId);
 		}
 		for (JobRuntimeListener listener : jobRuntimeListeners) {
-			listener.beforeRun(jobKey, startDate);
+			listener.beforeRun(traceId, jobKey, startDate);
 		}
 	}
 
-	protected void afterRun(JobKey jobKey, Job job, Date startDate, RunningState runningState, Throwable reason, int retries) {
+	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startDate, RunningState runningState, Throwable reason,
+			int retries) {
 		if (log.isTraceEnabled()) {
-			log.trace("Job is ending with state: " + runningState);
+			log.trace("Job {}, traceId: {} is ending with state {}", jobKey, traceId, runningState);
 		}
 		for (JobRuntimeListener listener : jobRuntimeListeners) {
-			listener.afterRun(jobKey, startDate, runningState, reason);
+			listener.afterRun(traceId, jobKey, startDate, runningState, reason);
 		}
 	}
 
@@ -132,6 +169,10 @@ public abstract class JobTemplate implements JobExecutor {
 	}
 
 	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
+	}
+
+	protected void printError(Throwable e) {
+		log.error(e.getMessage(), e);
 	}
 
 }

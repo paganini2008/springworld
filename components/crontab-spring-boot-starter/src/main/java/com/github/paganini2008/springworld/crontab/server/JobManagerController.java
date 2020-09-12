@@ -81,13 +81,13 @@ public class JobManagerController {
 
 	@PostMapping("/startJob")
 	public ResponseEntity<JobResult<JobState>> startJob(@RequestBody JobRuntimeParam param) throws Exception {
-		JobState jobState = stopWatch.startJob(param.getJobKey(), param.getStartTime());
+		JobState jobState = stopWatch.startJob(param.getTraceId(), param.getJobKey(), param.getStartTime());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 
 	@PostMapping("/finishJob")
 	public ResponseEntity<JobResult<JobState>> finishJob(@RequestBody JobRuntimeParam param) throws Exception {
-		JobState jobState = stopWatch.finishJob(param.getJobKey(), param.getStartTime(), param.getRunningState(),
+		JobState jobState = stopWatch.finishJob(param.getTraceId(), param.getJobKey(), param.getStartTime(), param.getRunningState(),
 				param.getErrorStackTracks(), param.getRetries());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}

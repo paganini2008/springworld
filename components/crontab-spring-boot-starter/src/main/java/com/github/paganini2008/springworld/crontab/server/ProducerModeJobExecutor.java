@@ -15,6 +15,7 @@ import com.github.paganini2008.springworld.crontab.JobTemplate;
 import com.github.paganini2008.springworld.crontab.RunningState;
 import com.github.paganini2008.springworld.crontab.ScheduleManager;
 import com.github.paganini2008.springworld.crontab.StopWatch;
+import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 /**
  * 
@@ -34,6 +35,14 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Autowired
 	private StopWatch stopWatch;
+	
+	@Autowired
+	private RedisUUID redisUUID;
+
+	@Override
+	protected long getTraceId(JobKey jobKey) {
+		return redisUUID.createUUID().timestamp();
+	}
 
 	@Override
 	public void execute(Job job, Object attachment, int retries) {
@@ -41,9 +50,9 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void beforeRun(JobKey jobKey, Job job, Date startTime) {
-		super.beforeRun(jobKey, job, startTime);
-		stopWatch.startJob(jobKey, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
+		super.beforeRun(traceId, jobKey, job, startTime);
+		stopWatch.startJob(traceId, jobKey, startTime);
 	}
 
 	@Override

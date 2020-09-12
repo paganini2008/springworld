@@ -10,11 +10,14 @@ import com.github.paganini2008.springworld.crontab.JobDependencyObservable;
 import com.github.paganini2008.springworld.crontab.JobException;
 import com.github.paganini2008.springworld.crontab.JobExecutor;
 import com.github.paganini2008.springworld.crontab.JobKey;
+import com.github.paganini2008.springworld.crontab.JobLoggerFactory;
 import com.github.paganini2008.springworld.crontab.JobManager;
 import com.github.paganini2008.springworld.crontab.JobTemplate;
+import com.github.paganini2008.springworld.crontab.LogManager;
 import com.github.paganini2008.springworld.crontab.RetryPolicy;
 import com.github.paganini2008.springworld.crontab.RunningState;
 import com.github.paganini2008.springworld.crontab.StopWatch;
+import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 /**
  * 
@@ -38,9 +41,26 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private RetryPolicy retryPolicy;
 
+	@Autowired
+	private RedisUUID redisUUID;
+
+	@Autowired
+	private LogManager logManager;
+
+	@Override
+	protected long getTraceId(JobKey jobKey) {
+		return redisUUID.createUUID().timestamp();
+	}
+
 	@Override
 	public void execute(Job job, Object attachment, int retries) {
 		runJob(job, attachment, retries);
+	}
+
+	@Override
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startDate) {
+		setLogger(JobLoggerFactory.getLogger(log, traceId, jobKey, logManager));
+		super.beforeRun(traceId, jobKey, job, startDate);
 	}
 
 	@Override
@@ -65,8 +85,9 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void afterRun(JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason, int retries) {
-		super.afterRun(jobKey, job, startTime, runningState, reason, retries);
-		stopWatch.finishJob(jobKey, startTime, runningState, reason != null ? ExceptionUtils.toArray(reason) : null, retries);
+	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason,
+			int retries) {
+		super.afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
+		stopWatch.finishJob(traceId, jobKey, startTime, runningState, reason != null ? ExceptionUtils.toArray(reason) : null, retries);
 	}
 }
