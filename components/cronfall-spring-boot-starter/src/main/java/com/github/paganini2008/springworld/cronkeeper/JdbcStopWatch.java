@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.InstanceId;
@@ -42,9 +41,6 @@ public class JdbcStopWatch implements StopWatch {
 	@Autowired
 	private JobFutureHolder jobFutureHolder;
 
-	@Autowired
-	private LogManager logManager;
-
 	@Override
 	public JobState startJob(long traceId, JobKey jobKey, Date startTime) {
 		Connection connection = null;
@@ -66,7 +62,7 @@ public class JdbcStopWatch implements StopWatch {
 	}
 
 	@Override
-	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] stackTraces, int retries) {
+	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, int retries) {
 		final int jobId = getJobId(jobKey);
 		final Date endTime = new Date();
 		Connection connection = null;
@@ -95,7 +91,7 @@ public class JdbcStopWatch implements StopWatch {
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { traceId, jobId, runningState.getValue(),
 					getSelfAddress(), instanceId.get(), complete, failed, skipped, finished, retries, startTime, endTime });
 			connection.commit();
-
+			return JobState.SCHEDULING;
 		} catch (SQLException e) {
 			JdbcUtils.rollbackQuietly(connection);
 			throw new JobException(e.getMessage(), e);
@@ -103,10 +99,6 @@ public class JdbcStopWatch implements StopWatch {
 			JdbcUtils.closeQuietly(connection);
 		}
 
-		if (ArrayUtils.isNotEmpty(stackTraces)) {
-			logManager.error(traceId, jobKey, stackTraces);
-		}
-		return JobState.SCHEDULING;
 	}
 
 	protected String getSelfAddress() {

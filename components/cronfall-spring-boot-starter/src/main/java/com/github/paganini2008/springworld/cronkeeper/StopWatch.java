@@ -14,6 +14,6 @@ public interface StopWatch {
 
 	JobState startJob(long traceId, JobKey jobKey, Date startTime);
 
-	JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] stackTraces, int retries);
+	JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, int retries);
 
 }

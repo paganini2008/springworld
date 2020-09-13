@@ -49,16 +49,19 @@ public class JobLoggerAspect implements Aspect {
 			LogLevel logLevel = LogLevel.valueOf(methodName.toUpperCase());
 			boolean canLog = marker != null ? logLevel.canLog(log, marker) : logLevel.canLog(log);
 			if (canLog) {
-				String messagePattern = marker != null ? (String) list.remove(1) : (String) firstArg;
-				Throwable cause = null;
-				if (list.size() > 0) {
-					Object lastArg = list.get(list.size() - 1);
-					if (lastArg instanceof Throwable) {
-						cause = (Throwable) lastArg;
-						list.remove(list.size() - 1);
+				try {
+					String messagePattern = marker != null ? (String) list.remove(1) : (String) firstArg;
+					Throwable cause = null;
+					if (list.size() > 0) {
+						Object lastArg = list.get(list.size() - 1);
+						if (lastArg instanceof Throwable) {
+							cause = (Throwable) lastArg;
+							list.remove(list.size() - 1);
+						}
 					}
+					logManager.log(traceId, jobKey, logLevel, messagePattern, args, cause);
+				} catch (Exception ignored) {
 				}
-				logManager.log(traceId, jobKey, logLevel, messagePattern, args, cause);
 			}
 		}
 		return true;

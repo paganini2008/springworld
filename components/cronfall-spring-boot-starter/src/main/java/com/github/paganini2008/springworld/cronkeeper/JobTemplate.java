@@ -60,10 +60,10 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 		final long traceId = getTraceId(jobKey);
 		RunningState runningState = RunningState.SKIPPED;
 		Throwable reason = null;
+		final Logger log = customizedLog != null ? customizedLog : this.log;
 		try {
 			if (isScheduling(jobKey, job)) {
 				beforeRun(traceId, jobKey, job, startTime);
-				Logger log = customizedLog != null ? customizedLog : this.log;
 				if (job.shouldRun(jobKey, log)) {
 					runningState = doRun(jobKey, job, attachment, retries, log);
 				}
@@ -80,6 +80,7 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 			}
 			throw new JobException("An exception occured during job running.", e);
 		} finally {
+			printError(reason, log);
 			afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
 		}
 	}
@@ -179,7 +180,9 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 	}
 
 	protected void printError(Throwable e, Logger log) {
-		log.error(e.getMessage(), e);
+		if (e != null) {
+			log.error(e.getMessage(), e);
+		}
 	}
 
 	public void destroy() {

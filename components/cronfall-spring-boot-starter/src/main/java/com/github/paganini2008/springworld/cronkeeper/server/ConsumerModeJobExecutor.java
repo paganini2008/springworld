@@ -5,7 +5,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.springworld.cronkeeper.Job;
 import com.github.paganini2008.springworld.cronkeeper.JobDependencyObservable;
 import com.github.paganini2008.springworld.cronkeeper.JobException;
@@ -85,6 +84,6 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason,
 			int retries) {
 		super.afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
-		stopWatch.finishJob(traceId, jobKey, startTime, runningState, reason != null ? ExceptionUtils.toArray(reason) : null, retries);
+		stopWatch.finishJob(traceId, jobKey, startTime, runningState, retries);
 	}
 }
