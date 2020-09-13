@@ -9,7 +9,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
-import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.proxy.Aspect;
 
 /**
@@ -59,7 +58,7 @@ public class JobLoggerAspect implements Aspect {
 						list.remove(list.size() - 1);
 					}
 				}
-				logManager.log(traceId, jobKey, logLevel, messagePattern, args, ExceptionUtils.toArray(cause));
+				logManager.log(traceId, jobKey, logLevel, messagePattern, args, cause);
 			}
 		}
 		return true;

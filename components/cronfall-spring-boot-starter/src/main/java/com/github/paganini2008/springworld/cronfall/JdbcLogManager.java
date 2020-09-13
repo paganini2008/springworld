@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class JdbcLogManager implements LogManager {
 	private JobManager jobManager;
 
 	@Override
-	public void log(long traceId, JobKey jobKey, LogLevel logLevel, String messagePattern, Object[] args, String[] errorStackTracks) {
+	public void log(long traceId, JobKey jobKey, LogLevel logLevel, String messagePattern, Object[] args, String[] stackTraces) {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
@@ -50,10 +51,10 @@ public class JdbcLogManager implements LogManager {
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
-		if (ArrayUtils.isNotEmpty(errorStackTracks)) {
+		if (ArrayUtils.isNotEmpty(stackTraces)) {
 			List<Object[]> argsList = new ArrayList<Object[]>();
-			for (String errorStackTrack : errorStackTracks) {
-				argsList.add(new Object[] { traceId, jobId, errorStackTrack });
+			for (String stackTrace : stackTraces) {
+				argsList.add(new Object[] { traceId, jobId, stackTrace });
 			}
 			try {
 				connection = dataSource.getConnection();
@@ -67,10 +68,11 @@ public class JdbcLogManager implements LogManager {
 	}
 
 	@Override
-	public void error(long traceId, JobKey jobKey, String[] errorStackTracks) {
+	public void error(long traceId, JobKey jobKey, String[] stackTraces) {
+		Assert.isNull(stackTraces, "Null throwable");
 		final int jobId = getJobId(jobKey);
 		List<Object[]> argsList = new ArrayList<Object[]>();
-		for (String errorStackTrack : errorStackTracks) {
+		for (String errorStackTrack : stackTraces) {
 			argsList.add(new Object[] { traceId, jobId, errorStackTrack });
 		}
 		Connection connection = null;
@@ -88,7 +90,7 @@ public class JdbcLogManager implements LogManager {
 		try {
 			return jobManager.getJobId(jobKey);
 		} catch (Exception e) {
-			throw ExceptionUtils.wrapExeception(e);
+			throw com.github.paganini2008.springworld.cronfall.ExceptionUtils.wrapExeception(e);
 		}
 	}
 

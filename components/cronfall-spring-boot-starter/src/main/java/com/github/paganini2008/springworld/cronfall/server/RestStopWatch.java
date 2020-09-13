@@ -36,10 +36,9 @@ public class RestStopWatch implements StopWatch {
 	}
 
 	@Override
-	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks,
-			int retries) {
+	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] stackTraces, int retries) {
 		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/finishJob",
-				HttpMethod.POST, new JobRuntimeParam(traceId, jobKey, startTime, runningState, errorStackTracks, retries),
+				HttpMethod.POST, new JobRuntimeParam(traceId, jobKey, startTime, runningState, stackTraces, retries),
 				new ParameterizedTypeReference<JobResult<JobState>>() {
 				});
 		return responseEntity.getBody().getData();

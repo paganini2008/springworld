@@ -27,15 +27,15 @@ public class JobRuntimeParam {
 	private JobKey jobKey;
 	private Date startTime;
 	private RunningState runningState;
-	private String[] errorStackTracks;
+	private String[] stackTraces;
 	private int retries;
 
-	public JobRuntimeParam(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks, int retries) {
+	public JobRuntimeParam(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] stackTraces, int retries) {
 		this.traceId = traceId;
 		this.jobKey = jobKey;
 		this.startTime = startTime;
 		this.runningState = runningState;
-		this.errorStackTracks = errorStackTracks;
+		this.stackTraces = stackTraces;
 		this.retries = retries;
 	}
 

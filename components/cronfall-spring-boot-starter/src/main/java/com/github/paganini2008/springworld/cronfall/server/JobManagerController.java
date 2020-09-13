@@ -88,7 +88,7 @@ public class JobManagerController {
 	@PostMapping("/finishJob")
 	public ResponseEntity<JobResult<JobState>> finishJob(@RequestBody JobRuntimeParam param) throws Exception {
 		JobState jobState = stopWatch.finishJob(param.getTraceId(), param.getJobKey(), param.getStartTime(), param.getRunningState(),
-				param.getErrorStackTracks(), param.getRetries());
+				param.getStackTraces(), param.getRetries());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 

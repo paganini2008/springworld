@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.devtools.collection.LruMap;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
@@ -66,6 +67,8 @@ public class JdbcJobManager implements JobManager {
 	@Autowired
 	private LifecycleListenerContainer lifecycleListenerContainer;
 
+	private final LruMap<JobKey, Integer> jobIdCache = new LruMap<JobKey, Integer>(1024);
+
 	@Override
 	public void configure() throws SQLException {
 		if (createTable) {
@@ -108,6 +111,15 @@ public class JdbcJobManager implements JobManager {
 
 	@Override
 	public int getJobId(JobKey jobKey) throws SQLException {
+		Integer jobId = jobIdCache.get(jobKey);
+		if (jobId == null) {
+			jobId = jobIdCache.putIfAbsent(jobKey, doGetJobId(jobKey));
+			jobId = jobIdCache.get(jobKey);
+		}
+		return jobId.intValue();
+	}
+
+	private int doGetJobId(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
@@ -262,6 +274,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			return setJobState(jobKey, JobState.FINISHED);
 		} finally {
+			jobIdCache.remove(jobKey);
 			lifecycleListenerContainer.signalAll(jobKey, JobAction.DELETION);
 		}
 	}

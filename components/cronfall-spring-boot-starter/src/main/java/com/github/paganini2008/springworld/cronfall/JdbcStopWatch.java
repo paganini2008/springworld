@@ -3,9 +3,7 @@ package com.github.paganini2008.springworld.cronfall;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -13,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.InstanceId;
@@ -44,6 +41,9 @@ public class JdbcStopWatch implements StopWatch {
 	@Autowired
 	private JobFutureHolder jobFutureHolder;
 
+	@Autowired
+	private LogManager logManager;
+
 	@Override
 	public JobState startJob(long traceId, JobKey jobKey, Date startTime) {
 		Connection connection = null;
@@ -65,8 +65,7 @@ public class JdbcStopWatch implements StopWatch {
 	}
 
 	@Override
-	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] errorStackTracks,
-			int retries) {
+	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, String[] stackTraces, int retries) {
 		final int jobId = getJobId(jobKey);
 		final Date endTime = new Date();
 		Connection connection = null;
@@ -92,26 +91,20 @@ public class JdbcStopWatch implements StopWatch {
 			default:
 				break;
 			}
-
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { traceId, jobId, runningState.getValue(),
 					getSelfAddress(), instanceId.get(), complete, failed, skipped, terminated, retries, startTime, endTime });
-
-			if (ArrayUtils.isNotEmpty(errorStackTracks)) {
-				List<Object[]> argsList = new ArrayList<Object[]>();
-				for (String errorStackTrack : errorStackTracks) {
-					argsList.add(new Object[] { traceId, jobId, errorStackTrack });
-				}
-				JdbcUtils.batchUpdate(connection, SqlScripts.DEF_INSERT_JOB_EXCEPTION, argsList);
-			}
 			connection.commit();
-			return JobState.SCHEDULING;
+
 		} catch (SQLException e) {
 			JdbcUtils.rollbackQuietly(connection);
 			throw new JobException(e.getMessage(), e);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
+		
+		logManager.error(traceId, jobKey, stackTraces);
 
+		return JobState.SCHEDULING;
 	}
 
 	protected String getSelfAddress() {
