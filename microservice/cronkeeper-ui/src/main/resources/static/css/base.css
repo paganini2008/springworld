@@ -1,0 +1,310 @@
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	background-color: #fff;
+	font-style: normal;
+	font-size: 14px;
+	font-family: 微软雅黑, Arial, 'Times New Roman';
+	color: #000;
+}
+
+#container {
+	width: calc(100%-20px);
+	height: calc(100%-130px);
+	overflow: hidden;
+	position: absolute;
+	z-index: 0;
+	top: 90px;
+	bottom: 50px;
+	left: 10px;
+	right: 10px;
+}
+
+#top {
+	width: 100%;
+	height: 80px;
+	background-color: #7B7B7B;
+	position: absolute;
+	top: 0px;
+	z-index: 0px;
+}
+
+#foot {
+	width: 100%;
+	text-align:center;
+	height: 50px;
+	line-height: 50px;
+	font-weight: bold;
+	text-align: center;
+	background-color: #7B7B7B;
+	color: #fff;
+	clear: both;
+	position: absolute;
+	bottom: 0px;
+	z-index: 100px;
+}
+
+input,select,textarea {
+	font: 14px 微软雅黑;
+}
+
+img{
+	cursor: pointer;
+}
+
+#navBox{
+	width: 100%;
+	height: 32px;
+	line-height: 32px;
+	clear: both;
+	position: absolute;
+	background-color: #7B7B7B;
+	bottom: 0px;
+}
+
+#navBox ul{
+	width: auto;
+	height: 32px;
+	line-height: 32px;
+	display: inline-block;
+	float: left;
+}
+
+#navBox ul li{
+	list-style: none;
+	float: left;
+	display: inline-block;
+	margin-right: 5px;
+	width: 120px;
+	height: 32px;
+	line-height: 32px;
+	text-align: center;
+	border: 1px solid #DCDCDC;
+	cursor: pointer;
+	background-color: #fff;
+}
+
+#navBox ul li:first-child{
+	margin-left: 5px;
+}
+
+#navBox ul li a{
+	text-decoration: none;
+}
+
+#navBox ul li span{
+	float: left;
+	display: inline-block;
+}
+
+#navBox ul li span img{
+	width: 30px;
+	height: 30px;
+	border: 0px;
+}
+
+#sec-nav{
+	width: 100%;
+	clear: both;
+	padding: 5px 0px 10px 0px;
+}
+
+#sec-nav ul{
+	width: auto;
+	height: 28px;
+	line-height: 28px;
+	display: block;
+	font-size: 13px;
+}
+
+#sec-nav ul li{
+	list-style: none;
+	float: left;
+	display: inline-block;
+	margin-right: 5px;
+	width: 80px;
+	height: 28px;
+	line-height: 28px;
+	text-align: center;
+	border: 1px solid #DCDCDC;
+	cursor: pointer;
+	background-color: #fff;
+	border-radius: 10px;
+	padding: 0px 10px;
+}
+
+#leftTop {
+	width: 70%;
+	height: 50px;
+	float: left;
+	display: inline-block;
+	margin-top: 5px;
+}
+
+#rightTop {
+	width: 30%;
+	height: 50px;
+	float: left;
+	display: inline-block;
+	margin-top: 20px;
+}
+
+#rightTop span {
+	display: block;
+	text-align: right;
+	left: right;
+	height: 20px;
+	margin: 2px 20px 2px;
+}
+
+.cBtn{
+	width: 80px;
+	padding: 5px 20px;
+	cursor: pointer;
+}
+
+.tblCom {
+	border-bottom: 1px solid #BEBEBE;
+	table-layout: fixed;
+}
+
+.tblCom thead tr {
+	height: 32px;
+	line-height: 32px;
+	font-weight: bold;
+	background-color: #9D9D9D;
+	color: #fff;
+}
+
+.tblCom tbody tr {
+	height: 32px;
+	line-height: 32px;
+}
+
+.tblCom tbody tr td{
+	height: 32px;
+	line-height: 32px;
+	word-break: keep-all; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+}
+
+.tblCom tbody tr td:first-child{
+	
+}
+
+.tblCom tbody tr td:last-child{
+	
+}
+
+.tdLeft5 {
+	text-align: left;
+	padding-left: 5px;
+}
+
+.tdLeft10 {
+	text-align: left;
+	padding-left: 10px;
+}
+
+.tdRight5 {
+	text-align: right;
+	padding-right: 5px;
+}
+
+.tdRight10 {
+	text-align: right;
+	padding-right: 10px;
+}
+
+.trGreen{
+	color: #00BB00;
+}
+
+.trRed{
+	color: #D9006C;
+}
+
+.popTop {
+	width: 520px;
+	height: 30px;
+	line-height: 30px;
+	margin: 0px 10px 15px;
+	text-align: left;
+}
+
+.popTitle {
+	font-weight: bold;
+	font-size: 15px;
+	letter-spacing: 1px;
+}
+
+.popClose {
+	display: inline-block;
+	float: right;
+	width: 22px;
+	height: 22px;
+	margin: 4px 0px;
+	background: url('../img/mod_close.png') no-repeat scroll transparent;
+	cursor: pointer;
+}
+
+.popBox {
+	width: 550px;
+	text-align: left;
+	padding: 5px 10px;
+	height: auto;
+	overflow: hidden;
+}
+
+.popContent p {
+	height: auto;
+	display: block;
+	line-height: 30px;
+	margin-bottom: 2px;
+	width: 100%;
+}
+
+.popContent p label {
+	display: inline-block;
+	width: 100px;
+	height: 30px;
+	text-align: right;
+	padding-right: 10px;
+	font-weight: bold;
+}
+
+a:link {
+	color: #46A3FF;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #5B5B5B;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: none;
+	font-weight: bold;
+}
+
+a:active {
+	text-decoration: none;
+}
+
+.tabNoData{
+	display: table;
+	width: 100%;
+	height: 320px;
+	line-height: 320px;
+}

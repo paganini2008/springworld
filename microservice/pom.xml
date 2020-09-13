@@ -16,6 +16,7 @@
     <modules>
 		<module>blogonline</module>
 		<module>webcrawler</module>
+		<module>cronkeeper-ui</module>
     </modules>
 
 	
