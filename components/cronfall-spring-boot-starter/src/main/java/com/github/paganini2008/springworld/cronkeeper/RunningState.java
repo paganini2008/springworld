@@ -13,7 +13,7 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
  */
 public enum RunningState implements EnumConstant {
 
-	FATAL(0, "Fatal"), COMPLETED(1, "Completed"), SKIPPED(2, "Skipped"), TERMINATED(3, "Terminated"), RUNNING(99, "Running");
+	FAILED(0, "Failed"), COMPLETED(1, "Completed"), SKIPPED(2, "Skipped"), FINISHED(3, "Finished"), RUNNING(99, "Running");
 
 	private final int value;
 	private final String repr;

@@ -7,10 +7,10 @@
 		<version>2.0-RC4</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>cronfall-spring-boot-starter</artifactId>
+	<artifactId>cronkeeper-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 
-	<name>cronfall-spring-boot-starter</name>
+	<name>cronkeeper-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>
@@ -25,6 +25,12 @@
 			<groupId>com.github.paganini2008.springworld</groupId>
 			<artifactId>cluster-spring-boot-starter</artifactId>
 			<version>2.0-RC4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.googlecode.concurrentlinkedhashmap</groupId>
+			<artifactId>concurrentlinkedhashmap-lru</artifactId>
+			<version>1.4.2</version>
 		</dependency>
 
 	</dependencies>

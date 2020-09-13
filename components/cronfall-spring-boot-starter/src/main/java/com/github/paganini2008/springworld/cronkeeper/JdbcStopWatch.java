@@ -75,25 +75,25 @@ public class JdbcStopWatch implements StopWatch {
 			connection.setAutoCommit(false);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END, new Object[] { JobState.SCHEDULING.getValue(),
 					runningState.getValue(), endTime, jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
-			int complete = 0, failed = 0, skipped = 0, terminated = 0;
+			int complete = 0, failed = 0, skipped = 0, finished = 0;
 			switch (runningState) {
 			case COMPLETED:
 				complete = 1;
 				break;
-			case FATAL:
+			case FAILED:
 				failed = 1;
 				break;
 			case SKIPPED:
 				skipped = 1;
 				break;
-			case TERMINATED:
-				terminated = 1;
+			case FINISHED:
+				finished = 1;
 				break;
 			default:
 				break;
 			}
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { traceId, jobId, runningState.getValue(),
-					getSelfAddress(), instanceId.get(), complete, failed, skipped, terminated, retries, startTime, endTime });
+					getSelfAddress(), instanceId.get(), complete, failed, skipped, finished, retries, startTime, endTime });
 			connection.commit();
 
 		} catch (SQLException e) {

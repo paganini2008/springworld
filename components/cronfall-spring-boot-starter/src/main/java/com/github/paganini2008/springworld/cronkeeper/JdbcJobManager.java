@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
-import com.github.paganini2008.devtools.collection.LruMap;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
@@ -46,14 +45,14 @@ public class JdbcJobManager implements JobManager {
 		private static final long serialVersionUID = 1L;
 
 		{
-			put("cronfall_server_detail", SqlScripts.DEF_DDL_CLUSTER_DETAIL);
-			put("cronfall_job_detail", SqlScripts.DEF_DDL_JOB_DETAIL);
-			put("cronfall_job_trigger", SqlScripts.DEF_DDL_JOB_TRIGGER);
-			put("cronfall_job_runtime", SqlScripts.DEF_DDL_JOB_RUNTIME);
-			put("cronfall_job_trace", SqlScripts.DEF_DDL_JOB_TRACE);
-			put("cronfall_job_exception", SqlScripts.DEF_DDL_JOB_EXCEPTION);
-			put("cronfall_job_log", SqlScripts.DEF_DDL_JOB_LOG);
-			put("cronfall_job_dependency", SqlScripts.DEF_DDL_JOB_DEPENDENCY);
+			put("ck_server_detail", SqlScripts.DEF_DDL_CLUSTER_DETAIL);
+			put("ck_job_detail", SqlScripts.DEF_DDL_JOB_DETAIL);
+			put("ck_job_trigger", SqlScripts.DEF_DDL_JOB_TRIGGER);
+			put("ck_job_runtime", SqlScripts.DEF_DDL_JOB_RUNTIME);
+			put("ck_job_trace", SqlScripts.DEF_DDL_JOB_TRACE);
+			put("ck_job_exception", SqlScripts.DEF_DDL_JOB_EXCEPTION);
+			put("ck_job_log", SqlScripts.DEF_DDL_JOB_LOG);
+			put("ck_job_dependency", SqlScripts.DEF_DDL_JOB_DEPENDENCY);
 		}
 	};
 
@@ -67,7 +66,8 @@ public class JdbcJobManager implements JobManager {
 	@Autowired
 	private LifecycleListenerContainer lifecycleListenerContainer;
 
-	private final LruMap<JobKey, Integer> jobIdCache = new LruMap<JobKey, Integer>(1024);
+	@Autowired
+	private JobIdCache jobIdCache;
 
 	@Override
 	public void configure() throws SQLException {
@@ -110,13 +110,10 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public int getJobId(JobKey jobKey) throws SQLException {
-		Integer jobId = jobIdCache.get(jobKey);
-		if (jobId == null) {
-			jobId = jobIdCache.putIfAbsent(jobKey, doGetJobId(jobKey));
-			jobId = jobIdCache.get(jobKey);
-		}
-		return jobId.intValue();
+	public int getJobId(final JobKey jobKey) throws SQLException {
+		return jobIdCache.getJobId(jobKey, () -> {
+			return doGetJobId(jobKey);
+		});
 	}
 
 	private int doGetJobId(JobKey jobKey) throws SQLException {
@@ -274,7 +271,7 @@ public class JdbcJobManager implements JobManager {
 		try {
 			return setJobState(jobKey, JobState.FINISHED);
 		} finally {
-			jobIdCache.remove(jobKey);
+			jobIdCache.evict(jobKey);
 			lifecycleListenerContainer.signalAll(jobKey, JobAction.DELETION);
 		}
 	}

@@ -11,6 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+
+import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
 
 /**
  * 
@@ -20,11 +23,11 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0
  */
-public abstract class JobTemplate implements JobExecutor {
+public abstract class JobTemplate implements JobExecutor, DisposableBean {
 
 	protected final Logger log = LoggerFactory.getLogger(JobExecutor.class);
 	private final Set<JobRuntimeListener> jobRuntimeListeners = Collections.synchronizedNavigableSet(new TreeSet<JobRuntimeListener>());
-	private Executor executor;
+	private Executor threadPool;
 	private Logger customizedLog;
 
 	@Override
@@ -42,11 +45,13 @@ public abstract class JobTemplate implements JobExecutor {
 	}
 
 	public void setCustomizedLog(Logger logger) {
-		this.customizedLog = logger;
+		if (logger != null) {
+			this.customizedLog = logger;
+		}
 	}
 
-	public void setExecutor(Executor executor) {
-		this.executor = executor;
+	public void setThreadPool(Executor threadPool) {
+		this.threadPool = threadPool;
 	}
 
 	protected final void runJob(Job job, Object attachment, int retries) {
@@ -69,7 +74,7 @@ public abstract class JobTemplate implements JobExecutor {
 			cancel(jobKey, job, runningState, e.getMessage(), reason);
 		} catch (Throwable e) {
 			reason = e;
-			runningState = RunningState.FATAL;
+			runningState = RunningState.FAILED;
 			if (e instanceof JobException) {
 				throw e;
 			}
@@ -93,10 +98,10 @@ public abstract class JobTemplate implements JobExecutor {
 		RunningState runningState = RunningState.COMPLETED;
 		Object result = null;
 		Throwable reason = null;
-		boolean success = false, terminated = false;
+		boolean success = false, finished = false;
 		try {
-			if (executor instanceof ExecutorService) {
-				Future<Object> future = ((ExecutorService) executor).submit(() -> {
+			if (threadPool instanceof ExecutorService) {
+				Future<Object> future = ((ExecutorService) threadPool).submit(() -> {
 					return job.execute(jobKey, attachment, log);
 				});
 				if (job.getTimeout() > 0) {
@@ -109,13 +114,13 @@ public abstract class JobTemplate implements JobExecutor {
 			}
 			success = true;
 		} catch (JobTerminationException e) {
-			terminated = true;
+			finished = true;
 			throw e;
 		} catch (Throwable e) {
 			reason = e;
 			success = false;
 		} finally {
-			if (!success && !terminated) {
+			if (!success && !finished) {
 				if (retries < job.getRetries()) {
 					try {
 						result = retry(jobKey, job, attachment, reason, retries + 1, log);
@@ -135,7 +140,7 @@ public abstract class JobTemplate implements JobExecutor {
 			} else {
 				printError(reason, log);
 
-				runningState = terminated ? RunningState.TERMINATED : RunningState.FATAL;
+				runningState = finished ? RunningState.FINISHED : RunningState.FAILED;
 				job.onFailure(jobKey, reason, log);
 			}
 		}
@@ -154,7 +159,7 @@ public abstract class JobTemplate implements JobExecutor {
 	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startDate, RunningState runningState, Throwable reason,
 			int retries) {
 		if (log.isTraceEnabled()) {
-			log.trace("Job {}, traceId: {} is ending with state {}", jobKey, traceId, runningState);
+			log.trace("Job {} with traceId '{}' is ending with state {}", jobKey, traceId, runningState);
 		}
 		for (JobRuntimeListener listener : jobRuntimeListeners) {
 			listener.afterRun(traceId, jobKey, startDate, runningState, reason);
@@ -175,6 +180,13 @@ public abstract class JobTemplate implements JobExecutor {
 
 	protected void printError(Throwable e, Logger log) {
 		log.error(e.getMessage(), e);
+	}
+
+	public void destroy() {
+		if (threadPool != null) {
+			ExecutorUtils.gracefulShutdown(threadPool, 60000);
+			log.info("Destroy threadPool: " + threadPool);
+		}
 	}
 
 }

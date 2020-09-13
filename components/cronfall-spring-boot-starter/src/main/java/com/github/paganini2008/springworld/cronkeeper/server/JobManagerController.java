@@ -2,7 +2,6 @@ package com.github.paganini2008.springworld.cronkeeper.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,15 +10,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.paganini2008.springworld.cronkeeper.JobKey;
 import com.github.paganini2008.springworld.cronkeeper.JobManager;
 import com.github.paganini2008.springworld.cronkeeper.JobState;
+import com.github.paganini2008.springworld.cronkeeper.LogManager;
 import com.github.paganini2008.springworld.cronkeeper.StopWatch;
+import com.github.paganini2008.springworld.cronkeeper.TraceIdGenerator;
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
+import com.github.paganini2008.springworld.cronkeeper.model.JobLogParam;
 import com.github.paganini2008.springworld.cronkeeper.model.JobQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobResult;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntime;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntimeParam;
 import com.github.paganini2008.springworld.cronkeeper.model.JobStateParam;
 import com.github.paganini2008.springworld.cronkeeper.model.JobTriggerDetail;
-import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 /**
  * 
@@ -37,10 +38,13 @@ public class JobManagerController {
 	private JobManager jobManager;
 
 	@Autowired
+	private LogManager logManager;
+
+	@Autowired
 	private StopWatch stopWatch;
 
 	@Autowired
-	private RedisUUID redisUUID;
+	private TraceIdGenerator traceIdGenerator;
 
 	@PostMapping("/getJobDetail")
 	public ResponseEntity<JobResult<JobDetail>> getJobDetail(@RequestBody JobKey jobKey) throws Exception {
@@ -97,10 +101,23 @@ public class JobManagerController {
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 
-	@GetMapping("/generateTraceId")
-	public ResponseEntity<JobResult<Long>> generateTraceId() {
-		long traceId = redisUUID.createUUID().timestamp();
+	@PostMapping("/generateTraceId")
+	public ResponseEntity<JobResult<Long>> generateTraceId(@RequestBody JobKey jobKey) {
+		long traceId = traceIdGenerator.generateTraceId(jobKey);
 		return ResponseEntity.ok(JobResult.success(traceId));
+	}
+
+	@PostMapping("/log")
+	public ResponseEntity<JobResult<String>> log(@RequestBody JobLogParam param) throws Exception {
+		logManager.log(param.getTraceId(), param.getJobKey(), param.getLogLevel(), param.getMessagePattern(), param.getArgs(),
+				param.getStackTraces());
+		return ResponseEntity.ok(JobResult.success("ok"));
+	}
+
+	@PostMapping("/error")
+	public ResponseEntity<JobResult<String>> error(@RequestBody JobLogParam param) throws Exception {
+		logManager.error(param.getTraceId(), param.getJobKey(), param.getStackTraces());
+		return ResponseEntity.ok(JobResult.success("ok"));
 	}
 
 }

@@ -27,8 +27,8 @@ public final class JobLoggerFactory {
 		if (holder == null) {
 			proxies.put(jobKey, createLoggerProxy(target, jobKey, logManager));
 			holder = proxies.get(jobKey);
-			((JobLoggerAspect) holder.getAspect()).setTraceId(traceId);
 		}
+		((JobLoggerAspect) holder.getAspect()).setTraceId(traceId);
 		return holder.getProxy();
 	}
 

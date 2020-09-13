@@ -3,6 +3,10 @@ package com.github.paganini2008.springworld.cronkeeper;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.paganini2008.devtools.enums.EnumConstant;
+
 /**
  * 
  * LogLevel
@@ -11,9 +15,9 @@ import org.slf4j.Marker;
  *
  * @since 1.0
  */
-public enum LogLevel {
+public enum LogLevel implements EnumConstant {
 
-	TRACE {
+	TRACE(0, "trace") {
 		@Override
 		public boolean canLog(Logger log) {
 			return log.isTraceEnabled();
@@ -25,7 +29,7 @@ public enum LogLevel {
 		}
 
 	},
-	DEBUG {
+	DEBUG(1, "debug") {
 		@Override
 		public boolean canLog(Logger log) {
 			return log.isDebugEnabled();
@@ -36,7 +40,7 @@ public enum LogLevel {
 			return log.isDebugEnabled(marker);
 		}
 	},
-	INFO {
+	INFO(2, "info") {
 		@Override
 		public boolean canLog(Logger log) {
 			return log.isInfoEnabled();
@@ -47,7 +51,7 @@ public enum LogLevel {
 			return log.isInfoEnabled(marker);
 		}
 	},
-	WARN {
+	WARN(3, "warn") {
 		@Override
 		public boolean canLog(Logger log) {
 			return log.isWarnEnabled();
@@ -58,7 +62,7 @@ public enum LogLevel {
 			return log.isWarnEnabled(marker);
 		}
 	},
-	ERROR {
+	ERROR(4, "error") {
 		@Override
 		public boolean canLog(Logger log) {
 			return log.isErrorEnabled();
@@ -74,5 +78,33 @@ public enum LogLevel {
 	public abstract boolean canLog(Logger log);
 
 	public abstract boolean canLog(Logger log, Marker marker);
+
+	private final int value;
+	private final String repr;
+
+	private LogLevel(int value, String repr) {
+		this.value = value;
+		this.repr = repr;
+	}
+
+	@JsonValue
+	public int getValue() {
+		return value;
+	}
+
+	@Override
+	public String getRepr() {
+		return repr;
+	}
+
+	@JsonCreator
+	public static LogLevel valueOf(int value) {
+		for (LogLevel logLevel : LogLevel.values()) {
+			if (logLevel.getValue() == value) {
+				return logLevel;
+			}
+		}
+		throw new IllegalArgumentException("Unknown logLevel: " + value);
+	}
 
 }

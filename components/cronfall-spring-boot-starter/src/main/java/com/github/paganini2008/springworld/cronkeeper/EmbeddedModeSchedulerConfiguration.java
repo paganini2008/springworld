@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
@@ -23,7 +24,6 @@ import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cronkeeper.server.ConsumerModeJobExecutor;
-import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +63,9 @@ public class EmbeddedModeSchedulerConfiguration {
 
 		@Bean(BeanNames.TARGET_JOB_EXECUTOR)
 		public JobExecutor consumerModeJobExecutor() {
-			return new ConsumerModeJobExecutor();
+			ConsumerModeJobExecutor jobExecutor = new ConsumerModeJobExecutor();
+			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			return jobExecutor;
 		}
 
 		@Bean
@@ -101,7 +103,9 @@ public class EmbeddedModeSchedulerConfiguration {
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
 		public JobExecutor jobExecutor() {
-			return new EmbeddedModeJobExecutor();
+			EmbeddedModeJobExecutor jobExecutor = new EmbeddedModeJobExecutor();
+			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			return jobExecutor;
 		}
 
 		@Bean
@@ -242,13 +246,13 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public RedisUUID redisUUID(RedisConnectionFactory redisConnectionFactory) {
-		return new RedisUUID("redis-uuid", redisConnectionFactory);
+	public JobIdCache jobIdCache(RedisConnectionFactory redisConnectionFactory, RedisSerializer<Object> redisSerializer) {
+		return new JobIdCache(redisConnectionFactory, redisSerializer);
 	}
 
 	@Bean
-	public TraceIdGenerator traceIdGenerator() {
-		return new UuidTraceIdGenerator();
+	public TraceIdGenerator traceIdGenerator(RedisConnectionFactory redisConnectionFactory) {
+		return new IncrementalTraceIdGenerator(redisConnectionFactory);
 	}
 
 	@Bean
