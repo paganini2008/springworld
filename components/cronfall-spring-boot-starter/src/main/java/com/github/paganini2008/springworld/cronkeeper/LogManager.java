@@ -18,10 +18,16 @@ public interface LogManager {
 
 	void log(long traceId, JobKey jobKey, LogLevel logLevel, String messagePattern, Object[] args, String[] stackTraces);
 
-	default void error(long traceId, JobKey jobKey, Throwable e) {
-		error(traceId, jobKey, ExceptionUtils.toArray(e));
+	default void log(long traceId, LogLevel level, JobKey jobKey, String msg, Throwable e) {
+		log(traceId, level, jobKey, msg, ExceptionUtils.toArray(e));
 	}
 
-	void error(long traceId, JobKey jobKey, String[] stackTraces);
+	void log(long traceId, LogLevel level, JobKey jobKey, String msg, String[] stackTraces);
+
+	default void error(long traceId, JobKey jobKey, Throwable e) {
+		error(traceId, jobKey, e.getMessage(), ExceptionUtils.toArray(e));
+	}
+
+	void error(long traceId, JobKey jobKey, String msg, String[] stackTraces);
 
 }

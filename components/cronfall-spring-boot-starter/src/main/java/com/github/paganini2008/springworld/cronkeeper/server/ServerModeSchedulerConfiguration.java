@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
@@ -24,13 +26,17 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGro
 import com.github.paganini2008.springworld.cronkeeper.BeanNames;
 import com.github.paganini2008.springworld.cronkeeper.ConditionalOnServerMode;
 import com.github.paganini2008.springworld.cronkeeper.Cron4jScheduler;
+import com.github.paganini2008.springworld.cronkeeper.CurrentThreadRetryPolicy;
 import com.github.paganini2008.springworld.cronkeeper.DeclaredJobListenerBeanPostProcessor;
 import com.github.paganini2008.springworld.cronkeeper.DefaultJobDependencyObservable;
 import com.github.paganini2008.springworld.cronkeeper.DefaultScheduleManager;
 import com.github.paganini2008.springworld.cronkeeper.DefaultSchedulerStarterListener;
 import com.github.paganini2008.springworld.cronkeeper.ExternalJobBeanLoader;
+import com.github.paganini2008.springworld.cronkeeper.FailoverRetryPolicy;
+import com.github.paganini2008.springworld.cronkeeper.IncrementalTraceIdGenerator;
 import com.github.paganini2008.springworld.cronkeeper.InternalJobBeanLoader;
 import com.github.paganini2008.springworld.cronkeeper.JdbcJobManager;
+import com.github.paganini2008.springworld.cronkeeper.JdbcLogManager;
 import com.github.paganini2008.springworld.cronkeeper.JdbcStopWatch;
 import com.github.paganini2008.springworld.cronkeeper.JobAdmin;
 import com.github.paganini2008.springworld.cronkeeper.JobAdminController;
@@ -40,10 +46,14 @@ import com.github.paganini2008.springworld.cronkeeper.JobDependencyFutureListene
 import com.github.paganini2008.springworld.cronkeeper.JobDependencyObservable;
 import com.github.paganini2008.springworld.cronkeeper.JobExecutor;
 import com.github.paganini2008.springworld.cronkeeper.JobFutureHolder;
+import com.github.paganini2008.springworld.cronkeeper.JobIdCache;
 import com.github.paganini2008.springworld.cronkeeper.JobManager;
 import com.github.paganini2008.springworld.cronkeeper.LifecycleListenerContainer;
 import com.github.paganini2008.springworld.cronkeeper.LoadBalancedJobBeanProcessor;
+import com.github.paganini2008.springworld.cronkeeper.LogManager;
 import com.github.paganini2008.springworld.cronkeeper.NotManagedJobBeanInitializer;
+import com.github.paganini2008.springworld.cronkeeper.OnServerModeCondition.ServerMode;
+import com.github.paganini2008.springworld.cronkeeper.RetryPolicy;
 import com.github.paganini2008.springworld.cronkeeper.ScheduleAdmin;
 import com.github.paganini2008.springworld.cronkeeper.ScheduleManager;
 import com.github.paganini2008.springworld.cronkeeper.Scheduler;
@@ -52,7 +62,7 @@ import com.github.paganini2008.springworld.cronkeeper.SchedulerErrorHandler;
 import com.github.paganini2008.springworld.cronkeeper.SchedulerStarterListener;
 import com.github.paganini2008.springworld.cronkeeper.SpringScheduler;
 import com.github.paganini2008.springworld.cronkeeper.StopWatch;
-import com.github.paganini2008.springworld.cronkeeper.OnServerModeCondition.ServerMode;
+import com.github.paganini2008.springworld.cronkeeper.TraceIdGenerator;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
@@ -204,7 +214,7 @@ public class ServerModeSchedulerConfiguration {
 			return new ServerModeJobBeanLoader();
 		}
 
-		@Bean("main-job-executor")
+		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
 		public JobExecutor jobExecutor() {
 			return new ProducerModeJobExecutor();
 		}
@@ -226,10 +236,25 @@ public class ServerModeSchedulerConfiguration {
 			redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
 			return jobListenerContainer;
 		}
-		
+
 		@Bean
 		public JobDependencyFutureListener jobDependencyFutureListener() {
 			return new JobDependencyFutureListener();
+		}
+
+		@Bean
+		public JobIdCache jobIdCache(RedisConnectionFactory redisConnectionFactory, RedisSerializer<Object> redisSerializer) {
+			return new JobIdCache(redisConnectionFactory, redisSerializer);
+		}
+
+		@Bean
+		public TraceIdGenerator traceIdGenerator(RedisConnectionFactory redisConnectionFactory) {
+			return new IncrementalTraceIdGenerator(redisConnectionFactory);
+		}
+
+		@Bean
+		public LogManager logManager() {
+			return new JdbcLogManager();
 		}
 
 	}
@@ -291,6 +316,16 @@ public class ServerModeSchedulerConfiguration {
 			return new ConsumerModeJobAdmin();
 		}
 
+		@Bean
+		public TraceIdGenerator traceIdGenerator() {
+			return new RestTraceIdGenerator();
+		}
+
+		@Bean
+		public LogManager logManager() {
+			return new RestLogManager();
+		}
+
 	}
 
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
@@ -302,12 +337,19 @@ public class ServerModeSchedulerConfiguration {
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
 		public JobExecutor jobExecutor() {
-			return new ConsumerModeJobExecutor();
+			ConsumerModeJobExecutor jobExecutor = new ConsumerModeJobExecutor();
+			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			return jobExecutor;
 		}
 
 		@Bean(BeanNames.INTERNAL_JOB_BEAN_LOADER)
 		public JobBeanLoader jobBeanLoader() {
 			return new InternalJobBeanLoader();
+		}
+
+		@Bean
+		public RetryPolicy retryPolicy() {
+			return new CurrentThreadRetryPolicy();
 		}
 	}
 
@@ -335,12 +377,19 @@ public class ServerModeSchedulerConfiguration {
 
 		@Bean(BeanNames.TARGET_JOB_EXECUTOR)
 		public JobExecutor consumerModeJobExecutor() {
-			return new ConsumerModeJobExecutor();
+			ConsumerModeJobExecutor jobExecutor = new ConsumerModeJobExecutor();
+			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			return jobExecutor;
 		}
 
 		@Bean
 		public LoadBalancedJobBeanProcessor loadBalancedJobBeanProcessor() {
 			return new LoadBalancedJobBeanProcessor();
+		}
+
+		@Bean
+		public RetryPolicy retryPolicy() {
+			return new FailoverRetryPolicy();
 		}
 
 	}

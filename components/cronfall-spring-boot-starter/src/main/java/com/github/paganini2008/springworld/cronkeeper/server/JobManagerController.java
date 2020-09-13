@@ -114,10 +114,4 @@ public class JobManagerController {
 		return ResponseEntity.ok(JobResult.success("ok"));
 	}
 
-	@PostMapping("/error")
-	public ResponseEntity<JobResult<String>> error(@RequestBody JobLogParam param) throws Exception {
-		logManager.error(param.getTraceId(), param.getJobKey(), param.getStackTraces());
-		return ResponseEntity.ok(JobResult.success("ok"));
-	}
-
 }

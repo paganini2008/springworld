@@ -47,12 +47,9 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@Autowired
-	private TraceIdGenerator idGenerator;
-
 	@Override
 	protected long getTraceId(JobKey jobKey) {
-		return idGenerator.generateTraceId(jobKey);
+		return TraceIdGenerator.NOOP.generateTraceId(jobKey);
 	}
 
 	@Override

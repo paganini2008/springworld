@@ -34,11 +34,13 @@ public class RestLogManager implements LogManager {
 	}
 
 	@Override
-	public void error(long traceId, JobKey jobKey, String[] stackTraces) {
-		ResponseEntity<JobResult<String>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/error",
-				HttpMethod.POST, new JobLogParam(traceId, jobKey, stackTraces), new ParameterizedTypeReference<JobResult<String>>() {
-				});
-		responseEntity.getBody().getData();
+	public void log(long traceId, LogLevel level, JobKey jobKey, String msg, String[] stackTraces) {
+		throw new UnsupportedOperationException("log");
+	}
+
+	@Override
+	public void error(long traceId, JobKey jobKey, String msg, String[] stackTraces) {
+		throw new UnsupportedOperationException("error");
 	}
 
 }

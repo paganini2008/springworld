@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +38,23 @@ public class JdbcLogManager implements LogManager {
 
 	@Override
 	public void log(long traceId, JobKey jobKey, LogLevel logLevel, String messagePattern, Object[] args, String[] stackTraces) {
+		FormattingTuple tuple = MessageFormatter.arrayFormat(messagePattern, args);
+		log(traceId, logLevel, jobKey, tuple.getMessage(), stackTraces);
+	}
+
+	@Override
+	public void error(long traceId, JobKey jobKey, String msg, String[] stackTraces) {
+		log(traceId, LogLevel.ERROR, jobKey, msg, stackTraces);
+	}
+
+	@Override
+	public void log(long traceId, LogLevel logLevel, JobKey jobKey, String msg, String[] stackTraces) {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			FormattingTuple tuple = MessageFormatter.arrayFormat(messagePattern, args);
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_LOG,
-					new Object[] { traceId, jobId, logLevel.name(), tuple.getMessage(), new Timestamp(System.currentTimeMillis()) });
+					new Object[] { traceId, jobId, logLevel.name(), msg, new Timestamp(System.currentTimeMillis()) });
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);
 		} finally {
@@ -64,25 +73,6 @@ public class JdbcLogManager implements LogManager {
 			} finally {
 				JdbcUtils.closeQuietly(connection);
 			}
-		}
-	}
-
-	@Override
-	public void error(long traceId, JobKey jobKey, String[] stackTraces) {
-		Assert.isNull(stackTraces, "Null throwable");
-		final int jobId = getJobId(jobKey);
-		List<Object[]> argsList = new ArrayList<Object[]>();
-		for (String stackTrace : stackTraces) {
-			argsList.add(new Object[] { traceId, jobId, stackTrace });
-		}
-		Connection connection = null;
-		try {
-			connection = dataSource.getConnection();
-			JdbcUtils.batchUpdate(connection, SqlScripts.DEF_INSERT_JOB_EXCEPTION, argsList);
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-		} finally {
-			JdbcUtils.closeQuietly(connection);
 		}
 	}
 
