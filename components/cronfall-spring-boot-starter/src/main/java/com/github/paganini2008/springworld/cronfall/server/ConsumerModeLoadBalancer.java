@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cronfall.server;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -18,8 +19,8 @@ import com.github.paganini2008.springworld.cronfall.JobState;
 import com.github.paganini2008.springworld.cronfall.JobTemplate;
 import com.github.paganini2008.springworld.cronfall.RunningState;
 import com.github.paganini2008.springworld.cronfall.StopWatch;
+import com.github.paganini2008.springworld.cronfall.TraceIdGenerator;
 import com.github.paganini2008.springworld.cronfall.model.JobParam;
-import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 /**
  * 
@@ -47,11 +48,11 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	private String clusterName;
 
 	@Autowired
-	private RedisUUID redisUUID;
+	private TraceIdGenerator idGenerator;
 
 	@Override
 	protected long getTraceId(JobKey jobKey) {
-		return redisUUID.createUUID().timestamp();
+		return idGenerator.generateTraceId(jobKey);
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries) {
+	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
 		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
 			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
 			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));

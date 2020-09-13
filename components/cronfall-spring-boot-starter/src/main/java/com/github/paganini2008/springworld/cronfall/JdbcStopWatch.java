@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.InstanceId;
@@ -101,9 +102,10 @@ public class JdbcStopWatch implements StopWatch {
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
-		
-		logManager.error(traceId, jobKey, stackTraces);
 
+		if (ArrayUtils.isNotEmpty(stackTraces)) {
+			logManager.error(traceId, jobKey, stackTraces);
+		}
 		return JobState.SCHEDULING;
 	}
 

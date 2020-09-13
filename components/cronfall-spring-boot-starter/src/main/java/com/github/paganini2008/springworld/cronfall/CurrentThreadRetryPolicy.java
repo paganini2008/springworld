@@ -1,6 +1,6 @@
 package com.github.paganini2008.springworld.cronfall;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -10,15 +10,15 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
 public class CurrentThreadRetryPolicy implements RetryPolicy {
 
 	@Override
-	public Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable previous, int retries) throws Throwable {
+	public Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable previous, int retries, Logger log)
+			throws Throwable {
 		Throwable reason = null;
 		for (int i = 0; i < job.getRetries(); i++) {
 			try {
-				return job.execute(jobKey, attachment);
+				return job.execute(jobKey, attachment, log);
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
 				reason = e;

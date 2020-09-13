@@ -22,9 +22,10 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class JobTemplate implements JobExecutor {
 
-	protected Logger log = LoggerFactory.getLogger(getClass());
+	protected final Logger log = LoggerFactory.getLogger(JobExecutor.class);
 	private final Set<JobRuntimeListener> jobRuntimeListeners = Collections.synchronizedNavigableSet(new TreeSet<JobRuntimeListener>());
 	private Executor executor;
+	private Logger customizedLog;
 
 	@Override
 	public void addListener(JobRuntimeListener listener) {
@@ -40,8 +41,8 @@ public abstract class JobTemplate implements JobExecutor {
 		}
 	}
 
-	public void setLogger(Logger logger) {
-		this.log = logger;
+	public void setCustomizedLog(Logger logger) {
+		this.customizedLog = logger;
 	}
 
 	public void setExecutor(Executor executor) {
@@ -57,8 +58,9 @@ public abstract class JobTemplate implements JobExecutor {
 		try {
 			if (isScheduling(jobKey, job)) {
 				beforeRun(traceId, jobKey, job, startTime);
-				if (job.shouldRun(jobKey)) {
-					runningState = doRun(jobKey, job, attachment, retries);
+				Logger log = customizedLog != null ? customizedLog : this.log;
+				if (job.shouldRun(jobKey, log)) {
+					runningState = doRun(jobKey, job, attachment, retries, log);
 				}
 			}
 		} catch (JobTerminationException e) {
@@ -79,14 +81,14 @@ public abstract class JobTemplate implements JobExecutor {
 
 	protected abstract long getTraceId(JobKey jobKey);
 
-	protected RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries) {
+	protected RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
 		if (retries > 0) {
 			if (log.isTraceEnabled()) {
 				log.trace("Retry to run job '{}' on {} times again.", jobKey, retries);
 			}
 		}
 
-		job.prepare(jobKey);
+		job.prepare(jobKey, log);
 
 		RunningState runningState = RunningState.COMPLETED;
 		Object result = null;
@@ -95,7 +97,7 @@ public abstract class JobTemplate implements JobExecutor {
 		try {
 			if (executor instanceof ExecutorService) {
 				Future<Object> future = ((ExecutorService) executor).submit(() -> {
-					return job.execute(jobKey, attachment);
+					return job.execute(jobKey, attachment, log);
 				});
 				if (job.getTimeout() > 0) {
 					result = future.get(job.getTimeout(), TimeUnit.MILLISECONDS);
@@ -103,7 +105,7 @@ public abstract class JobTemplate implements JobExecutor {
 					result = future.get();
 				}
 			} else {
-				result = job.execute(jobKey, attachment);
+				result = job.execute(jobKey, attachment, log);
 			}
 			success = true;
 		} catch (JobTerminationException e) {
@@ -116,7 +118,7 @@ public abstract class JobTemplate implements JobExecutor {
 			if (!success && !terminated) {
 				if (retries < job.getRetries()) {
 					try {
-						result = retry(jobKey, job, attachment, reason, retries + 1);
+						result = retry(jobKey, job, attachment, reason, retries + 1, log);
 						success = true;
 					} catch (JobTerminationException e) {
 						throw e;
@@ -128,13 +130,13 @@ public abstract class JobTemplate implements JobExecutor {
 			}
 
 			if (success) {
-				job.onSuccess(jobKey, result);
+				job.onSuccess(jobKey, result, log);
 				notifyDependants(jobKey, job, result);
 			} else {
-				printError(reason);
+				printError(reason, log);
 
 				runningState = terminated ? RunningState.TERMINATED : RunningState.FATAL;
-				job.onFailure(jobKey, reason);
+				job.onFailure(jobKey, reason, log);
 			}
 		}
 		return runningState;
@@ -161,7 +163,7 @@ public abstract class JobTemplate implements JobExecutor {
 
 	protected abstract boolean isScheduling(JobKey jobKey, Job job);
 
-	protected Object retry(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries) throws Throwable {
+	protected Object retry(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries, Logger log) throws Throwable {
 		return null;
 	}
 
@@ -171,7 +173,7 @@ public abstract class JobTemplate implements JobExecutor {
 	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
 	}
 
-	protected void printError(Throwable e) {
+	protected void printError(Throwable e, Logger log) {
 		log.error(e.getMessage(), e);
 	}
 

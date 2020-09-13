@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
@@ -22,6 +23,7 @@ import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cronfall.server.ConsumerModeJobExecutor;
+import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +80,7 @@ public class EmbeddedModeSchedulerConfiguration {
 		public JobBeanLoader jobBeanLoader() {
 			return new InternalJobBeanLoader();
 		}
-		
+
 		@Bean
 		public RetryPolicy retryPolicy() {
 			return new FailoverRetryPolicy();
@@ -237,6 +239,21 @@ public class EmbeddedModeSchedulerConfiguration {
 		LifecycleListenerContainer jobListenerContainer = new LifecycleListenerContainer(clusterName, redisMessageSender);
 		redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
 		return jobListenerContainer;
+	}
+
+	@Bean
+	public RedisUUID redisUUID(RedisConnectionFactory redisConnectionFactory) {
+		return new RedisUUID("redis-uuid", redisConnectionFactory);
+	}
+
+	@Bean
+	public TraceIdGenerator traceIdGenerator() {
+		return new UuidTraceIdGenerator();
+	}
+
+	@Bean
+	public LogManager logManager() {
+		return new JdbcLogManager();
 	}
 
 }

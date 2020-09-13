@@ -1,13 +1,12 @@
 package com.github.paganini2008.springworld.cronfall;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cronfall.model.JobParam;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
 public class FailoverRetryPolicy implements RetryPolicy {
 
 	@Autowired
@@ -30,7 +28,7 @@ public class FailoverRetryPolicy implements RetryPolicy {
 	private String clusterName;
 
 	@Override
-	public Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries) throws Throwable {
+	public Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries, Logger log) throws Throwable {
 		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
 			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
 			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));

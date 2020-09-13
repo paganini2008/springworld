@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cronfall;
 
+import org.slf4j.Logger;
+
 import com.github.paganini2008.springworld.cronfall.model.JobTriggerDetail;
 
 /**
@@ -34,7 +36,7 @@ public class ExternalJobBeanProxy implements Job {
 	public String getGroupName() {
 		return jobKey.getGroupName();
 	}
-	
+
 	@Override
 	public String getClusterName() {
 		return jobKey.getClusterName();
@@ -47,7 +49,7 @@ public class ExternalJobBeanProxy implements Job {
 	}
 
 	@Override
-	public Object execute(JobKey jobKey, Object result) {
+	public Object execute(JobKey jobKey, Object result, Logger log) {
 		throw new UnsupportedOperationException("execute");
 	}
 

@@ -2,13 +2,11 @@ package com.github.paganini2008.springworld.cronfall;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -18,11 +16,13 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
 public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor {
 
 	@Autowired
 	private JobManager jobManager;
+
+	@Autowired
+	private LogManager logManager;
 
 	@Autowired
 	private ScheduleManager scheduleManager;
@@ -37,19 +37,17 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	private RetryPolicy retryPolicy;
 
 	@Autowired
-	private RedisUUID redisUUID;
-	
-	@Autowired
-	private LogManager logManager;
+	private TraceIdGenerator idGenerator;
 
 	@Override
 	protected long getTraceId(JobKey jobKey) {
-		return redisUUID.createUUID().timestamp();
+		long traceId = idGenerator.generateTraceId(jobKey);
+		setCustomizedLog(JobLoggerFactory.getLogger(log, traceId, jobKey, logManager));
+		return traceId;
 	}
 
 	@Override
 	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
-		setLogger(JobLoggerFactory.getLogger(log, traceId, jobKey, logManager));
 		super.beforeRun(traceId, jobKey, job, startTime);
 		stopWatch.startJob(traceId, jobKey, startTime);
 	}
@@ -97,8 +95,8 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected Object retry(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries) throws Throwable {
-		return retryPolicy.retryIfNecessary(jobKey, job, attachment, reason, retries);
+	protected Object retry(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries, Logger log) throws Throwable {
+		return retryPolicy.retryIfNecessary(jobKey, job, attachment, reason, retries, log);
 	}
 
 	@Override

@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.cronfall.JobTemplate;
 import com.github.paganini2008.springworld.cronfall.RunningState;
 import com.github.paganini2008.springworld.cronfall.ScheduleManager;
 import com.github.paganini2008.springworld.cronfall.StopWatch;
-import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
+import com.github.paganini2008.springworld.cronfall.TraceIdGenerator;
 
 /**
  * 
@@ -37,11 +37,11 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	private StopWatch stopWatch;
 	
 	@Autowired
-	private RedisUUID redisUUID;
+	private TraceIdGenerator idGenerator;
 
 	@Override
 	protected long getTraceId(JobKey jobKey) {
-		return redisUUID.createUUID().timestamp();
+		return idGenerator.generateTraceId(jobKey);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cronfall;
 
+import org.slf4j.Logger;
+
 /**
  * 
  * RetryPolicy
@@ -10,6 +12,6 @@ package com.github.paganini2008.springworld.cronfall;
  */
 public interface RetryPolicy {
 
-	Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries) throws Throwable;
+	Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries, Logger log) throws Throwable;
 
 }

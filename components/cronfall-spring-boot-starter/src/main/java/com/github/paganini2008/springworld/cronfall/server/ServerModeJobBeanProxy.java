@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.cronfall.server;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestClientException;
 
@@ -11,8 +12,6 @@ import com.github.paganini2008.springworld.cronfall.JobState;
 import com.github.paganini2008.springworld.cronfall.TriggerBuilder;
 import com.github.paganini2008.springworld.cronfall.model.JobTriggerDetail;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 
  * ServerModeJobBeanProxy
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
 public class ServerModeJobBeanProxy implements Job {
 
 	private final JobKey jobKey;
@@ -73,7 +71,7 @@ public class ServerModeJobBeanProxy implements Job {
 	}
 
 	@Override
-	public Object execute(JobKey jobKey, Object result) {
+	public Object execute(JobKey jobKey, Object result, Logger log) {
 		try {
 			return jobAdmin.triggerJob(jobKey, result);
 		} catch (RestClientException e) {
@@ -97,7 +95,7 @@ public class ServerModeJobBeanProxy implements Job {
 	}
 
 	@Override
-	public void onFailure(JobKey jobKey, Throwable e) {
+	public void onFailure(JobKey jobKey, Throwable e, Logger log) {
 		log.error(e.getMessage(), e);
 	}
 

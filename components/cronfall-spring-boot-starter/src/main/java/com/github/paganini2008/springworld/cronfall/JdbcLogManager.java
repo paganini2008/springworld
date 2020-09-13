@@ -72,8 +72,8 @@ public class JdbcLogManager implements LogManager {
 		Assert.isNull(stackTraces, "Null throwable");
 		final int jobId = getJobId(jobKey);
 		List<Object[]> argsList = new ArrayList<Object[]>();
-		for (String errorStackTrack : stackTraces) {
-			argsList.add(new Object[] { traceId, jobId, errorStackTrack });
+		for (String stackTrace : stackTraces) {
+			argsList.add(new Object[] { traceId, jobId, stackTrace });
 		}
 		Connection connection = null;
 		try {

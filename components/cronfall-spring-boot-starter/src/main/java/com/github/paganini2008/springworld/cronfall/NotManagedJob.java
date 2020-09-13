@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cronfall;
 
+import org.slf4j.Logger;
+
 /**
  * 
  * NotManagedJob
@@ -10,19 +12,19 @@ package com.github.paganini2008.springworld.cronfall;
  */
 public interface NotManagedJob {
 
-	default void prepare(JobKey jobKey) {
+	default void prepare(JobKey jobKey, Logger log) {
 	}
 
-	default void onSuccess(JobKey jobKey, Object result) {
+	default void onSuccess(JobKey jobKey, Object result, Logger log) {
 	}
 
-	default void onFailure(JobKey jobKey, Throwable e) {
+	default void onFailure(JobKey jobKey, Throwable e, Logger log) {
 	}
 
-	default boolean shouldRun(JobKey jobKey) {
+	default boolean shouldRun(JobKey jobKey, Logger log) {
 		return true;
 	}
 
-	Object execute(JobKey jobKey, Object attachment) throws Exception;
+	Object execute(JobKey jobKey, Object attachment, Logger log) throws Exception;
 
 }

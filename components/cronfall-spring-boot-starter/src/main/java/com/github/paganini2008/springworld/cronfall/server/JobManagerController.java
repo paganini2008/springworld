@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cronfall.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import com.github.paganini2008.springworld.cronfall.model.JobRuntime;
 import com.github.paganini2008.springworld.cronfall.model.JobRuntimeParam;
 import com.github.paganini2008.springworld.cronfall.model.JobStateParam;
 import com.github.paganini2008.springworld.cronfall.model.JobTriggerDetail;
+import com.github.paganini2008.springworld.redisplus.common.RedisUUID;
 
 /**
  * 
@@ -36,6 +38,9 @@ public class JobManagerController {
 
 	@Autowired
 	private StopWatch stopWatch;
+
+	@Autowired
+	private RedisUUID redisUUID;
 
 	@PostMapping("/getJobDetail")
 	public ResponseEntity<JobResult<JobDetail>> getJobDetail(@RequestBody JobKey jobKey) throws Exception {
@@ -90,6 +95,12 @@ public class JobManagerController {
 		JobState jobState = stopWatch.finishJob(param.getTraceId(), param.getJobKey(), param.getStartTime(), param.getRunningState(),
 				param.getStackTraces(), param.getRetries());
 		return ResponseEntity.ok(JobResult.success(jobState));
+	}
+
+	@GetMapping("/generateTraceId")
+	public ResponseEntity<JobResult<Long>> generateTraceId() {
+		long traceId = redisUUID.createUUID().timestamp();
+		return ResponseEntity.ok(JobResult.success(traceId));
 	}
 
 }
