@@ -14,18 +14,18 @@ import com.googlecode.concurrentlinkedhashmap.Weighers;
 
 /**
  * 
- * IncrementalTraceIdGenerator
+ * TimestampTraceIdGenerator
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class IncrementalTraceIdGenerator implements TraceIdGenerator, EvictionListener<String, RedisAtomicLong> {
+public class TimestampTraceIdGenerator implements TraceIdGenerator, EvictionListener<String, RedisAtomicLong> {
 
 	private final Map<String, RedisAtomicLong> cache;
 	private final RedisConnectionFactory connectionFactory;
 
-	public IncrementalTraceIdGenerator(RedisConnectionFactory connectionFactory) {
+	public TimestampTraceIdGenerator(RedisConnectionFactory connectionFactory) {
 		this.connectionFactory = connectionFactory;
 		this.cache = new ConcurrentLinkedHashMap.Builder<String, RedisAtomicLong>().maximumWeightedCapacity(16)
 				.weigher(Weighers.singleton()).listener(this).build();

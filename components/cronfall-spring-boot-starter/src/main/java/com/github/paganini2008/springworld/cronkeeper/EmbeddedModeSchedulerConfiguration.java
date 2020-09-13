@@ -252,7 +252,7 @@ public class EmbeddedModeSchedulerConfiguration {
 
 	@Bean
 	public TraceIdGenerator traceIdGenerator(RedisConnectionFactory redisConnectionFactory) {
-		return new IncrementalTraceIdGenerator(redisConnectionFactory);
+		return new TimestampTraceIdGenerator(redisConnectionFactory);
 	}
 
 	@Bean

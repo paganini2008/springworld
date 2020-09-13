@@ -33,7 +33,7 @@ import com.github.paganini2008.springworld.cronkeeper.DefaultScheduleManager;
 import com.github.paganini2008.springworld.cronkeeper.DefaultSchedulerStarterListener;
 import com.github.paganini2008.springworld.cronkeeper.ExternalJobBeanLoader;
 import com.github.paganini2008.springworld.cronkeeper.FailoverRetryPolicy;
-import com.github.paganini2008.springworld.cronkeeper.IncrementalTraceIdGenerator;
+import com.github.paganini2008.springworld.cronkeeper.TimestampTraceIdGenerator;
 import com.github.paganini2008.springworld.cronkeeper.InternalJobBeanLoader;
 import com.github.paganini2008.springworld.cronkeeper.JdbcJobManager;
 import com.github.paganini2008.springworld.cronkeeper.JdbcLogManager;
@@ -249,7 +249,7 @@ public class ServerModeSchedulerConfiguration {
 
 		@Bean
 		public TraceIdGenerator traceIdGenerator(RedisConnectionFactory redisConnectionFactory) {
-			return new IncrementalTraceIdGenerator(redisConnectionFactory);
+			return new TimestampTraceIdGenerator(redisConnectionFactory);
 		}
 
 		@Bean
