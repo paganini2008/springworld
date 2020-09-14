@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cronkeeper;
 
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,7 +31,7 @@ public class JobIdCache {
 
 	public int getJobId(JobKey jobKey, JobIdSupplier supplier) throws SQLException {
 		if (!redisTemplate.hasKey(jobKey)) {
-			redisTemplate.opsForValue().set(jobKey, supplier.get());
+			redisTemplate.opsForValue().set(jobKey, supplier.get(), 1, TimeUnit.HOURS);
 		}
 		return redisTemplate.opsForValue().get(jobKey).intValue();
 	}
