@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.controller;
+package com.github.paganini2008.springworld.cronkeeper.ui.controller.bak;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *
  * @since 1.0
  */
-@Controller
-@RequestMapping("/job")
+//@Controller
+//@RequestMapping("/job")
 public class RouterController {
 
 	@GetMapping("/console")

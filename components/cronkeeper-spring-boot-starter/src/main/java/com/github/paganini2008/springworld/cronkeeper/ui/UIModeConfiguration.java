@@ -5,9 +5,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
 import com.github.paganini2008.springworld.cronkeeper.JdbcJobManager;
 import com.github.paganini2008.springworld.cronkeeper.JobAdmin;
+import com.github.paganini2008.springworld.cronkeeper.JobIdCache;
 import com.github.paganini2008.springworld.cronkeeper.JobManager;
 import com.github.paganini2008.springworld.cronkeeper.LifecycleListenerContainer;
 import com.github.paganini2008.springworld.cronkeeper.server.ClusterRegistry;
@@ -52,6 +55,11 @@ public class UIModeConfiguration {
 	@ConditionalOnMissingBean(JobManager.class)
 	public JobManager jobManager() {
 		return new JdbcJobManager();
+	}
+
+	@Bean
+	public JobIdCache jobIdCache(RedisConnectionFactory redisConnectionFactory, RedisSerializer<?> redisSerializer) {
+		return new JobIdCache(redisConnectionFactory, redisSerializer);
 	}
 
 	@Bean("job-listener-container")

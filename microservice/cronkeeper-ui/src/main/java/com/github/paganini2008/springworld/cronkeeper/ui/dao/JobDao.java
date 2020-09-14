@@ -20,13 +20,13 @@ import com.github.paganini2008.springworld.fastjdbc.annotations.Slice;
 @Dao
 public interface JobDao {
 
-	@Slice(value = "select a.*,b.trigger_type,c.job_state from crontab_job_detail a join crontab_job_trigger b on b.job_id=a.job_id join crontab_job_runtime c on c.job_id=b.job_id", elementType = JobInfo.class)
+	@Slice(value = "select a.*,b.trigger_type,c.job_state from ck_job_detail a join ck_job_trigger b on b.job_id=a.job_id join ck_job_runtime c on c.job_id=b.job_id", elementType = JobInfo.class)
 	ResultSetSlice<JobInfo> selectJobInfo();
 
-	@Get(value = "select a.cluster_name,a.group_name,a.job_name,a.job_class_name,b.*,c.* from crontab_job_detail a join crontab_job_trigger b on b.job_id=a.job_id join crontab_job_runtime c on c.job_id=b.job_id where job_id=:jobId", javaType = false)
+	@Get(value = "select a.cluster_name,a.group_name,a.job_name,a.job_class_name,b.*,c.* from ck_job_detail a join ck_job_trigger b on b.job_id=a.job_id join ck_job_runtime c on c.job_id=b.job_id where job_id=:jobId", javaType = false)
 	JobDetail selectJobDetail(@Arg("jobId") int jobId);
 
-	@Slice(value = "select * from crontab_job_trace where job_id=:jobId", elementType = JobTrace.class)
+	@Slice(value = "select * from ck_job_trace where job_id=:jobId", elementType = JobTrace.class)
 	ResultSetSlice<JobTrace> selectJobTrace(@Arg("jobId") int jobId);
 
 }

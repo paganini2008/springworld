@@ -39,7 +39,7 @@ public class ConsumerModeJobAdmin implements JobAdmin {
 	private JobManager jobManager;
 
 	@Override
-	public JobState persistJob(JobPersistParam jobConfig) {
+	public JobState persistJob(JobPersistParam param) {
 		throw new UnsupportedOperationException("persistJob");
 	}
 

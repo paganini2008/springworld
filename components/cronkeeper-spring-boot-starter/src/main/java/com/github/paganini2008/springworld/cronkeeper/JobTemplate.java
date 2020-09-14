@@ -51,7 +51,9 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 	}
 
 	public void setThreadPool(Executor threadPool) {
-		this.threadPool = threadPool;
+		if (threadPool != null) {
+			this.threadPool = threadPool;
+		}
 	}
 
 	protected final void runJob(Job job, Object attachment, int retries) {

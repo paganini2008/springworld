@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.controller;
+package com.github.paganini2008.springworld.cronkeeper.ui.controller.bak;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +23,8 @@ import com.github.paganini2008.springworld.cronkeeper.ui.service.JobQueryService
  *
  * @since 1.0
  */
-@RequestMapping("/job")
-@RestController
+//@RequestMapping("/job")
+//@RestController
 public class JobController {
 
 	@Autowired

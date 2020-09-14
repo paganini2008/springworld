@@ -4,8 +4,7 @@ import java.util.Date;
 
 import com.github.paganini2008.springworld.cronkeeper.TriggerType;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * 
@@ -15,8 +14,7 @@ import lombok.Setter;
  *
  * @since 1.0
  */
-@Getter
-@Setter
+@Data
 public class JobPersistParam {
 
 	private String clusterName;

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import com.github.paganini2008.springworld.cronkeeper.BeanNames;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -62,7 +63,7 @@ public class DbPoolConfig {
 	}
 
 	@Primary
-	@Bean
+	@Bean(BeanNames.DATA_SOURCE)
 	public DataSource dataSource() {
 		HikariDataSource ds = new HikariDataSource(getDbConfig());
 		log.info("DbPool: " + ds);

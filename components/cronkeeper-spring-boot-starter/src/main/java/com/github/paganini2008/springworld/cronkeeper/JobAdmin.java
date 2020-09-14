@@ -12,7 +12,7 @@ import com.github.paganini2008.springworld.cronkeeper.model.JobPersistParam;
  */
 public interface JobAdmin {
 
-	JobState persistJob(JobPersistParam jobConfig) throws Exception;
+	JobState persistJob(JobPersistParam param) throws Exception;
 
 	JobState deleteJob(JobKey jobKey) throws Exception;
 

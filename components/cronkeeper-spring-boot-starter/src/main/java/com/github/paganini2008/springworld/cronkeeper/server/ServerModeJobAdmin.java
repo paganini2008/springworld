@@ -31,9 +31,9 @@ public class ServerModeJobAdmin implements JobAdmin {
 	@Autowired
 	private ClusterRestTemplate restTemplate;
 
-	public JobState persistJob(JobPersistParam jobConfig) throws Exception {
-		JobDefinition jobDef = JobPersistRequest.build(jobConfig);
-		jobManager.persistJob(jobDef, jobConfig.getAttachment());
+	public JobState persistJob(JobPersistParam param) throws Exception {
+		JobDefinition jobDef = JobPersistRequest.build(param);
+		jobManager.persistJob(jobDef, param.getAttachment());
 		return jobManager.getJobRuntime(JobKey.of(jobDef)).getJobState();
 	}
 
