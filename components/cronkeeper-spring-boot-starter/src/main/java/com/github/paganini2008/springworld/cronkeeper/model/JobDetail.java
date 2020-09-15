@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +18,7 @@ import lombok.Setter;
  *
  * @since 1.0
  */
+@JsonInclude(value = Include.NON_NULL)
 @Getter
 @Setter
 public class JobDetail implements Serializable {
@@ -32,5 +35,8 @@ public class JobDetail implements Serializable {
 	private int retries;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date createDate;
+
+	private JobRuntime jobRuntime;
+	private JobTriggerDetail jobTriggerDetail;
 
 }

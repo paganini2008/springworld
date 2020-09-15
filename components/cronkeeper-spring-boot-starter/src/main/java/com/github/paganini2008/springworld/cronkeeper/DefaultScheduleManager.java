@@ -51,16 +51,14 @@ public class DefaultScheduleManager implements ScheduleManager {
 			}
 
 			JobDetail jobDetail;
-			JobTriggerDetail triggerDetail;
 			try {
-				jobDetail = jobManager.getJobDetail(jobKey);
-				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
+				jobDetail = jobManager.getJobDetail(jobKey, true);
 			} catch (Exception e) {
 				throw new JobException(e.getMessage(), e);
 			}
 
 			String attachment = jobDetail.getAttachment();
-			jobFutureHolder.add(jobKey, doSchedule(job, attachment, triggerDetail));
+			jobFutureHolder.add(jobKey, doSchedule(job, attachment, jobDetail.getJobTriggerDetail()));
 
 			try {
 				jobManager.setJobState(jobKey, JobState.SCHEDULING);

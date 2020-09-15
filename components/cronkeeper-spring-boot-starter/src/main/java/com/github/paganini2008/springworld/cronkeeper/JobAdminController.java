@@ -2,14 +2,12 @@ package com.github.paganini2008.springworld.cronkeeper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.springworld.cronkeeper.model.JobParam;
-import com.github.paganini2008.springworld.cronkeeper.model.JobPersistParam;
 import com.github.paganini2008.springworld.cronkeeper.model.JobResult;
 
 /**
@@ -29,24 +27,6 @@ public class JobAdminController {
 
 	@Autowired
 	private ScheduleAdmin scheduleAdmin;
-
-	@PostMapping("/persistJob")
-	public ResponseEntity<JobResult<JobState>> persistJob(@RequestBody JobPersistParam jobConfig) throws Exception {
-		JobState jobState = jobAdmin.persistJob(jobConfig);
-		return ResponseEntity.ok(JobResult.success(jobState));
-	}
-
-	@PostMapping("/hasJob")
-	public ResponseEntity<JobResult<JobState>> hasJob(@RequestBody JobKey jobKey) throws Exception {
-		JobState jobState = jobAdmin.hasJob(jobKey);
-		return ResponseEntity.ok(JobResult.success(jobState));
-	}
-
-	@DeleteMapping("/deleteJob")
-	public ResponseEntity<JobResult<JobState>> deleteJob(@RequestBody JobKey jobKey) throws Exception {
-		JobState jobState = jobAdmin.deleteJob(jobKey);
-		return ResponseEntity.ok(JobResult.success(jobState));
-	}
 
 	@PostMapping("/triggerJob")
 	public ResponseEntity<JobResult<JobState>> triggerJob(@RequestBody JobParam jobParam) throws Exception {

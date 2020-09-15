@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,14 +20,21 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
+import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
+import com.github.paganini2008.devtools.jdbc.PageRequest;
+import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
-import com.github.paganini2008.springworld.cronkeeper.model.JobInfo;
+import com.github.paganini2008.springworld.cronkeeper.model.JobLog;
 import com.github.paganini2008.springworld.cronkeeper.model.JobQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntime;
-import com.github.paganini2008.springworld.cronkeeper.model.JobStat;
+import com.github.paganini2008.springworld.cronkeeper.model.JobStackTrace;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTrace;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTracePageQuery;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTraceQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobTriggerDetail;
+import com.github.paganini2008.springworld.cronkeeper.model.PageQuery;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -310,7 +318,16 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobDetail getJobDetail(JobKey jobKey) throws SQLException {
+	public JobDetail getJobDetail(JobKey jobKey, boolean detailed) throws SQLException {
+		JobDetail jobDetail = doGetJobDetail(jobKey);
+		if (detailed) {
+			jobDetail.setJobRuntime(getJobRuntime(jobKey));
+			jobDetail.setJobTriggerDetail(getJobTriggerDetail(jobKey));
+		}
+		return jobDetail;
+	}
+
+	private JobDetail doGetJobDetail(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
@@ -409,68 +426,112 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobStat getJobStat(JobKey jobKey) throws SQLException {
+	public void selectJobDetail(PageQuery<JobDetail> pageQuery) {
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, SqlScripts.DEF_SELECT_JOB_INFO,
+				new Object[] { pageQuery.getClusterName() });
+		ResultSetSlice<JobDetail> resultSetSlice = new ResultSetSlice<JobDetail>() {
+
+			@Override
+			public int rowCount() {
+				return delegate.rowCount();
+			}
+
+			@Override
+			public List<JobDetail> list(int maxResults, int firstResult) {
+				List<JobDetail> dataList = new ArrayList<JobDetail>(maxResults);
+				for (Tuple tuple : delegate.list(maxResults, firstResult)) {
+					JobDetail jobDetail = tuple.toBean(JobDetail.class);
+					JobRuntime jobRuntime = tuple.toBean(JobRuntime.class);
+					JobTriggerDetail jobTriggerDetail = tuple.toBean(JobTriggerDetail.class);
+					jobDetail.setJobRuntime(jobRuntime);
+					jobDetail.setJobTriggerDetail(jobTriggerDetail);
+					dataList.add(jobDetail);
+				}
+				return dataList;
+			}
+
+		};
+
+		PageResponse<JobDetail> pageResponse = resultSetSlice.list(PageRequest.of(pageQuery.getPage(), pageQuery.getSize()));
+		int rows = pageResponse.getTotalRecords();
+		pageQuery.setRows(rows);
+		pageQuery.setContent(pageResponse.getContent());
+		pageQuery.setNextPage(pageResponse.hasNextPage());
+	}
+
+	@Override
+	public void selectJobTrace(JobTracePageQuery<JobTrace> pageQuery) throws Exception {
+		Date startDate = pageQuery.getStartDate();
+		if (startDate == null) {
+			startDate = DateUtils.addDays(new Date(), -30);
+			startDate = DateUtils.setTime(startDate, 0, 0, 0);
+		}
+		Date endDate = pageQuery.getEndDate();
+		if (endDate == null) {
+			endDate = DateUtils.setTime(new Date(), 23, 59, 59);
+		}
+		final int jobId = getJobId(pageQuery.getJobKey());
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, SqlScripts.DEF_SELECT_JOB_TRACE,
+				new Object[] { jobId, startDate, endDate });
+		ResultSetSlice<JobTrace> resultSetSlice = new ResultSetSlice<JobTrace>() {
+
+			@Override
+			public int rowCount() {
+				return delegate.rowCount();
+			}
+
+			@Override
+			public List<JobTrace> list(int maxResults, int firstResult) {
+				List<JobTrace> dataList = new ArrayList<JobTrace>(maxResults);
+				for (Tuple tuple : delegate.list(maxResults, firstResult)) {
+					JobTrace jobTrace = tuple.toBean(JobTrace.class);
+					dataList.add(jobTrace);
+				}
+				return dataList;
+			}
+
+		};
+		PageResponse<JobTrace> pageResponse = resultSetSlice.list(PageRequest.of(pageQuery.getPage(), pageQuery.getSize()));
+		int rows = pageResponse.getTotalRecords();
+		pageQuery.setRows(rows);
+		pageQuery.setContent(pageResponse.getContent());
+		pageQuery.setNextPage(pageResponse.hasNextPage());
+	}
+
+	@Override
+	public JobStackTrace[] selectJobStackTrace(JobTraceQuery query) throws SQLException {
+		List<JobStackTrace> data = new ArrayList<JobStackTrace>();
+		final int jobId = getJobId(query.getJobKey());
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_STAT,
-					new Object[] { jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
-			return tuple.toBean(JobStat.class);
+			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_EXCEPTION,
+					new Object[] { jobId, query.getTraceId() });
+			for (Tuple tuple : dataList) {
+				data.add(tuple.toBean(JobStackTrace.class));
+			}
+			return data.toArray(new JobStackTrace[0]);
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}
 	}
 
 	@Override
-	public ResultSetSlice<JobInfo> getJobInfo() {
-		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, SqlScripts.DEF_SELECT_JOB_INFO, (Object[]) null);
-		return new ResultSetSlice<JobInfo>() {
-
-			@Override
-			public int rowCount() {
-				return delegate.rowCount();
+	public JobLog[] selectJobLog(JobTraceQuery query) throws SQLException {
+		List<JobLog> data = new ArrayList<JobLog>();
+		final int jobId = getJobId(query.getJobKey());
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_LOG,
+					new Object[] { jobId, query.getTraceId() });
+			for (Tuple tuple : dataList) {
+				data.add(tuple.toBean(JobLog.class));
 			}
-
-			@Override
-			public List<JobInfo> list(int maxResults, int firstResult) {
-				List<JobInfo> dataList = new ArrayList<JobInfo>(maxResults);
-				for (Tuple tuple : delegate.list(maxResults, firstResult)) {
-					JobInfo jobInfo = tuple.toBean(JobInfo.class);
-					dataList.add(jobInfo);
-				}
-				return dataList;
-			}
-
-		};
-	}
-
-	@Override
-	public ResultSetSlice<JobStat> getJobStat(StatType statType) throws SQLException {
-		String extraColumns = "", extraGroupingColumns = "";
-		if (statType != null) {
-			extraColumns = ", " + statType.getExtraColumns();
-			extraGroupingColumns = ", " + statType.getExtraGroupingColumns();
+			return data.toArray(new JobLog[0]);
+		} finally {
+			JdbcUtils.closeQuietly(connection);
 		}
-		String sql = String.format(SqlScripts.DEF_SELECT_ALL_JOB_STAT, new Object[] { extraColumns, extraGroupingColumns });
-		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, sql, (Object[]) null);
-		return new ResultSetSlice<JobStat>() {
-
-			@Override
-			public int rowCount() {
-				return delegate.rowCount();
-			}
-
-			@Override
-			public List<JobStat> list(int maxResults, int firstResult) {
-				List<JobStat> dataList = new ArrayList<JobStat>(maxResults);
-				for (Tuple tuple : delegate.list(maxResults, firstResult)) {
-					JobStat jobStat = tuple.toBean(JobStat.class);
-					dataList.add(jobStat);
-				}
-				return dataList;
-			}
-
-		};
 	}
 
 	public DataSource getDataSource() {

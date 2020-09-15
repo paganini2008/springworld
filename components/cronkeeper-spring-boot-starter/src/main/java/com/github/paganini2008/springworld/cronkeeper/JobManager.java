@@ -1,12 +1,17 @@
 package com.github.paganini2008.springworld.cronkeeper;
 
-import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
+import java.sql.SQLException;
+
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
-import com.github.paganini2008.springworld.cronkeeper.model.JobInfo;
+import com.github.paganini2008.springworld.cronkeeper.model.JobLog;
 import com.github.paganini2008.springworld.cronkeeper.model.JobQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntime;
-import com.github.paganini2008.springworld.cronkeeper.model.JobStat;
+import com.github.paganini2008.springworld.cronkeeper.model.JobStackTrace;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTrace;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTracePageQuery;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTraceQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobTriggerDetail;
+import com.github.paganini2008.springworld.cronkeeper.model.PageQuery;
 
 /**
  * 
@@ -25,7 +30,7 @@ public interface JobManager extends JobPersistence, Lifecycle {
 
 	JobState setJobState(JobKey jobKey, JobState jobState) throws Exception;
 
-	JobDetail getJobDetail(JobKey jobKey) throws Exception;
+	JobDetail getJobDetail(JobKey jobKey, boolean detailed) throws Exception;
 
 	JobTriggerDetail getJobTriggerDetail(JobKey jobKey) throws Exception;
 
@@ -39,10 +44,12 @@ public interface JobManager extends JobPersistence, Lifecycle {
 
 	JobRuntime getJobRuntime(JobKey jobKey) throws Exception;
 
-	JobStat getJobStat(JobKey jobKey) throws Exception;
+	void selectJobDetail(PageQuery<JobDetail> pageQuery) throws Exception;
 
-	ResultSetSlice<JobInfo> getJobInfo() throws Exception;
+	void selectJobTrace(JobTracePageQuery<JobTrace> pageQuery) throws Exception;
 
-	ResultSetSlice<JobStat> getJobStat(StatType statType) throws Exception;
+	JobStackTrace[] selectJobStackTrace(JobTraceQuery query) throws SQLException;
+
+	JobLog[] selectJobLog(JobTraceQuery query) throws SQLException;
 
 }

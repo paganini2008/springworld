@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.paganini2008.springworld.cronkeeper.JacksonUtils;
 import com.github.paganini2008.springworld.cronkeeper.TriggerType;
 
@@ -17,6 +19,7 @@ import lombok.Getter;
  *
  * @since 1.0
  */
+@JsonInclude(value = Include.NON_NULL)
 @Getter
 public class JobTriggerDetail implements Serializable {
 

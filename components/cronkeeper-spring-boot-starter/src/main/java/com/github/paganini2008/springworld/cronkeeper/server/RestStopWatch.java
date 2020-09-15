@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 
 import com.github.paganini2008.springworld.cronkeeper.JobKey;
 import com.github.paganini2008.springworld.cronkeeper.JobState;
@@ -27,6 +28,7 @@ public class RestStopWatch implements StopWatch {
 	@Autowired
 	private ClusterRestTemplate restTemplate;
 
+	@Async
 	@Override
 	public JobState startJob(long traceId, JobKey jobKey, Date startTime) {
 		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/startJob",
@@ -35,6 +37,7 @@ public class RestStopWatch implements StopWatch {
 		return responseEntity.getBody().getData();
 	}
 
+	@Async
 	@Override
 	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, int retries) {
 		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/finishJob",

@@ -57,7 +57,7 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 			return job;
 		} else if (NotManagedJob.class.isAssignableFrom(jobClass)) {
 			NotManagedJob target = ApplicationContextUtils.autowireBean((NotManagedJob) BeanUtils.instantiate(jobClass));
-			JobDetail jobDetail = jobManager.getJobDetail(jobKey);
+			JobDetail jobDetail = jobManager.getJobDetail(jobKey, false);
 			return (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), Job.class);
 		}
 		throw new JobException("Class '" + jobClass.getName() + "' is not a instance of interface '" + Job.class.getName() + "'.");

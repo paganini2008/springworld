@@ -11,7 +11,6 @@ import com.github.paganini2008.springworld.cronkeeper.JobExecutor;
 import com.github.paganini2008.springworld.cronkeeper.JobKey;
 import com.github.paganini2008.springworld.cronkeeper.JobManager;
 import com.github.paganini2008.springworld.cronkeeper.JobState;
-import com.github.paganini2008.springworld.cronkeeper.model.JobPersistParam;
 
 /**
  * 
@@ -37,21 +36,6 @@ public class ConsumerModeJobAdmin implements JobAdmin {
 
 	@Autowired
 	private JobManager jobManager;
-
-	@Override
-	public JobState persistJob(JobPersistParam param) {
-		throw new UnsupportedOperationException("persistJob");
-	}
-
-	@Override
-	public JobState deleteJob(JobKey jobKey) {
-		throw new UnsupportedOperationException("deleteJob");
-	}
-
-	@Override
-	public JobState hasJob(JobKey jobKey) {
-		throw new UnsupportedOperationException("hasJob");
-	}
 
 	@Override
 	public JobState triggerJob(JobKey jobKey, Object attachment) throws Exception {

@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.cronkeeper.model;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
@@ -26,7 +27,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(value = Include.NON_NULL)
-public class TriggerDescription {
+public class TriggerDescription implements Serializable {
+
+	private static final long serialVersionUID = 7719080769264307755L;
 
 	private Cron cron;
 	private Periodic periodic;

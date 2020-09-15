@@ -53,7 +53,10 @@ public abstract class SqlScripts {
 	public static final String DEF_SELECT_JOB_DEPENDENCIES = "select * from ck_job_detail a where job_id in (select dependent_job_id from ck_job_dependency where job_id=?)";
 	public static final String DEF_SELECT_JOB_HAS_RELATION = "select count(*) from ck_job_dependency where dependent_job_id=?";
 
-	public static final String DEF_SELECT_JOB_INFO = "select a.*,b.* from ck_job_detail a join ck_job_runtime b on a.job_id=b.job_id";
+	public static final String DEF_SELECT_JOB_TRACE = "select * from ck_job_trace where job_id=? and execution_time between ? and ?";
+	public static final String DEF_SELECT_JOB_INFO = "select a.*,b.*,c.* from ck_job_detail a join ck_job_runtime b on b.job_id=a.job_id join ck_job_trigger c on c.job_id=b.job_id where a.cluster_name=?";
 	public static final String DEF_SELECT_JOB_DETAIL = "select * from ck_job_detail where cluster_name=? and group_name=? and job_name=? and job_class_name=?";
+	public static final String DEF_SELECT_JOB_LOG = "select * from ck_job_log where job_id=? and trace_id=?";
+	public static final String DEF_SELECT_JOB_EXCEPTION = "select * from ck_job_exception where job_id=? and trace_id=?";
 	public static final String DEF_SELECT_ALL_JOB_STAT = "select job_id, sum(complete) as completeCount, sum(failed) as failedCount, sum(skipped) as skippedCount {0} from ck_job_trace group by job_id {1}";
 }

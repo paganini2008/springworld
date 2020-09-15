@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 
 import com.github.paganini2008.springworld.cronkeeper.JobKey;
 import com.github.paganini2008.springworld.cronkeeper.LogLevel;
@@ -24,6 +25,7 @@ public class RestLogManager implements LogManager {
 	@Autowired
 	private ClusterRestTemplate restTemplate;
 
+	@Async
 	@Override
 	public void log(long traceId, JobKey jobKey, LogLevel logLevel, String messagePattern, Object[] args, String[] stackTraces) {
 		ResponseEntity<JobResult<String>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/log",

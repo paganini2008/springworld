@@ -14,13 +14,19 @@ import com.github.paganini2008.springworld.cronkeeper.LogManager;
 import com.github.paganini2008.springworld.cronkeeper.StopWatch;
 import com.github.paganini2008.springworld.cronkeeper.TraceIdGenerator;
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
+import com.github.paganini2008.springworld.cronkeeper.model.JobLog;
 import com.github.paganini2008.springworld.cronkeeper.model.JobLogParam;
 import com.github.paganini2008.springworld.cronkeeper.model.JobQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobResult;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntime;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntimeParam;
+import com.github.paganini2008.springworld.cronkeeper.model.JobStackTrace;
 import com.github.paganini2008.springworld.cronkeeper.model.JobStateParam;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTrace;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTracePageQuery;
+import com.github.paganini2008.springworld.cronkeeper.model.JobTraceQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobTriggerDetail;
+import com.github.paganini2008.springworld.cronkeeper.model.PageQuery;
 
 /**
  * 
@@ -48,7 +54,7 @@ public class JobManagerController {
 
 	@PostMapping("/getJobDetail")
 	public ResponseEntity<JobResult<JobDetail>> getJobDetail(@RequestBody JobKey jobKey) throws Exception {
-		JobDetail jobDetail = jobManager.getJobDetail(jobKey);
+		JobDetail jobDetail = jobManager.getJobDetail(jobKey, true);
 		return ResponseEntity.ok(JobResult.success(jobDetail));
 	}
 
@@ -86,6 +92,31 @@ public class JobManagerController {
 	public ResponseEntity<JobResult<JobKey[]>> getJobKeys(@RequestBody JobQuery jobQuery) throws Exception {
 		JobKey[] jobKeys = jobManager.getJobKeys(jobQuery);
 		return ResponseEntity.ok(JobResult.success(jobKeys));
+	}
+
+	@PostMapping("/selectJobDetail")
+	public ResponseEntity<JobResult<PageQuery<JobDetail>>> selectJobDetail(@RequestBody PageQuery<JobDetail> pageQuery) throws Exception {
+		jobManager.selectJobDetail(pageQuery);
+		return ResponseEntity.ok(JobResult.success(pageQuery));
+	}
+
+	@PostMapping("/selectJobTrace")
+	public ResponseEntity<JobResult<PageQuery<JobTrace>>> selectJobTrace(@RequestBody JobTracePageQuery<JobTrace> pageQuery)
+			throws Exception {
+		jobManager.selectJobTrace(pageQuery);
+		return ResponseEntity.ok(JobResult.success(pageQuery));
+	}
+
+	@PostMapping("/selectJobLog")
+	public ResponseEntity<JobResult<JobLog[]>> selectJobLog(@RequestBody JobTraceQuery query) throws Exception {
+		JobLog[] logs = jobManager.selectJobLog(query);
+		return ResponseEntity.ok(JobResult.success(logs));
+	}
+
+	@PostMapping("/selectJobStackTrace")
+	public ResponseEntity<JobResult<JobStackTrace[]>> selectJobStackTrace(@RequestBody JobTraceQuery query) throws Exception {
+		JobStackTrace[] traces = jobManager.selectJobStackTrace(query);
+		return ResponseEntity.ok(JobResult.success(traces));
 	}
 
 	@PostMapping("/startJob")
