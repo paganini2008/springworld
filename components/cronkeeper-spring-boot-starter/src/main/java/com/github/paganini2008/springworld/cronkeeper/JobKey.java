@@ -7,7 +7,6 @@ import org.springframework.util.DigestUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.CharsetUtils;
-import com.github.paganini2008.devtools.beans.ToStringBuilder;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -78,7 +77,7 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 	}
 
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		return String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
 	}
 
 	@Override

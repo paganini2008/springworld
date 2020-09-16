@@ -22,6 +22,8 @@ import com.github.paganini2008.springworld.cronkeeper.model.PageQuery;
  */
 public interface JobManager extends JobPersistence, Lifecycle {
 
+	String[] selectClusterNames() throws Exception;
+
 	JobState pauseJob(JobKey jobKey) throws Exception;
 
 	JobState resumeJob(JobKey jobKey) throws Exception;

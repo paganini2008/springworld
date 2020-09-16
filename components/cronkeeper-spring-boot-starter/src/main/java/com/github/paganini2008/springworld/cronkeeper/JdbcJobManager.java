@@ -96,6 +96,22 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
+	public String[] selectClusterNames() throws SQLException {
+		List<String> clusterNames = new ArrayList<String>();
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			List<Tuple> list = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_CLUSTER_NAME);
+			for (Tuple tuple : list) {
+				clusterNames.add(tuple.getProperty("clusterName"));
+			}
+			return clusterNames.toArray(new String[0]);
+		} finally {
+			JdbcUtils.closeQuietly(connection);
+		}
+	}
+
+	@Override
 	public JobState pauseJob(JobKey jobKey) throws SQLException {
 		if (hasJob(jobKey) && hasJobState(jobKey, JobState.SCHEDULING)) {
 			if (log.isTraceEnabled()) {
@@ -336,7 +352,10 @@ public class JdbcJobManager implements JobManager {
 			if (tuple == null) {
 				throw new JobBeanNotFoundException(jobKey);
 			}
-			return tuple.toBean(JobDetail.class);
+			JobDetail jobDetail = tuple.toBean(JobDetail.class);
+			jobDetail.setJobKey(JobKey.by(tuple.getProperty("clusterName"), tuple.getProperty("groupName"), tuple.getProperty("jobName"),
+					tuple.getProperty("jobClassName")));
+			return jobDetail;
 		} finally {
 			JdbcUtils.closeQuietly(connection);
 		}

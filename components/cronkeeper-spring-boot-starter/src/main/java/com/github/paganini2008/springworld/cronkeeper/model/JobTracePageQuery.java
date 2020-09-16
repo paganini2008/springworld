@@ -27,4 +27,9 @@ public class JobTracePageQuery<T> extends PageQuery<T> {
 		this.jobKey = jobKey;
 	}
 
+	public JobTracePageQuery(JobKey jobKey, int page, int size) {
+		super(page, size);
+		this.jobKey = jobKey;
+	}
+
 }

@@ -38,6 +38,14 @@ public class RestJobManager implements JobManager {
 	private ClusterRestTemplate restTemplate;
 
 	@Override
+	public String[] selectClusterNames() throws Exception {
+		ResponseEntity<JobResult<String[]>> responseEntity = restTemplate.perform(null, "/job/manager/selectClusterNames", HttpMethod.GET,
+				null, new ParameterizedTypeReference<JobResult<String[]>>() {
+				});
+		return responseEntity.getBody().getData();
+	}
+
+	@Override
 	public int persistJob(JobPersistParam param) throws Exception {
 		ResponseEntity<JobResult<Integer>> responseEntity = restTemplate.perform(param.getClusterName(), "/job/manager/deleteJob",
 				HttpMethod.POST, param, new ParameterizedTypeReference<JobResult<Integer>>() {

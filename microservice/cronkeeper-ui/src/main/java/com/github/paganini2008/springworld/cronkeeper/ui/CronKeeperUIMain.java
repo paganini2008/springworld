@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.github.paganini2008.devtools.io.FileUtils;
-import com.github.paganini2008.springworld.fastjdbc.annotations.DaoScan;
 
 /**
  * 
@@ -17,7 +16,6 @@ import com.github.paganini2008.springworld.fastjdbc.annotations.DaoScan;
  *
  * @since 1.0
  */
-@DaoScan(basePackages = { "com.github.paganini2008.springworld.cronkeeper.ui.dao" })
 @SpringBootApplication
 @ComponentScan(basePackages = { "com.github.paganini2008.springworld.cronkeeper.ui" })
 public class CronKeeperUIMain {

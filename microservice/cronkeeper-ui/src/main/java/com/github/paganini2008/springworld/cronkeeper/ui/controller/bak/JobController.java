@@ -13,7 +13,7 @@ import com.github.paganini2008.springworld.cronkeeper.ui.model.JobDetail;
 import com.github.paganini2008.springworld.cronkeeper.ui.model.JobInfo;
 import com.github.paganini2008.springworld.cronkeeper.ui.model.JobTrace;
 import com.github.paganini2008.springworld.cronkeeper.ui.model.Page;
-import com.github.paganini2008.springworld.cronkeeper.ui.service.JobQueryService;
+import com.github.paganini2008.springworld.cronkeeper.ui.service.JobManagerService;
 
 /**
  * 
@@ -28,7 +28,7 @@ import com.github.paganini2008.springworld.cronkeeper.ui.service.JobQueryService
 public class JobController {
 
 	@Autowired
-	private JobQueryService jobService;
+	private JobManagerService jobService;
 
 	@PostMapping("/info/select")
 	public UIModel<Page<JobInfo>> selectJobInfo(@RequestParam("draw") int draw, @RequestParam("start") int start,

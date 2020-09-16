@@ -84,13 +84,13 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 			final String methodName = method.getName();
 			switch (methodName) {
 			case "getJobName":
-				return jobDetail.getJobName();
+				return jobDetail.getJobKey().getJobName();
 			case "getJobClassName":
-				return jobDetail.getJobClassName();
+				return jobDetail.getJobKey().getJobClassName();
 			case "getGroupName":
-				return jobDetail.getGroupName();
+				return jobDetail.getJobKey().getGroupName();
 			case "getClusterName":
-				return jobDetail.getClusterName();
+				return jobDetail.getJobKey().getClusterName();
 			case "getDescription":
 				return jobDetail.getDescription();
 			case "getEmail":

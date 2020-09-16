@@ -6,6 +6,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.github.paganini2008.springworld.cronkeeper.JobKey;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,10 +26,7 @@ public class JobDetail implements Serializable {
 
 	private static final long serialVersionUID = 4349796691146506537L;
 	private int jobId;
-	private String jobName;
-	private String jobClassName;
-	private String groupName;
-	private String clusterName;
+	private JobKey jobKey;
 	private String description;
 	private String attachment;
 	private String email;

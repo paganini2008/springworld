@@ -1,8 +1,7 @@
 package com.github.paganini2008.springworld.cronkeeper.ui;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springworld.cronkeeper.server.ClusterRegistry;
 import com.github.paganini2008.springworld.cronkeeper.server.ClusterRestTemplate;
 
 /**
@@ -15,12 +14,12 @@ import com.github.paganini2008.springworld.cronkeeper.server.ClusterRestTemplate
  */
 public class UIModeClusterRestTemplate extends ClusterRestTemplate {
 
-	@Autowired
-	private ClusterRegistry clusterRegistry;
+	@Value("${spring.application.cluster.scheduler.applicationContextPaths}")
+	private String contextPaths;
 
 	@Override
 	protected String[] getClusterApplicationContextPaths(String clusterName) {
-		return clusterRegistry.getClusterApplicationContextPaths(clusterName);
+		return this.contextPaths.split(",");
 	}
 
 }

@@ -6,9 +6,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -29,7 +31,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cronkeeper.ui.UIModel;
 import com.github.paganini2008.springworld.cronkeeper.ui.WebUtils;
-import com.github.paganini2008.springworld.fastjdbc.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -100,21 +101,27 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	 *
 	 * @since 1.0
 	 */
-	public static class BasicHandlerInterceptor implements HandlerInterceptor {
+	public static class BasicHandlerInterceptor implements HandlerInterceptor, EnvironmentAware {
 
 		private static final String ATTR_WEB_CONTEXT_PATH = "contextPath";
+
+		private Environment environment;
 
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 			HttpSession session = request.getSession();
 			if (session.getAttribute(ATTR_WEB_CONTEXT_PATH) == null) {
-				String webContextPath = ApplicationContextUtils.getProperty("crontabui.web-context-path");
+				String webContextPath = environment.getProperty("cronkeeper.ui.webContextPath");
 				if (StringUtils.isBlank(webContextPath)) {
 					webContextPath = WebUtils.getContextPath(request);
 				}
 				session.setAttribute(ATTR_WEB_CONTEXT_PATH, webContextPath);
 			}
 			return true;
+		}
+
+		public void setEnvironment(Environment environment) {
+			this.environment = environment;
 		}
 
 	}

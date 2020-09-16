@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cronkeeper.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +53,12 @@ public class JobManagerController {
 
 	@Autowired
 	private TraceIdGenerator traceIdGenerator;
+
+	@GetMapping("/selectClusterNames")
+	public ResponseEntity<JobResult<String[]>> selectClusterNames() throws Exception {
+		String[] clusterNames = jobManager.selectClusterNames();
+		return ResponseEntity.ok(JobResult.success(clusterNames));
+	}
 
 	@PostMapping("/persistJob")
 	public ResponseEntity<JobResult<Integer>> persistJob(@RequestBody JobPersistParam param) throws Exception {

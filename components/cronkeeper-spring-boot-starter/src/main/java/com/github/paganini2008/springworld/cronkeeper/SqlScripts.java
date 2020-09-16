@@ -37,6 +37,7 @@ public abstract class SqlScripts {
 	public static final String DEF_CLEAN_CLUSTER_DETAIL = "delete from ck_server_detail";
 	public static final String DEF_DELETE_CLUSTER_DETAIL = "delete from ck_server_detail where cluster_name=?";
 
+	public static final String DEF_SELECT_CLUSTER_NAME = "select distinct cluster_name from ck_server_detail";
 	public static final String DEF_SELECT_CLUSTER_DETAIL = "select * from ck_server_detail where cluster_name=?";
 	public static final String DEF_SELECT_CLUSTER_CONTEXT_PATH = "select distinct context_path from ck_server_detail where cluster_name=?";
 	public static final String DEF_SELECT_ALL_JOB_DETAIL = "select * from ck_job_detail";
