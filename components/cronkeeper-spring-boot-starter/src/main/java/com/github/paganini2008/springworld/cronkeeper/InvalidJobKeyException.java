@@ -16,4 +16,8 @@ public class InvalidJobKeyException extends JobException {
 		super(repr);
 	}
 
+	public InvalidJobKeyException(String repr, Throwable e) {
+		super(repr, e);
+	}
+
 }

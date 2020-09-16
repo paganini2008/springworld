@@ -1,8 +1,9 @@
 package com.github.paganini2008.springworld.cronkeeper;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 
-import org.springframework.util.DigestUtils;
+import org.springframework.util.Base64Utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.paganini2008.devtools.Assert;
@@ -25,6 +26,7 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 
 	private static final long serialVersionUID = 3147872689801742981L;
 	private static final String NAME_PATTERN = "%s.%s.%s@%s";
+	private static final Charset DEFAULT_CHARSET = CharsetUtils.UTF_8;
 	private String clusterName;
 	private String groupName;
 	private String jobName;
@@ -49,7 +51,7 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 	@JsonIgnore
 	public String getIndentifier() {
 		final String repr = String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
-		return DigestUtils.md5DigestAsHex(repr.getBytes(CharsetUtils.UTF_8));
+		return Base64Utils.encodeToString(repr.getBytes(DEFAULT_CHARSET));
 	}
 
 	@Override
@@ -104,7 +106,13 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 		return new JobKey(clusterName, groupName, jobName, jobClassName);
 	}
 
-	public static JobKey by(String repr) {
+	public static JobKey decode(String identifier) {
+		String repr;
+		try {
+			repr = new String(Base64Utils.decodeFromString(identifier), DEFAULT_CHARSET);
+		} catch (RuntimeException e) {
+			throw new InvalidJobKeyException(identifier, e);
+		}
 		int index = repr.lastIndexOf("@");
 		if (index < 0) {
 			throw new InvalidJobKeyException(repr);
@@ -115,6 +123,13 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 			throw new InvalidJobKeyException(repr);
 		}
 		return new JobKey(args[0], args[1], args[2], repr.substring(index + 1));
+	}
+
+	public static void main(String[] args) {
+		JobKey jobKey = JobKey.by("a", "b", "c", "123fengyan");
+		String id = jobKey.getIndentifier();
+		System.out.println(id);
+		System.out.println(JobKey.decode(id));
 	}
 
 }

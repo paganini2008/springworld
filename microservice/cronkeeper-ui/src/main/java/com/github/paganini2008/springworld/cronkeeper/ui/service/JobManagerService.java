@@ -29,7 +29,7 @@ public class JobManagerService {
 		return jobManager.selectClusterNames();
 	}
 
-	public PageQuery<JobDetail> selectJobInfo(String clusterName, int page, int size) throws Exception {
+	public PageQuery<JobDetail> selectJobDetail(String clusterName, int page, int size) throws Exception {
 		PageQuery<JobDetail> pageQuery = new PageQuery<JobDetail>(page, size);
 		pageQuery.setClusterName(clusterName);
 		jobManager.selectJobDetail(pageQuery);
@@ -37,7 +37,7 @@ public class JobManagerService {
 	}
 
 	public PageQuery<JobTrace> selectJobTrace(JobTraceForm form, int page, int size) throws Exception {
-		JobTracePageQuery<JobTrace> pageQuery = new JobTracePageQuery<JobTrace>(JobKey.by(form.getJobKey()), page, size);
+		JobTracePageQuery<JobTrace> pageQuery = new JobTracePageQuery<JobTrace>(JobKey.decode(form.getJobKey()), page, size);
 		pageQuery.setStartDate(form.getStartDate());
 		pageQuery.setEndDate(form.getEndDate());
 		jobManager.selectJobTrace(pageQuery);
@@ -45,7 +45,7 @@ public class JobManagerService {
 	}
 
 	public JobDetail getJobDetail(String jobKey) throws Exception {
-		return jobManager.getJobDetail(JobKey.by(jobKey), true);
+		return jobManager.getJobDetail(JobKey.decode(jobKey), true);
 	}
 
 }
