@@ -3,8 +3,6 @@ package com.github.paganini2008.springworld.cronkeeper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.github.paganini2008.springworld.cronkeeper.model.JobPersistParam;
-
 /**
  * 
  * EmbeddedModeJobAdmin
@@ -29,24 +27,6 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 
 	@Autowired
 	private JobManager jobManager;
-
-	public JobState persistJob(JobPersistParam param) throws Exception {
-		JobDefinition jobDef = JobPersistRequest.build(param);
-		jobManager.persistJob(jobDef, param.getAttachment());
-		return jobManager.getJobRuntime(JobKey.of(jobDef)).getJobState();
-	}
-
-	public JobState deleteJob(JobKey jobKey) throws Exception {
-		return jobManager.deleteJob(jobKey);
-	}
-
-	public JobState hasJob(JobKey jobKey) throws Exception {
-		if (jobManager.hasJob(jobKey)) {
-			return jobManager.getJobRuntime(jobKey).getJobState();
-		} else {
-			return JobState.NONE;
-		}
-	}
 
 	@Override
 	public JobState triggerJob(JobKey jobKey, Object attachment) throws Exception {
