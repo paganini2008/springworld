@@ -1,0 +1,19 @@
+package com.github.paganini2008.springworld.cronkeeper;
+
+/**
+ * 
+ * InvalidJobKeyException
+ * 
+ * @author Fred Feng
+ *
+ * @since 1.0
+ */
+public class InvalidJobKeyException extends JobException {
+
+	private static final long serialVersionUID = 7466940014385117941L;
+
+	public InvalidJobKeyException(String repr) {
+		super(repr);
+	}
+
+}

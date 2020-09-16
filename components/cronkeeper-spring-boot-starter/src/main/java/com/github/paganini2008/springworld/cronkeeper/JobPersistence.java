@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cronkeeper;
 
+import com.github.paganini2008.springworld.cronkeeper.model.JobPersistParam;
+
 /**
  * 
  * JobPersistence
@@ -8,12 +10,17 @@ package com.github.paganini2008.springworld.cronkeeper;
  */
 public interface JobPersistence {
 
+	default int persistJob(JobPersistParam param) throws Exception {
+		JobDefinition jobDefinition = JobPersistRequest.build(param);
+		return persistJob(jobDefinition, param.getAttachment());
+	}
+
 	default int persistJob(JobDefinition jobDef, String attachment) throws Exception {
-		return 0;
+		throw new UnsupportedOperationException("persistJob");
 	}
 
 	default JobState deleteJob(JobKey jobKey) throws Exception {
-		return JobState.FINISHED;
+		throw new UnsupportedOperationException("deleteJob");
 	}
 
 	default boolean hasJob(JobKey jobKey) throws Exception {

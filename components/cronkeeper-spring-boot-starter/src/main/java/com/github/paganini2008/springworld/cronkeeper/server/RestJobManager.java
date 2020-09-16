@@ -12,6 +12,7 @@ import com.github.paganini2008.springworld.cronkeeper.JobManager;
 import com.github.paganini2008.springworld.cronkeeper.JobState;
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
 import com.github.paganini2008.springworld.cronkeeper.model.JobLog;
+import com.github.paganini2008.springworld.cronkeeper.model.JobPersistParam;
 import com.github.paganini2008.springworld.cronkeeper.model.JobQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobResult;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntime;
@@ -37,6 +38,30 @@ public class RestJobManager implements JobManager {
 	private ClusterRestTemplate restTemplate;
 
 	@Override
+	public int persistJob(JobPersistParam param) throws Exception {
+		ResponseEntity<JobResult<Integer>> responseEntity = restTemplate.perform(param.getClusterName(), "/job/manager/deleteJob",
+				HttpMethod.POST, param, new ParameterizedTypeReference<JobResult<Integer>>() {
+				});
+		return responseEntity.getBody().getData();
+	}
+
+	@Override
+	public JobState deleteJob(JobKey jobKey) throws Exception {
+		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/deleteJob",
+				HttpMethod.POST, jobKey, new ParameterizedTypeReference<JobResult<JobState>>() {
+				});
+		return responseEntity.getBody().getData();
+	}
+
+	@Override
+	public boolean hasJob(JobKey jobKey) throws Exception {
+		ResponseEntity<JobResult<Boolean>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/hasJob",
+				HttpMethod.POST, jobKey, new ParameterizedTypeReference<JobResult<Boolean>>() {
+				});
+		return responseEntity.getBody().getData();
+	}
+
+	@Override
 	public JobState pauseJob(JobKey jobKey) throws Exception {
 		throw new UnsupportedOperationException("pauseJob");
 	}
@@ -48,7 +73,10 @@ public class RestJobManager implements JobManager {
 
 	@Override
 	public boolean hasJobState(JobKey jobKey, JobState jobState) throws Exception {
-		throw new UnsupportedOperationException("hasJobState");
+		ResponseEntity<JobResult<Boolean>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/hasJobState",
+				HttpMethod.POST, new JobStateParam(jobKey, jobState), new ParameterizedTypeReference<JobResult<Boolean>>() {
+				});
+		return responseEntity.getBody().getData();
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import com.github.paganini2008.springworld.cronkeeper.TraceIdGenerator;
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
 import com.github.paganini2008.springworld.cronkeeper.model.JobLog;
 import com.github.paganini2008.springworld.cronkeeper.model.JobLogParam;
+import com.github.paganini2008.springworld.cronkeeper.model.JobPersistParam;
 import com.github.paganini2008.springworld.cronkeeper.model.JobQuery;
 import com.github.paganini2008.springworld.cronkeeper.model.JobResult;
 import com.github.paganini2008.springworld.cronkeeper.model.JobRuntime;
@@ -51,6 +52,36 @@ public class JobManagerController {
 
 	@Autowired
 	private TraceIdGenerator traceIdGenerator;
+
+	@PostMapping("/persistJob")
+	public ResponseEntity<JobResult<Integer>> persistJob(@RequestBody JobPersistParam param) throws Exception {
+		int jobId = jobManager.persistJob(param);
+		return ResponseEntity.ok(JobResult.success(jobId));
+	}
+
+	@PostMapping("/deleteJob")
+	public ResponseEntity<JobResult<JobState>> deleteJob(@RequestBody JobKey jobKey) throws Exception {
+		JobState jobState = jobManager.deleteJob(jobKey);
+		return ResponseEntity.ok(JobResult.success(jobState));
+	}
+
+	@PostMapping("/hasJob")
+	public ResponseEntity<JobResult<Boolean>> hasJob(@RequestBody JobKey jobKey) throws Exception {
+		boolean has = jobManager.hasJob(jobKey);
+		return ResponseEntity.ok(JobResult.success(has));
+	}
+
+	@PostMapping("/hasJobState")
+	public ResponseEntity<JobResult<Boolean>> hasJobState(@RequestBody JobStateParam param) throws Exception {
+		boolean has = jobManager.hasJobState(param.getJobKey(), param.getJobState());
+		return ResponseEntity.ok(JobResult.success(has));
+	}
+
+	@PostMapping("/getJobId")
+	public ResponseEntity<JobResult<Integer>> getJobId(@RequestBody JobKey jobKey) throws Exception {
+		int jobId = jobManager.getJobId(jobKey);
+		return ResponseEntity.ok(JobResult.success(jobId));
+	}
 
 	@PostMapping("/getJobDetail")
 	public ResponseEntity<JobResult<JobDetail>> getJobDetail(@RequestBody JobKey jobKey) throws Exception {
