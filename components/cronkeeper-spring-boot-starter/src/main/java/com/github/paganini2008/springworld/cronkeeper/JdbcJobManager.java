@@ -460,8 +460,10 @@ public class JdbcJobManager implements JobManager {
 				List<JobDetail> dataList = new ArrayList<JobDetail>(maxResults);
 				for (Tuple tuple : delegate.list(maxResults, firstResult)) {
 					JobDetail jobDetail = tuple.toBean(JobDetail.class);
+					JobKey jobKey = tuple.toBean(JobKey.class);
 					JobRuntime jobRuntime = tuple.toBean(JobRuntime.class);
 					JobTriggerDetail jobTriggerDetail = tuple.toBean(JobTriggerDetail.class);
+					jobDetail.setJobKey(jobKey);
 					jobDetail.setJobRuntime(jobRuntime);
 					jobDetail.setJobTriggerDetail(jobTriggerDetail);
 					dataList.add(jobDetail);

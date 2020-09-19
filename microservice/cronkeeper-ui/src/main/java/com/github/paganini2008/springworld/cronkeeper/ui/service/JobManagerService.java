@@ -3,6 +3,7 @@ package com.github.paganini2008.springworld.cronkeeper.ui.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.springworld.cronkeeper.JobKey;
 import com.github.paganini2008.springworld.cronkeeper.JobManager;
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
@@ -26,7 +27,11 @@ public class JobManagerService {
 	private JobManager jobManager;
 
 	public String[] selectClusterNames() throws Exception {
-		return jobManager.selectClusterNames();
+		String[] clusterNames = jobManager.selectClusterNames();
+		if (ArrayUtils.isEmpty(clusterNames)) {
+			clusterNames = new String[] { "mycluster" };
+		}
+		return clusterNames;
 	}
 
 	public PageQuery<JobDetail> selectJobDetail(String clusterName, int page, int size) throws Exception {
