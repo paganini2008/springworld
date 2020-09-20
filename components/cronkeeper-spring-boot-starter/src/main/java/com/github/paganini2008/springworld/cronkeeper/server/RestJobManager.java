@@ -47,7 +47,7 @@ public class RestJobManager implements JobManager {
 
 	@Override
 	public int persistJob(JobPersistParam param) throws Exception {
-		ResponseEntity<JobResult<Integer>> responseEntity = restTemplate.perform(param.getClusterName(), "/job/manager/deleteJob",
+		ResponseEntity<JobResult<Integer>> responseEntity = restTemplate.perform(param.getClusterName(), "/job/manager/persistJob",
 				HttpMethod.POST, param, new ParameterizedTypeReference<JobResult<Integer>>() {
 				});
 		return responseEntity.getBody().getData();
@@ -158,9 +158,11 @@ public class RestJobManager implements JobManager {
 				new ParameterizedTypeReference<JobResult<PageQuery<JobDetail>>>() {
 				});
 		PageQuery<JobDetail> data = responseEntity.getBody().getData();
-		pageQuery.setRows(data.getRows());
-		pageQuery.setContent(data.getContent());
-		pageQuery.setNextPage(data.isNextPage());
+		if (data != null) {
+			pageQuery.setRows(data.getRows());
+			pageQuery.setContent(data.getContent());
+			pageQuery.setNextPage(data.isNextPage());
+		}
 	}
 
 	@Override
@@ -170,9 +172,11 @@ public class RestJobManager implements JobManager {
 				new ParameterizedTypeReference<JobResult<PageQuery<JobTrace>>>() {
 				});
 		PageQuery<JobTrace> data = responseEntity.getBody().getData();
-		pageQuery.setRows(data.getRows());
-		pageQuery.setContent(data.getContent());
-		pageQuery.setNextPage(data.isNextPage());
+		if (data != null) {
+			pageQuery.setRows(data.getRows());
+			pageQuery.setContent(data.getContent());
+			pageQuery.setNextPage(data.isNextPage());
+		}
 	}
 
 	@Override

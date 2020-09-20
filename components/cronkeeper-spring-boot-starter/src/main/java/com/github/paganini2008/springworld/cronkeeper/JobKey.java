@@ -49,7 +49,7 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 	private int weight;
 
 	@JsonIgnore
-	public String getIndentifier() {
+	public String getIdentifier() {
 		final String repr = String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
 		return Base64Utils.encodeToString(repr.getBytes(DEFAULT_CHARSET));
 	}
@@ -127,7 +127,7 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 
 	public static void main(String[] args) {
 		JobKey jobKey = JobKey.by("111111111111", "22222222222", "33333333333", "123fengyan0000000000000000000000000000");
-		String id = jobKey.getIndentifier();
+		String id = jobKey.getIdentifier();
 		System.out.println(id);
 		System.out.println(JobKey.decode(id));
 	}

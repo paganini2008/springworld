@@ -41,16 +41,17 @@
 	
 </style>
 <div id="pageULBox">
-	<ul class="pageUL">  <!-- 翻页-->
+	<ul class="pageUL">
 		  <li>
-		  		当页显示&nbsp;<b>${page.results?size}</b>条记录&nbsp;&nbsp;
-		  		总共:&nbsp;<b>${page.rows}</b>条记录/<b>${page.totalPages}</b>页
+		  		Current Records:&nbsp;<b>${page.results?size}</b>
+		  		Total Records:&nbsp;<b>${page.rows}</b>&nbsp;&nbsp;
+		  		Total Pages:&nbsp;<b>${page.totalPages}</b>
 		  </li>
 		  <li class="pageAction">
-		  		<a href="javascript:void(0);" onclick="javascript:goToPage(${page.firstPage})">首页</a>
+		  		<a href="javascript:void(0);" onclick="javascript:goToPage(${page.firstPage})">First Page</a>&nbsp;|
 		  </li>
 	      <li class="pageAction">
-	      		<a id="pageForPrev" href="javascript:void(0);" onclick="javascript:goToPage(${page.previousPage})">上一页</a>
+	      		<a id="pageForPrev" href="javascript:void(0);" onclick="javascript:goToPage(${page.previousPage})">Previous Page</a>&nbsp;|
 	      </li>
 		  <#if page.pageNos?? && page.pageNos?size gt 0>
 		      <#list page.pageNos as pageNo>
@@ -65,11 +66,12 @@
 		  </#if>
 		  <#if page.page != page.totalPages>
 		       <li class="pageAction">
-		       		<a id="pageForNext" href="javascript:void(0);" onclick="javascript:goToPage(${page.nextPage})">下一页</a>
+		       		<a id="pageForNext" href="javascript:void(0);" onclick="javascript:goToPage(${page.nextPage})">Next Page</a>
+		       		&nbsp;|
 		       </li>
 	      </#if>
 	       <li class="pageAction">
-	       		<a href="javascript:void(0);" onclick="javascript:goToPage(${page.totalPages})">末页</a>
+	       		<a href="javascript:void(0);" onclick="javascript:goToPage(${page.totalPages})">Last Page</a>
 	       </li>
 	       <li>
 	       		<input type="text" value="${page.page}" id="pageNoValue" style="width:40px;padding-left: 3px;"/>
@@ -78,9 +80,9 @@
 	       		<input onclick="javascript:goToPage(-1)" type="button" value="Go" style="width: 50px; padding: 0px 10px;cursor: pointer;"/>
 	       </li>
 	       <#if display == 1>
-	       		<li class="pageShow"> <a <#if page.size == 10>class="hoverLink" </#if> href="javascript:void(0);" onclick="javascript:setPageSize(10);"><span>10行</span></a></li>
-	            <li class="pageShow"> <a <#if page.size == 50>class="hoverLink" </#if> href="javascript:void(0);" onclick="javascript:setPageSize(50);"><span>50行</span></a></li>
-	            <li class="pageShow"> <a <#if page.size == 100>class="hoverLink" </#if> href="javascript:void(0);" onclick="javascript:setPageSize(100);"><span>100行</span></a></li>
+	       		<li class="pageShow"> <a <#if page.size == 10>class="hoverLink" </#if> href="javascript:void(0);" onclick="javascript:setPageSize(20);"><span>20 Rows</span></a></li>
+	            <li class="pageShow"> <a <#if page.size == 50>class="hoverLink" </#if> href="javascript:void(0);" onclick="javascript:setPageSize(50);"><span>50 Rows</span></a></li>
+	            <li class="pageShow"> <a <#if page.size == 100>class="hoverLink" </#if> href="javascript:void(0);" onclick="javascript:setPageSize(100);"><span>100 Rows</span></a></li>
 		   </#if>
 	</ul>
 </div>

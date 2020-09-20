@@ -22,6 +22,9 @@ public class JobTracePageQuery<T> extends PageQuery<T> {
 	private JobKey jobKey;
 	private Date startDate;
 	private Date endDate;
+	
+	public JobTracePageQuery() {
+	}
 
 	public JobTracePageQuery(JobKey jobKey) {
 		this.jobKey = jobKey;

@@ -1,7 +1,5 @@
 package com.github.paganini2008.springworld.cronkeeper;
 
-import java.sql.SQLException;
-
 import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
 import com.github.paganini2008.springworld.cronkeeper.model.JobLog;
 import com.github.paganini2008.springworld.cronkeeper.model.JobQuery;
@@ -50,8 +48,8 @@ public interface JobManager extends JobPersistence, Lifecycle {
 
 	void selectJobTrace(JobTracePageQuery<JobTrace> pageQuery) throws Exception;
 
-	JobStackTrace[] selectJobStackTrace(JobTraceQuery query) throws SQLException;
+	JobStackTrace[] selectJobStackTrace(JobTraceQuery query) throws Exception;
 
-	JobLog[] selectJobLog(JobTraceQuery query) throws SQLException;
+	JobLog[] selectJobLog(JobTraceQuery query) throws Exception;
 
 }

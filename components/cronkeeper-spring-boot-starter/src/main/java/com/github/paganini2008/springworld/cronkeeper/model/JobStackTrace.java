@@ -19,7 +19,7 @@ public class JobStackTrace implements Serializable {
 
 	private static final long serialVersionUID = -1363956445864067818L;
 
-	private int traceId;
+	private long traceId;
 	private int jobId;
 	private String stackTrace;
 

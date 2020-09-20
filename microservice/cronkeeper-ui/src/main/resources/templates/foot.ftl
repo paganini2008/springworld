@@ -1,3 +1,3 @@
 <div id="foot">
-	Copyright @2019-2021 FengYan. Powered by Java Core 1.8+
+	Copyright @2019-2025 Fred Feng. All Rights Reserved.
 </div>

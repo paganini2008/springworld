@@ -12,44 +12,106 @@ body {
 	background-color: #fff;
 	font-style: normal;
 	font-size: 14px;
-	font-family: 微软雅黑, Arial, 'Times New Roman';
+	font-family: Open Sans, sans-serif;
 	color: #000;
 }
 
-#container {
-	width: calc(100% -20px);
-	height: calc(100% -130px);
-	overflow: hidden;
-	position: absolute;
-	z-index: 0;
-	top: 90px;
-	bottom: 50px;
-	left: 10px;
-	right: 10px;
-}
-
 #top {
-	width: 100%;
 	height: 80px;
-	background-color: #7B7B7B;
+	line-height: 80px;
+	background-color: #fff;
+	width: 100%;
 	position: absolute;
-	top: 0px;
-	z-index: 0px;
+	z-index: 5;
+	top: 0;
+	text-align: center;
+	clear: both;
 }
 
 #foot {
-	width: 100%;
-	text-align: center;
 	height: 50px;
 	line-height: 50px;
-	font-weight: bold;
-	text-align: center;
-	background-color: #7B7B7B;
-	color: #fff;
-	clear: both;
+	background-color: #9AFF02;
+	width: 100%;
 	position: absolute;
-	bottom: 0px;
-	z-index: 100px;
+	z-index: 200;
+	bottom: 0;
+	text-align: center;
+	clear: both;
+	font-weight: bold;
+}
+
+#container {
+	width: calc(100% - 20px);
+	background-color: #fff;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	top: 80px;
+	bottom: 50px;
+	left: 10px;
+	right: 10px;
+	position: absolute;
+	z-index: 0;
+	clear: both;
+}
+
+#left {
+	width: 15%;
+	height: 100%;
+	float: left;
+	background-color: #fff;
+	position: relative;
+}
+
+#right {
+	width: calc(85% - 5px);
+	height: 100%;
+	float: left;
+	background-color: #fff;
+	position: relative;
+}
+
+#currentClusterName {
+	float: right;
+	display: inline-block;
+	margin-right: 15px;
+	margin-top: 30px;
+	width: 120px;
+	height: 30px;
+	line-height: 30px;
+	padding-left: 5px;
+}
+
+#tabContent {
+	overflow-y: scroll;
+	width: 100%;
+}
+
+#logBox {
+	clear: both;
+}
+
+.logItem {
+	width: 100%;
+	text-align: left;
+}
+
+#stackTraceBox {
+	clear: both;
+	overflow-y: scroll;
+	height: 100%;
+	width: 100%;
+}
+
+.traceItem {
+	width: 100%;
+	text-align: left;
+	font-size: 12px;
+}
+
+.traceItem pre {
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 
 input, select, textarea {
@@ -60,43 +122,37 @@ img {
 	cursor: pointer;
 }
 
-#navBox {
-	width: 100%;
-	height: 32px;
-	line-height: 32px;
-	clear: both;
-	position: absolute;
-	background-color: #7B7B7B;
-	bottom: 0px;
+#logoText {
+	font-weight: bold;
+	font-size: 32pt;
+	font-style: italic;
+	float: left;
+	display: inline-block;
+	height: 36px;
 }
 
-#navBox ul {
+#navBox {
 	width: auto;
 	height: 32px;
 	line-height: 32px;
-	display: inline-block;
-	float: left;
+	display: block;
+	font-size: 14pt;
 }
 
-#navBox ul li {
+#navBox li {
 	list-style: none;
-	float: left;
-	display: inline-block;
-	margin-right: 5px;
-	width: 120px;
+	display: block;
+	width: 100%;
 	height: 32px;
 	line-height: 32px;
-	text-align: center;
-	border: 1px solid #DCDCDC;
+	text-align: left;
+	margin-top: 5px;
 	cursor: pointer;
 	background-color: #fff;
+	font-weight: bold;
 }
 
-#navBox ul li:first-child {
-	margin-left: 5px;
-}
-
-#navBox ul li a {
+#navBox li a {
 	text-decoration: none;
 }
 
@@ -179,6 +235,7 @@ img {
 	height: 32px;
 	line-height: 32px;
 	border-top: 1px solid #BEBEBE;
+	background-color: #9AFF02;
 }
 
 .tblCom thead tr td {
@@ -186,15 +243,12 @@ img {
 	line-height: 32px;
 	font-weight: bold;
 	color: #000;
+	border-left: 1px solid #BEBEBE;
 	border-top: 1px solid #BEBEBE;
 	border-bottom: 1px solid #BEBEBE;
 }
 
-.tblCom thead tr td:nth-child(1){
-	border-left: 1px solid #BEBEBE;
-}
-
-.tblCom thead tr td:last-child{
+.tblCom thead tr td:last-child {
 	border-right: 1px solid #BEBEBE;
 }
 
@@ -210,6 +264,7 @@ img {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	border-left: 1px solid #BEBEBE;
 	border-bottom: 1px solid #BEBEBE;
 }
 
@@ -320,6 +375,6 @@ a:active {
 .tabNoData {
 	display: table;
 	width: 100%;
-	height: 320px;
-	line-height: 320px;
+	height: 400px;
+	line-height: 400px;
 }

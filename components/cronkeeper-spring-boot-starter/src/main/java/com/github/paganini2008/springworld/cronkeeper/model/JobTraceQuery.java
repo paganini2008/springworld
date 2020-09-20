@@ -21,7 +21,6 @@ public class JobTraceQuery extends Query {
 	private long traceId;
 
 	public JobTraceQuery() {
-
 	}
 
 	public JobTraceQuery(JobKey jobKey) {

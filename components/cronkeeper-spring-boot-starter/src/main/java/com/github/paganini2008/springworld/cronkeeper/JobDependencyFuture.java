@@ -43,7 +43,7 @@ public class JobDependencyFuture implements JobFuture {
 	@Override
 	public void cancel() {
 		for (int i = 0; i < dependencies.length; i++) {
-			observable.deleteObserver(dependencies[i].getIndentifier(), observers[i]);
+			observable.deleteObserver(dependencies[i].getIdentifier(), observers[i]);
 		}
 		cancelled.set(true);
 		done.set(true);

@@ -8,6 +8,7 @@
 		
 	})
 </script>
+<div id="tabContent">
 		<table border="0" cellspacing="0" cellpadding="0" class="tblCom">
 			<thead>
 				<tr>
@@ -87,9 +88,9 @@
 								${(bean.jobTriggerDetail.triggerType.repr)!}
 							</td>
 							<td width="10%" class="tdLeft5">
-								<a>Detail</a>
-								<a>Run</a>
-								<a>Delete</a>
+								<a href="${contextPath}/job/detail/${(bean.jobKey.identifier ? html)!}">Detail</a>
+								<a href="">Run</a>
+								<a href="">Delete</a>
 							</td>
 						</tr>
 					</#list>
@@ -104,6 +105,7 @@
 				</#if>
 			</tbody>
 		</table>
+</div>
 		<#if page ?? && page.results?? && page.results? size gt 0>
 			<@pageToolbar.page page = page display = 0/> 
 		</#if>

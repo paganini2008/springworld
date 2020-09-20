@@ -22,20 +22,17 @@ import lombok.Setter;
 public class JobTrace implements Serializable {
 
 	private static final long serialVersionUID = 1886119510627026178L;
-	private int traceId;
-	private int runningState;
-	private int complete;
+	private long traceId;
+	private String address;
+	private String instanceId;
+	private RunningState runningState;
+	private int completed;
 	private int failed;
 	private int skipped;
+	private int retries;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date executionTime;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date completionTime;
-	private String address;
-	private String instanceId;
-
-	public String getRunningState() {
-		return RunningState.valueOf(runningState).getRepr();
-	}
 
 }

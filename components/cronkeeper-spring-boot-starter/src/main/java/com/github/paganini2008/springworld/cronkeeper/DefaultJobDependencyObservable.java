@@ -47,7 +47,7 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 			Observer ob = (o, attachment) -> {
 				jobExecutor.execute(job, attachment, 0);
 			};
-			addObserver(dependency.getIndentifier(), ob);
+			addObserver(dependency.getIdentifier(), ob);
 			obs.add(ob);
 
 			if (log.isTraceEnabled()) {
@@ -59,7 +59,7 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 
 	@Override
 	public void executeDependency(JobKey jobKey, Object attachment) {
-		notifyObservers(jobKey.getIndentifier(), attachment);
+		notifyObservers(jobKey.getIdentifier(), attachment);
 		if (log.isTraceEnabled()) {
 			log.trace("Job '{}' has done and start to execute other dependent job.", jobKey);
 		}
@@ -68,7 +68,7 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 	@Override
 	public void notifyDependants(JobKey jobKey, Object attachment) {
 		final String channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:dependency:"
-				+ jobKey.getIndentifier();
+				+ jobKey.getIdentifier();
 		JobParam jobParam = new JobParam(jobKey, attachment, 0);
 		redisMessageSender.sendMessage(channel, jobParam);
 		if (log.isTraceEnabled()) {
