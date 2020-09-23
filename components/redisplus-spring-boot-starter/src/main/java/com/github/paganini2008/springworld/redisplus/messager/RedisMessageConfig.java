@@ -27,14 +27,14 @@ import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
 
 /**
  * 
- * RedisMessagerConfig
+ * RedisMessageConfig
  * 
  * @author Fred Feng
  * @version 1.0
  */
 @Configuration
 @ConditionalOnBean(RedisConnectionFactory.class)
-public class RedisMessagerConfig {
+public class RedisMessageConfig {
 
 	@ConditionalOnMissingBean(RedisSerializer.class)
 	@Bean(BeanNames.REDIS_SERIALIZER)

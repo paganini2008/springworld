@@ -28,14 +28,14 @@ public class RedisMessageEventPublisher implements ApplicationContextAware {
 	private RedisTemplate<String, Object> redisTemplate;
 
 	public void doQueue(RedisMessageEntity entity) {
-		RedisMessageEntity redisMessageEntity = (RedisMessageEntity) redisTemplate.opsForList().leftPop(queueKey);
-		if (redisMessageEntity != null) {
-			applicationContext.publishEvent(new RedisMessageEvent(redisMessageEntity));
+		RedisMessageEntity messageEntity = (RedisMessageEntity) redisTemplate.opsForList().leftPop(queueKey);
+		if (messageEntity != null) {
+			applicationContext.publishEvent(new RedisMessageEvent(messageEntity));
 		}
 	}
 
-	public void doPubsub(RedisMessageEntity entity) {
-		applicationContext.publishEvent(new RedisMessageEvent(entity));
+	public void doPubsub(RedisMessageEntity messageEntity) {
+		applicationContext.publishEvent(new RedisMessageEvent(messageEntity));
 	}
 
 	private ApplicationContext applicationContext;

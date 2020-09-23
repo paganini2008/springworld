@@ -28,18 +28,20 @@ public class RedisMessageSender {
 	}
 
 	public void sendMessage(String channel, Object message) {
-		sendMessage(RedisMessageEntity.of(channel, message));
+		sendMessage(createEntity(channel, message));
+	}
+
+	private RedisMessageEntity createEntity(String channel, Object message) {
+		return RedisMessageEntity.of(channel, message, false);
 	}
 
 	public void sendEphemeralMessage(String channel, Object message, long delay, TimeUnit timeUnit) {
 		final String expiredKey = namespace + channel;
-		RedisMessageEntity messageEntity = RedisMessageEntity.of(channel, message);
-		messageEntity.setDelay(delay);
-		messageEntity.setTimeUnit(timeUnit);
+		RedisMessageEntity messageEntity = createEntity(channel, message);
 		redisMessageDispather.expire(expiredKey, messageEntity, delay, timeUnit);
 	}
 
-	public void subscribeChannel(final String beanName, final RedisMessageHandler messageHandler) {
+	public void subscribeChannel(String beanName, RedisMessageHandler messageHandler) {
 		redisMessageListener.addHandler(beanName, messageHandler);
 	}
 
