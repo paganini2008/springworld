@@ -81,9 +81,9 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason,
-			int retries) {
-		super.afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
+	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime, RunningState runningState,
+			Object result, Throwable reason, int retries) {
+		super.afterRun(traceId, jobKey, job, attachment, startTime, runningState, result, reason, retries);
 		stopWatch.finishJob(traceId, jobKey, startTime, runningState, retries);
 	}
 }

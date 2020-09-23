@@ -46,8 +46,6 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 		this.jobClassName = jobClassName;
 	}
 
-	private int weight;
-
 	@JsonIgnore
 	public String getIdentifier() {
 		final String repr = String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
@@ -84,9 +82,6 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 
 	@Override
 	public int compareTo(JobKey otherKey) {
-		if (weight != otherKey.getWeight()) {
-			return weight - otherKey.getWeight();
-		}
 		String left = String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
 		String right = String.format(NAME_PATTERN, otherKey.getClusterName(), otherKey.getGroupName(), otherKey.getJobName(),
 				otherKey.getJobClassName());

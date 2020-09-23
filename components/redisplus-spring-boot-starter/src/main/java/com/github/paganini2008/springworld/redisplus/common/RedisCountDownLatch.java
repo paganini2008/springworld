@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.redisplus.common;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -20,30 +22,29 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RedisCountDownLatch {
 
-	private final String name;
+	private static final String DEFAULT_LATCH_NAME_PREFIX = "countdown-latch:";
+	private final String channelName;
 	private final RedisMessageSender redisMessageSender;
 
 	public RedisCountDownLatch(String name, RedisMessageSender redisMessageSender) {
-		this.name = name;
+		this.channelName = DEFAULT_LATCH_NAME_PREFIX + name;
 		this.redisMessageSender = redisMessageSender;
 	}
 
-	private Referee referee = new Referee();
-
-	public void countdown() {
-		countdown(1);
+	public void countdown(Object attachment) {
+		countdown(1, attachment);
 	}
 
-	public void countdown(int permits) {
+	public void countdown(int permits, Object attachment) {
 		for (int i = 0; i < permits; i++) {
-			redisMessageSender.sendMessage(referee.getChannel(), new byte[0]);
+			redisMessageSender.sendMessage(channelName, attachment);
 		}
 	}
 
-	public void await(int permits) {
-		CountDownLatch latch = new CountDownLatch(permits);
+	public Object[] await(int permits) {
 		final String beanName = UUID.randomUUID().toString();
-		referee.setLatch(latch);
+		CountDownLatch latch = new CountDownLatch(permits);
+		Referee referee = new Referee(latch);
 		redisMessageSender.subscribeChannel(beanName, referee);
 		try {
 			latch.await();
@@ -52,12 +53,13 @@ public class RedisCountDownLatch {
 			log.error(e.getMessage(), e);
 		}
 		redisMessageSender.unsubscribeChannel(beanName);
+		return referee.getMessages();
 	}
 
-	public void await(int permits, long timeout, TimeUnit timeUnit) {
-		CountDownLatch latch = new CountDownLatch(permits);
+	public Object[] await(int permits, long timeout, TimeUnit timeUnit) {
 		final String beanName = UUID.randomUUID().toString();
-		referee.setLatch(latch);
+		CountDownLatch latch = new CountDownLatch(permits);
+		Referee referee = new Referee(latch);
 		redisMessageSender.subscribeChannel(beanName, referee);
 		try {
 			latch.await(timeout, timeUnit);
@@ -66,29 +68,44 @@ public class RedisCountDownLatch {
 			log.error(e.getMessage(), e);
 		}
 		redisMessageSender.unsubscribeChannel(beanName);
+		return referee.getMessages();
 	}
 
+	/**
+	 * 
+	 * Referee
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
 	private class Referee implements RedisMessageHandler {
 
-		private CountDownLatch latch;
+		private final CountDownLatch latch;
+		private final List<Object> messages = new ArrayList<Object>();
 
-		public void setLatch(CountDownLatch latch) {
+		Referee(CountDownLatch latch) {
 			this.latch = latch;
 		}
 
 		@Override
-		public void onMessage(String channel, Object message) throws Exception {
-			latch.countDown();
+		public String getChannel() {
+			return channelName;
 		}
 
 		@Override
-		public String getChannel() {
-			return "countdown:" + name;
+		public synchronized void onMessage(String channel, Object message) throws Exception {
+			messages.add(message);
+			latch.countDown();
 		}
 
 		@Override
 		public boolean isRepeatable() {
 			return true;
+		}
+
+		public Object[] getMessages() {
+			return messages.toArray();
 		}
 
 	}

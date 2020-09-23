@@ -47,13 +47,13 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
-		super.beforeRun(traceId, jobKey, job, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime) {
+		super.beforeRun(traceId, jobKey, job, attachment, startTime);
 		stopWatch.startJob(traceId, jobKey, startTime);
 	}
 
 	@Override
-	protected final RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
+	protected final Object[] doRun(JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
 		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
 			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
 			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));
@@ -64,7 +64,7 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 				throw new JobException(e.getMessage(), e);
 			}
 		}
-		return RunningState.RUNNING;
+		return new Object[] { RunningState.RUNNING, null };
 	}
 
 	@Override

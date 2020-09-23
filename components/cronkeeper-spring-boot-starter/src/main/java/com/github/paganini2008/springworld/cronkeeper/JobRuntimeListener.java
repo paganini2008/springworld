@@ -14,10 +14,11 @@ import org.springframework.core.Ordered;
  */
 public interface JobRuntimeListener extends Ordered, Comparable<JobRuntimeListener> {
 
-	default void beforeRun(long traceId, JobKey jobKey, Date startDate) {
+	default void beforeRun(long traceId, JobKey jobKey, Object attachment, Date startDate) {
 	}
 
-	default void afterRun(long traceId, JobKey jobKey, Date startDate, RunningState runningState, Throwable reason) {
+	default void afterRun(long traceId, JobKey jobKey, Object attachment, Date startDate, RunningState runningState, Object result,
+			Throwable reason) {
 	}
 
 	default int getOrder() {

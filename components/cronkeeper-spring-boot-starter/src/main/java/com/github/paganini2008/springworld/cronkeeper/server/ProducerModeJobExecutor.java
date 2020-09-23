@@ -35,7 +35,7 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Autowired
 	private StopWatch stopWatch;
-	
+
 	@Autowired
 	private TraceIdGenerator idGenerator;
 
@@ -50,8 +50,8 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
-		super.beforeRun(traceId, jobKey, job, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime) {
+		super.beforeRun(traceId, jobKey, job, attachment, startTime);
 		stopWatch.startJob(traceId, jobKey, startTime);
 	}
 

@@ -9,8 +9,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
-import com.github.paganini2008.devtools.io.IOUtils;
 import com.github.paganini2008.springworld.cronkeeper.JobKey;
+import com.github.paganini2008.springworld.cronkeeper.JobPeer;
 import com.github.paganini2008.springworld.cronkeeper.SchedulingUnit;
 import com.github.paganini2008.springworld.cronkeeper.TriggerType;
 
@@ -36,6 +36,7 @@ public class TriggerDescription implements Serializable {
 	private Cron cron;
 	private Periodic periodic;
 	private Serial serial;
+	private Combined combined;
 
 	public TriggerDescription() {
 	}
@@ -51,6 +52,9 @@ public class TriggerDescription implements Serializable {
 		case SERIAL:
 			serial = new Serial();
 			break;
+		case COMBINED:
+			combined = new Combined();
+			break;
 		}
 	}
 
@@ -59,7 +63,7 @@ public class TriggerDescription implements Serializable {
 	public static class Cron {
 
 		private String expression;
-		private int repeat;
+		private Integer repeat;
 
 		public Cron() {
 		}
@@ -70,7 +74,7 @@ public class TriggerDescription implements Serializable {
 
 		public String toString() {
 			StringBuilder str = new StringBuilder(expression);
-			if (repeat > 0) {
+			if (repeat != null && repeat > 0) {
 				str.append(" repeat ").append(repeat).append(" times");
 			}
 			return str.toString();
@@ -85,7 +89,7 @@ public class TriggerDescription implements Serializable {
 		private long period;
 		private SchedulingUnit schedulingUnit;
 		private boolean fixedRate;
-		private int repeat;
+		private Integer repeat;
 
 		public Periodic() {
 		}
@@ -100,7 +104,7 @@ public class TriggerDescription implements Serializable {
 			StringBuilder str = new StringBuilder();
 			str.append(period).append(" ").append(schedulingUnit.getRepr());
 			str.append(" fixedRate: ").append(fixedRate);
-			if (repeat > 0) {
+			if (repeat != null && repeat > 0) {
 				str.append(" repeat ").append(repeat).append(" times");
 			}
 			return str.toString();
@@ -115,9 +119,7 @@ public class TriggerDescription implements Serializable {
 	public static class Serial {
 
 		private Set<JobKey> dependencies = new TreeSet<JobKey>();
-		private Cron cron;
-		private Periodic periodic;
-		private int repeat;
+		private Integer repeat;
 
 		public Serial() {
 		}
@@ -137,15 +139,74 @@ public class TriggerDescription implements Serializable {
 			StringBuilder str = new StringBuilder();
 			str.append("Depend on Job: ");
 			str.append(CollectionUtils.join(dependencies));
-			if (cron != null) {
-				str.append(", Start With: ").append(cron);
-			} else if (periodic != null) {
-				str.append(", Start With: ").append(periodic);
-			}
-			if (repeat > 0) {
+			if (repeat != null && repeat > 0) {
 				str.append(", Repeat ").append(repeat).append(" times");
 			}
 			return str.toString();
+		}
+
+	}
+
+	@JsonInclude(value = Include.NON_NULL)
+	@Accessors(chain = true)
+	@Getter
+	@Setter
+	public static class Combined {
+
+		private Set<JobPeer> peers = new TreeSet<JobPeer>();
+		private Cron cron;
+		private Periodic periodic;
+		private Serial serial;
+		private Float goal = 1F;
+
+		public Combined() {
+		}
+
+		public Combined setTriggerType(TriggerType triggerType) {
+			switch (triggerType) {
+			case CRON:
+				cron = new Cron();
+				break;
+			case PERIODIC:
+				periodic = new Periodic();
+				break;
+			case SERIAL:
+				serial = new Serial();
+				break;
+			default:
+				throw new IllegalStateException("For trigger type: " + triggerType);
+			}
+			return this;
+		}
+
+		public Combined setCronExpression(String cronExpression) {
+			getCron().setExpression(cronExpression);
+			return this;
+		}
+
+		public Combined setPeriod(long period) {
+			getPeriodic().setPeriod(period);
+			return this;
+		}
+
+		public Combined setFixedRate(boolean fixedRate) {
+			getPeriodic().setFixedRate(fixedRate);
+			return this;
+		}
+
+		public Combined setSchedulingUnit(SchedulingUnit schedulingUnit) {
+			getPeriodic().setSchedulingUnit(schedulingUnit);
+			return this;
+		}
+
+		public Combined setDependencies(JobKey[] dependencies) {
+			getSerial().setDependencies(dependencies);
+			return this;
+		}
+
+		public Combined invite(JobPeer jobPeer) {
+			peers.add(jobPeer);
+			return this;
 		}
 
 	}

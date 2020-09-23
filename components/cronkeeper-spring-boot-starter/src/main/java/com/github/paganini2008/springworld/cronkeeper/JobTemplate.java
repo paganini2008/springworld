@@ -61,13 +61,16 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 		final JobKey jobKey = JobKey.of(job);
 		final long traceId = getTraceId(jobKey);
 		RunningState runningState = RunningState.SKIPPED;
+		Object result = null;
 		Throwable reason = null;
 		final Logger log = customizedLog != null ? customizedLog : this.log;
 		try {
 			if (isScheduling(jobKey, job)) {
-				beforeRun(traceId, jobKey, job, startTime);
+				beforeRun(traceId, jobKey, job, attachment, startTime);
 				if (job.shouldRun(jobKey, log)) {
-					runningState = doRun(jobKey, job, attachment, retries, log);
+					Object[] answer = doRun(jobKey, job, attachment, retries, log);
+					runningState = (RunningState) answer[0];
+					result = answer[1];
 				}
 			}
 		} catch (JobTerminationException e) {
@@ -77,19 +80,16 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 		} catch (Throwable e) {
 			reason = e;
 			runningState = RunningState.FAILED;
-			if (e instanceof JobException) {
-				throw e;
-			}
-			throw new JobException("An exception occured during job running.", e);
+			throw ExceptionUtils.wrapExeception("An exception occured during job running.", e);
 		} finally {
 			printError(reason, log);
-			afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
+			afterRun(traceId, jobKey, job, attachment, startTime, runningState, result, reason, retries);
 		}
 	}
 
 	protected abstract long getTraceId(JobKey jobKey);
 
-	protected RunningState doRun(JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
+	protected Object[] doRun(JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
 		if (retries > 0) {
 			if (log.isTraceEnabled()) {
 				log.trace("Retry to run job '{}' on {} times again.", jobKey, retries);
@@ -147,25 +147,25 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 				job.onFailure(jobKey, reason, log);
 			}
 		}
-		return runningState;
+		return new Object[] { runningState, result };
 	}
 
-	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startDate) {
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
 		if (log.isTraceEnabled()) {
 			log.trace("Prepare to run Job: {}, traceId: {}", jobKey, traceId);
 		}
 		for (JobRuntimeListener listener : jobRuntimeListeners) {
-			listener.beforeRun(traceId, jobKey, startDate);
+			listener.beforeRun(traceId, jobKey, attachment, startDate);
 		}
 	}
 
-	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startDate, RunningState runningState, Throwable reason,
-			int retries) {
+	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState,
+			Object result, Throwable reason, int retries) {
 		if (log.isTraceEnabled()) {
 			log.trace("Job {} with traceId '{}' is ending with state {}", jobKey, traceId, runningState);
 		}
 		for (JobRuntimeListener listener : jobRuntimeListeners) {
-			listener.afterRun(traceId, jobKey, startDate, runningState, reason);
+			listener.afterRun(traceId, jobKey, attachment, startDate, runningState, result, reason);
 		}
 	}
 

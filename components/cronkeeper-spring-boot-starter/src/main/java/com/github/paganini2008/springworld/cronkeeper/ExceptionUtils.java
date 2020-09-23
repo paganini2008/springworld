@@ -10,8 +10,12 @@ package com.github.paganini2008.springworld.cronkeeper;
  */
 public abstract class ExceptionUtils {
 
+	public static JobException wrapExeception(String msg, Throwable e) {
+		return e instanceof JobException ? (JobException) e : new JobException(msg, e);
+	}
+
 	public static JobException wrapExeception(Throwable e) {
-		return e instanceof JobException ? (JobException) e : new JobException(e.getMessage(), e);
+		return wrapExeception(e.getMessage(), e);
 	}
 
 }

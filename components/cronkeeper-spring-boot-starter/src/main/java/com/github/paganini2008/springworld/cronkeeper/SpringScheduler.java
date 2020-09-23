@@ -51,6 +51,18 @@ public class SpringScheduler implements Scheduler {
 	}
 
 	@Override
+	public JobFuture schedule(Job job, JobPeer[] jobPeers, Date startDate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public JobFuture schedule(Job job, JobPeer[] jobPeers, String cronExpression) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public JobFuture schedule(Job job, Object attachment, String cronExpression) {
 		ScheduledFuture<?> future = taskScheduler.schedule(wrapJob(job, attachment), new CronTrigger(cronExpression));
 		futureTriggers.put(future, new CronTrigger(cronExpression));

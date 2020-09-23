@@ -46,8 +46,8 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void beforeRun(long traceId, JobKey jobKey, Job job, Date startTime) {
-		super.beforeRun(traceId, jobKey, job, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime) {
+		super.beforeRun(traceId, jobKey, job, attachment, startTime);
 		stopWatch.startJob(traceId, jobKey, startTime);
 	}
 
@@ -99,9 +99,9 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void afterRun(long traceId, JobKey jobKey, Job job, Date startTime, RunningState runningState, Throwable reason,
-			int retries) {
-		super.afterRun(traceId, jobKey, job, startTime, runningState, reason, retries);
+	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime, RunningState runningState,
+			Object result, Throwable reason, int retries) {
+		super.afterRun(traceId, jobKey, job, attachment, startTime, runningState, result, reason, retries);
 		stopWatch.finishJob(traceId, jobKey, startTime, runningState, retries);
 	}
 

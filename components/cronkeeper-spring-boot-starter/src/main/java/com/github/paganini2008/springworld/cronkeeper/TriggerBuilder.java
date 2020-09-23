@@ -3,6 +3,10 @@ package com.github.paganini2008.springworld.cronkeeper;
 import java.util.Date;
 
 import com.github.paganini2008.springworld.cronkeeper.model.TriggerDescription;
+import com.github.paganini2008.springworld.cronkeeper.model.TriggerDescription.Combined;
+import com.github.paganini2008.springworld.cronkeeper.model.TriggerDescription.Cron;
+import com.github.paganini2008.springworld.cronkeeper.model.TriggerDescription.Periodic;
+import com.github.paganini2008.springworld.cronkeeper.model.TriggerDescription.Serial;
 
 /**
  * 
@@ -46,28 +50,44 @@ public class TriggerBuilder {
 		return this;
 	}
 
+	public Cron getCron() {
+		return triggerDescription.getCron();
+	}
+
+	public Periodic getPeriodic() {
+		return triggerDescription.getPeriodic();
+	}
+
+	public Serial getSerial() {
+		return triggerDescription.getSerial();
+	}
+
+	public Combined getCombined() {
+		return triggerDescription.getCombined();
+	}
+
 	public TriggerBuilder setCronExpression(String cronExpression) {
-		triggerDescription.getCron().setExpression(cronExpression);
+		getCron().setExpression(cronExpression);
 		return this;
 	}
 
 	public TriggerBuilder setPeriod(long period) {
-		triggerDescription.getPeriodic().setPeriod(period);
+		getPeriodic().setPeriod(period);
 		return this;
 	}
 
 	public TriggerBuilder setFixedRate(boolean fixedRate) {
-		triggerDescription.getPeriodic().setFixedRate(fixedRate);
+		getPeriodic().setFixedRate(fixedRate);
 		return this;
 	}
 
 	public TriggerBuilder setSchedulingUnit(SchedulingUnit schedulingUnit) {
-		triggerDescription.getPeriodic().setSchedulingUnit(schedulingUnit);
+		getPeriodic().setSchedulingUnit(schedulingUnit);
 		return this;
 	}
 
 	public TriggerBuilder setDependencies(JobKey[] dependencies) {
-		triggerDescription.getSerial().setDependencies(dependencies);
+		getSerial().setDependencies(dependencies);
 		return this;
 	}
 

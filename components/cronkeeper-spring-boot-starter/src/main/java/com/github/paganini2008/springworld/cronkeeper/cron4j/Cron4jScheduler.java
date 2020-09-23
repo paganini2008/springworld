@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper;
+package com.github.paganini2008.springworld.cronkeeper.cron4j;
 
 import java.util.Date;
 import java.util.function.Supplier;
@@ -12,6 +12,15 @@ import com.github.paganini2008.devtools.cron4j.CRON;
 import com.github.paganini2008.devtools.cron4j.Task;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor.TaskFuture;
+import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
+import com.github.paganini2008.springworld.cronkeeper.BeanNames;
+import com.github.paganini2008.springworld.cronkeeper.Job;
+import com.github.paganini2008.springworld.cronkeeper.JobDependencyObservable;
+import com.github.paganini2008.springworld.cronkeeper.JobExecutor;
+import com.github.paganini2008.springworld.cronkeeper.JobFuture;
+import com.github.paganini2008.springworld.cronkeeper.JobKey;
+import com.github.paganini2008.springworld.cronkeeper.JobPeer;
+import com.github.paganini2008.springworld.cronkeeper.Scheduler;
 
 /**
  * 
@@ -41,6 +50,13 @@ public class Cron4jScheduler implements Scheduler {
 	@Override
 	public JobFuture schedule(Job job, Object attachment, Date startDate) {
 		TaskFuture taskFuture = taskExecutor.schedule(wrapJob(job, attachment), startDate.getTime() - System.currentTimeMillis());
+		return new JobFutureImpl(taskFuture);
+	}
+
+	@Override
+	public JobFuture schedule(Job job, JobPeer[] jobPeers, Date startDate) {
+		TaskFuture taskFuture = taskExecutor.schedule(ApplicationContextUtils.autowireBean(new CombinedJobForCron4j(job, jobPeers)),
+				startDate.getTime() - System.currentTimeMillis());
 		return new JobFutureImpl(taskFuture);
 	}
 
@@ -81,6 +97,13 @@ public class Cron4jScheduler implements Scheduler {
 		return schedule(() -> {
 			return jobDependencyObservable.addDependency(job, dependencies);
 		}, startDate);
+	}
+
+	@Override
+	public JobFuture schedule(Job job, JobPeer[] jobPeers, String cronExpression) {
+		TaskFuture taskFuture = taskExecutor.schedule(ApplicationContextUtils.autowireBean(new CombinedJobForCron4j(job, jobPeers)),
+				CRON.parse(cronExpression));
+		return new JobFutureImpl(taskFuture);
 	}
 
 	private JobFuture schedule(Supplier<JobFuture> supplier, Date startDate) {

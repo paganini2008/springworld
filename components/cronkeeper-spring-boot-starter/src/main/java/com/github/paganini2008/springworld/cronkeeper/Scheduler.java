@@ -14,7 +14,11 @@ public interface Scheduler {
 
 	JobFuture schedule(Job job, Object attachment, Date startDate);
 
+	JobFuture schedule(Job job, JobPeer[] jobPeers, Date startDate);
+
 	JobFuture schedule(Job job, Object attachment, String cronExpression);
+
+	JobFuture schedule(Job job, JobPeer[] jobPeers, String cronExpression);
 
 	JobFuture schedule(Job job, Object attachment, String cronExpression, Date startDate);
 

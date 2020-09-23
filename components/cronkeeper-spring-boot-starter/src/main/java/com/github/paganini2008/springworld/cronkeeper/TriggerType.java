@@ -18,7 +18,9 @@ public enum TriggerType implements EnumConstant {
 
 	PERIODIC(2, "Periodic"),
 
-	SERIAL(3, "Serial");
+	SERIAL(3, "Serial"),
+
+	COMBINED(4, "Combined");
 
 	private final int value;
 	private final String repr;
