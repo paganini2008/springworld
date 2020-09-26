@@ -11,7 +11,7 @@ import com.github.paganini2008.springworld.cluster.ApplicationInfo;
  */
 public interface ClusterMessageListener extends ClusterMulticastListener {
 
-	void onMessage(ApplicationInfo applicationInfo, Object message);
+	void onMessage(ApplicationInfo applicationInfo, String id, Object message);
 
 	default String getTopic() {
 		return "*";

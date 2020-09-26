@@ -32,7 +32,7 @@ public class ConsistencyRequestPreparationRequest implements ClusterMessageListe
 	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Override
-	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
 		final ConsistencyRequest request = (ConsistencyRequest) message;
 		final String name = request.getName();
 		if (request.getRound() != requestRound.currentRound(name)) {

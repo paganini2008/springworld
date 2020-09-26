@@ -39,7 +39,7 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 	private InvocationBarrier invocationBarrier;
 
 	@Override
-	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
 		Object bean = null;
 		Object result = null;
 		Signature signature = null;
@@ -69,7 +69,7 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 
 	@Override
 	public String getTopic() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE  + clusterName + ":process-pool-task";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":process-pool-task";
 	}
 
 }

@@ -30,7 +30,7 @@ public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
 	private JobBeanLoader jobBeanLoader;
 
 	@Override
-	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
 		acceptJob((JobParam) message);
 	}
 

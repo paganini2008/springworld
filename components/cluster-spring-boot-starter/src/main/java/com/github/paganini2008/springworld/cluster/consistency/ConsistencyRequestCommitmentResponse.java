@@ -24,7 +24,7 @@ public class ConsistencyRequestCommitmentResponse implements ClusterMessageListe
 	private ConsistencyRequestRound requestRound;
 
 	@Override
-	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
 		final ConsistencyResponse response = (ConsistencyResponse) message;
 		final ConsistencyRequest request = response.getRequest();
 		final String name = request.getName();

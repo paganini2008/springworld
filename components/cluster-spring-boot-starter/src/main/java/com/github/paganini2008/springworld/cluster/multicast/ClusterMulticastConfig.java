@@ -53,6 +53,11 @@ public class ClusterMulticastConfig {
 	public ClusterMulticastHeartbeatThread multicastHeartbeatThread() {
 		return new ClusterMulticastHeartbeatThread();
 	}
+	
+	@Bean
+	public ClusterMulticastMessageAcker clusterMulticastMessageAcker() {
+		return new ClusterMulticastMessageAcker();
+	}
 
 	@Bean
 	public ClusterMulticastListenerContainer multicastListenerContainer() {

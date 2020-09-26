@@ -61,11 +61,11 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 		applicationContext.publishEvent(event);
 	}
 
-	public void fireOnMessage(final ApplicationInfo applicationInfo, final String topic, final Object message) {
+	public void fireOnMessage(final ApplicationInfo applicationInfo, final String topic, final String id, final Object message) {
 		List<ClusterMessageListener> eventListeners = topicListeners.get(topic);
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
-				handler.onMessage(applicationInfo, message);
+				handler.onMessage(applicationInfo, id, message);
 			});
 		}
 	}

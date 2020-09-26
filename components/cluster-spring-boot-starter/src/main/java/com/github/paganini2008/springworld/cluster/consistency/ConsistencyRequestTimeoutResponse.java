@@ -20,12 +20,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ConsistencyRequestTimeoutResponse implements ClusterMessageListener, ApplicationContextAware {
-	
+
 	@Autowired
 	private ConsistencyRequestRound requestRound;
 
 	@Override
-	public void onMessage(ApplicationInfo applicationInfo, Object message) {
+	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
 		final ConsistencyRequest request = (ConsistencyRequest) message;
 		final String name = request.getName();
 		if (request.getRound() != requestRound.currentRound(name)) {
@@ -34,7 +34,7 @@ public class ConsistencyRequestTimeoutResponse implements ClusterMessageListener
 			}
 			return;
 		}
-		
+
 		String anotherInstanceId = applicationInfo.getId();
 		if (log.isTraceEnabled()) {
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + request);

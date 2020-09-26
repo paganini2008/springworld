@@ -41,7 +41,7 @@ public class ApplicationActiveListener implements RedisMessageHandler {
 		if (!multicastGroup.hasRegistered(applicationName, thatId)) {
 			multicastGroup.registerChannel(applicationName, thatId, applicationInfo.getWeight());
 			redisMessageSender.sendMessage(getChannel(), instanceId.getApplicationInfo());
-			multicastListenerContainer.fireOnActive(applicationInfo);
+			multicastListenerContainer.fireOnActive(applicationInfo); 
 		}
 	}
 

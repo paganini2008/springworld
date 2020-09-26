@@ -22,28 +22,26 @@ public class RedisMessageEntity implements Serializable {
 
 	private static final long serialVersionUID = -8864323748615322076L;
 
-	public static final RedisMessageEntity EMPTY = RedisMessageEntity.of("", null, false);
+	public static final RedisMessageEntity EMPTY = RedisMessageEntity.of("EMPTY", null);
 
 	private String id;
 	private String channel;
 	private Object message;
-	private boolean ack;
 	private long timestamp;
 
 	public RedisMessageEntity() {
 	}
 
-	protected RedisMessageEntity(String channel, Object message, boolean ack) {
+	protected RedisMessageEntity(String channel, Object message) {
 		Assert.hasNoText(channel, "Channel must be required for redis message");
 		this.id = UUID.randomUUID().toString();
 		this.channel = channel;
 		this.message = message;
-		this.ack = ack;
 		this.timestamp = System.currentTimeMillis();
 	}
 
-	public static RedisMessageEntity of(String channel, Object message, boolean ack) {
-		return new RedisMessageEntity(channel, message, ack);
+	public static RedisMessageEntity of(String channel, Object message) {
+		return new RedisMessageEntity(channel, message);
 	}
 
 	public String toString() {
@@ -52,7 +50,7 @@ public class RedisMessageEntity implements Serializable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 37;
 		return prime + prime * id.hashCode();
 	}
 
