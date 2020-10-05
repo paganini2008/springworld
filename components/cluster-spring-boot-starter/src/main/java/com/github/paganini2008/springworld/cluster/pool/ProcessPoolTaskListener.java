@@ -48,8 +48,8 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
 		final Signature signature = (Signature) message;
 		final Object bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
-		try {
-			if (bean != null) {
+		if (bean != null) {
+			try {
 				invocationBarrier.setCompleted();
 				Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
 				clusterMulticastGroup.unicast(applicationName, ProcessPoolCallbackListener.class.getName(), message);
@@ -58,24 +58,24 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 					clusterMulticastGroup.unicast(applicationName, ProcessPoolCallbackListener.class.getName(),
 							new SuccessCallback(method.getName(), result, signature));
 				}
-			} else {
-				log.warn("No bean registered in spring context to call the method of signature: " + signature);
-			}
-		} catch (Throwable e) {
-			log.error(e.getMessage(), e);
-			List<Method> methods = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnFailure.class);
-			for (Method method : methods) {
-				clusterMulticastGroup.unicast(applicationName, ProcessPoolCallbackListener.class.getName(),
-						new FailureCallback(method.getName(), e, signature));
-			}
-		} finally {
-			sharedLatch.release();
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				List<Method> methods = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnFailure.class);
+				for (Method method : methods) {
+					clusterMulticastGroup.unicast(applicationName, ProcessPoolCallbackListener.class.getName(),
+							new FailureCallback(method.getName(), e, signature));
+				}
+			} finally {
+				sharedLatch.release();
 
-			Signature nextSignature = pendingQueue.get();
-			if (nextSignature != null) {
-				processPool.execute(nextSignature.getBeanName(), ClassUtils.forName(nextSignature.getBeanClassName()),
-						nextSignature.getMethodName(), nextSignature.getArguments());
+				Signature nextSignature = pendingQueue.get();
+				if (nextSignature != null) {
+					processPool.execute(nextSignature.getBeanName(), ClassUtils.forName(nextSignature.getBeanClassName()),
+							nextSignature.getMethodName(), nextSignature.getArguments());
+				}
 			}
+		} else {
+			log.warn("No bean registered in spring context to call the method of signature: " + signature);
 		}
 	}
 

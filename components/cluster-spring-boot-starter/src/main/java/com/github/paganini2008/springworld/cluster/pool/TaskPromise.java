@@ -4,13 +4,13 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 
- * Promise
+ * TaskPromise
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public interface Promise {
+public interface TaskPromise {
 
 	Object get();
 

@@ -61,7 +61,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 	}
 
 	@Override
-	public Promise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
+	public TaskPromise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
 		checkIfRunning();
 		Signature signature = new Call(beanName, beanClass.getName(), methodName, arguments);
 		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();

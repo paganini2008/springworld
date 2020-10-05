@@ -12,7 +12,7 @@ public interface ProcessPool {
 
 	void execute(String beanName, Class<?> beanClass, String methodName, Object... arguments);
 
-	Promise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments);
+	TaskPromise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments);
 
 	void shutdown();
 

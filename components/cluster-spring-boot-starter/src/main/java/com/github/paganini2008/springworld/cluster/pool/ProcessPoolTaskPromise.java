@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ProcessPoolTaskPromise implements Promise, RedisMessageHandler {
+public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler {
 
 	private final AtomicBoolean done = new AtomicBoolean(false);
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
@@ -133,9 +133,10 @@ public class ProcessPoolTaskPromise implements Promise, RedisMessageHandler {
 
 	private void printf(Signature signature) {
 		if (log.isTraceEnabled()) {
-			log.trace("Executed beanName: {}, beanClassName: {}, methodName: {}, Elapsed: {}", signature.getBeanName(),
-					signature.getBeanClassName(), signature.getMethodName(), System.currentTimeMillis() - signature.getTimestamp());
-			log.trace("Input parameters: {}", ArrayUtils.toString(signature.getArguments()));
+			log.trace("[Calling: {}] Executed beanName: {}, beanClassName: {}, methodName: {}, Elapsed: {}", signature.getId(),
+					signature.getBeanName(), signature.getBeanClassName(), signature.getMethodName(),
+					System.currentTimeMillis() - signature.getTimestamp());
+			log.trace("[Calling: {}] Input parameters: {}", signature.getId(), ArrayUtils.toString(signature.getArguments()));
 		}
 	}
 
