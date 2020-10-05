@@ -83,6 +83,13 @@ public class ProcessPoolExecutor implements ProcessPool {
 			throw new IllegalStateException("ProcessPool is shutdown now.");
 		}
 	}
+	
+	
+
+	@Override
+	public int getQueueSize() {
+		return pendingQueue.size();
+	}
 
 	@Override
 	public void shutdown() {

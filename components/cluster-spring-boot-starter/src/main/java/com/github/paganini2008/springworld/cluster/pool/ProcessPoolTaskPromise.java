@@ -37,9 +37,9 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 	@Override
 	public Object get() {
 		if (isDone()) {
-			throw new IllegalStateException("Promise is done.");
+			throw new IllegalStateException("Task is done.");
 		}
-		while (!cancelled.get()) {
+		while (!isCancelled()) {
 			lock.lock();
 			try {
 				if (result != null) {
@@ -62,12 +62,12 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 	@Override
 	public Object get(long timeout, TimeUnit timeUnit) {
 		if (isDone()) {
-			throw new IllegalStateException("Promise is done.");
+			throw new IllegalStateException("Task is done.");
 		}
 		final long begin = System.nanoTime();
 		long elapsed;
 		long nanosTimeout = TimeUnit.NANOSECONDS.convert(timeout, timeUnit);
-		while (!cancelled.get()) {
+		while (!isCancelled()) {
 			lock.lock();
 			try {
 				if (result != null) {

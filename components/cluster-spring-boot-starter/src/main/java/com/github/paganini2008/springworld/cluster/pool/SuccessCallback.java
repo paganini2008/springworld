@@ -50,7 +50,7 @@ public class SuccessCallback implements Callback {
 
 	@Override
 	public Object[] getArguments() {
-		return new Object[] { argument };
+		return new Object[] { argument, signature };
 	}
 
 	@Override

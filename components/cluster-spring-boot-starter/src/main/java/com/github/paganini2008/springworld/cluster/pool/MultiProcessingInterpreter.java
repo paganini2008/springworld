@@ -1,9 +1,12 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
+import java.util.concurrent.TimeUnit;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,15 +38,23 @@ public class MultiProcessingInterpreter {
 		if (invocationBarrier.isCompleted()) {
 			return pjp.proceed();
 		} else {
-			Class<?> beanClass = pjp.getSignature().getDeclaringType();
+			MethodSignature signature = (MethodSignature) pjp.getSignature();
+			MultiProcessing anno = signature.getMethod().getAnnotation(MultiProcessing.class);
+			Class<?> beanClass = signature.getDeclaringType();
 			Component component = beanClass.getAnnotation(Component.class);
-			
+
 			String beanName = component.value();
 			String methodName = pjp.getSignature().getName();
 			Object[] arguments = pjp.getArgs();
+			
 			try {
-				processPool.execute(beanName, beanClass, methodName, arguments);
-				return null;
+				if (anno.async()) {
+					processPool.execute(beanName, beanClass, methodName, arguments);
+					return null;
+				} else {
+					TaskPromise promise = processPool.submit(beanName, beanClass, methodName, arguments);
+					return anno.timeout() > 0 ? promise.get(anno.timeout(), TimeUnit.MILLISECONDS) : promise.get();
+				}
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
 				throw e;

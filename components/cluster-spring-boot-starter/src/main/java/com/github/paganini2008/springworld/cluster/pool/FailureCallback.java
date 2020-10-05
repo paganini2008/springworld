@@ -50,7 +50,7 @@ public class FailureCallback implements Callback {
 
 	@Override
 	public Object[] getArguments() {
-		return new Object[] { reason };
+		return new Object[] { reason, signature };
 	}
 
 	@Override
