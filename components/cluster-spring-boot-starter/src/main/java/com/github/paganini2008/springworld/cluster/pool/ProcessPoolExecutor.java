@@ -6,9 +6,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
-import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
+import com.github.paganini2008.springworld.reditools.common.SharedLatch;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,9 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessPoolExecutor implements ProcessPool {
 
-	@Value("${spring.application.cluster.name:default}")
-	private String clusterName;
-
 	@Value("${spring.application.name}")
 	private String applicationName;
 
@@ -40,30 +37,51 @@ public class ProcessPoolExecutor implements ProcessPool {
 	private ClusterMulticastGroup clusterMulticastGroup;
 
 	@Autowired
+	private RedisMessageSender redisMessageSender;
+
+	@Autowired
 	private PendingQueue pendingQueue;
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	@Override
-	public void submit(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
-		if (!running.get()) {
-			throw new IllegalStateException("ProcessPool is shutdown now.");
-		}
-		SignatureInfo signature = new SignatureInfo(beanName, beanClass.getName(), methodName);
-		if (arguments != null) {
-			signature.setArguments(arguments);
-		}
+	public void execute(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
+		checkIfRunning();
+		Signature signature = new Call(beanName, beanClass.getName(), methodName, arguments);
 		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
 		if (acquired) {
 			if (log.isTraceEnabled()) {
-				log.trace("Pool concurrency is " + sharedLatch.cons());
+				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
 			}
-			String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":process-pool-task";
-			clusterMulticastGroup.unicast(applicationName, topic, signature);
+			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), signature);
 		} else {
 			pendingQueue.add(signature);
 		}
 
+	}
+
+	@Override
+	public Promise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
+		checkIfRunning();
+		Signature signature = new Call(beanName, beanClass.getName(), methodName, arguments);
+		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
+		if (acquired) {
+			if (log.isTraceEnabled()) {
+				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
+			}
+			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), signature);
+		} else {
+			pendingQueue.add(signature);
+		}
+		ProcessPoolTaskPromise promise = new ProcessPoolTaskPromise(signature.getId());
+		redisMessageSender.subscribeChannel(signature.getId(), promise);
+		return promise;
+	}
+
+	private void checkIfRunning() {
+		if (!running.get()) {
+			throw new IllegalStateException("ProcessPool is shutdown now.");
+		}
 	}
 
 	@Override

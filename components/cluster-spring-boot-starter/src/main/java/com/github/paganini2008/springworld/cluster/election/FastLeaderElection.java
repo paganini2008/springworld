@@ -17,8 +17,8 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEv
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.redisplus.BeanNames;
-import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
+import com.github.paganini2008.springworld.reditools.BeanNames;
+import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
 
 import lombok.extern.slf4j.Slf4j;
 

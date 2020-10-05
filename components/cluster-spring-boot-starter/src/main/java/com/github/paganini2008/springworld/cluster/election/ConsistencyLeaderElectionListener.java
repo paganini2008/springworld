@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestContext;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
-import com.github.paganini2008.springworld.redisplus.BeanNames;
+import com.github.paganini2008.springworld.reditools.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
 

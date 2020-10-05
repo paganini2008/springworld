@@ -42,7 +42,7 @@ public class MultiProcessingInterpreter {
 			String methodName = pjp.getSignature().getName();
 			Object[] arguments = pjp.getArgs();
 			try {
-				processPool.submit(beanName, beanClass, methodName, arguments);
+				processPool.execute(beanName, beanClass, methodName, arguments);
 				return null;
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);

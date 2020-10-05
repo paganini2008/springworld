@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.redisplus.BeanNames;
+import com.github.paganini2008.springworld.reditools.BeanNames;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.Tuple;

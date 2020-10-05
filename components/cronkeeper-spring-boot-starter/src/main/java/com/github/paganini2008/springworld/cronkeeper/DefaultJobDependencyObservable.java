@@ -11,7 +11,7 @@ import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cronkeeper.model.JobParam;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

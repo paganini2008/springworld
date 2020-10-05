@@ -7,8 +7,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.redisplus.BeanNames;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
+import com.github.paganini2008.springworld.reditools.BeanNames;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
 /**
  * 

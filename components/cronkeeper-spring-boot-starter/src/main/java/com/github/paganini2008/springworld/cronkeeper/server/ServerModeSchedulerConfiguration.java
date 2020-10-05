@@ -53,6 +53,7 @@ import com.github.paganini2008.springworld.cronkeeper.LogManager;
 import com.github.paganini2008.springworld.cronkeeper.NotManagedJobBeanInitializer;
 import com.github.paganini2008.springworld.cronkeeper.OnServerModeCondition.ServerMode;
 import com.github.paganini2008.springworld.cronkeeper.cron4j.Cron4jScheduler;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 import com.github.paganini2008.springworld.cronkeeper.RetryPolicy;
 import com.github.paganini2008.springworld.cronkeeper.ScheduleAdmin;
 import com.github.paganini2008.springworld.cronkeeper.ScheduleManager;
@@ -63,7 +64,6 @@ import com.github.paganini2008.springworld.cronkeeper.SchedulerStarterListener;
 import com.github.paganini2008.springworld.cronkeeper.SpringScheduler;
 import com.github.paganini2008.springworld.cronkeeper.StopWatch;
 import com.github.paganini2008.springworld.cronkeeper.TraceIdGenerator;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

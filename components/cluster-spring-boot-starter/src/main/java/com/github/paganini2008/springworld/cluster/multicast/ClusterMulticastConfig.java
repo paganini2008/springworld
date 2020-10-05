@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
 /**
  * 

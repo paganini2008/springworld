@@ -5,8 +5,8 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cronkeeper.model.JobTriggerDetail;
-import com.github.paganini2008.springworld.redisplus.common.RedisCountDownLatch;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
+import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -8,7 +8,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 /**
  * 

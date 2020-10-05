@@ -5,8 +5,8 @@ import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -80,9 +80,26 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 		}
 	}
 
+	public void unregisterListener(ClusterMessageListener eventListener) {
+		final String topic = eventListener.getTopic();
+		List<ClusterMessageListener> eventListeners = topicListeners.get(topic);
+		if (eventListeners != null && eventListeners.contains(eventListener)) {
+			eventListeners.remove(eventListener);
+			if (eventListeners.isEmpty()) {
+				topicListeners.remove(topic);
+			}
+		}
+	}
+
 	public void registerListener(ClusterStateChangeListener eventListener) {
 		if (!listeners.contains(eventListener)) {
 			listeners.add(eventListener);
+		}
+	}
+
+	public void unregisterListener(ClusterStateChangeListener eventListener) {
+		if (listeners.contains(eventListener)) {
+			listeners.remove(eventListener);
 		}
 	}
 

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 /**
  * 

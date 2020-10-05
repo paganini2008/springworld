@@ -25,7 +25,7 @@ import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cronkeeper.cron4j.Cron4jScheduler;
 import com.github.paganini2008.springworld.cronkeeper.server.ConsumerModeJobExecutor;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

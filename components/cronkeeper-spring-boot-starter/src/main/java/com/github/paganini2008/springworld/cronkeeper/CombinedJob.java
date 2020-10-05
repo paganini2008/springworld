@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.springworld.cronkeeper.model.JobTriggerDetail;
-import com.github.paganini2008.springworld.redisplus.common.RedisCountDownLatch;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageSender;
+import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,7 +67,7 @@ public class CombinedJob implements Runnable {
 		final JobKey jobKey = JobKey.of(job);
 		log.trace("Job '{}' is waiting for all job peers done ...", jobKey);
 		RedisCountDownLatch latch = new RedisCountDownLatch(jobKey.getIdentifier(), redisMessageSender);
-		Object[] answer = latch.await(jobPeers.length, Math.max(job.getTimeout(), DEFAULT_LATCH_WAIT_TIMEOUT), TimeUnit.MILLISECONDS);
+		Object[] answer = latch.await(jobPeers.length, Math.max(job.getTimeout(), DEFAULT_LATCH_WAIT_TIMEOUT), TimeUnit.MILLISECONDS, null);
 		if (ArrayUtils.isNotEmpty(answer)) {
 			Map<JobKey, JobPeerResult> mapper = mapResult(answer);
 			JobTriggerDetail triggerDetail;

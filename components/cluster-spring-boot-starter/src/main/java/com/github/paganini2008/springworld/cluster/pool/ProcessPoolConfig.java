@@ -10,12 +10,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import com.github.paganini2008.devtools.multithreads.ThreadPool;
+import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
-import com.github.paganini2008.springworld.redisplus.common.RedisCounter;
-import com.github.paganini2008.springworld.redisplus.common.RedisSharedLatch;
-import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
-import com.github.paganini2008.springworld.redisplus.common.TtlKeeper;
+import com.github.paganini2008.springworld.reditools.common.RedisCounter;
+import com.github.paganini2008.springworld.reditools.common.RedisSharedLatch;
+import com.github.paganini2008.springworld.reditools.common.SharedLatch;
+import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
 
 /**
  * 
@@ -75,6 +77,12 @@ public class ProcessPoolConfig {
 	@Bean
 	public InvocationBarrier invocationBarrier() {
 		return new InvocationBarrier();
+	}
+
+	@ConditionalOnMissingBean(ThreadPool.class)
+	@Bean
+	public ThreadPool threadPool() {
+		return ThreadUtils.commonPool();
 	}
 
 }

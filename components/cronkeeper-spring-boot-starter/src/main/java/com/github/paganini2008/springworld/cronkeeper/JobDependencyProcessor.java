@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cronkeeper.model.JobParam;
-import com.github.paganini2008.springworld.redisplus.messager.RedisMessageHandler;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
 import lombok.extern.slf4j.Slf4j;
 

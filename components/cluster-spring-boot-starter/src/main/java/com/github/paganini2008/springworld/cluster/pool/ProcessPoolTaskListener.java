@@ -1,15 +1,18 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.redisplus.common.SharedLatch;
+import com.github.paganini2008.springworld.reditools.common.SharedLatch;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,8 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessPoolTaskListener implements ClusterMessageListener {
 
-	@Value("${spring.application.cluster.name:default}")
-	private String clusterName;
+	@Value("${spring.application.name}")
+	private String applicationName;
 
 	@Autowired
 	private PendingQueue pendingQueue;
@@ -38,38 +41,47 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 	@Autowired
 	private InvocationBarrier invocationBarrier;
 
+	@Autowired
+	private ClusterMulticastGroup clusterMulticastGroup;
+
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
-		Object bean = null;
-		Object result = null;
-		Signature signature = null;
+		final Signature signature = (Signature) message;
+		final Object bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
 		try {
-			signature = (Signature) message;
-			bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
 			if (bean != null) {
 				invocationBarrier.setCompleted();
-				result = MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
-				MethodUtils.invokeMethodWithAnnotation(bean, OnSuccess.class, signature, result);
+				Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
+				clusterMulticastGroup.unicast(applicationName, ProcessPoolCallbackListener.class.getName(), message);
+				List<Method> methods = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnSuccess.class);
+				for (Method method : methods) {
+					clusterMulticastGroup.unicast(applicationName, ProcessPoolCallbackListener.class.getName(),
+							new SuccessCallback(method.getName(), result, signature));
+				}
 			} else {
-				log.warn("No bean registered in spring context to call the signature: " + signature);
+				log.warn("No bean registered in spring context to call the method of signature: " + signature);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
-			MethodUtils.invokeMethodWithAnnotation(bean, OnFailure.class, signature, e);
+			List<Method> methods = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnFailure.class);
+			for (Method method : methods) {
+				clusterMulticastGroup.unicast(applicationName, ProcessPoolCallbackListener.class.getName(),
+						new FailureCallback(method.getName(), e, signature));
+			}
 		} finally {
 			sharedLatch.release();
 
-			signature = pendingQueue.get();
-			if (signature != null) {
-				processPool.submit(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()), signature.getMethodName(),
-						signature.getArguments());
+			Signature nextSignature = pendingQueue.get();
+			if (nextSignature != null) {
+				processPool.execute(nextSignature.getBeanName(), ClassUtils.forName(nextSignature.getBeanClassName()),
+						nextSignature.getMethodName(), nextSignature.getArguments());
 			}
 		}
 	}
 
 	@Override
 	public String getTopic() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":process-pool-task";
+		return ProcessPoolTaskListener.class.getName();
 	}
 
 }
