@@ -2,11 +2,9 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler {
 
+	private static final Object lock = new Object();
 	private final AtomicBoolean done = new AtomicBoolean(false);
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
 	private final String taskId;
-	private final Lock lock = new ReentrantLock();
-	private final Condition condition = lock.newCondition();
 
 	public ProcessPoolTaskPromise(String taskId) {
 		this.taskId = taskId;
@@ -37,65 +34,62 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 	@Override
 	public Object get() {
 		if (isDone()) {
-			throw new IllegalStateException("Task is done.");
+			return result;
 		}
 		while (!isCancelled()) {
-			lock.lock();
-			try {
-				if (result != null) {
-					done.set(true);
-					return result;
+			synchronized (lock) {
+				if (isDone()) {
+					break;
 				} else {
 					try {
-						condition.await(1, TimeUnit.SECONDS);
+						lock.wait(1000L);
 					} catch (InterruptedException e) {
 						break;
 					}
 				}
-			} finally {
-				lock.unlock();
 			}
 		}
-		return null;
+		return result;
 	}
 
 	@Override
 	public Object get(long timeout, TimeUnit timeUnit) {
 		if (isDone()) {
-			throw new IllegalStateException("Task is done.");
+			return result;
 		}
 		final long begin = System.nanoTime();
 		long elapsed;
-		long nanosTimeout = TimeUnit.NANOSECONDS.convert(timeout, timeUnit);
+		long m = DateUtils.convertToMillis(timeout, timeUnit);
+		long n = 0;
 		while (!isCancelled()) {
-			lock.lock();
-			try {
-				if (result != null) {
-					done.set(true);
-					return result;
+			synchronized (lock) {
+				if (isDone()) {
+					break;
 				} else {
-					if (nanosTimeout > 0) {
+					if (m > 0) {
 						try {
-							condition.awaitNanos(nanosTimeout);
-						} catch (InterruptedException e) {
+							lock.wait(m, (int) n);
+						} catch (InterruptedException ignored) {
 							break;
 						}
 						elapsed = (System.nanoTime() - begin);
-						nanosTimeout -= elapsed;
+						m -= elapsed / 1000000L;
+						n = elapsed % 1000000L;
 					} else {
 						break;
 					}
 				}
-			} finally {
-				lock.unlock();
 			}
 		}
-		return null;
+		return result;
 	}
 
 	@Override
 	public void cancel() {
 		cancelled.set(true);
+		synchronized (lock) {
+			lock.notifyAll();
+		}
 	}
 
 	@Override
@@ -115,15 +109,19 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 
 	@Override
 	public void onMessage(String channel, Object message) throws Exception {
-		Callback callback = (Callback) message;
-		printf(callback.getSignature());
-		if (callback instanceof SuccessCallback) {
-			result = ((SuccessCallback) callback).getArgument();
-		} else {
-			Throwable reason = ((FailureCallback) callback).getReason();
-			log.error(reason.getMessage(), reason);
+		if (message instanceof Return) {
+			Return callback = (Return) message;
+			result = callback.getReturnValue();
+			printf(callback.getSignature());
+			if (callback instanceof FailureCallback) {
+				Throwable reason = ((FailureCallback) callback).getReason();
+				log.error(reason.getMessage(), reason);
+			}
 		}
-		condition.signalAll();
+		done.set(true);
+		synchronized (lock) {
+			lock.notifyAll();
+		}
 	}
 
 	@Override

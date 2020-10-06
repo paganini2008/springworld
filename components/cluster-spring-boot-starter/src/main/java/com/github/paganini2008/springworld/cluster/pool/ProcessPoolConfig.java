@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
-import com.github.paganini2008.devtools.multithreads.ThreadPool;
-import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
 import com.github.paganini2008.springworld.reditools.common.RedisCounter;
@@ -75,14 +73,18 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public InvocationBarrier invocationBarrier() {
-		return new InvocationBarrier();
+	public MultiProcessingCallbackListener multiProcessingCallbackListener() {
+		return new MultiProcessingCallbackListener();
 	}
 
-	@ConditionalOnMissingBean(ThreadPool.class)
 	@Bean
-	public ThreadPool threadPool() {
-		return ThreadUtils.commonPool();
+	public MultiProcessingCompletionListener multiProcessingCompletionListener() {
+		return new MultiProcessingCompletionListener();
+	}
+
+	@Bean
+	public InvocationBarrier invocationBarrier() {
+		return new InvocationBarrier();
 	}
 
 }

@@ -1,29 +1,23 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ProcessPoolCallbackListener
+ * MultiProcessingCallbackListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class ProcessPoolCallbackListener implements ClusterMessageListener {
-
-	@Autowired
-	private RedisMessageSender redisMessageSender;
+public class MultiProcessingCallbackListener implements ClusterMessageListener {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
@@ -32,7 +26,6 @@ public class ProcessPoolCallbackListener implements ClusterMessageListener {
 		if (bean != null) {
 			try {
 				MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
-				redisMessageSender.sendMessage(signature.getId(), message);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
@@ -43,7 +36,7 @@ public class ProcessPoolCallbackListener implements ClusterMessageListener {
 
 	@Override
 	public String getTopic() {
-		return ProcessPoolCallbackListener.class.getName();
+		return MultiProcessingCallbackListener.class.getName();
 	}
 
 }

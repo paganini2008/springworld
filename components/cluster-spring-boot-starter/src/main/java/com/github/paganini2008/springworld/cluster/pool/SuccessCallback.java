@@ -1,8 +1,5 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * 
  * SuccessCallback
@@ -11,51 +8,25 @@ import lombok.Setter;
  *
  * @since 1.0
  */
-@Setter
-@Getter
-public class SuccessCallback implements Callback {
-
-	private String methodName;
-	private Object argument;
-	private Signature signature;
+public class SuccessCallback extends Return {
 
 	public SuccessCallback() {
 	}
 
-	SuccessCallback(String methodName, Object argument, Signature signature) {
+	SuccessCallback(Signature signature, Object returnValue, String methodName) {
+		super(signature, returnValue);
 		this.methodName = methodName;
-		this.argument = argument;
-		this.signature = signature;
 	}
 
-	@Override
-	public String getId() {
-		return signature.getId();
-	}
-
-	@Override
-	public String getBeanName() {
-		return signature.getBeanName();
-	}
-
-	@Override
-	public String getBeanClassName() {
-		return signature.getBeanClassName();
-	}
+	private String methodName;
 
 	@Override
 	public String getMethodName() {
 		return methodName;
 	}
 
-	@Override
-	public Object[] getArguments() {
-		return new Object[] { argument, signature };
-	}
-
-	@Override
-	public long getTimestamp() {
-		return signature.getTimestamp();
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
 	}
 
 }

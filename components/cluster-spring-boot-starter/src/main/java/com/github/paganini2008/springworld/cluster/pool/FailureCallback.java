@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,34 +15,18 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class FailureCallback implements Callback {
+public class FailureCallback extends Return {
 
 	public FailureCallback() {
 	}
 
 	private String methodName;
 	private Throwable reason;
-	private Signature signature;
 
-	FailureCallback(String methodName, Throwable reason, Signature signature) {
-		this.methodName = methodName;
+	FailureCallback(Signature signature, Throwable reason, String methodName) {
+		super(signature, null);
 		this.reason = reason;
-		this.signature = signature;
-	}
-
-	@Override
-	public String getId() {
-		return signature.getId();
-	}
-
-	@Override
-	public String getBeanName() {
-		return signature.getBeanName();
-	}
-
-	@Override
-	public String getBeanClassName() {
-		return signature.getBeanClassName();
+		this.methodName = methodName;
 	}
 
 	@Override
@@ -48,14 +34,10 @@ public class FailureCallback implements Callback {
 		return methodName;
 	}
 
+	@JsonIgnore
 	@Override
 	public Object[] getArguments() {
-		return new Object[] { reason, signature };
-	}
-
-	@Override
-	public long getTimestamp() {
-		return signature.getTimestamp();
+		return new Object[] { reason, getSignature() };
 	}
 
 }
