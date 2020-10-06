@@ -25,7 +25,7 @@ public @interface MultiProcessing {
 
 	long timeout() default -1L;
 
-	Class<? extends Throwable>[] ignoredFor() default {};
+	Class<? extends Throwable>[] ignoredFor() default Exception.class;
 
 	String defaultValue() default "";
 }

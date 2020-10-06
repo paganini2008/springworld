@@ -9,6 +9,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastCon
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastListenerBeanProcessor;
 import com.github.paganini2008.springworld.cluster.pool.ProcessPoolConfig;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
+import com.github.paganini2008.springworld.cluster.utils.BeanExpressionUtils;
 
 /**
  * 
@@ -19,6 +20,8 @@ import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils
  */
 @Configuration
 @Import({
+	ApplicationContextUtils.class, 
+	BeanExpressionUtils.class,
 	ApplicationClusterSupportConfig.class, 
 	ApplicationClusterConfig.class, 
 	ClusterMulticastConfig.class,
@@ -26,10 +29,7 @@ import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils
 	ProcessPoolConfig.class, 
 	ApplicationClusterController.class,
 	ClusterMulticastController.class, 
-	ApplicationContextUtils.class, 
 	ConsistencyRequestConfig.class
 })
 public class ApplicationClusterAutoConfiguration {
-
-	
 }
