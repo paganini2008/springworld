@@ -29,7 +29,7 @@ public class Call implements Signature, Serializable {
 	private Object[] arguments;
 	private long timestamp;
 
-	public Call(String beanName, String beanClassName, String methodName, Object[] arguments) {
+	public Call(String beanName, String beanClassName, String methodName, Object... arguments) {
 		this.id = UUID.randomUUID().toString();
 		this.beanName = beanName;
 		this.beanClassName = beanClassName;

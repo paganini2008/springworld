@@ -47,7 +47,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 	@Override
 	public void execute(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
 		checkIfRunning();
-		Signature signature = new Call(beanName, beanClass.getName(), methodName, arguments);
+		Call signature = new Call(beanName, beanClass.getName(), methodName, arguments);
 		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
 		if (acquired) {
 			if (log.isTraceEnabled()) {
@@ -63,7 +63,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 	@Override
 	public TaskPromise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
 		checkIfRunning();
-		Signature signature = new Call(beanName, beanClass.getName(), methodName, arguments);
+		Call signature = new Call(beanName, beanClass.getName(), methodName, arguments);
 		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
 		if (acquired) {
 			if (log.isTraceEnabled()) {
@@ -83,8 +83,6 @@ public class ProcessPoolExecutor implements ProcessPool {
 			throw new IllegalStateException("ProcessPool is shutdown now.");
 		}
 	}
-	
-	
 
 	@Override
 	public int getQueueSize() {

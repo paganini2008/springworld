@@ -24,4 +24,8 @@ public @interface MultiProcessing {
 	boolean async() default false;
 
 	long timeout() default -1L;
+
+	Class<? extends Throwable>[] ignoredFor() default {};
+
+	String defaultValue() default "";
 }

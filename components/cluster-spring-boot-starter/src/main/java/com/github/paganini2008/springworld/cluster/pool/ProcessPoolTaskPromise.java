@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.date.DateUtils;
@@ -29,12 +30,12 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 		this.taskId = taskId;
 	}
 
-	private volatile Object result;
+	private volatile Object returnValue;
 
 	@Override
-	public Object get() {
+	public Object get(Supplier<Object> defaultValue) {
 		if (isDone()) {
-			return result;
+			return getReturnValue(defaultValue);
 		}
 		while (!isCancelled()) {
 			synchronized (lock) {
@@ -49,13 +50,13 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 				}
 			}
 		}
-		return result;
+		return getReturnValue(defaultValue);
 	}
 
 	@Override
-	public Object get(long timeout, TimeUnit timeUnit) {
+	public Object get(long timeout, TimeUnit timeUnit, Supplier<Object> defaultValue) {
 		if (isDone()) {
-			return result;
+			return getReturnValue(defaultValue);
 		}
 		final long begin = System.nanoTime();
 		long elapsed;
@@ -81,7 +82,14 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 				}
 			}
 		}
-		return result;
+		return getReturnValue(defaultValue);
+	}
+
+	private Object getReturnValue(Supplier<Object> defaultValue) {
+		if (returnValue == null && defaultValue != null) {
+			return defaultValue.get();
+		}
+		return returnValue;
 	}
 
 	@Override
@@ -111,7 +119,7 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 	public void onMessage(String channel, Object message) throws Exception {
 		if (message instanceof Return) {
 			Return callback = (Return) message;
-			result = callback.getReturnValue();
+			returnValue = callback.getReturnValue();
 			printf(callback.getSignature());
 			if (callback instanceof FailureCallback) {
 				Throwable reason = ((FailureCallback) callback).getReason();

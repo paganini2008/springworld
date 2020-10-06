@@ -46,12 +46,13 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
-		final Signature signature = (Signature) message;
+		final Call signature = (Call) message;
 		final Object bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
 		if (bean != null) {
+			Object result = null;
 			try {
 				invocationBarrier.setCompleted();
-				Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
+				result = MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
 				List<Method> methods = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnSuccess.class);
 				for (Method method : methods) {
 					clusterMulticastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
@@ -65,11 +66,12 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 							new FailureCallback(signature, e, method.getName()));
 				}
 			} finally {
-				clusterMulticastGroup.unicast(applicationName, MultiProcessingCompletionListener.class.getName(), signature);
+				clusterMulticastGroup.unicast(applicationName, MultiProcessingCompletionListener.class.getName(),
+						new Return(signature, result));
 
 				sharedLatch.release();
 
-				Signature nextSignature = pendingQueue.get();
+				Call nextSignature = (Call) pendingQueue.get();
 				if (nextSignature != null) {
 					processPool.execute(nextSignature.getBeanName(), ClassUtils.forName(nextSignature.getBeanClassName()),
 							nextSignature.getMethodName(), nextSignature.getArguments());

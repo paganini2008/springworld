@@ -1,10 +1,12 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,7 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springworld.cluster.utils.BeanExpressionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,14 +50,25 @@ public class MultiProcessingInterpreter {
 
 	@Around("signature() && @annotation(com.github.paganini2008.springworld.cluster.pool.MultiProcessing)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
+		MethodSignature signature = (MethodSignature) pjp.getSignature();
+		Method method = signature.getMethod();
+		MultiProcessing anno = method.getAnnotation(MultiProcessing.class);
 		if (invocationBarrier.isCompleted()) {
-			return pjp.proceed();
+			try {
+				return pjp.proceed();
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				if (ignoreException(e, anno.ignoredFor())) {
+					if (StringUtils.isNotBlank(anno.defaultValue())) {
+						return BeanExpressionUtils.resolveExpression(anno.defaultValue(), method.getReturnType());
+					}
+				}
+				throw e;
+			}
 		} else {
-			MethodSignature signature = (MethodSignature) pjp.getSignature();
-			MultiProcessing anno = signature.getMethod().getAnnotation(MultiProcessing.class);
 			Class<?> beanClass = signature.getDeclaringType();
 			String beanName = getBeanName(beanClass);
-			String methodName = signature.getName();
+			String methodName = method.getName();
 			Object[] arguments = pjp.getArgs();
 
 			try {
@@ -62,7 +77,11 @@ public class MultiProcessingInterpreter {
 					return null;
 				} else {
 					TaskPromise promise = processPool.submit(beanName, beanClass, methodName, arguments);
-					return anno.timeout() > 0 ? promise.get(anno.timeout(), TimeUnit.MILLISECONDS) : promise.get();
+					Supplier<Object> defaultValue = StringUtils.isNotBlank(anno.defaultValue()) ? () -> {
+						return BeanExpressionUtils.resolveExpression(anno.defaultValue(), method.getReturnType());
+					} : null;
+					return anno.timeout() > 0 ? promise.get(anno.timeout(), TimeUnit.MILLISECONDS, defaultValue)
+							: promise.get(defaultValue);
 				}
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
@@ -92,6 +111,17 @@ public class MultiProcessingInterpreter {
 			return ((Repository) componentAnnotation).value();
 		}
 		return null;
+	}
+
+	private boolean ignoreException(Throwable e, Class<?>[] ignoredExceptionClasses) {
+		if (ArrayUtils.isNotEmpty(ignoredExceptionClasses)) {
+			for (Class<?> exceptionClass : ignoredExceptionClasses) {
+				if (exceptionClass.isAssignableFrom(e.getClass())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }

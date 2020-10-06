@@ -1,18 +1,21 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * 
- * Callback
+ * Return
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
+@JsonInclude(value = Include.NON_NULL)
 @Getter
 @Setter
 public class Return implements Signature {
@@ -54,7 +57,7 @@ public class Return implements Signature {
 	}
 
 	public String getMethodName() {
-		throw new UnsupportedOperationException();
+		return null;
 	}
 
 }

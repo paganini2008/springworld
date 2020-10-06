@@ -13,7 +13,7 @@ public interface ProcessPool {
 	void execute(String beanName, Class<?> beanClass, String methodName, Object... arguments);
 
 	TaskPromise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments);
-	
+
 	int getQueueSize();
 
 	void shutdown();

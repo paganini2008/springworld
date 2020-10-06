@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * 
@@ -12,9 +13,9 @@ import java.util.concurrent.TimeUnit;
  */
 public interface TaskPromise {
 
-	Object get();
+	Object get(Supplier<Object> defaultValue);
 
-	Object get(long timeout, TimeUnit timeUnit);
+	Object get(long timeout, TimeUnit timeUnit, Supplier<Object> defaultValue);
 
 	void cancel();
 
