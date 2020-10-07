@@ -118,13 +118,9 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 	@Override
 	public void onMessage(String channel, Object message) throws Exception {
 		if (message instanceof Return) {
-			Return callback = (Return) message;
-			returnValue = callback.getReturnValue();
-			printf(callback.getSignature());
-			if (callback instanceof FailureCallback) {
-				Throwable reason = ((FailureCallback) callback).getReason();
-				log.error(reason.getMessage(), reason);
-			}
+			Return ret = (Return) message;
+			returnValue = ret.getReturnValue();
+			printf(ret.getInvocation());
 		}
 		done.set(true);
 		synchronized (lock) {
@@ -137,12 +133,12 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 		return false;
 	}
 
-	private void printf(Signature signature) {
+	private void printf(Invocation invocation) {
 		if (log.isTraceEnabled()) {
-			log.trace("[Calling: {}] Executed beanName: {}, beanClassName: {}, methodName: {}, Elapsed: {}", signature.getId(),
-					signature.getBeanName(), signature.getBeanClassName(), signature.getMethodName(),
-					System.currentTimeMillis() - signature.getTimestamp());
-			log.trace("[Calling: {}] Input parameters: {}", signature.getId(), ArrayUtils.toString(signature.getArguments()));
+			log.trace("[Calling: {}] Executed beanName: {}, beanClassName: {}, methodName: {}, Elapsed: {}", invocation.getId(),
+					invocation.getSignature().getBeanName(), invocation.getSignature().getBeanClassName(),
+					invocation.getSignature().getMethodName(), System.currentTimeMillis() - invocation.getTimestamp());
+			log.trace("[Calling: {}] Input parameters: {}", invocation.getId(), ArrayUtils.toString(invocation.getArguments()));
 		}
 	}
 

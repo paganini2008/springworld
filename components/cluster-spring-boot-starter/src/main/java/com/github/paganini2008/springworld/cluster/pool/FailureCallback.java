@@ -15,29 +15,28 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class FailureCallback extends Return {
+public class FailureCallback extends Return implements Callback {
+
+	private static final long serialVersionUID = 4923243066426434433L;
 
 	public FailureCallback() {
 	}
 
-	private String methodName;
-	private Throwable reason;
+	private ThrowableProxy throwableProxy;
 
-	FailureCallback(Signature signature, Throwable reason, String methodName) {
-		super(signature, null);
-		this.reason = reason;
-		this.methodName = methodName;
-	}
-
-	@Override
-	public String getMethodName() {
-		return methodName;
+	FailureCallback(Invocation invocation, Throwable reason) {
+		super(invocation, null);
+		this.throwableProxy = new ThrowableProxy(reason.getMessage(), reason);
 	}
 
 	@JsonIgnore
-	@Override
+	public String getMethodName() {
+		return getInvocation().getSignature().getFailureMethodName();
+	}
+
+	@JsonIgnore
 	public Object[] getArguments() {
-		return new Object[] { reason, getSignature() };
+		return new Object[] { throwableProxy, getInvocation() };
 	}
 
 }

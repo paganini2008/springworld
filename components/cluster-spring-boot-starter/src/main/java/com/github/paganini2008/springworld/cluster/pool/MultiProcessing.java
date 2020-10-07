@@ -20,6 +20,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface MultiProcessing {
+	
+	String value();
 
 	boolean async() default false;
 

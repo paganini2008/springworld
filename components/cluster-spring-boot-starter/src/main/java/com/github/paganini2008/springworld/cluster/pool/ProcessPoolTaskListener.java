@@ -1,12 +1,10 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ClassUtils;
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
@@ -30,7 +28,7 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 	private String applicationName;
 
 	@Autowired
-	private PendingQueue pendingQueue;
+	private DelayQueue delayQueue;
 
 	@Autowired
 	private ProcessPool processPool;
@@ -46,35 +44,28 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
-		final Call signature = (Call) message;
+		final Invocation invocation = (Invocation) message;
+		final Signature signature = invocation.getSignature();
+
 		final Object bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
 		if (bean != null) {
 			Object result = null;
 			try {
 				invocationBarrier.setCompleted();
-				result = MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
-				List<Method> methods = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnSuccess.class);
-				for (Method method : methods) {
+				result = MethodUtils.invokeMethod(bean, signature.getMethodName(), invocation.getArguments());
+				if (StringUtils.isNotBlank(signature.getSuccessMethodName())) {
 					clusterMulticastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
-							new SuccessCallback(signature, result, method.getName()));
-				}
-			} catch (Throwable e) {
-				log.error(e.getMessage(), e);
-				List<Method> methods = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnFailure.class);
-				for (Method method : methods) {
-					clusterMulticastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
-							new FailureCallback(signature, e, method.getName()));
+							new SuccessCallback(invocation, result));
 				}
 			} finally {
 				clusterMulticastGroup.unicast(applicationName, MultiProcessingCompletionListener.class.getName(),
-						new Return(signature, result));
+						new Return(invocation, result));
 
 				sharedLatch.release();
 
-				Call nextSignature = (Call) pendingQueue.get();
-				if (nextSignature != null) {
-					processPool.execute(nextSignature.getBeanName(), ClassUtils.forName(nextSignature.getBeanClassName()),
-							nextSignature.getMethodName(), nextSignature.getArguments());
+				Invocation nextInvocation = (Invocation) delayQueue.pop();
+				if (nextInvocation != null) {
+					processPool.execute(nextInvocation);
 				}
 			}
 		} else {

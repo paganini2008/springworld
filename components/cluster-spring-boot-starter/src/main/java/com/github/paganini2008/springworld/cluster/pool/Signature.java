@@ -10,16 +10,14 @@ package com.github.paganini2008.springworld.cluster.pool;
  */
 public interface Signature {
 
-	String getId();
-
 	String getBeanName();
 
 	String getBeanClassName();
 
 	String getMethodName();
 
-	Object[] getArguments();
+	String getSuccessMethodName();
 
-	long getTimestamp();
+	String getFailureMethodName();
 
 }

@@ -2,16 +2,16 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 /**
  * 
- * PendingQueue
+ * DelayQueue
  *
  * @author Fred Feng
  * @version 1.0
  */
-public interface PendingQueue {
+public interface DelayQueue {
 
-	void add(Signature signature);
+	void offer(Invocation invocation);
 
-	Signature get();
+	Invocation pop();
 
 	void waitForTermination();
 

@@ -137,6 +137,7 @@ public class ClusterMulticastGroup {
 	public void unicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
 		String channel = loadBalance.select(message, groupChannels.get(group));
+		System.out.println("Select Channel: " + channel);
 		if (StringUtils.isNotBlank(channel)) {
 			doSendMessage(channel, topic, message, timeout);
 		}

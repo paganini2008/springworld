@@ -1,5 +1,10 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 
  * SuccessCallback
@@ -8,25 +13,26 @@ package com.github.paganini2008.springworld.cluster.pool;
  *
  * @since 1.0
  */
-public class SuccessCallback extends Return {
+@Getter
+@Setter
+public class SuccessCallback extends Return implements Callback {
+
+	private static final long serialVersionUID = 267993165180485661L;
 
 	public SuccessCallback() {
 	}
 
-	SuccessCallback(Signature signature, Object returnValue, String methodName) {
-		super(signature, returnValue);
-		this.methodName = methodName;
+	SuccessCallback(Invocation invocation, Object returnValue) {
+		super(invocation, returnValue);
 	}
 
-	private String methodName;
-
-	@Override
+	@JsonIgnore
 	public String getMethodName() {
-		return methodName;
+		return getInvocation().getSignature().getSuccessMethodName();
 	}
 
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
+	@JsonIgnore
+	public Object[] getArguments() {
+		return new Object[] { getReturnValue(), getInvocation() };
 	}
-
 }

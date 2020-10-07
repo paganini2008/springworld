@@ -10,9 +10,11 @@ package com.github.paganini2008.springworld.cluster.pool;
  */
 public interface ProcessPool {
 
-	void execute(String beanName, Class<?> beanClass, String methodName, Object... arguments);
+	void execute(Invocation invocation);
 
-	TaskPromise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments);
+	TaskPromise submit(Invocation invocation);
+
+	TaskPromise submit(String identifier, Object... arguments);
 
 	int getQueueSize();
 

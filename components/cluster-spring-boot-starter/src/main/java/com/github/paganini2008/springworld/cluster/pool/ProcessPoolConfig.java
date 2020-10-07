@@ -34,7 +34,7 @@ public class ProcessPoolConfig {
 	@Value("${spring.application.cluster.name:default}")
 	private String clusterName;
 
-	@Value("${spring.application.cluster.pool.size:8}")
+	@Value("${spring.application.cluster.pool.size:16}")
 	private int poolSize;
 
 	@Bean
@@ -51,10 +51,10 @@ public class ProcessPoolConfig {
 		return new RedisSharedLatch(redisCounter, poolSize);
 	}
 
-	@ConditionalOnMissingBean(PendingQueue.class)
+	@ConditionalOnMissingBean(DelayQueue.class)
 	@Bean
-	public PendingQueue pendingQueue() {
-		return new RedisPendingQueue();
+	public DelayQueue delayQueue() {
+		return new CachedDelayQueue();
 	}
 
 	@Bean
@@ -70,6 +70,11 @@ public class ProcessPoolConfig {
 	@Bean
 	public MultiProcessingInterpreter multiProcessingInterpreter() {
 		return new MultiProcessingInterpreter();
+	}
+
+	@Bean
+	public MultiProcessingMethodDetector multiProcessingMethodDetector() {
+		return new MultiProcessingMethodDetector();
 	}
 
 	@Bean

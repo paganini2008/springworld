@@ -15,11 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 
  * ProcessPoolExecutor
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Slf4j
 public class ProcessPoolExecutor implements ProcessPool {
@@ -40,42 +39,51 @@ public class ProcessPoolExecutor implements ProcessPool {
 	private RedisMessageSender redisMessageSender;
 
 	@Autowired
-	private PendingQueue pendingQueue;
+	private DelayQueue delayQueue;
+
+	@Autowired
+	private MultiProcessingMethodDetector methodDetector;
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	@Override
-	public void execute(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
+	public void execute(Invocation invocation) {
 		checkIfRunning();
-		Call signature = new Call(beanName, beanClass.getName(), methodName, arguments);
 		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
 		if (acquired) {
 			if (log.isTraceEnabled()) {
 				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
 			}
-			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), signature);
+			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
 		} else {
-			pendingQueue.add(signature);
+			delayQueue.offer(invocation);
+			log.info("Invocation: {} go into the pending queue.", invocation);
 		}
 
 	}
 
 	@Override
-	public TaskPromise submit(String beanName, Class<?> beanClass, String methodName, Object... arguments) {
+	public TaskPromise submit(Invocation invocation) {
 		checkIfRunning();
-		Call signature = new Call(beanName, beanClass.getName(), methodName, arguments);
 		boolean acquired = timeout > 0 ? sharedLatch.acquire(timeout, TimeUnit.SECONDS) : sharedLatch.acquire();
 		if (acquired) {
 			if (log.isTraceEnabled()) {
 				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
 			}
-			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), signature);
+			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
 		} else {
-			pendingQueue.add(signature);
+			delayQueue.offer(invocation);
+			log.info("Invocation: {} go into the pending queue.", invocation);
 		}
-		ProcessPoolTaskPromise promise = new ProcessPoolTaskPromise(signature.getId());
-		redisMessageSender.subscribeChannel(signature.getId(), promise);
+		ProcessPoolTaskPromise promise = new ProcessPoolTaskPromise(invocation.getId());
+		redisMessageSender.subscribeChannel(invocation.getId(), promise);
 		return promise;
+	}
+
+	@Override
+	public TaskPromise submit(String identifier, Object... arguments) {
+		Signature signature = methodDetector.getSignature(identifier);
+		return submit(new MethodInvocation(signature, arguments));
 	}
 
 	private void checkIfRunning() {
@@ -86,7 +94,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 
 	@Override
 	public int getQueueSize() {
-		return pendingQueue.size();
+		return delayQueue.size();
 	}
 
 	@Override
@@ -95,7 +103,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 			return;
 		}
 		running.set(false);
-		pendingQueue.waitForTermination();
+		delayQueue.waitForTermination();
 		sharedLatch.join();
 	}
 

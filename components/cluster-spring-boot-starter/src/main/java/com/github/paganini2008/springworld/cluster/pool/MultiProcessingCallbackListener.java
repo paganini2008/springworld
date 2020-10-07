@@ -21,12 +21,14 @@ public class MultiProcessingCallbackListener implements ClusterMessageListener {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
-		final Signature signature = (Signature) message;
+		final Callback callback = (Callback) message;
+		final Signature signature = callback.getInvocation().getSignature();
+
 		final Object bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
 		if (bean != null) {
 			try {
-				MethodUtils.invokeMethod(bean, signature.getMethodName(), signature.getArguments());
-			} catch (Exception e) {
+				MethodUtils.invokeMethod(bean, callback.getMethodName(), callback.getArguments());
+			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
 			}
 		} else {

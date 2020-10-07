@@ -13,12 +13,12 @@ import com.github.paganini2008.springworld.reditools.BeanNames;
 
 /**
  * 
- * RedisPendingQueue
+ * CachedDelayQueue
  *
  * @author Fred Feng
  * @version 1.0
  */
-public class RedisPendingQueue implements PendingQueue {
+public class CachedDelayQueue implements DelayQueue {
 
 	@Autowired
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
@@ -30,18 +30,18 @@ public class RedisPendingQueue implements PendingQueue {
 	@Value("${spring.application.cluster.name:default}")
 	private String clusterName;
 
-	public void add(Signature signature) {
+	public void offer(Invocation invocation) {
 		String key = getKey();
 		long queueSize = redisTemplate.opsForList().size(key);
 		if (queueMaxSize == -1 || queueSize <= queueMaxSize) {
-			redisTemplate.opsForList().leftPush(key, signature);
+			redisTemplate.opsForList().leftPush(key, invocation);
 		} else {
 			throw new RejectedExecutionException("Pool pending queue has been full. Current size is " + queueSize);
 		}
 	}
 
-	public Signature get() {
-		return (Signature) redisTemplate.opsForList().leftPop(getKey());
+	public Invocation pop() {
+		return (Invocation) redisTemplate.opsForList().leftPop(getKey());
 	}
 
 	public void waitForTermination() {
@@ -56,7 +56,7 @@ public class RedisPendingQueue implements PendingQueue {
 	}
 
 	private String getKey() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool:pending-queue";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool:delay-queue";
 	}
 
 }

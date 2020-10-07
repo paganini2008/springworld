@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * 
- * Call
+ * MethodInvocation
  * 
  * @author Fred Feng
  *
@@ -18,27 +18,23 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Call implements Signature, Serializable {
+public class MethodInvocation implements Serializable, Invocation {
 
 	private static final long serialVersionUID = -5401293046063974728L;
 
 	private String id;
-	private String beanName;
-	private String beanClassName;
-	private String methodName;
+	private Signature signature;
 	private Object[] arguments;
 	private long timestamp;
 
-	public Call(String beanName, String beanClassName, String methodName, Object... arguments) {
+	MethodInvocation(Signature signature, Object... arguments) {
 		this.id = UUID.randomUUID().toString();
-		this.beanName = beanName;
-		this.beanClassName = beanClassName;
-		this.methodName = methodName;
+		this.signature = signature;
 		this.arguments = arguments;
 		this.timestamp = System.currentTimeMillis();
 	}
 
-	public Call() {
+	public MethodInvocation() {
 	}
 
 	public String toString() {

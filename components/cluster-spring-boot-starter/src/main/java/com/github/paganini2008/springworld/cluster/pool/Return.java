@@ -1,8 +1,8 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import java.io.Serializable;
+
+import com.github.paganini2008.devtools.beans.ToStringBuilder;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,49 +15,24 @@ import lombok.Setter;
  *
  * @since 1.0
  */
-@JsonInclude(value = Include.NON_NULL)
 @Getter
 @Setter
-public class Return implements Signature {
+public class Return implements Serializable {
 
-	private Signature signature;
+	private static final long serialVersionUID = 5736144131241770067L;
+	private Invocation invocation;
 	private Object returnValue;
 
 	public Return() {
 	}
 
-	public Return(Signature signature, Object returnValue) {
-		this.signature = signature;
+	Return(Invocation invocation, Object returnValue) {
+		this.invocation = invocation;
 		this.returnValue = returnValue;
 	}
-
-	@JsonIgnore
-	public String getId() {
-		return signature.getId();
-	}
-
-	@JsonIgnore
-	public String getBeanName() {
-		return signature.getBeanName();
-	}
-
-	@JsonIgnore
-	public String getBeanClassName() {
-		return signature.getBeanClassName();
-	}
-
-	@JsonIgnore
-	public Object[] getArguments() {
-		return new Object[] { returnValue, signature };
-	}
-
-	@JsonIgnore
-	public long getTimestamp() {
-		return signature.getTimestamp();
-	}
-
-	public String getMethodName() {
-		return null;
+	
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

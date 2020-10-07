@@ -21,14 +21,12 @@ public class MultiProcessingCompletionListener implements ClusterMessageListener
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
-		redisMessageSender.sendMessage(((Signature) message).getId(), message);
+		redisMessageSender.sendMessage(((Return) message).getInvocation().getId(), message);
 	}
 
 	@Override
 	public String getTopic() {
 		return MultiProcessingCompletionListener.class.getName();
 	}
-	
-	
 
 }
