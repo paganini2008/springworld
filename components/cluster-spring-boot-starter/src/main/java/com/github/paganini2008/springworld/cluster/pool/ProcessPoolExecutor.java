@@ -81,9 +81,12 @@ public class ProcessPoolExecutor implements ProcessPool {
 	}
 
 	@Override
-	public TaskPromise submit(String identifier, Object... arguments) {
-		Signature signature = methodDetector.getSignature(identifier);
-		return submit(new MethodInvocation(signature, arguments));
+	public ForkJoinProcessPool forkJoinPool(String serviceName, int parallelism) {
+		Signature signature = methodDetector.getSignature(serviceName);
+		if (parallelism > 0) {
+			return new ForkJoinProcessPoolExecutor(signature, parallelism);
+		}
+		return new ForkJoinProcessPoolExecutor(signature);
 	}
 
 	private void checkIfRunning() {

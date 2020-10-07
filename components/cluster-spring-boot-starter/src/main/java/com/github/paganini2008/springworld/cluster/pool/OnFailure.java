@@ -20,6 +20,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface OnFailure {
 	
-	String value() default "";
+	String value();
 	
 }

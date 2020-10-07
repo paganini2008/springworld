@@ -9,9 +9,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.util.ClassUtils;
 
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
-import com.github.paganini2008.devtools.collection.ListUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 
 /**
@@ -26,8 +24,8 @@ public class MultiProcessingMethodDetector implements BeanPostProcessor {
 
 	private final Map<String, Signature> metadata = new ConcurrentHashMap<String, Signature>();
 
-	public Signature getSignature(String identifier) {
-		return metadata.get(identifier);
+	public Signature getSignature(String serviceName) {
+		return metadata.get(serviceName);
 	}
 
 	@Override
@@ -40,13 +38,9 @@ public class MultiProcessingMethodDetector implements BeanPostProcessor {
 						new MethodSignature(beanName, ClassUtils.getUserClass(bean.getClass()).getName(), method.getName()));
 			}
 			List<Method> callbackMethodList = MethodUtils.getMethodsWithAnnotation(bean.getClass(), OnSuccess.class);
-			MultiProcessing firstAnno = ListUtils.getFirst(methodList).getAnnotation(MultiProcessing.class);
 			for (Method method : callbackMethodList) {
 				OnSuccess anno = method.getAnnotation(OnSuccess.class);
 				String ref = anno.value();
-				if (StringUtils.isBlank(ref)) {
-					ref = firstAnno.value();
-				}
 				MethodSignature signature = (MethodSignature) metadata.get(ref);
 				signature.setSuccessMethodName(method.getName());
 			}
@@ -54,9 +48,6 @@ public class MultiProcessingMethodDetector implements BeanPostProcessor {
 			for (Method method : callbackMethodList) {
 				OnFailure anno = method.getAnnotation(OnFailure.class);
 				String ref = anno.value();
-				if (StringUtils.isBlank(ref)) {
-					ref = firstAnno.value();
-				}
 				MethodSignature signature = (MethodSignature) metadata.get(ref);
 				signature.setFailureMethodName(method.getName());
 			}

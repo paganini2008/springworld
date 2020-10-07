@@ -24,10 +24,10 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 	private static final Object lock = new Object();
 	private final AtomicBoolean done = new AtomicBoolean(false);
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
-	private final String taskId;
+	private final String id;
 
-	public ProcessPoolTaskPromise(String taskId) {
-		this.taskId = taskId;
+	public ProcessPoolTaskPromise(String id) {
+		this.id = id;
 	}
 
 	private volatile Object returnValue;
@@ -112,7 +112,7 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 
 	@Override
 	public String getChannel() {
-		return taskId;
+		return id;
 	}
 
 	@Override
