@@ -7,9 +7,9 @@
 		<version>2.0-RC4</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>redtools-spring-boot-starter</artifactId>
+	<artifactId>reditools-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
-	<name>redtools-spring-boot-starter</name>
+	<name>reditools-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<properties>
