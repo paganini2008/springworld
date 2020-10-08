@@ -41,9 +41,6 @@ public class ProcessPoolExecutor implements ProcessPool {
 	@Autowired
 	private DelayQueue delayQueue;
 
-	@Autowired
-	private MultiProcessingMethodDetector methodDetector;
-
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	@Override
@@ -78,15 +75,6 @@ public class ProcessPoolExecutor implements ProcessPool {
 		ProcessPoolTaskPromise promise = new ProcessPoolTaskPromise(invocation.getId());
 		redisMessageSender.subscribeChannel(invocation.getId(), promise);
 		return promise;
-	}
-
-	@Override
-	public ForkJoinProcessPool forkJoinPool(String serviceName, int parallelism) {
-		Signature signature = methodDetector.getSignature(serviceName);
-		if (parallelism > 0) {
-			return new ForkJoinProcessPoolExecutor(signature, parallelism);
-		}
-		return new ForkJoinProcessPoolExecutor(signature);
 	}
 
 	private void checkIfRunning() {

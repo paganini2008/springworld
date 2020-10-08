@@ -14,8 +14,6 @@ public interface ProcessPool {
 
 	TaskPromise submit(Invocation invocation);
 
-	ForkJoinProcessPool forkJoinPool(String serviceName, int parallelism);
-
 	int getQueueSize();
 
 	void shutdown();

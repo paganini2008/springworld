@@ -126,22 +126,35 @@ public class Cron4jScheduler implements Scheduler {
 		jobExecutor.execute(job, attachment, 0);
 	}
 
-	protected Task wrapJob(final Job job, final Object attachment) {
-		return new Task() {
+	protected Task wrapJob(Job job, Object attachment) {
+		if (job.isParallel()) {
+			return new JobParallelizationForCron4j(job, attachment);
+		}
+		return new SimpleTask(job, attachment);
+	}
 
-			@Override
-			public boolean execute() {
-				runJob(job, attachment);
-				return true;
-			}
+	private class SimpleTask implements Task {
 
-			@Override
-			public boolean onError(Throwable cause) {
-				errorHandler.handleError(cause);
-				return true;
-			}
+		private final Job job;
+		private final Object attachment;
 
-		};
+		SimpleTask(Job job, Object attachment) {
+			super();
+			this.job = job;
+			this.attachment = attachment;
+		}
+
+		@Override
+		public boolean execute() {
+			runJob(job, attachment);
+			return true;
+		}
+
+		@Override
+		public boolean onError(Throwable cause) {
+			errorHandler.handleError(cause);
+			return true;
+		}
 	}
 
 	/**

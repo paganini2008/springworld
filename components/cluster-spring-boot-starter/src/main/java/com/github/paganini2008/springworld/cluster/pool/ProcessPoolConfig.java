@@ -57,9 +57,14 @@ public class ProcessPoolConfig {
 		return new CachedDelayQueue();
 	}
 
-	@Bean
+	@Bean(destroyMethod = "shutdown")
 	public ProcessPool processPool() {
 		return new ProcessPoolExecutor();
+	}
+
+	@Bean(destroyMethod = "shutdown")
+	public ForkJoinProcessPool forkJoinProcessPool() {
+		return new ForkJoinProcessPoolExecutor();
 	}
 
 	@Bean

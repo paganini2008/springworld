@@ -10,6 +10,6 @@ package com.github.paganini2008.springworld.cluster.pool;
  */
 public interface ForkJoinProcess<T> {
 
-	T process(ForkJoinFrame<T> frame);
+	T process(ForkJoinTask<T> task);
 
 }

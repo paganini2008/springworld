@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
+import java.util.concurrent.Future;
+
 /**
  * 
  * ForkJoinProcessPool
@@ -8,10 +10,10 @@ package com.github.paganini2008.springworld.cluster.pool;
  *
  * @since 1.0
  */
-public interface ForkJoinProcessPool {
+public interface ForkJoinProcessPool extends ProcessPool {
 
-	<T> T submit(ForkJoinProcess<T> work) throws Exception;
+	<T> Future<T> submit(String serviceName, ForkJoinProcess<T> process);
 
-	void close();
+	<T> Future<T> submit(Signature signature, ForkJoinProcess<T> process);
 
 }

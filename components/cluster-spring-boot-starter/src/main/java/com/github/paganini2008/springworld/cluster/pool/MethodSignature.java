@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 
 import org.springframework.lang.Nullable;
 
@@ -42,6 +43,12 @@ public class MethodSignature implements Serializable, Signature {
 
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
+	}
+
+	public static Signature of(Method method) {
+		String beanClassName = method.getDeclaringClass().getName();
+		String methodName = method.getName();
+		return new MethodSignature(null, beanClassName, methodName);
 	}
 
 }

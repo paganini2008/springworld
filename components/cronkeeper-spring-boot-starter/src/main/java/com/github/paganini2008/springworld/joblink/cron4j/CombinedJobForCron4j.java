@@ -62,7 +62,7 @@ public class CombinedJobForCron4j implements Task {
 	private final Job job;
 	private final JobPeer[] jobPeers;
 
-	public CombinedJobForCron4j(Job job, JobPeer[] jobPeers) {
+	CombinedJobForCron4j(Job job, JobPeer[] jobPeers) {
 		this.job = job;
 		this.jobPeers = jobPeers;
 	}
