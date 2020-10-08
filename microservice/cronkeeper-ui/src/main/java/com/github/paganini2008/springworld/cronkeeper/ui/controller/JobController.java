@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
-import com.github.paganini2008.springworld.cronkeeper.model.JobDetail;
-import com.github.paganini2008.springworld.cronkeeper.model.JobLog;
-import com.github.paganini2008.springworld.cronkeeper.model.JobStackTrace;
-import com.github.paganini2008.springworld.cronkeeper.model.JobTrace;
-import com.github.paganini2008.springworld.cronkeeper.model.PageQuery;
 import com.github.paganini2008.springworld.cronkeeper.ui.JobLogForm;
 import com.github.paganini2008.springworld.cronkeeper.ui.JobTraceForm;
 import com.github.paganini2008.springworld.cronkeeper.ui.service.JobManagerService;
 import com.github.paganini2008.springworld.cronkeeper.ui.utils.PageBean;
+import com.github.paganini2008.springworld.joblink.model.JobDetail;
+import com.github.paganini2008.springworld.joblink.model.JobLog;
+import com.github.paganini2008.springworld.joblink.model.JobStackTrace;
+import com.github.paganini2008.springworld.joblink.model.JobTrace;
+import com.github.paganini2008.springworld.joblink.model.PageQuery;
 
 /**
  * 

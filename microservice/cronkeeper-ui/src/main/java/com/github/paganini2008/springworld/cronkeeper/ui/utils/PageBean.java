@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.paganini2008.springworld.cronkeeper.model.PageQuery;
+import com.github.paganini2008.springworld.joblink.model.PageQuery;
 
 /**
  * 
