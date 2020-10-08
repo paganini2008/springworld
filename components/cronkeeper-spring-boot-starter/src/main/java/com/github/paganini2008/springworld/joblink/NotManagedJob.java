@@ -10,7 +10,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public interface NotManagedJob extends JobParallelization {
+public interface NotManagedJob {
 
 	default void prepare(JobKey jobKey, Logger log) {
 	}

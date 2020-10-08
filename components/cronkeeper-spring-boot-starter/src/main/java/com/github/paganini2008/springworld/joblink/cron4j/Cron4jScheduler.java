@@ -127,9 +127,6 @@ public class Cron4jScheduler implements Scheduler {
 	}
 
 	protected Task wrapJob(Job job, Object attachment) {
-		if (job.isParallel()) {
-			return new JobParallelizationForCron4j(job, attachment);
-		}
 		return new SimpleTask(job, attachment);
 	}
 
