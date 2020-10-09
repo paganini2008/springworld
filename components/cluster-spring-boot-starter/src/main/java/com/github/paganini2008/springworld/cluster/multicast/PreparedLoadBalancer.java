@@ -8,14 +8,14 @@ import com.github.paganini2008.devtools.multithreads.AtomicUnsignedInteger;
 
 /**
  * 
- * LoadBalanceSelector
+ * PreparedLoadBalancer
  *
  * @author Fred Feng
  * @version 1.0
  */
-public abstract class LoadBalanceSelector {
+public abstract class PreparedLoadBalancer {
 
-	public static class RoundrobinLoadBalance implements LoadBalance {
+	public static class RoundRobinLoadBalance implements LoadBalance {
 
 		private final AtomicUnsignedInteger counter = new AtomicUnsignedInteger();
 
@@ -45,7 +45,7 @@ public abstract class LoadBalanceSelector {
 			if (CollectionUtils.isEmpty(channels)) {
 				return null;
 			}
-			int hash = message.hashCode();
+			int hash = message != null ? message.hashCode() : 0;
 			hash &= 0x7FFFFFFF;
 			return channels.get(hash % channels.size());
 		}

@@ -2,13 +2,13 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 /**
  * 
- * ParallelizingPolicy
+ * CallParallelization
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public interface ParallelizingPolicy {
+public interface CallParallelization {
 
 	Object[] slice(Object argument);
 

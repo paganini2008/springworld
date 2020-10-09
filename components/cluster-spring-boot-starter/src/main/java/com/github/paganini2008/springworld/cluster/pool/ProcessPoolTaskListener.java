@@ -7,6 +7,7 @@ import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
@@ -42,8 +43,12 @@ public class ProcessPoolTaskListener implements ClusterMessageListener {
 	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;
 
+	@Autowired
+	private InstanceId instanceId;
+
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
+		log.info("Invocation: {}, Self ID: {}, who send: {}", message, instanceId.get(), applicationInfo.getId());
 		final Invocation invocation = (Invocation) message;
 		final Signature signature = invocation.getSignature();
 

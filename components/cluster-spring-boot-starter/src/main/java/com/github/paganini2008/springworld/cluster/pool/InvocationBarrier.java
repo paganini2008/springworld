@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
+import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+
 /**
  * 
  * InvocationBarrier
@@ -20,6 +22,7 @@ public final class InvocationBarrier {
 	};
 
 	public void setCompleted() {
+		System.out.println("CurrentName: "+ThreadUtils.currentThreadName());
 		threadLocal.set(Boolean.TRUE);
 	}
 

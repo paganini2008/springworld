@@ -63,11 +63,6 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public ForkJoinInterpreter forkJoinInterpreter() {
-		return new ForkJoinInterpreter();
-	}
-
-	@Bean
 	public ProcessPoolTaskListener processPoolTaskListener() {
 		return new ProcessPoolTaskListener();
 	}
@@ -78,8 +73,8 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public MethodParallelizingInterpreter methodParallelizingInterpreter() {
-		return new MethodParallelizingInterpreter();
+	public CallParallelizingInterpreter callParallelizingInterpreter() {
+		return new CallParallelizingInterpreter();
 	}
 
 	@Bean

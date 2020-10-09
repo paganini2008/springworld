@@ -2,6 +2,9 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
@@ -21,7 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler {
 
-	private static final Object lock = new Object();
+	private final Lock lock = new ReentrantLock();
+	private final Condition condition = lock.newCondition();
 	private final AtomicBoolean done = new AtomicBoolean(false);
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
 	private final String id;
@@ -38,16 +42,19 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 			return getReturnValue(defaultValue);
 		}
 		while (!isCancelled()) {
-			synchronized (lock) {
+			lock.lock();
+			try {
 				if (isDone()) {
 					break;
 				} else {
 					try {
-						lock.wait(1000L);
+						condition.await(1, TimeUnit.SECONDS);
 					} catch (InterruptedException e) {
 						break;
 					}
 				}
+			} finally {
+				lock.unlock();
 			}
 		}
 		return getReturnValue(defaultValue);
@@ -60,26 +67,27 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 		}
 		final long begin = System.nanoTime();
 		long elapsed;
-		long m = DateUtils.convertToMillis(timeout, timeUnit);
-		long n = 0;
-		while (!isCancelled()) {
-			synchronized (lock) {
+		long nanosTimeout = TimeUnit.NANOSECONDS.convert(timeout, timeUnit);
+		while (true) {
+			lock.lock();
+			try {
 				if (isDone()) {
 					break;
 				} else {
-					if (m > 0) {
+					if (nanosTimeout > 0) {
 						try {
-							lock.wait(m, (int) n);
-						} catch (InterruptedException ignored) {
+							condition.awaitNanos(nanosTimeout);
+						} catch (InterruptedException e) {
 							break;
 						}
 						elapsed = (System.nanoTime() - begin);
-						m -= elapsed / 1000000L;
-						n = elapsed % 1000000L;
+						nanosTimeout -= elapsed;
 					} else {
 						break;
 					}
 				}
+			} finally {
+				lock.unlock();
 			}
 		}
 		return getReturnValue(defaultValue);
@@ -94,9 +102,12 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 
 	@Override
 	public void cancel() {
-		cancelled.set(true);
-		synchronized (lock) {
-			lock.notifyAll();
+		lock.lock();
+		try {
+			cancelled.set(true);
+			condition.signalAll();
+		} finally {
+			lock.unlock();
 		}
 	}
 
@@ -122,10 +133,14 @@ public class ProcessPoolTaskPromise implements TaskPromise, RedisMessageHandler 
 			returnValue = ret.getReturnValue();
 			printf(ret.getInvocation());
 		}
-		done.set(true);
-		synchronized (lock) {
-			lock.notifyAll();
+		lock.lock();
+		try {
+			done.set(true);
+			condition.signalAll();
+		} finally {
+			lock.unlock();
 		}
+
 	}
 
 	@Override

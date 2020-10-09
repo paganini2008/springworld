@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Aspect
-public class MethodParallelizingInterpreter {
+public class CallParallelizingInterpreter {
 
 	@Autowired
 	private MultiProcessingMethodDetector methodDetector;
@@ -39,7 +39,11 @@ public class MethodParallelizingInterpreter {
 	}
 
 	@Around("signature() && @annotation(parallelizing)")
-	public Object arround(ProceedingJoinPoint pjp, MethodParallelizing parallelizing) throws Throwable {
+	public Object arround(ProceedingJoinPoint pjp, CallParallelizing parallelizing) throws Throwable {
+		if (((org.aspectj.lang.reflect.MethodSignature) pjp.getSignature()).getMethod().isAnnotationPresent(MultiProcessing.class)) {
+			throw new UnsupportedOperationException(
+					"Either annotation 'MethodParallelizing' or 'MultiProcessing' is to decorate on target method.");
+		}
 		Object[] args = pjp.getArgs();
 		if (ArrayUtils.isEmpty(args)) {
 			throw new IllegalArgumentException("No arguments");
@@ -52,14 +56,14 @@ public class MethodParallelizingInterpreter {
 		}
 		try {
 			List<Object> results = new ArrayList<Object>();
-			ParallelizingPolicy parallelizingPolicy = BeanUtils.instantiate(parallelizing.usingPolicy());
-			parallelizingPolicy = ApplicationContextUtils.autowireBean(parallelizingPolicy);
-			Object[] slices = parallelizingPolicy.slice(args[0]);
+			CallParallelization parallelization = BeanUtils.instantiate(parallelizing.usingParallelization());
+			parallelization = ApplicationContextUtils.autowireBean(parallelization);
+			Object[] slices = parallelization.slice(args[0]);
 			for (Object slice : slices) {
 				Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), slice);
 				results.add(result);
 			}
-			return parallelizingPolicy.merge(results.toArray());
+			return parallelization.merge(results.toArray());
 		} catch (Throwable e) {
 			if (ExceptionUtils.ignoreException(e, parallelizing.ignoreFor())) {
 				log.error(e.getMessage(), e);
