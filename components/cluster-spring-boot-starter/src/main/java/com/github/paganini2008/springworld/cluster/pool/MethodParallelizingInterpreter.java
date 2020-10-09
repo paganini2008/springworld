@@ -7,10 +7,12 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.ClassUtils;
+import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
@@ -27,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Aspect
-public class ParallelizingInterpreter {
+public class MethodParallelizingInterpreter {
 
 	@Autowired
 	private MultiProcessingMethodDetector methodDetector;
@@ -37,7 +39,7 @@ public class ParallelizingInterpreter {
 	}
 
 	@Around("signature() && @annotation(parallelizing)")
-	public Object arround(ProceedingJoinPoint pjp, Parallelizing parallelizing) throws Throwable {
+	public Object arround(ProceedingJoinPoint pjp, MethodParallelizing parallelizing) throws Throwable {
 		Object[] args = pjp.getArgs();
 		if (ArrayUtils.isEmpty(args)) {
 			throw new IllegalArgumentException("No arguments");
@@ -45,24 +47,27 @@ public class ParallelizingInterpreter {
 
 		Signature signature = methodDetector.getSignature(parallelizing.value());
 		Object bean = ApplicationContextUtils.getBean(signature.getBeanName(), ClassUtils.forName(signature.getBeanClassName()));
-		if (bean != null) {
-			try {
-				List<Object> results = new ArrayList<Object>();
-				ParallelizingPolicy parallelizingPolicy = BeanUtils.instantiate(parallelizing.usingPolicy());
-				parallelizingPolicy = ApplicationContextUtils.autowireBean(parallelizingPolicy);
-				Object[] slices = parallelizingPolicy.slice(args[0]);
-				for (Object slice : slices) {
-					Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), slice);
-					results.add(result);
-				}
-				return parallelizingPolicy.merge(results.toArray());
-			} catch (Throwable e) {
+		if (bean == null) {
+			throw new NoSuchBeanDefinitionException(signature.getBeanName());
+		}
+		try {
+			List<Object> results = new ArrayList<Object>();
+			ParallelizingPolicy parallelizingPolicy = BeanUtils.instantiate(parallelizing.usingPolicy());
+			parallelizingPolicy = ApplicationContextUtils.autowireBean(parallelizingPolicy);
+			Object[] slices = parallelizingPolicy.slice(args[0]);
+			for (Object slice : slices) {
+				Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), slice);
+				results.add(result);
+			}
+			return parallelizingPolicy.merge(results.toArray());
+		} catch (Throwable e) {
+			if (ExceptionUtils.ignoreException(e, parallelizing.ignoreFor())) {
 				log.error(e.getMessage(), e);
 				return pjp.proceed();
 			}
-		} else {
-			return null;
+			throw e;
 		}
+
 	}
 
 }

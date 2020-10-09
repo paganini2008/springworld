@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * Parallelizing
+ * ForkJoin
  * 
  * @author Fred Feng
  *
@@ -17,10 +17,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Parallelizing {
+public @interface ForkJoin {
 
 	String value();
 
-	Class<? extends ParallelizingPolicy> usingPolicy() default DefaultParallelizingPolicy.class;
+	Class<? extends MultiProcessingRecursiveTask<?>> usingTask();
+
+	Class<? extends Throwable>[] ignoreFor() default Exception.class;
 
 }

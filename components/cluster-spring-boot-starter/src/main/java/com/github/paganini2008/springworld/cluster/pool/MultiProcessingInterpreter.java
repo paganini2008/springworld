@@ -12,8 +12,8 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.ClassUtils;
+import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cluster.utils.BeanExpressionUtils;
@@ -57,7 +57,7 @@ public class MultiProcessingInterpreter {
 			try {
 				return pjp.proceed();
 			} catch (Throwable e) {
-				if (ignoreException(e, multiProcessing.ignoredFor())) {
+				if (ExceptionUtils.ignoreException(e, multiProcessing.ignoredFor())) {
 					Signature signature = methodDetector.getSignature(multiProcessing.value());
 					if (StringUtils.isNotBlank(signature.getFailureMethodName())) {
 						clusterMulticastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
@@ -89,17 +89,6 @@ public class MultiProcessingInterpreter {
 				throw e;
 			}
 		}
-	}
-
-	private boolean ignoreException(Throwable e, Class<?>[] ignoredExceptionClasses) {
-		if (ArrayUtils.isNotEmpty(ignoredExceptionClasses)) {
-			for (Class<?> exceptionClass : ignoredExceptionClasses) {
-				if (exceptionClass.isAssignableFrom(e.getClass())) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 }

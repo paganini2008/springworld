@@ -62,9 +62,9 @@ public class ProcessPoolConfig {
 		return new ProcessPoolExecutor();
 	}
 
-	@Bean(destroyMethod = "shutdown")
-	public ForkJoinProcessPool forkJoinProcessPool() {
-		return new ForkJoinProcessPoolExecutor();
+	@Bean
+	public ForkJoinInterpreter forkJoinInterpreter() {
+		return new ForkJoinInterpreter();
 	}
 
 	@Bean
@@ -75,6 +75,11 @@ public class ProcessPoolConfig {
 	@Bean
 	public MultiProcessingInterpreter multiProcessingInterpreter() {
 		return new MultiProcessingInterpreter();
+	}
+
+	@Bean
+	public MethodParallelizingInterpreter methodParallelizingInterpreter() {
+		return new MethodParallelizingInterpreter();
 	}
 
 	@Bean
