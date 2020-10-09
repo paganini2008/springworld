@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.github.paganini2008.devtools.collection.CollectionUtils;
-import com.github.paganini2008.devtools.multithreads.AtomicUnsignedInteger;
+import com.github.paganini2008.devtools.multithreads.AtomicIntegerSequence;
 
 /**
  * 
@@ -17,7 +17,7 @@ public abstract class PreparedLoadBalancer {
 
 	public static class RoundRobinLoadBalance implements LoadBalance {
 
-		private final AtomicUnsignedInteger counter = new AtomicUnsignedInteger();
+		private final AtomicIntegerSequence counter = new AtomicIntegerSequence();
 
 		public String select(Object message, List<String> channels) {
 			if (CollectionUtils.isEmpty(channels)) {

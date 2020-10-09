@@ -2,7 +2,7 @@ package com.github.paganini2008.transport;
 
 import java.util.List;
 
-import com.github.paganini2008.devtools.multithreads.AtomicUnsignedLong;
+import com.github.paganini2008.devtools.multithreads.AtomicLongSequence;
 
 /**
  * 
@@ -15,7 +15,7 @@ import com.github.paganini2008.devtools.multithreads.AtomicUnsignedLong;
  */
 public class RoundRobinPartitioner implements Partitioner {
 
-	private final AtomicUnsignedLong sequence = new AtomicUnsignedLong();
+	private final AtomicLongSequence sequence = new AtomicLongSequence();
 
 	public <T> T selectChannel(Object data, List<T> channels) {
 		try {

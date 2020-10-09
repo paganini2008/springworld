@@ -3,7 +3,7 @@ package com.github.paganini2008.embeddedio.examples;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
-import com.github.paganini2008.devtools.multithreads.AtomicUnsignedInteger;
+import com.github.paganini2008.devtools.multithreads.AtomicIntegerSequence;
 
 public class Item implements Serializable {
 

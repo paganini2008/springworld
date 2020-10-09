@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import com.github.paganini2008.devtools.multithreads.AtomicUnsignedInteger;
+import com.github.paganini2008.devtools.multithreads.AtomicIntegerSequence;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	private Transformer transformer = new SerializationTransformer();
 	private SocketAddress localAddress = new InetSocketAddress(8090);
 	private int readerBufferSize = 2 * 1024;
-	private final AtomicUnsignedInteger readerIndex;
+	private final AtomicIntegerSequence readerIndex;
 	private final ChannelEventPublisher channelEventPublisher;
 	private final ConcurrentMap<Integer, NioReader> readers = new ConcurrentHashMap<Integer, NioReader>();
 
@@ -40,7 +40,7 @@ public class NioAcceptor extends NioReactor implements IoAcceptor {
 	public NioAcceptor(Executor executor) {
 		super(false);
 		this.channelEventPublisher = new DefaultChannelEventPublisher(executor);
-		this.readerIndex = new AtomicUnsignedInteger(1, processorCount);
+		this.readerIndex = new AtomicIntegerSequence(1, processorCount);
 	}
 
 	public int getBacklog() {

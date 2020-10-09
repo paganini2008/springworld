@@ -3,9 +3,9 @@ package com.github.paganini2008.springworld.cluster.multicast;
 import java.util.List;
 
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.springworld.reditools.common.RedisAtomicLongSequence;
 
 /**
  * 
@@ -17,10 +17,10 @@ import com.github.paganini2008.devtools.collection.CollectionUtils;
  */
 public class CachedRoundRobinLoadBalance implements LoadBalance {
 
-	private final RedisAtomicLong counter;
+	private final RedisAtomicLongSequence counter;
 
 	public CachedRoundRobinLoadBalance(String key, RedisConnectionFactory connectionFactory) {
-		this.counter = new RedisAtomicLong(key, connectionFactory);
+		this.counter = new RedisAtomicLongSequence(key, connectionFactory);
 	}
 
 	@Override
