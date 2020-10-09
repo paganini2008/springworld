@@ -73,8 +73,8 @@ public class ProcessPoolConfig {
 	}
 
 	@Bean
-	public CallParallelizingInterpreter callParallelizingInterpreter() {
-		return new CallParallelizingInterpreter();
+	public ParallelizingCallInterpreter callParallelizingInterpreter() {
+		return new ParallelizingCallInterpreter();
 	}
 
 	@Bean

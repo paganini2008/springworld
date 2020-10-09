@@ -6,14 +6,14 @@ import lombok.Data;
 
 /**
  * 
- * JobQuery
+ * JobKeyQuery
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Data
-public class JobQuery {
+public class JobKeyQuery {
 
 	private String clusterName;
 	private TriggerType triggerType;

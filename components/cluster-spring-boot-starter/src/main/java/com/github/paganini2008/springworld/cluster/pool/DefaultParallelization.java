@@ -4,13 +4,13 @@ import java.util.Collection;
 
 /**
  * 
- * DefaultCallParallelization
+ * DefaultParallelization
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class DefaultCallParallelization implements CallParallelization {
+public class DefaultParallelization implements Parallelization {
 
 	@Override
 	public Object[] slice(Object argument) {

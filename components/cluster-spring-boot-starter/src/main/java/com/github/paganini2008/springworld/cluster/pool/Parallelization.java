@@ -8,7 +8,7 @@ package com.github.paganini2008.springworld.cluster.pool;
  *
  * @since 1.0
  */
-public interface CallParallelization {
+public interface Parallelization {
 
 	Object[] slice(Object argument);
 

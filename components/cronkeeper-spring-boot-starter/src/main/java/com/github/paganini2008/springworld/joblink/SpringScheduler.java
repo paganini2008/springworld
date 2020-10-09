@@ -17,6 +17,7 @@ import org.springframework.scheduling.support.SimpleTriggerContext;
 
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.date.DateUtils;
+import com.github.paganini2008.springworld.joblink.model.JobPeer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,15 +52,49 @@ public class SpringScheduler implements Scheduler {
 	}
 
 	@Override
-	public JobFuture schedule(Job job, JobPeer[] jobPeers, Date startDate) {
-		// TODO Auto-generated method stub
-		return null;
+	public JobFuture schedule(JobTeam jobTeam, Date startDate) {
+		ScheduledFuture<?> future = taskScheduler.schedule((Runnable) jobTeam, startDate);
+		return new JobFutureImpl(future);
 	}
 
 	@Override
-	public JobFuture schedule(Job job, JobPeer[] jobPeers, String cronExpression) {
-		// TODO Auto-generated method stub
-		return null;
+	public JobFuture schedule(JobTeam jobTeam, String cronExpression) {
+		ScheduledFuture<?> future = taskScheduler.schedule((Runnable) jobTeam, new CronTrigger(cronExpression));
+		futureTriggers.put(future, new CronTrigger(cronExpression));
+		return new JobFutureImpl(future);
+	}
+
+	@Override
+	public JobFuture schedule(JobTeam jobTeam, String cronExpression, Date startDate) {
+		return schedule(() -> {
+			return schedule(jobTeam, cronExpression);
+		}, startDate);
+	}
+
+	@Override
+	public JobFuture scheduleWithFixedDelay(JobTeam jobTeam, long period, Date startDate) {
+		ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay((Runnable) jobTeam, startDate, period);
+		futureTriggers.put(future, getPeriodicTrigger(startDate.getTime() - System.currentTimeMillis(), period, false));
+		return new JobFutureImpl(future);
+	}
+
+	@Override
+	public JobFuture scheduleAtFixedRate(JobTeam jobTeam, long period, Date startDate) {
+		ScheduledFuture<?> future = taskScheduler.scheduleAtFixedRate((Runnable) jobTeam, startDate, period);
+		futureTriggers.put(future, getPeriodicTrigger(startDate.getTime() - System.currentTimeMillis(), period, true));
+		return new JobFutureImpl(future);
+	}
+
+	@Override
+	public JobFuture scheduleWithDependency(JobTeam jobTeam, JobKey[] dependencies) {
+		return jobDependencyObservable.addDependency(jobTeam, dependencies);
+	}
+
+	@Override
+	public JobFuture scheduleWithDependency(JobTeam jobTeam, JobKey[] dependencies, Date startDate) {
+		return schedule(() -> {
+			return scheduleWithDependency(jobTeam, dependencies);
+		}, startDate);
 	}
 
 	@Override
@@ -128,7 +163,12 @@ public class SpringScheduler implements Scheduler {
 		jobExecutor.execute(job, attachment, 0);
 	}
 
-	protected Runnable wrapJob(Job job, Object attachment) {
+	@Override
+	public JobTeam createJobTeam(Job job, JobPeer[] jobPeers) {
+		return new SpringJobTeam(job, jobPeers);
+	}
+
+	private Runnable wrapJob(Job job, Object attachment) {
 		return () -> {
 			runJob(job, attachment);
 		};

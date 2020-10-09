@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.springworld.joblink.model.JobPeer;
+import com.github.paganini2008.springworld.joblink.model.JobPeerResult;
+import com.github.paganini2008.springworld.joblink.model.JobTeamResult;
 import com.github.paganini2008.springworld.joblink.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
@@ -16,16 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * CombinedJob
+ * SpringJobTeam
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class CombinedJob implements Runnable {
-
-	private static final long DEFAULT_LATCH_WAIT_TIMEOUT = 60000L;
+public class SpringJobTeam implements Runnable, JobTeam {
 
 	@Qualifier(BeanNames.MAIN_JOB_EXECUTOR)
 	@Autowired
@@ -48,9 +49,21 @@ public class CombinedJob implements Runnable {
 	private final Job job;
 	private final JobPeer[] jobPeers;
 
-	public CombinedJob(Job job, JobPeer[] jobPeers) {
+	public SpringJobTeam(Job job, JobPeer[] jobPeers) {
 		this.job = job;
 		this.jobPeers = jobPeers;
+	}
+
+	private Object attachment;
+
+	@Override
+	public void cooperate(Object attachment) {
+		this.attachment = attachment;
+		run();
+	}
+
+	public Object getAttachment() {
+		return attachment;
 	}
 
 	@Override
@@ -67,7 +80,9 @@ public class CombinedJob implements Runnable {
 		final JobKey jobKey = JobKey.of(job);
 		log.trace("Job '{}' is waiting for all job peers done ...", jobKey);
 		RedisCountDownLatch latch = new RedisCountDownLatch(jobKey.getIdentifier(), redisMessageSender);
-		Object[] answer = latch.await(jobPeers.length, Math.max(job.getTimeout(), DEFAULT_LATCH_WAIT_TIMEOUT), TimeUnit.MILLISECONDS, null);
+		Object[] answer = job.getTimeout() > 0
+				? latch.await(jobPeers.length, job.getTimeout(), TimeUnit.MILLISECONDS, null)
+				: latch.await(jobPeers.length, null);
 		if (ArrayUtils.isNotEmpty(answer)) {
 			Map<JobKey, JobPeerResult> mapper = mapResult(answer);
 			JobTriggerDetail triggerDetail;
@@ -78,7 +93,7 @@ public class CombinedJob implements Runnable {
 				return;
 			}
 			boolean run = true;
-			Float goal = triggerDetail.getTriggerDescriptionObject().getCombined().getGoal();
+			Float goal = triggerDetail.getTriggerDescriptionObject().getTeam().getGoal();
 			if (goal != null) {
 				float total = 0;
 				for (JobPeer jobPeer : jobPeers) {
@@ -90,7 +105,8 @@ public class CombinedJob implements Runnable {
 			}
 			if (run) {
 				log.trace("Do run job '{}' after all job peers done.", jobKey);
-				jobExecutor.execute(job, mapper.values().toArray(new JobPeerResult[0]), 0);
+				JobTeamResult teamResult = new JobTeamResult(jobKey, attachment, mapper.values().toArray(new JobPeerResult[0]));
+				jobExecutor.execute(job, teamResult, 0);
 			}
 		}
 	}

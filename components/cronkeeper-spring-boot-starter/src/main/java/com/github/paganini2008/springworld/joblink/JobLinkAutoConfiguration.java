@@ -9,7 +9,7 @@ import com.github.paganini2008.springworld.joblink.ui.UIModeConfiguration;
 
 /**
  * 
- * CrontabAutoConfiguration
+ * JobLinkAutoConfiguration
  * 
  * @author Fred Feng
  *
@@ -18,5 +18,5 @@ import com.github.paganini2008.springworld.joblink.ui.UIModeConfiguration;
 @ConditionalOnWebApplication
 @Configuration
 @Import({ EmbeddedModeSchedulerConfiguration.class, ServerModeSchedulerConfiguration.class, UIModeConfiguration.class })
-public class CrontabAutoConfiguration {
+public class JobLinkAutoConfiguration {
 }

@@ -2,7 +2,7 @@ package com.github.paganini2008.springworld.joblink;
 
 import com.github.paganini2008.springworld.joblink.model.JobDetail;
 import com.github.paganini2008.springworld.joblink.model.JobLog;
-import com.github.paganini2008.springworld.joblink.model.JobQuery;
+import com.github.paganini2008.springworld.joblink.model.JobKeyQuery;
 import com.github.paganini2008.springworld.joblink.model.JobRuntime;
 import com.github.paganini2008.springworld.joblink.model.JobStackTrace;
 import com.github.paganini2008.springworld.joblink.model.JobTrace;
@@ -18,7 +18,7 @@ import com.github.paganini2008.springworld.joblink.model.PageQuery;
  * @author Fred Feng
  * @since 1.0
  */
-public interface JobManager extends JobPersistence, Lifecycle {
+public interface JobManager extends JobPersistence, LifeCycle {
 
 	String[] selectClusterNames() throws Exception;
 
@@ -38,7 +38,7 @@ public interface JobManager extends JobPersistence, Lifecycle {
 
 	JobKey[] getDependencies(JobKey jobKey) throws Exception;
 
-	JobKey[] getJobKeys(JobQuery jobQuery) throws Exception;
+	JobKey[] getJobKeys(JobKeyQuery jobQuery) throws Exception;
 
 	int getJobId(JobKey jobKey) throws Exception;
 

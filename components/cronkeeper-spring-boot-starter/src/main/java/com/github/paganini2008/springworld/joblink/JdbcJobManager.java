@@ -27,7 +27,8 @@ import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.joblink.model.JobDetail;
 import com.github.paganini2008.springworld.joblink.model.JobLog;
-import com.github.paganini2008.springworld.joblink.model.JobQuery;
+import com.github.paganini2008.springworld.joblink.model.JobPeer;
+import com.github.paganini2008.springworld.joblink.model.JobKeyQuery;
 import com.github.paganini2008.springworld.joblink.model.JobRuntime;
 import com.github.paganini2008.springworld.joblink.model.JobStackTrace;
 import com.github.paganini2008.springworld.joblink.model.JobTrace;
@@ -72,7 +73,7 @@ public class JdbcJobManager implements JobManager {
 	private boolean createTable;
 
 	@Autowired
-	private LifecycleListenerContainer lifecycleListenerContainer;
+	private LifeCycleListenerContainer lifeCycleListenerContainer;
 
 	@Autowired
 	private JobIdCache jobIdCache;
@@ -194,8 +195,16 @@ public class JdbcJobManager implements JobManager {
 			if (triggerType == TriggerType.SERIAL) {
 				JobKey[] dependencies = triggerBuilder.getTriggerDescription().getSerial().getDependencies();
 				handleJobDependency(jobKey, jobId, dependencies);
+			} else if (triggerType == TriggerType.TEAM_CRON || triggerType == TriggerType.PERIODIC
+					|| triggerType == TriggerType.TEAM_SERIAL) {
+				JobPeer[] jobPeers = triggerBuilder.getTriggerDescription().getTeam().getJobPeers();
+				JobKey[] dependencies = new JobKey[jobPeers.length];
+				for (int i = 0; i < dependencies.length; i++) {
+					dependencies[i] = jobPeers[i].getJobKey();
+				}
+				handleJobDependency(jobKey, jobId, dependencies);
 			}
-			lifecycleListenerContainer.signalAll(jobKey, JobAction.REFRESH);
+			lifeCycleListenerContainer.signalAll(jobKey, JobAction.REFRESH);
 			return jobId;
 		} else {
 			Connection connection = null;
@@ -221,6 +230,7 @@ public class JdbcJobManager implements JobManager {
 
 				triggerBuilder = jobDef.buildTrigger();
 				triggerType = triggerBuilder.getTriggerType();
+
 				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
 					ps.setInt(1, jobId);
 					ps.setInt(2, triggerType.getValue());
@@ -242,9 +252,17 @@ public class JdbcJobManager implements JobManager {
 			if (triggerType == TriggerType.SERIAL) {
 				JobKey[] dependencies = triggerBuilder.getTriggerDescription().getSerial().getDependencies();
 				handleJobDependency(jobKey, jobId, dependencies);
+			} else if (triggerType == TriggerType.TEAM_CRON || triggerType == TriggerType.PERIODIC
+					|| triggerType == TriggerType.TEAM_SERIAL) {
+				JobPeer[] jobPeers = triggerBuilder.getTriggerDescription().getTeam().getJobPeers();
+				JobKey[] dependencies = new JobKey[jobPeers.length];
+				for (int i = 0; i < dependencies.length; i++) {
+					dependencies[i] = jobPeers[i].getJobKey();
+				}
+				handleJobDependency(jobKey, jobId, dependencies);
 			}
 
-			lifecycleListenerContainer.signalAll(jobKey, JobAction.CREATION);
+			lifeCycleListenerContainer.signalAll(jobKey, JobAction.CREATION);
 			return jobId;
 		}
 	}
@@ -296,7 +314,7 @@ public class JdbcJobManager implements JobManager {
 			return setJobState(jobKey, JobState.FINISHED);
 		} finally {
 			jobIdCache.evict(jobKey);
-			lifecycleListenerContainer.signalAll(jobKey, JobAction.DELETION);
+			lifeCycleListenerContainer.signalAll(jobKey, JobAction.DELETION);
 		}
 	}
 
@@ -425,7 +443,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobKey[] getJobKeys(JobQuery jobQuery) throws SQLException {
+	public JobKey[] getJobKeys(JobKeyQuery jobQuery) throws SQLException {
 		Set<JobKey> jobKeys = new TreeSet<JobKey>();
 		Connection connection = null;
 		List<Tuple> dataList = null;

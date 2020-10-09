@@ -18,7 +18,7 @@ import com.github.paganini2008.springworld.joblink.model.JobDetail;
 import com.github.paganini2008.springworld.joblink.model.JobLog;
 import com.github.paganini2008.springworld.joblink.model.JobLogParam;
 import com.github.paganini2008.springworld.joblink.model.JobPersistParam;
-import com.github.paganini2008.springworld.joblink.model.JobQuery;
+import com.github.paganini2008.springworld.joblink.model.JobKeyQuery;
 import com.github.paganini2008.springworld.joblink.model.JobResult;
 import com.github.paganini2008.springworld.joblink.model.JobRuntime;
 import com.github.paganini2008.springworld.joblink.model.JobRuntimeParam;
@@ -127,7 +127,7 @@ public class JobManagerController {
 	}
 
 	@PostMapping("/getJobKeys")
-	public ResponseEntity<JobResult<JobKey[]>> getJobKeys(@RequestBody JobQuery jobQuery) throws Exception {
+	public ResponseEntity<JobResult<JobKey[]>> getJobKeys(@RequestBody JobKeyQuery jobQuery) throws Exception {
 		JobKey[] jobKeys = jobManager.getJobKeys(jobQuery);
 		return ResponseEntity.ok(JobResult.success(jobKeys));
 	}

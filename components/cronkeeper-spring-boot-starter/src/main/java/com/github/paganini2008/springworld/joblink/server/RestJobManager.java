@@ -13,7 +13,7 @@ import com.github.paganini2008.springworld.joblink.JobState;
 import com.github.paganini2008.springworld.joblink.model.JobDetail;
 import com.github.paganini2008.springworld.joblink.model.JobLog;
 import com.github.paganini2008.springworld.joblink.model.JobPersistParam;
-import com.github.paganini2008.springworld.joblink.model.JobQuery;
+import com.github.paganini2008.springworld.joblink.model.JobKeyQuery;
 import com.github.paganini2008.springworld.joblink.model.JobResult;
 import com.github.paganini2008.springworld.joblink.model.JobRuntime;
 import com.github.paganini2008.springworld.joblink.model.JobStackTrace;
@@ -128,7 +128,7 @@ public class RestJobManager implements JobManager {
 	}
 
 	@Override
-	public JobKey[] getJobKeys(JobQuery jobQuery) throws Exception {
+	public JobKey[] getJobKeys(JobKeyQuery jobQuery) throws Exception {
 		ResponseEntity<JobResult<JobKey[]>> responseEntity = restTemplate.perform(jobQuery.getClusterName(), "/job/manager/getJobKeys",
 				HttpMethod.POST, jobQuery, new ParameterizedTypeReference<JobResult<JobKey[]>>() {
 				});

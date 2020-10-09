@@ -239,9 +239,9 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean("job-listener-container")
-	public LifecycleListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
+	public LifeCycleListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
 			RedisMessageSender redisMessageSender) {
-		LifecycleListenerContainer jobListenerContainer = new LifecycleListenerContainer(clusterName, redisMessageSender);
+		LifeCycleListenerContainer jobListenerContainer = new LifeCycleListenerContainer(clusterName, redisMessageSender);
 		redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
 		return jobListenerContainer;
 	}

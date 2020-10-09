@@ -46,7 +46,7 @@ import com.github.paganini2008.springworld.joblink.JobExecutor;
 import com.github.paganini2008.springworld.joblink.JobFutureHolder;
 import com.github.paganini2008.springworld.joblink.JobIdCache;
 import com.github.paganini2008.springworld.joblink.JobManager;
-import com.github.paganini2008.springworld.joblink.LifecycleListenerContainer;
+import com.github.paganini2008.springworld.joblink.LifeCycleListenerContainer;
 import com.github.paganini2008.springworld.joblink.LoadBalancedJobBeanProcessor;
 import com.github.paganini2008.springworld.joblink.LogManager;
 import com.github.paganini2008.springworld.joblink.NotManagedJobBeanInitializer;
@@ -230,9 +230,9 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean("job-listener-container")
-		public LifecycleListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
+		public LifeCycleListenerContainer jobListenerContainer(@Value("${spring.application.cluster.name}") String clusterName,
 				RedisMessageSender redisMessageSender) {
-			LifecycleListenerContainer jobListenerContainer = new LifecycleListenerContainer(clusterName, redisMessageSender);
+			LifeCycleListenerContainer jobListenerContainer = new LifeCycleListenerContainer(clusterName, redisMessageSender);
 			redisMessageSender.subscribeChannel("job-listener-container", jobListenerContainer);
 			return jobListenerContainer;
 		}

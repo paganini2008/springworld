@@ -2,13 +2,13 @@ package com.github.paganini2008.springworld.joblink;
 
 /**
  * 
- * Lifecycle
+ * LifeCycle
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public interface Lifecycle {
+public interface LifeCycle {
 
 	default void configure() throws Exception {
 	}

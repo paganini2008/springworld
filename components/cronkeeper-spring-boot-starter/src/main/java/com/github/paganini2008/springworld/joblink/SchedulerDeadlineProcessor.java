@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executable, Lifecycle {
+public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executable, LifeCycle {
 
 	private final Map<JobKey, Date> deadlines = new ConcurrentHashMap<JobKey, Date>();
 	private Timer timer;

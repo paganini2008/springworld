@@ -17,11 +17,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface CallParallelizing {
+public @interface ParallelizingCall {
 
 	String value();
 
-	Class<? extends CallParallelization> usingParallelization() default DefaultCallParallelization.class;
+	Class<? extends Parallelization> usingParallelization() default DefaultParallelization.class;
 
 	Class<? extends Throwable>[] ignoreFor() default Exception.class;
 

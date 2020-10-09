@@ -20,20 +20,21 @@ import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.joblink.model.JobKeyQuery;
+import com.github.paganini2008.springworld.joblink.model.JobPeer;
 import com.github.paganini2008.springworld.joblink.model.JobTriggerDetail;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * JobDependencyFutureListener
+ * JobPeerFutureListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class JobDependencyFutureListener implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable, LifeCycle {
+public class JobPeerFutureListener implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable, LifeCycle {
 
 	private Timer timer;
 
@@ -58,9 +59,16 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 	}
 
 	private void refresh() {
+		final TriggerType[] triggerTypes = new TriggerType[] { TriggerType.TEAM_CRON, TriggerType.TEAM_PERIODIC, TriggerType.TEAM_SERIAL };
+		for (TriggerType triggerType : triggerTypes) {
+			refresh(triggerType);
+		}
+	}
+
+	private void refresh(TriggerType triggerType) {
 		JobKeyQuery jobQuery = new JobKeyQuery();
 		jobQuery.setClusterName(clusterName);
-		jobQuery.setTriggerType(TriggerType.SERIAL);
+		jobQuery.setTriggerType(triggerType);
 		JobKey[] jobKeys = new JobKey[0];
 		try {
 			jobKeys = jobManager.getJobKeys(jobQuery);
@@ -76,7 +84,11 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 			JobTriggerDetail triggerDetail = null;
 			try {
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-				dependencies = triggerDetail.getTriggerDescriptionObject().getSerial().getDependencies();
+				JobPeer[] jobPeers = triggerDetail.getTriggerDescriptionObject().getTeam().getJobPeers();
+				dependencies = new JobKey[jobPeers.length];
+				for (int i = 0; i < dependencies.length; i++) {
+					dependencies[i] = jobPeers[i].getJobKey();
+				}
 				comparedDependencies = jobManager.getDependencies(jobKey);
 				supplyJobKeys = ArrayUtils.minus(dependencies, comparedDependencies);
 				if (ArrayUtils.isNotEmpty(supplyJobKeys)) {
@@ -124,5 +136,4 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
 		this.timer = ThreadUtils.scheduleAtFixedRate(this, 1, TimeUnit.MINUTES);
 	}
-
 }

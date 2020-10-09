@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.joblink.JobKey;
 import com.github.paganini2008.springworld.joblink.JobManager;
 import com.github.paganini2008.springworld.joblink.NotManagedJobBeanInitializer;
 import com.github.paganini2008.springworld.joblink.TriggerType;
-import com.github.paganini2008.springworld.joblink.model.JobQuery;
+import com.github.paganini2008.springworld.joblink.model.JobKeyQuery;
 
 /**
  * 
@@ -48,7 +48,7 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	private JobFutureHolder jobFutureHolder;
 
 	public void initizlizeJobBeans() throws Exception {
-		JobQuery jobQuery = new JobQuery();
+		JobKeyQuery jobQuery = new JobKeyQuery();
 		jobQuery.setClusterName(clusterName);
 		jobQuery.setTriggerType(TriggerType.SERIAL);
 		JobKey[] jobKeys = jobManager.getJobKeys(jobQuery);

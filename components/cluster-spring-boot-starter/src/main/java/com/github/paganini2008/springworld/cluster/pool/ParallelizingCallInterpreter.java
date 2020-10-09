@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster.pool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -21,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ParallelizingInterpreter
+ * ParallelizingCallInterpreter
  * 
  * @author Fred Feng
  *
@@ -29,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Aspect
-public class CallParallelizingInterpreter {
+public class ParallelizingCallInterpreter {
 
 	@Autowired
 	private MultiProcessingMethodDetector methodDetector;
@@ -39,10 +40,10 @@ public class CallParallelizingInterpreter {
 	}
 
 	@Around("signature() && @annotation(parallelizing)")
-	public Object arround(ProceedingJoinPoint pjp, CallParallelizing parallelizing) throws Throwable {
+	public Object arround(ProceedingJoinPoint pjp, ParallelizingCall parallelizing) throws Throwable {
 		if (((org.aspectj.lang.reflect.MethodSignature) pjp.getSignature()).getMethod().isAnnotationPresent(MultiProcessing.class)) {
 			throw new UnsupportedOperationException(
-					"Either annotation 'MethodParallelizing' or 'MultiProcessing' is to decorate on target method.");
+					"Either annotation 'ParallelizingCall' or 'MultiProcessing' is to decorate on target method.");
 		}
 		Object[] args = pjp.getArgs();
 		if (ArrayUtils.isEmpty(args)) {
@@ -56,12 +57,18 @@ public class CallParallelizingInterpreter {
 		}
 		try {
 			List<Object> results = new ArrayList<Object>();
-			CallParallelization parallelization = BeanUtils.instantiate(parallelizing.usingParallelization());
+			Parallelization parallelization = BeanUtils.instantiate(parallelizing.usingParallelization());
 			parallelization = ApplicationContextUtils.autowireBean(parallelization);
 			Object[] slices = parallelization.slice(args[0]);
+			List<Object> methodArgs = new ArrayList<Object>();
 			for (Object slice : slices) {
-				Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), slice);
+				methodArgs.add(slice);
+				if (args.length > 1) {
+					methodArgs.addAll(Arrays.asList(ArrayUtils.copy(args, 1)));
+				}
+				Object result = MethodUtils.invokeMethod(bean, signature.getMethodName(), methodArgs.toArray());
 				results.add(result);
+				methodArgs.clear();
 			}
 			return parallelization.merge(results.toArray());
 		} catch (Throwable e) {

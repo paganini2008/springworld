@@ -9,6 +9,7 @@ import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.springworld.joblink.model.JobDetail;
 import com.github.paganini2008.springworld.joblink.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.joblink.model.TriggerDescription.Periodic;
+import com.github.paganini2008.springworld.joblink.model.TriggerDescription.Team;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,24 +43,20 @@ public class DefaultScheduleManager implements ScheduleManager {
 				log.warn("Job '{}' has been scheduled.", jobKey);
 				return;
 			}
+			JobDetail jobDetail;
 			try {
 				if (jobManager.hasJobState(jobKey, JobState.FINISHED)) {
 					return;
 				}
-			} catch (Exception e) {
-				throw new JobException(e.getMessage(), e);
-			}
-
-			JobDetail jobDetail;
-			try {
 				jobDetail = jobManager.getJobDetail(jobKey, true);
 			} catch (Exception e) {
 				throw new JobException(e.getMessage(), e);
 			}
 
-			String attachment = jobDetail.getAttachment();
-			jobFutureHolder.add(jobKey, doSchedule(job, attachment, jobDetail.getJobTriggerDetail()));
-
+			JobFuture jobFuture = doSchedule(job, jobDetail.getAttachment(), jobDetail.getJobTriggerDetail());
+			if (jobFuture != null) {
+				jobFutureHolder.add(jobKey, jobFuture);
+			}
 			try {
 				jobManager.setJobState(jobKey, JobState.SCHEDULING);
 			} catch (Exception e) {
@@ -95,8 +92,46 @@ public class DefaultScheduleManager implements ScheduleManager {
 				return scheduler.scheduleWithDependency(job, dependencies, startDate);
 			}
 			return scheduler.scheduleWithDependency(job, dependencies);
+		case TEAM_CRON:
+		case TEAM_PERIODIC:
+		case TEAM_SERIAL:
+			return doTeamSchedule(job, attachment, triggerDetail);
+		default:
+			break;
 		}
-		throw new IllegalStateException("Unreachable for ever");
+		return null;
+	}
+
+	private JobFuture doTeamSchedule(Job job, String attachment, JobTriggerDetail triggerDetail) {
+		Team team = triggerDetail.getTriggerDescriptionObject().getTeam();
+		Date startDate = triggerDetail.getStartDate();
+		switch (triggerDetail.getTriggerType()) {
+		case TEAM_CRON:
+			String cronExpression = team.getCron().getExpression();
+			if (startDate != null) {
+				return scheduler.schedule(job, team.getJobPeers(), cronExpression, startDate);
+			}
+			return scheduler.schedule(job, team.getJobPeers(), cronExpression);
+		case TEAM_PERIODIC:
+			Periodic periodic = team.getPeriodic();
+			long periodInMs = DateUtils.convertToMillis(periodic.getPeriod(), periodic.getSchedulingUnit().getTimeUnit());
+			if (startDate == null) {
+				startDate = new Date(System.currentTimeMillis() + periodInMs);
+			}
+			if (periodic.isFixedRate()) {
+				return scheduler.scheduleAtFixedRate(scheduler.createJobTeam(job, team.getJobPeers()), periodInMs, startDate);
+			}
+			return scheduler.scheduleWithFixedDelay(scheduler.createJobTeam(job, team.getJobPeers()), periodInMs, startDate);
+		case TEAM_SERIAL:
+			JobKey[] dependencies = team.getSerial().getDependencies();
+			if (startDate != null) {
+				return scheduler.scheduleWithDependency(scheduler.createJobTeam(job, team.getJobPeers()), dependencies, startDate);
+			}
+			return scheduler.scheduleWithDependency(scheduler.createJobTeam(job, team.getJobPeers()), dependencies);
+		default:
+			break;
+		}
+		return null;
 	}
 
 	@Override

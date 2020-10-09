@@ -4,25 +4,19 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.joblink.model.JobTriggerDetail;
+import com.github.paganini2008.springworld.joblink.model.JobPeerResult;
 import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 
- * CombinedJobCompletionListener
+ * JobSetCompletionListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-@Slf4j
-public class CombinedJobCompletionListener implements JobRuntimeListener {
-
-	@Autowired
-	private JobManager jobManager;
+public class JobSetCompletionListener implements JobRuntimeListener {
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
@@ -30,16 +24,6 @@ public class CombinedJobCompletionListener implements JobRuntimeListener {
 	@Override
 	public void afterRun(long traceId, JobKey jobKey, Object attachment, Date startDate, RunningState runningState, Object result,
 			Throwable reason) {
-		JobTriggerDetail triggerDetail;
-		try {
-			triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return;
-		}
-		if (triggerDetail.getTriggerType() != TriggerType.COMBINED) {
-			return;
-		}
 		RedisCountDownLatch latch = new RedisCountDownLatch(jobKey.getIdentifier(), redisMessageSender);
 		JobPeerResult jobPeerResult = new JobPeerResult(jobKey, attachment);
 		jobPeerResult.setResult(result);

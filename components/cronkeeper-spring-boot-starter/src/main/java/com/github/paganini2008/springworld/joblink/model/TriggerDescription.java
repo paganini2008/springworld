@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.springworld.joblink.JobKey;
-import com.github.paganini2008.springworld.joblink.JobPeer;
 import com.github.paganini2008.springworld.joblink.SchedulingUnit;
 import com.github.paganini2008.springworld.joblink.TriggerType;
 
@@ -36,7 +35,7 @@ public class TriggerDescription implements Serializable {
 	private Cron cron;
 	private Periodic periodic;
 	private Serial serial;
-	private Combined combined;
+	private Team team;
 
 	public TriggerDescription() {
 	}
@@ -52,8 +51,12 @@ public class TriggerDescription implements Serializable {
 		case SERIAL:
 			serial = new Serial();
 			break;
-		case COMBINED:
-			combined = new Combined();
+		case TEAM_CRON:
+		case TEAM_PERIODIC:
+		case TEAM_SERIAL:
+			team = new Team();
+			break;
+		default:
 			break;
 		}
 	}
@@ -151,18 +154,18 @@ public class TriggerDescription implements Serializable {
 	@Accessors(chain = true)
 	@Getter
 	@Setter
-	public static class Combined {
+	public static class Team {
 
-		private Set<JobPeer> peers = new TreeSet<JobPeer>();
+		private Set<JobPeer> jobPeers = new TreeSet<JobPeer>();
 		private Cron cron;
 		private Periodic periodic;
 		private Serial serial;
-		private Float goal = 1F;
+		private Float goal;
 
-		public Combined() {
+		public Team() {
 		}
 
-		public Combined setTriggerType(TriggerType triggerType) {
+		public Team setTriggerType(TriggerType triggerType) {
 			switch (triggerType) {
 			case CRON:
 				cron = new Cron();
@@ -179,34 +182,38 @@ public class TriggerDescription implements Serializable {
 			return this;
 		}
 
-		public Combined setCronExpression(String cronExpression) {
+		public Team setCronExpression(String cronExpression) {
 			getCron().setExpression(cronExpression);
 			return this;
 		}
 
-		public Combined setPeriod(long period) {
+		public Team setPeriod(long period) {
 			getPeriodic().setPeriod(period);
 			return this;
 		}
 
-		public Combined setFixedRate(boolean fixedRate) {
+		public Team setFixedRate(boolean fixedRate) {
 			getPeriodic().setFixedRate(fixedRate);
 			return this;
 		}
 
-		public Combined setSchedulingUnit(SchedulingUnit schedulingUnit) {
+		public Team setSchedulingUnit(SchedulingUnit schedulingUnit) {
 			getPeriodic().setSchedulingUnit(schedulingUnit);
 			return this;
 		}
 
-		public Combined setDependencies(JobKey[] dependencies) {
+		public Team setDependencies(JobKey[] dependencies) {
 			getSerial().setDependencies(dependencies);
 			return this;
 		}
 
-		public Combined invite(JobPeer jobPeer) {
-			peers.add(jobPeer);
+		public Team add(JobPeer jobPeer) {
+			jobPeers.add(jobPeer);
 			return this;
+		}
+
+		public JobPeer[] getJobPeers() {
+			return jobPeers.toArray(new JobPeer[0]);
 		}
 
 	}

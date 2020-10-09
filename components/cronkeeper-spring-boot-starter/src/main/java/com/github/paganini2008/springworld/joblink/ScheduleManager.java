@@ -8,7 +8,7 @@ package com.github.paganini2008.springworld.joblink;
  *
  * @since 1.0
  */
-public interface ScheduleManager extends Lifecycle {
+public interface ScheduleManager extends LifeCycle {
 
 	JobState schedule(Job job) throws Exception;
 

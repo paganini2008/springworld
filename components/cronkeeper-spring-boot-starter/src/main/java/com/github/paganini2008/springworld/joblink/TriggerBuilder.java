@@ -3,10 +3,10 @@ package com.github.paganini2008.springworld.joblink;
 import java.util.Date;
 
 import com.github.paganini2008.springworld.joblink.model.TriggerDescription;
-import com.github.paganini2008.springworld.joblink.model.TriggerDescription.Combined;
 import com.github.paganini2008.springworld.joblink.model.TriggerDescription.Cron;
 import com.github.paganini2008.springworld.joblink.model.TriggerDescription.Periodic;
 import com.github.paganini2008.springworld.joblink.model.TriggerDescription.Serial;
+import com.github.paganini2008.springworld.joblink.model.TriggerDescription.Team;
 
 /**
  * 
@@ -62,8 +62,8 @@ public class TriggerBuilder {
 		return triggerDescription.getSerial();
 	}
 
-	public Combined getCombined() {
-		return triggerDescription.getCombined();
+	public Team getTeam() {
+		return triggerDescription.getTeam();
 	}
 
 	public TriggerBuilder setCronExpression(String cronExpression) {

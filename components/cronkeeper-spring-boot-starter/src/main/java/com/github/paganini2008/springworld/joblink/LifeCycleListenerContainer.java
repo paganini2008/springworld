@@ -11,31 +11,31 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
 
 /**
  * 
- * LifecycleListenerContainer
+ * LifeCycleListenerContainer
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class LifecycleListenerContainer implements RedisMessageHandler {
+public class LifeCycleListenerContainer implements RedisMessageHandler {
 
-	private final Set<LifecycleListener> lifecycleListeners = Collections.synchronizedNavigableSet(new TreeSet<LifecycleListener>());
+	private final Set<LifeCycleListener> lifecycleListeners = Collections.synchronizedNavigableSet(new TreeSet<LifeCycleListener>());
 
 	private final String clusterName;
 	private final RedisMessageSender redisMessageSender;
 
-	public LifecycleListenerContainer(String clusterName, RedisMessageSender redisMessageSender) {
+	public LifeCycleListenerContainer(String clusterName, RedisMessageSender redisMessageSender) {
 		this.clusterName = clusterName;
 		this.redisMessageSender = redisMessageSender;
 	}
 
-	public void addListener(LifecycleListener listener) {
+	public void addListener(LifeCycleListener listener) {
 		if (listener != null) {
 			lifecycleListeners.add(listener);
 		}
 	}
 
-	public void removeListener(LifecycleListener listener) {
+	public void removeListener(LifeCycleListener listener) {
 		if (listener != null) {
 			lifecycleListeners.remove(listener);
 		}
@@ -57,17 +57,17 @@ public class LifecycleListenerContainer implements RedisMessageHandler {
 	private void accept(JobKey jobKey, JobAction jobAction) {
 		switch (jobAction) {
 		case CREATION:
-			for (LifecycleListener listener : lifecycleListeners) {
+			for (LifeCycleListener listener : lifecycleListeners) {
 				listener.afterCreation(jobKey);
 			}
 			break;
 		case DELETION:
-			for (LifecycleListener listener : lifecycleListeners) {
+			for (LifeCycleListener listener : lifecycleListeners) {
 				listener.beforeDeletion(jobKey);
 			}
 			break;
 		case REFRESH:
-			for (LifecycleListener listener : lifecycleListeners) {
+			for (LifeCycleListener listener : lifecycleListeners) {
 				listener.afterRefresh(jobKey);
 			}
 			break;
@@ -76,7 +76,7 @@ public class LifecycleListenerContainer implements RedisMessageHandler {
 
 	@Override
 	public String getChannel() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":crontab:job:action";
+		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":joblink:job:action";
 	}
 
 }

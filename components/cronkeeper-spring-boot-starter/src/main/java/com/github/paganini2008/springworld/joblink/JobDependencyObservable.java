@@ -11,6 +11,8 @@ package com.github.paganini2008.springworld.joblink;
 public interface JobDependencyObservable {
 
 	JobFuture addDependency(Job job, JobKey... dependencies);
+	
+	JobFuture addDependency(JobTeam jobSet, JobKey... dependencies);
 
 	void executeDependency(JobKey jobKey, Object attachment);
 

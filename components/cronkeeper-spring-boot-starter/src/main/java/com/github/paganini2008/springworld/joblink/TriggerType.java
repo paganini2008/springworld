@@ -14,13 +14,19 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
  */
 public enum TriggerType implements EnumConstant {
 
+	NONE(0, "None"),
+
 	CRON(1, "Cron"),
 
 	PERIODIC(2, "Periodic"),
 
 	SERIAL(3, "Serial"),
 
-	COMBINED(4, "Combined");
+	TEAM_CRON(4, "Team Cron"),
+
+	TEAM_PERIODIC(5, "Team Periodic"),
+
+	TEAM_SERIAL(6, "Team Serial");
 
 	private final int value;
 	private final String repr;

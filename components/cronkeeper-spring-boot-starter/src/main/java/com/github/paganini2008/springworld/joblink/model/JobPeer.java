@@ -1,6 +1,7 @@
-package com.github.paganini2008.springworld.joblink;
+package com.github.paganini2008.springworld.joblink.model;
 
 import com.github.paganini2008.devtools.comparator.ComparatorHelper;
+import com.github.paganini2008.springworld.joblink.JobKey;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +22,7 @@ public class JobPeer implements Comparable<JobPeer> {
 
 	private JobKey jobKey;
 	private Object attachment;
-	private float boost;
+	private float boost = 1F;
 
 	public JobPeer() {
 	}

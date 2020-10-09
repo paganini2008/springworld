@@ -16,8 +16,10 @@ import com.github.paganini2008.springworld.joblink.JobBeanLoader;
 import com.github.paganini2008.springworld.joblink.JobExecutor;
 import com.github.paganini2008.springworld.joblink.JobKey;
 import com.github.paganini2008.springworld.joblink.JobManager;
-import com.github.paganini2008.springworld.joblink.JobPeer;
-import com.github.paganini2008.springworld.joblink.JobPeerResult;
+import com.github.paganini2008.springworld.joblink.JobTeam;
+import com.github.paganini2008.springworld.joblink.model.JobPeer;
+import com.github.paganini2008.springworld.joblink.model.JobPeerResult;
+import com.github.paganini2008.springworld.joblink.model.JobTeamResult;
 import com.github.paganini2008.springworld.joblink.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
@@ -26,16 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * CombinedJobForCron4j
+ * Cron4jJobTeam
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class CombinedJobForCron4j implements Task {
-
-	private static final long DEFAULT_LATCH_WAIT_TIMEOUT = 60000L;
+public class Cron4jJobTeam implements Task, JobTeam {
 
 	@Qualifier("scheduler-error-handler")
 	@Autowired
@@ -62,9 +62,21 @@ public class CombinedJobForCron4j implements Task {
 	private final Job job;
 	private final JobPeer[] jobPeers;
 
-	CombinedJobForCron4j(Job job, JobPeer[] jobPeers) {
+	public Cron4jJobTeam(Job job, JobPeer[] jobPeers) {
 		this.job = job;
 		this.jobPeers = jobPeers;
+	}
+
+	private Object attachment;
+
+	@Override
+	public void cooperate(Object attachment) {
+		this.attachment = attachment;
+		execute();
+	}
+
+	public Object getAttachment() {
+		return attachment;
 	}
 
 	@Override
@@ -81,7 +93,8 @@ public class CombinedJobForCron4j implements Task {
 		final JobKey jobKey = JobKey.of(job);
 		log.trace("Job '{}' is waiting for all job peers done ...", jobKey);
 		RedisCountDownLatch latch = new RedisCountDownLatch(jobKey.getIdentifier(), redisMessageSender);
-		Object[] answer = latch.await(jobPeers.length, Math.max(job.getTimeout(), DEFAULT_LATCH_WAIT_TIMEOUT), TimeUnit.MILLISECONDS, null);
+		Object[] answer = job.getTimeout() > 0 ? latch.await(jobPeers.length, job.getTimeout(), TimeUnit.MILLISECONDS, null)
+				: latch.await(jobPeers.length, null);
 		if (ArrayUtils.isNotEmpty(answer)) {
 			Map<JobKey, JobPeerResult> mapper = mapResult(answer);
 			JobTriggerDetail triggerDetail;
@@ -92,7 +105,7 @@ public class CombinedJobForCron4j implements Task {
 				return true;
 			}
 			boolean run = true;
-			Float goal = triggerDetail.getTriggerDescriptionObject().getCombined().getGoal();
+			Float goal = triggerDetail.getTriggerDescriptionObject().getTeam().getGoal();
 			if (goal != null) {
 				float total = 0;
 				for (JobPeer jobPeer : jobPeers) {
@@ -104,7 +117,8 @@ public class CombinedJobForCron4j implements Task {
 			}
 			if (run) {
 				log.trace("Do run job '{}' after all job peers done.", jobKey);
-				jobExecutor.execute(job, mapper.values().toArray(new JobPeerResult[0]), 0);
+				JobTeamResult teamResult = new JobTeamResult(jobKey, attachment, mapper.values().toArray(new JobPeerResult[0]));
+				jobExecutor.execute(job, teamResult, 0);
 			}
 		}
 		return true;

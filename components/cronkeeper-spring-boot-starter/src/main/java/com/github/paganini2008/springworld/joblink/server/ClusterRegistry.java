@@ -16,7 +16,7 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.Contact;
 import com.github.paganini2008.springworld.joblink.JobException;
-import com.github.paganini2008.springworld.joblink.Lifecycle;
+import com.github.paganini2008.springworld.joblink.LifeCycle;
 import com.github.paganini2008.springworld.joblink.SqlScripts;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ClusterRegistry implements Lifecycle {
+public class ClusterRegistry implements LifeCycle {
 
 	@Autowired
 	private DataSource dataSource;

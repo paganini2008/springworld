@@ -1,4 +1,6 @@
-package com.github.paganini2008.springworld.joblink;
+package com.github.paganini2008.springworld.joblink.model;
+
+import com.github.paganini2008.springworld.joblink.JobKey;
 
 import lombok.Getter;
 import lombok.Setter;
