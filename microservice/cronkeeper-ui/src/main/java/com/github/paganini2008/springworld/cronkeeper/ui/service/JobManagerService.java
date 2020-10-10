@@ -6,15 +6,15 @@ import org.springframework.stereotype.Component;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.springworld.cronkeeper.ui.JobLogForm;
 import com.github.paganini2008.springworld.cronkeeper.ui.JobTraceForm;
-import com.github.paganini2008.springworld.joblink.JobKey;
-import com.github.paganini2008.springworld.joblink.JobManager;
-import com.github.paganini2008.springworld.joblink.model.JobDetail;
-import com.github.paganini2008.springworld.joblink.model.JobLog;
-import com.github.paganini2008.springworld.joblink.model.JobStackTrace;
-import com.github.paganini2008.springworld.joblink.model.JobTrace;
-import com.github.paganini2008.springworld.joblink.model.JobTracePageQuery;
-import com.github.paganini2008.springworld.joblink.model.JobTraceQuery;
-import com.github.paganini2008.springworld.joblink.model.PageQuery;
+import com.github.paganini2008.springworld.jobclick.JobKey;
+import com.github.paganini2008.springworld.jobclick.JobManager;
+import com.github.paganini2008.springworld.jobclick.model.JobDetail;
+import com.github.paganini2008.springworld.jobclick.model.JobLog;
+import com.github.paganini2008.springworld.jobclick.model.JobStackTrace;
+import com.github.paganini2008.springworld.jobclick.model.JobTrace;
+import com.github.paganini2008.springworld.jobclick.model.JobTracePageQuery;
+import com.github.paganini2008.springworld.jobclick.model.JobTraceQuery;
+import com.github.paganini2008.springworld.jobclick.model.PageQuery;
 
 /**
  * 
