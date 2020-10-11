@@ -23,7 +23,7 @@ public interface JobDefinition {
 		return getClass().getName();
 	}
 
-	TriggerBuilder buildTrigger();
+	Trigger getTrigger();
 
 	default String getDescription() {
 		return "";

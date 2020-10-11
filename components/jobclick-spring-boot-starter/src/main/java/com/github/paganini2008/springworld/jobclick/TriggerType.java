@@ -3,6 +3,10 @@ package com.github.paganini2008.springworld.jobclick;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.paganini2008.devtools.enums.EnumConstant;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Cron;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Periodic;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Serial;
 
 /**
  * 
@@ -14,19 +18,44 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
  */
 public enum TriggerType implements EnumConstant {
 
-	NONE(0, "None"),
+	NONE(0, "None") {
 
-	CRON(1, "Cron"),
+		@Override
+		public TriggerDescription getTriggerDescription() {
+			return new TriggerDescription();
+		}
+	},
 
-	PERIODIC(2, "Periodic"),
+	CRON(1, "Cron") {
 
-	SERIAL(3, "Serial"),
+		@Override
+		public TriggerDescription getTriggerDescription() {
+			TriggerDescription triggerDescription = new TriggerDescription();
+			triggerDescription.setCron(new Cron());
+			return triggerDescription;
+		}
+	},
 
-	TEAM_CRON(4, "Team Cron"),
+	PERIODIC(2, "Periodic") {
 
-	TEAM_PERIODIC(5, "Team Periodic"),
+		@Override
+		public TriggerDescription getTriggerDescription() {
+			TriggerDescription triggerDescription = new TriggerDescription();
+			triggerDescription.setPeriodic(new Periodic());
+			return triggerDescription;
+		}
+	},
 
-	TEAM_SERIAL(6, "Team Serial");
+	SERIAL(3, "Serial") {
+
+		@Override
+		public TriggerDescription getTriggerDescription() {
+			TriggerDescription triggerDescription = new TriggerDescription();
+			triggerDescription.setSerial(new Serial());
+			return triggerDescription;
+		}
+
+	};
 
 	private final int value;
 	private final String repr;
@@ -44,6 +73,8 @@ public enum TriggerType implements EnumConstant {
 	public String getRepr() {
 		return repr;
 	}
+
+	public abstract TriggerDescription getTriggerDescription();
 
 	@JsonCreator
 	public static TriggerType valueOf(int value) {

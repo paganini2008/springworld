@@ -59,16 +59,9 @@ public class JobPeerFutureListener implements ApplicationListener<ApplicationClu
 	}
 
 	private void refresh() {
-		final TriggerType[] triggerTypes = new TriggerType[] { TriggerType.TEAM_CRON, TriggerType.TEAM_PERIODIC, TriggerType.TEAM_SERIAL };
-		for (TriggerType triggerType : triggerTypes) {
-			refresh(triggerType);
-		}
-	}
-
-	private void refresh(TriggerType triggerType) {
 		JobKeyQuery jobQuery = new JobKeyQuery();
 		jobQuery.setClusterName(clusterName);
-		jobQuery.setTriggerType(triggerType);
+		jobQuery.setTriggerType(TriggerType.NONE);
 		JobKey[] jobKeys = new JobKey[0];
 		try {
 			jobKeys = jobManager.getJobKeys(jobQuery);
@@ -84,7 +77,7 @@ public class JobPeerFutureListener implements ApplicationListener<ApplicationClu
 			JobTriggerDetail triggerDetail = null;
 			try {
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-				JobPeer[] jobPeers = triggerDetail.getTriggerDescriptionObject().getTeam().getJobPeers();
+				JobPeer[] jobPeers = triggerDetail.getTriggerDescriptionObject().getMilestone().getCooperators();
 				dependencies = new JobKey[jobPeers.length];
 				for (int i = 0; i < dependencies.length; i++) {
 					dependencies[i] = jobPeers[i].getJobKey();

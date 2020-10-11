@@ -54,8 +54,8 @@ public class JobPersistRequest implements JobDefinition {
 	}
 
 	@Override
-	public TriggerBuilder buildTrigger() {
-		return TriggerBuilder.newTrigger(persistParam.getTriggerType()).setStartDate(persistParam.getStartDate())
+	public Trigger getTrigger() {
+		return new BasicTrigger(persistParam.getTriggerType()).setStartDate(persistParam.getStartDate())
 				.setEndDate(persistParam.getEndDate()).setTriggerDescription(persistParam.getTriggerDescription());
 	}
 

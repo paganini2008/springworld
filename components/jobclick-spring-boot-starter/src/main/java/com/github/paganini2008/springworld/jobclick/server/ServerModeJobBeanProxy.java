@@ -4,12 +4,13 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestClientException;
 
+import com.github.paganini2008.springworld.jobclick.BasicTrigger;
 import com.github.paganini2008.springworld.jobclick.Job;
 import com.github.paganini2008.springworld.jobclick.JobAdmin;
 import com.github.paganini2008.springworld.jobclick.JobKey;
 import com.github.paganini2008.springworld.jobclick.JobManager;
 import com.github.paganini2008.springworld.jobclick.JobState;
-import com.github.paganini2008.springworld.jobclick.TriggerBuilder;
+import com.github.paganini2008.springworld.jobclick.Trigger;
 import com.github.paganini2008.springworld.jobclick.model.JobTriggerDetail;
 
 /**
@@ -60,8 +61,8 @@ public class ServerModeJobBeanProxy implements Job {
 	}
 
 	@Override
-	public TriggerBuilder buildTrigger() {
-		return TriggerBuilder.newTrigger(triggerDetail.getTriggerType()).setStartDate(triggerDetail.getStartDate())
+	public Trigger getTrigger() {
+		return new BasicTrigger(triggerDetail.getTriggerType()).setStartDate(triggerDetail.getStartDate())
 				.setEndDate(triggerDetail.getEndDate()).setTriggerDescription(triggerDetail.getTriggerDescriptionObject());
 	}
 

@@ -163,7 +163,7 @@ public class JdbcJobManager implements JobManager {
 		final JobKey jobKey = JobKey.of(jobDef);
 
 		int jobId;
-		TriggerBuilder triggerBuilder;
+		Trigger trigger;
 		TriggerType triggerType;
 		if (hasJob(jobKey)) {
 			jobId = getJobId(jobKey);
@@ -175,13 +175,12 @@ public class JdbcJobManager implements JobManager {
 						new Object[] { jobDef.getDescription(), attachment, jobDef.getEmail(), jobDef.getRetries(), jobDef.getClusterName(),
 								jobDef.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
-				triggerBuilder = jobDef.buildTrigger();
-				triggerType = triggerBuilder.getTriggerType();
+				trigger = jobDef.getTrigger();
+				triggerType = trigger.getTriggerType();
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER,
-						new Object[] { triggerBuilder.getTriggerType().getValue(),
-								JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()),
-								triggerBuilder.getStartDate() != null ? new Timestamp(triggerBuilder.getStartDate().getTime()) : null,
-								triggerBuilder.getEndDate() != null ? new Timestamp(triggerBuilder.getEndDate().getTime()) : null, jobId });
+						new Object[] { trigger.getTriggerType().getValue(), JacksonUtils.toJsonString(trigger.getTriggerDescription()),
+								trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null,
+								trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null, jobId });
 
 				connection.commit();
 				log.info("Merge job info '{}' ok.", jobKey);
@@ -193,11 +192,11 @@ public class JdbcJobManager implements JobManager {
 			}
 
 			if (triggerType == TriggerType.SERIAL) {
-				JobKey[] dependencies = triggerBuilder.getTriggerDescription().getSerial().getDependencies();
+				JobKey[] dependencies = trigger.getTriggerDescription().getSerial().getDependencies();
 				handleJobDependency(jobKey, jobId, dependencies);
-			} else if (triggerType == TriggerType.TEAM_CRON || triggerType == TriggerType.PERIODIC
-					|| triggerType == TriggerType.TEAM_SERIAL) {
-				JobPeer[] jobPeers = triggerBuilder.getTriggerDescription().getTeam().getJobPeers();
+			}
+			if (trigger.getTriggerDescription().getMilestone() != null) {
+				JobPeer[] jobPeers = trigger.getTriggerDescription().getMilestone().getCooperators();
 				JobKey[] dependencies = new JobKey[jobPeers.length];
 				for (int i = 0; i < dependencies.length; i++) {
 					dependencies[i] = jobPeers[i].getJobKey();
@@ -228,16 +227,15 @@ public class JdbcJobManager implements JobManager {
 					ps.setInt(2, JobState.NOT_SCHEDULED.getValue());
 				});
 
-				triggerBuilder = jobDef.buildTrigger();
-				triggerType = triggerBuilder.getTriggerType();
+				trigger = jobDef.getTrigger();
+				triggerType = trigger.getTriggerType();
 
 				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
 					ps.setInt(1, jobId);
 					ps.setInt(2, triggerType.getValue());
-					ps.setString(3, JacksonUtils.toJsonString(triggerBuilder.getTriggerDescription()));
-					ps.setTimestamp(4,
-							triggerBuilder.getStartDate() != null ? new Timestamp(triggerBuilder.getStartDate().getTime()) : null);
-					ps.setTimestamp(5, triggerBuilder.getEndDate() != null ? new Timestamp(triggerBuilder.getEndDate().getTime()) : null);
+					ps.setString(3, JacksonUtils.toJsonString(trigger.getTriggerDescription()));
+					ps.setTimestamp(4, trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null);
+					ps.setTimestamp(5, trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null);
 				});
 				connection.commit();
 				log.info("Add job info '{}' ok.", jobKey);
@@ -250,11 +248,11 @@ public class JdbcJobManager implements JobManager {
 			}
 
 			if (triggerType == TriggerType.SERIAL) {
-				JobKey[] dependencies = triggerBuilder.getTriggerDescription().getSerial().getDependencies();
+				JobKey[] dependencies = trigger.getTriggerDescription().getSerial().getDependencies();
 				handleJobDependency(jobKey, jobId, dependencies);
-			} else if (triggerType == TriggerType.TEAM_CRON || triggerType == TriggerType.PERIODIC
-					|| triggerType == TriggerType.TEAM_SERIAL) {
-				JobPeer[] jobPeers = triggerBuilder.getTriggerDescription().getTeam().getJobPeers();
+			}
+			if (trigger.getTriggerDescription().getMilestone() != null) {
+				JobPeer[] jobPeers = trigger.getTriggerDescription().getMilestone().getCooperators();
 				JobKey[] dependencies = new JobKey[jobPeers.length];
 				for (int i = 0; i < dependencies.length; i++) {
 					dependencies[i] = jobPeers[i].getJobKey();

@@ -43,8 +43,8 @@ public class ExternalJobBeanProxy implements Job {
 	}
 
 	@Override
-	public TriggerBuilder buildTrigger() {
-		return TriggerBuilder.newTrigger(triggerDetail.getTriggerType()).setStartDate(triggerDetail.getStartDate())
+	public Trigger getTrigger() {
+		return new BasicTrigger(triggerDetail.getTriggerType()).setStartDate(triggerDetail.getStartDate())
 				.setEndDate(triggerDetail.getEndDate()).setTriggerDescription(triggerDetail.getTriggerDescriptionObject());
 	}
 

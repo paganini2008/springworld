@@ -105,7 +105,7 @@ public class Cron4jJobTeam implements Task, JobTeam {
 				return true;
 			}
 			boolean run = true;
-			Float goal = triggerDetail.getTriggerDescriptionObject().getTeam().getGoal();
+			Float goal = triggerDetail.getTriggerDescriptionObject().getMilestone().getGoal();
 			if (goal != null) {
 				float total = 0;
 				for (JobPeer jobPeer : jobPeers) {
