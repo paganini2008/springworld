@@ -21,7 +21,7 @@ public abstract class TriggerBuilders {
 		protected final TriggerDescription triggerDescription;
 		protected Date startDate;
 		protected Date endDate;
-		protected int repeatCount;
+		protected int repeatCount = -1;
 
 		protected TriggerBuilder(TriggerDescription triggerDescription) {
 			this.triggerDescription = triggerDescription;
@@ -58,9 +58,9 @@ public abstract class TriggerBuilders {
 		}
 
 		public Trigger build() {
-			CronTrigger cronTrigger = new CronTrigger(triggerDescription);
-			cronTrigger.setStartDate(startDate).setEndDate(endDate);
-			return cronTrigger;
+			CronTrigger trigger = new CronTrigger(triggerDescription);
+			trigger.setStartDate(startDate).setEndDate(endDate).setRepeatCount(repeatCount);
+			return trigger;
 		}
 
 	}
@@ -73,7 +73,7 @@ public abstract class TriggerBuilders {
 
 		public Trigger build() {
 			PeriodicTrigger trigger = new PeriodicTrigger(triggerDescription);
-			trigger.setStartDate(startDate).setEndDate(endDate);
+			trigger.setStartDate(startDate).setEndDate(endDate).setRepeatCount(repeatCount);
 			return trigger;
 		}
 
@@ -87,7 +87,7 @@ public abstract class TriggerBuilders {
 
 		public Trigger build() {
 			SerialTrigger trigger = new SerialTrigger(triggerDescription);
-			trigger.setStartDate(startDate).setEndDate(endDate);
+			trigger.setStartDate(startDate).setEndDate(endDate).setRepeatCount(repeatCount);
 			return trigger;
 		}
 

@@ -26,7 +26,7 @@ public class NoneTrigger implements Trigger {
 
 	@Override
 	public int getRepeatCount() {
-		return 0;
+		return -1;
 	}
 
 	@Override

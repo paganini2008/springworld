@@ -28,6 +28,7 @@ public class JobTriggerDetail implements Serializable {
 	private TriggerType triggerType;
 	private Date startDate;
 	private Date endDate;
+	private int repeatCount;
 	private String triggerDescription;
 
 	public void setJobId(int jobId) {
@@ -45,7 +46,7 @@ public class JobTriggerDetail implements Serializable {
 	public String getTriggerDescription() {
 		return triggerDescription;
 	}
-	
+
 	@JsonIgnore
 	public TriggerDescription getTriggerDescriptionObject() {
 		return JacksonUtils.parseJson(triggerDescription, TriggerDescription.class);
@@ -57,6 +58,10 @@ public class JobTriggerDetail implements Serializable {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+
+	public void setRepeatCount(int repeatCount) {
+		this.repeatCount = repeatCount;
 	}
 
 }

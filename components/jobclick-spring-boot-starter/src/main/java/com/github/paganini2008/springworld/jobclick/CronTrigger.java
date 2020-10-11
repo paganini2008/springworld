@@ -26,7 +26,7 @@ public class CronTrigger implements Trigger {
 	private final TriggerDescription triggerDescription;
 	private Date startDate;
 	private Date endDate;
-	private int repeatCount;
+	private int repeatCount = -1;
 
 	public CronTrigger(String cronExpression) {
 		this.triggerDescription = new TriggerDescription(cronExpression);

@@ -25,7 +25,7 @@ public class PeriodicTrigger implements Trigger {
 
 	private Date startDate;
 	private Date endDate;
-	private int repeatCount;
+	private int repeatCount = -1;
 	private final TriggerDescription triggerDescription;
 
 	public PeriodicTrigger(int period, SchedulingUnit schedulingUnit, boolean fixedRate) {

@@ -180,7 +180,8 @@ public class JdbcJobManager implements JobManager {
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER,
 						new Object[] { trigger.getTriggerType().getValue(), JacksonUtils.toJsonString(trigger.getTriggerDescription()),
 								trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null,
-								trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null, jobId });
+								trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null,
+								trigger.getRepeatCount(), jobId });
 
 				connection.commit();
 				log.info("Merge job info '{}' ok.", jobKey);
@@ -236,6 +237,7 @@ public class JdbcJobManager implements JobManager {
 					ps.setString(3, JacksonUtils.toJsonString(trigger.getTriggerDescription()));
 					ps.setTimestamp(4, trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null);
 					ps.setTimestamp(5, trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null);
+					ps.setInt(6, trigger.getRepeatCount());
 				});
 				connection.commit();
 				log.info("Add job info '{}' ok.", jobKey);

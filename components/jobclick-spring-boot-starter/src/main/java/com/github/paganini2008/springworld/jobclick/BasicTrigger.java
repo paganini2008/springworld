@@ -25,7 +25,7 @@ public class BasicTrigger implements Trigger {
 	private TriggerDescription triggerDescription;
 	private Date startDate;
 	private Date endDate;
-	private int repeatCount;
+	private int repeatCount = -1;
 
 	public BasicTrigger(TriggerType triggerType) {
 		this.triggerType = triggerType;
