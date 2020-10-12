@@ -33,6 +33,10 @@ public interface JobDefinition {
 		return 0;
 	}
 
+	default int getWeight() {
+		return 100;
+	}
+
 	default long getTimeout() {
 		return -1L;
 	}
@@ -40,4 +44,5 @@ public interface JobDefinition {
 	default String getEmail() {
 		return null;
 	}
+
 }

@@ -27,6 +27,7 @@ public class JobDetail implements Serializable {
 	private static final long serialVersionUID = 4349796691146506537L;
 	private int jobId;
 	private JobKey jobKey;
+	private int weight;
 	private String description;
 	private String attachment;
 	private String email;

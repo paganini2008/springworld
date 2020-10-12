@@ -12,13 +12,13 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
 
 /**
  * 
- * JobTeamCompletionListener
+ * JobPeerCompletionListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class JobTeamCompletionListener implements JobRuntimeListener {
+public class JobPeerCompletionListener implements JobRuntimeListener {
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;

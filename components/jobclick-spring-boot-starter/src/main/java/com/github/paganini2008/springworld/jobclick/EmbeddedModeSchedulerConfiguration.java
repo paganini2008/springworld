@@ -260,5 +260,10 @@ public class EmbeddedModeSchedulerConfiguration {
 	public LogManager logManager() {
 		return new JdbcLogManager();
 	}
+	
+	@Bean
+	public JobPeerCompletionListener jobPeerCompletionListener() {
+		return new JobPeerCompletionListener();
+	}
 
 }

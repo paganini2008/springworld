@@ -2,9 +2,7 @@ package com.github.paganini2008.springworld.jobclick;
 
 import java.util.Date;
 
-import com.github.paganini2008.springworld.jobclick.model.JobPeer;
 import com.github.paganini2008.springworld.jobclick.model.TriggerDescription;
-import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Milestone;
 
 /**
  * 
@@ -25,11 +23,6 @@ public abstract class TriggerBuilders {
 
 		protected TriggerBuilder(TriggerDescription triggerDescription) {
 			this.triggerDescription = triggerDescription;
-		}
-
-		public TriggerBuilder setMilestone(JobPeer[] cooperators, Float goal) {
-			triggerDescription.setMilestone(new Milestone(cooperators, goal));
-			return this;
 		}
 
 		public TriggerBuilder setStartDate(Date startDate) {
@@ -79,30 +72,12 @@ public abstract class TriggerBuilders {
 
 	}
 
-	public static class SerialTriggerBuilder extends TriggerBuilder {
-
-		SerialTriggerBuilder(JobKey... jobKeys) {
-			super(new TriggerDescription(jobKeys));
-		}
-
-		public Trigger build() {
-			SerialTrigger trigger = new SerialTrigger(triggerDescription);
-			trigger.setStartDate(startDate).setEndDate(endDate).setRepeatCount(repeatCount);
-			return trigger;
-		}
-
-	}
-
 	public static TriggerBuilder newCronTrigger(String cronExpression) {
 		return new CronTriggerBuilder(cronExpression);
 	}
 
 	public static TriggerBuilder newPeriodicTrigger(long period, SchedulingUnit schedulingUnit, boolean fixedRate) {
 		return new PeriodicTriggerBuilder(period, schedulingUnit, fixedRate);
-	}
-
-	public static TriggerBuilder newSerialTrigger(JobKey... jobKeys) {
-		return new SerialTriggerBuilder(jobKeys);
 	}
 
 }

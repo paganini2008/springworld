@@ -58,23 +58,6 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 	}
 
 	@Override
-	public JobFuture addDependency(final JobTeam jobTeam, final JobKey... dependencies) {
-		List<Observer> obs = new ArrayList<Observer>(dependencies.length);
-		for (JobKey dependency : dependencies) {
-			Observer ob = (o, attachment) -> {
-				jobTeam.cooperate(attachment);
-			};
-			addObserver(dependency.getIdentifier(), ob);
-			obs.add(ob);
-
-			if (log.isTraceEnabled()) {
-				log.trace("Job dependency: {} --> {}", dependency, jobTeam);
-			}
-		}
-		return new JobDependencyFuture(dependencies, obs.toArray(new Observer[0]), this);
-	}
-
-	@Override
 	public void executeDependency(JobKey jobKey, Object attachment) {
 		notifyObservers(jobKey.getIdentifier(), attachment);
 		if (log.isTraceEnabled()) {

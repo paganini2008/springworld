@@ -50,7 +50,7 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	public void initizlizeJobBeans() throws Exception {
 		JobKeyQuery jobQuery = new JobKeyQuery();
 		jobQuery.setClusterName(clusterName);
-		jobQuery.setTriggerType(TriggerType.SERIAL);
+		jobQuery.setTriggerType(TriggerType.DEPENDENT);
 		JobKey[] jobKeys = jobManager.getJobKeys(jobQuery);
 		if (ArrayUtils.isNotEmpty(jobKeys)) {
 			Job job;

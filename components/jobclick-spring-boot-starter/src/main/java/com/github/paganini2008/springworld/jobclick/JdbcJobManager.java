@@ -28,7 +28,6 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springworld.jobclick.model.JobDetail;
 import com.github.paganini2008.springworld.jobclick.model.JobKeyQuery;
 import com.github.paganini2008.springworld.jobclick.model.JobLog;
-import com.github.paganini2008.springworld.jobclick.model.JobPeer;
 import com.github.paganini2008.springworld.jobclick.model.JobRuntime;
 import com.github.paganini2008.springworld.jobclick.model.JobStackTrace;
 import com.github.paganini2008.springworld.jobclick.model.JobTrace;
@@ -36,6 +35,7 @@ import com.github.paganini2008.springworld.jobclick.model.JobTracePageQuery;
 import com.github.paganini2008.springworld.jobclick.model.JobTraceQuery;
 import com.github.paganini2008.springworld.jobclick.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.jobclick.model.PageQuery;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Dependency;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -165,6 +165,8 @@ public class JdbcJobManager implements JobManager {
 		int jobId;
 		Trigger trigger;
 		TriggerType triggerType;
+		JobDependency dependency = jobDef instanceof JobDependency ? ((JobDependency) jobDef) : null;
+
 		if (hasJob(jobKey)) {
 			jobId = getJobId(jobKey);
 			Connection connection = null;
@@ -172,13 +174,18 @@ public class JdbcJobManager implements JobManager {
 				connection = dataSource.getConnection();
 				connection.setAutoCommit(false);
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL,
-						new Object[] { jobDef.getDescription(), attachment, jobDef.getEmail(), jobDef.getRetries(), jobDef.getClusterName(),
-								jobDef.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+						new Object[] { jobDef.getDescription(), attachment, jobDef.getEmail(), jobDef.getRetries(), jobDef.getWeight(),
+								jobDef.getClusterName(), jobDef.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 
 				trigger = jobDef.getTrigger();
 				triggerType = trigger.getTriggerType();
+				if (dependency != null && ArrayUtils.isNotEmpty(dependency.getDependencies())) {
+					trigger.getTriggerDescription().setDependency(new Dependency(dependency.getDependencies(),
+							dependency.getDependencyType(), dependency.getCompletionRate(), triggerType));
+				}
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER,
-						new Object[] { trigger.getTriggerType().getValue(), JacksonUtils.toJsonString(trigger.getTriggerDescription()),
+						new Object[] { dependency != null ? TriggerType.DEPENDENT.getValue() : triggerType.getValue(),
+								JacksonUtils.toJsonString(trigger.getTriggerDescription()),
 								trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null,
 								trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null,
 								trigger.getRepeatCount(), jobId });
@@ -192,18 +199,10 @@ public class JdbcJobManager implements JobManager {
 				JdbcUtils.closeQuietly(connection);
 			}
 
-			if (triggerType == TriggerType.SERIAL) {
-				JobKey[] dependencies = trigger.getTriggerDescription().getSerial().getDependencies();
-				handleJobDependency(jobKey, jobId, dependencies);
+			if (dependency != null && ArrayUtils.isNotEmpty(dependency.getDependencies())) {
+				handleJobDependency(jobKey, jobId, dependency.getDependencies());
 			}
-			if (trigger.getTriggerDescription().getMilestone() != null) {
-				JobPeer[] jobPeers = trigger.getTriggerDescription().getMilestone().getCooperators();
-				JobKey[] dependencies = new JobKey[jobPeers.length];
-				for (int i = 0; i < dependencies.length; i++) {
-					dependencies[i] = jobPeers[i].getJobKey();
-				}
-				handleJobDependency(jobKey, jobId, dependencies);
-			}
+
 			lifeCycleListenerContainer.signalAll(jobKey, JobAction.REFRESH);
 			return jobId;
 		} else {
@@ -220,7 +219,8 @@ public class JdbcJobManager implements JobManager {
 					ps.setString(6, attachment);
 					ps.setString(7, jobDef.getEmail());
 					ps.setInt(8, jobDef.getRetries());
-					ps.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+					ps.setInt(9, jobDef.getWeight());
+					ps.setTimestamp(10, new Timestamp(System.currentTimeMillis()));
 				});
 
 				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_RUNTIME, ps -> {
@@ -230,10 +230,14 @@ public class JdbcJobManager implements JobManager {
 
 				trigger = jobDef.getTrigger();
 				triggerType = trigger.getTriggerType();
+				if (dependency != null && ArrayUtils.isNotEmpty(dependency.getDependencies())) {
+					trigger.getTriggerDescription().setDependency(new Dependency(dependency.getDependencies(),
+							dependency.getDependencyType(), dependency.getCompletionRate(), triggerType));
+				}
 
 				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
 					ps.setInt(1, jobId);
-					ps.setInt(2, triggerType.getValue());
+					ps.setInt(2, dependency != null ? TriggerType.DEPENDENT.getValue() : triggerType.getValue());
 					ps.setString(3, JacksonUtils.toJsonString(trigger.getTriggerDescription()));
 					ps.setTimestamp(4, trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null);
 					ps.setTimestamp(5, trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null);
@@ -249,17 +253,8 @@ public class JdbcJobManager implements JobManager {
 				JdbcUtils.closeQuietly(connection);
 			}
 
-			if (triggerType == TriggerType.SERIAL) {
-				JobKey[] dependencies = trigger.getTriggerDescription().getSerial().getDependencies();
-				handleJobDependency(jobKey, jobId, dependencies);
-			}
-			if (trigger.getTriggerDescription().getMilestone() != null) {
-				JobPeer[] jobPeers = trigger.getTriggerDescription().getMilestone().getCooperators();
-				JobKey[] dependencies = new JobKey[jobPeers.length];
-				for (int i = 0; i < dependencies.length; i++) {
-					dependencies[i] = jobPeers[i].getJobKey();
-				}
-				handleJobDependency(jobKey, jobId, dependencies);
+			if (dependency != null && ArrayUtils.isNotEmpty(dependency.getDependencies())) {
+				handleJobDependency(jobKey, jobId, dependency.getDependencies());
 			}
 
 			lifeCycleListenerContainer.signalAll(jobKey, JobAction.CREATION);

@@ -80,7 +80,7 @@ public class JdbcLogManager implements LogManager {
 		try {
 			return jobManager.getJobId(jobKey);
 		} catch (Exception e) {
-			throw com.github.paganini2008.springworld.jobclick.ExceptionUtils.wrapExeception(e);
+			throw ExceptionUtils.wrapExeception(e);
 		}
 	}
 

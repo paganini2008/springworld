@@ -2,9 +2,7 @@ package com.github.paganini2008.springworld.jobclick;
 
 import java.util.Date;
 
-import com.github.paganini2008.springworld.jobclick.model.JobPeer;
 import com.github.paganini2008.springworld.jobclick.model.TriggerDescription;
-import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Milestone;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,11 +32,6 @@ public class CronTrigger implements Trigger {
 
 	protected CronTrigger(TriggerDescription triggerDescription) {
 		this.triggerDescription = triggerDescription;
-	}
-
-	public CronTrigger setMilestone(JobPeer[] cooperators, Float goal) {
-		triggerDescription.setMilestone(new Milestone(cooperators, goal));
-		return this;
 	}
 
 	@Override

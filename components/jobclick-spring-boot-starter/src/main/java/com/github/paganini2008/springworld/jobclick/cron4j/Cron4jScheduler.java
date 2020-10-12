@@ -12,16 +12,13 @@ import com.github.paganini2008.devtools.cron4j.CRON;
 import com.github.paganini2008.devtools.cron4j.Task;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor.TaskFuture;
-import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobclick.BeanNames;
 import com.github.paganini2008.springworld.jobclick.Job;
 import com.github.paganini2008.springworld.jobclick.JobDependencyObservable;
 import com.github.paganini2008.springworld.jobclick.JobExecutor;
 import com.github.paganini2008.springworld.jobclick.JobFuture;
 import com.github.paganini2008.springworld.jobclick.JobKey;
-import com.github.paganini2008.springworld.jobclick.JobTeam;
 import com.github.paganini2008.springworld.jobclick.Scheduler;
-import com.github.paganini2008.springworld.jobclick.model.JobPeer;
 
 /**
  * 
@@ -51,13 +48,6 @@ public class Cron4jScheduler implements Scheduler {
 	@Override
 	public JobFuture schedule(Job job, Object attachment, Date startDate) {
 		TaskFuture taskFuture = taskExecutor.schedule(new SimpleTask(job, attachment), startDate.getTime() - System.currentTimeMillis());
-		return new JobFutureImpl(taskFuture);
-	}
-
-	@Override
-	public JobFuture schedule(JobTeam jobTeam, Date startDate) {
-		TaskFuture taskFuture = taskExecutor.schedule(ApplicationContextUtils.autowireBean((Task) jobTeam),
-				startDate.getTime() - System.currentTimeMillis());
 		return new JobFutureImpl(taskFuture);
 	}
 
@@ -100,45 +90,6 @@ public class Cron4jScheduler implements Scheduler {
 		}, startDate);
 	}
 
-	@Override
-	public JobFuture schedule(JobTeam jobTeam, String cronExpression) {
-		TaskFuture taskFuture = taskExecutor.schedule(ApplicationContextUtils.autowireBean((Task) jobTeam), CRON.parse(cronExpression));
-		return new JobFutureImpl(taskFuture);
-	}
-
-	@Override
-	public JobFuture schedule(JobTeam jobTeam, String cronExpression, Date startDate) {
-		return schedule(() -> {
-			return schedule(jobTeam, cronExpression);
-		}, startDate);
-	}
-
-	@Override
-	public JobFuture scheduleWithFixedDelay(JobTeam jobTeam, long period, Date startDate) {
-		TaskFuture taskFuture = taskExecutor.scheduleWithFixedDelay(ApplicationContextUtils.autowireBean((Task) jobTeam),
-				startDate.getTime() - System.currentTimeMillis(), period);
-		return new JobFutureImpl(taskFuture);
-	}
-
-	@Override
-	public JobFuture scheduleAtFixedRate(JobTeam jobTeam, long period, Date startDate) {
-		TaskFuture taskFuture = taskExecutor.scheduleAtFixedRate(ApplicationContextUtils.autowireBean((Task) jobTeam),
-				startDate.getTime() - System.currentTimeMillis(), period);
-		return new JobFutureImpl(taskFuture);
-	}
-
-	@Override
-	public JobFuture scheduleWithDependency(JobTeam jobTeam, JobKey[] dependencies) {
-		return jobDependencyObservable.addDependency(jobTeam, dependencies);
-	}
-
-	@Override
-	public JobFuture scheduleWithDependency(JobTeam jobTeam, JobKey[] dependencies, Date startDate) {
-		return schedule(() -> {
-			return jobDependencyObservable.addDependency(jobTeam, dependencies);
-		}, startDate);
-	}
-
 	private JobFuture schedule(Supplier<JobFuture> supplier, Date startDate) {
 		final Observable canceller = Observable.unrepeatable();
 		final TaskFuture taskFuture = taskExecutor.schedule(new Task() {
@@ -157,11 +108,6 @@ public class Cron4jScheduler implements Scheduler {
 	@Override
 	public void runJob(Job job, Object attachment) {
 		jobExecutor.execute(job, attachment, 0);
-	}
-
-	@Override
-	public JobTeam createJobTeam(Job job, JobPeer[] jobPeers) {
-		return new Cron4jJobTeam(job, jobPeers);
 	}
 
 	private class SimpleTask implements Task {

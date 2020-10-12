@@ -7,8 +7,10 @@ import org.springframework.lang.Nullable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.paganini2008.devtools.beans.ToStringBuilder;
+import com.github.paganini2008.springworld.jobclick.DependencyType;
 import com.github.paganini2008.springworld.jobclick.JobKey;
 import com.github.paganini2008.springworld.jobclick.SchedulingUnit;
+import com.github.paganini2008.springworld.jobclick.TriggerType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,8 +33,7 @@ public class TriggerDescription implements Serializable {
 
 	private @Nullable Cron cron;
 	private @Nullable Periodic periodic;
-	private @Nullable Serial serial;
-	private @Nullable Milestone milestone;
+	private @Nullable Dependency dependency;
 
 	public TriggerDescription() {
 	}
@@ -45,30 +46,26 @@ public class TriggerDescription implements Serializable {
 		this.periodic = new Periodic(period, schedulingUnit, fixedRate);
 	}
 
-	public TriggerDescription(JobKey... dependencies) {
-		this.serial = new Serial(dependencies);
-	}
-
 	@JsonInclude(value = Include.NON_NULL)
 	@Accessors(chain = true)
 	@Getter
 	@Setter
-	public static class Serial implements Serializable {
+	public static class Dependency implements Serializable {
 
 		private static final long serialVersionUID = -8486773222061112232L;
 		private JobKey[] dependencies;
+		private DependencyType dependencyType;
+		private Float completionRate;
+		private TriggerType triggerType;
 
-		public Serial(JobKey... dependencies) {
-			this.dependencies = dependencies;
+		public Dependency() {
 		}
 
-		public Serial setDependencies(JobKey[] dependencies) {
+		public Dependency(JobKey[] dependencies, DependencyType dependencyType, Float completionRate, TriggerType triggerType) {
 			this.dependencies = dependencies;
-			return this;
-		}
-
-		public JobKey[] getDependencies() {
-			return dependencies;
+			this.dependencyType = dependencyType;
+			this.completionRate = completionRate;
+			this.triggerType = triggerType;
 		}
 
 		public String toString() {

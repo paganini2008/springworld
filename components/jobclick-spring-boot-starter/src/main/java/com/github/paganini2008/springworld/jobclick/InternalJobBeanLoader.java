@@ -12,6 +12,8 @@ import com.github.paganini2008.devtools.proxy.ProxyFactory;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobclick.model.JobDetail;
+import com.github.paganini2008.springworld.jobclick.model.JobTriggerDetail;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Dependency;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InternalJobBeanLoader implements JobBeanLoader {
 
-	private final ProxyFactory proxyFactory = new JdkProxyFactory();
+	private static final ProxyFactory proxyFactory = new JdkProxyFactory();
 
 	@Autowired
 	private JobManager jobManager;
@@ -54,13 +56,27 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 			if (job == null) {
 				throw new JobBeanNotFoundException(jobKey);
 			}
-			return job;
+			return parallelizeJobIfNecessary(jobKey, job);
 		} else if (NotManagedJob.class.isAssignableFrom(jobClass)) {
 			NotManagedJob target = ApplicationContextUtils.autowireBean((NotManagedJob) BeanUtils.instantiate(jobClass));
 			JobDetail jobDetail = jobManager.getJobDetail(jobKey, false);
-			return (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), Job.class);
+			Job job = (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), Job.class);
+			return parallelizeJobIfNecessary(jobKey, job);
 		}
 		throw new JobException("Class '" + jobClass.getName() + "' is not a instance of interface '" + Job.class.getName() + "'.");
+	}
+
+	private Job parallelizeJobIfNecessary(JobKey jobKey, Job job) throws Exception {
+		JobTriggerDetail triggerDetail = jobManager.getJobTriggerDetail(jobKey);
+		if (triggerDetail.getTriggerType() != TriggerType.DEPENDENT) {
+			return job;
+		}
+		Dependency dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
+		DependencyType dependencyType = dependency.getDependencyType();
+		if (dependencyType != DependencyType.PARALLEL) {
+			return job;
+		}
+		return new JobParallelization(job, dependency.getDependencies(), dependency.getCompletionRate());
 	}
 
 	/**
@@ -97,7 +113,7 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				return jobDetail.getEmail();
 			case "getRetries":
 				return jobDetail.getRetries();
-			case "buildTrigger":
+			case "getTrigger":
 				return null;
 			default:
 				return MethodUtils.invokeMethod(target, method, args);

@@ -6,10 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.date.DateUtils;
+import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobclick.model.JobDetail;
 import com.github.paganini2008.springworld.jobclick.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.jobclick.model.TriggerDescription;
-import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Milestone;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Dependency;
 import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Periodic;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,8 +54,13 @@ public class DefaultScheduleManager implements ScheduleManager {
 			} catch (Exception e) {
 				throw new JobException(e.getMessage(), e);
 			}
-
-			JobFuture jobFuture = doSchedule(job, jobDetail.getAttachment(), jobDetail.getJobTriggerDetail());
+			JobFuture jobFuture;
+			JobTriggerDetail triggerDetail = jobDetail.getJobTriggerDetail();
+			if (triggerDetail.getTriggerType() == TriggerType.DEPENDENT) {
+				jobFuture = doScheduleIfHasDependencies(job, jobDetail.getAttachment(), triggerDetail);
+			} else {
+				jobFuture = doSchedule(job, jobDetail.getAttachment(), triggerDetail);
+			}
 			if (jobFuture != null) {
 				jobFutureHolder.add(jobKey, jobFuture);
 			}
@@ -68,66 +74,62 @@ public class DefaultScheduleManager implements ScheduleManager {
 		return jobManager.getJobRuntime(jobKey).getJobState();
 	}
 
+	private JobFuture doScheduleIfHasDependencies(Job job, String attachment, JobTriggerDetail triggerDetail) {
+		final TriggerDescription triggerDescription = triggerDetail.getTriggerDescriptionObject();
+		Date startDate = triggerDetail.getStartDate();
+		Dependency dependency = triggerDescription.getDependency();
+		JobKey[] dependencies = dependency.getDependencies();
+		if (dependency.getDependencyType() == DependencyType.PARALLEL) {
+			JobParallelization jobParallelization = ApplicationContextUtils
+					.autowireBean(new JobParallelization(job, dependencies, dependency.getCompletionRate()));
+			if (dependency.getTriggerType() == TriggerType.CRON) {
+				String cronExpression = triggerDescription.getCron().getExpression();
+				if (startDate != null) {
+					return scheduler.schedule(jobParallelization, attachment, cronExpression, startDate);
+				}
+				return scheduler.schedule(jobParallelization, attachment, cronExpression);
+			} else if (dependency.getTriggerType() == TriggerType.PERIODIC) {
+				Periodic periodic = triggerDescription.getPeriodic();
+				long periodInMs = DateUtils.convertToMillis(periodic.getPeriod(), periodic.getSchedulingUnit().getTimeUnit());
+				if (startDate == null) {
+					startDate = new Date(System.currentTimeMillis() + periodInMs);
+				}
+				if (periodic.isFixedRate()) {
+					return scheduler.scheduleAtFixedRate(jobParallelization, attachment, periodInMs, startDate);
+				}
+				return scheduler.scheduleWithFixedDelay(jobParallelization, attachment, periodInMs, startDate);
+			}
+		} else if (dependency.getDependencyType() == DependencyType.SERIAL) {
+			if (startDate != null) {
+				return scheduler.scheduleWithDependency(job, dependencies, startDate);
+			}
+			return scheduler.scheduleWithDependency(job, dependencies);
+		}
+		return null;
+	}
+
 	private JobFuture doSchedule(Job job, String attachment, JobTriggerDetail triggerDetail) {
-		TriggerDescription triggerDescription = triggerDetail.getTriggerDescriptionObject();
-		if (triggerDescription.getMilestone() != null) {
-			Milestone milestone = triggerDescription.getMilestone();
-			Date startDate = triggerDetail.getStartDate();
-			switch (triggerDetail.getTriggerType()) {
-			case CRON:
-				String cronExpression = triggerDescription.getCron().getExpression();
-				if (startDate != null) {
-					return scheduler.schedule(scheduler.createJobTeam(job, milestone.getCooperators()), cronExpression, startDate);
-				}
-				return scheduler.schedule(scheduler.createJobTeam(job, milestone.getCooperators()), cronExpression);
-			case PERIODIC:
-				Periodic periodic = triggerDescription.getPeriodic();
-				long periodInMs = DateUtils.convertToMillis(periodic.getPeriod(), periodic.getSchedulingUnit().getTimeUnit());
-				if (startDate == null) {
-					startDate = new Date(System.currentTimeMillis() + periodInMs);
-				}
-				if (periodic.isFixedRate()) {
-					return scheduler.scheduleAtFixedRate(scheduler.createJobTeam(job, milestone.getCooperators()), periodInMs, startDate);
-				}
-				return scheduler.scheduleWithFixedDelay(scheduler.createJobTeam(job, milestone.getCooperators()), periodInMs, startDate);
-			case SERIAL:
-				JobKey[] dependencies = triggerDescription.getSerial().getDependencies();
-				if (startDate != null) {
-					return scheduler.scheduleWithDependency(scheduler.createJobTeam(job, milestone.getCooperators()), dependencies,
-							startDate);
-				}
-				return scheduler.scheduleWithDependency(scheduler.createJobTeam(job, milestone.getCooperators()), dependencies);
-			default:
-				break;
+		final TriggerDescription triggerDescription = triggerDetail.getTriggerDescriptionObject();
+		Date startDate = triggerDetail.getStartDate();
+		switch (triggerDetail.getTriggerType()) {
+		case CRON:
+			String cronExpression = triggerDescription.getCron().getExpression();
+			if (startDate != null) {
+				return scheduler.schedule(job, attachment, cronExpression, startDate);
 			}
-		} else {
-			Date startDate = triggerDetail.getStartDate();
-			switch (triggerDetail.getTriggerType()) {
-			case CRON:
-				String cronExpression = triggerDescription.getCron().getExpression();
-				if (startDate != null) {
-					return scheduler.schedule(job, attachment, cronExpression, startDate);
-				}
-				return scheduler.schedule(job, attachment, cronExpression);
-			case PERIODIC:
-				Periodic periodic = triggerDescription.getPeriodic();
-				long periodInMs = DateUtils.convertToMillis(periodic.getPeriod(), periodic.getSchedulingUnit().getTimeUnit());
-				if (startDate == null) {
-					startDate = new Date(System.currentTimeMillis() + periodInMs);
-				}
-				if (periodic.isFixedRate()) {
-					return scheduler.scheduleAtFixedRate(job, attachment, periodInMs, startDate);
-				}
-				return scheduler.scheduleWithFixedDelay(job, attachment, periodInMs, startDate);
-			case SERIAL:
-				JobKey[] dependencies = triggerDescription.getSerial().getDependencies();
-				if (startDate != null) {
-					return scheduler.scheduleWithDependency(job, dependencies, startDate);
-				}
-				return scheduler.scheduleWithDependency(job, dependencies);
-			default:
-				break;
+			return scheduler.schedule(job, attachment, cronExpression);
+		case PERIODIC:
+			Periodic periodic = triggerDescription.getPeriodic();
+			long periodInMs = DateUtils.convertToMillis(periodic.getPeriod(), periodic.getSchedulingUnit().getTimeUnit());
+			if (startDate == null) {
+				startDate = new Date(System.currentTimeMillis() + periodInMs);
 			}
+			if (periodic.isFixedRate()) {
+				return scheduler.scheduleAtFixedRate(job, attachment, periodInMs, startDate);
+			}
+			return scheduler.scheduleWithFixedDelay(job, attachment, periodInMs, startDate);
+		default:
+			break;
 		}
 		return null;
 	}

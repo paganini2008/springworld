@@ -60,7 +60,7 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 	private void refresh() {
 		JobKeyQuery jobQuery = new JobKeyQuery();
 		jobQuery.setClusterName(clusterName);
-		jobQuery.setTriggerType(TriggerType.SERIAL);
+		jobQuery.setTriggerType(TriggerType.DEPENDENT);
 		JobKey[] jobKeys = new JobKey[0];
 		try {
 			jobKeys = jobManager.getJobKeys(jobQuery);
@@ -76,7 +76,7 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 			JobTriggerDetail triggerDetail = null;
 			try {
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-				dependencies = triggerDetail.getTriggerDescriptionObject().getSerial().getDependencies();
+				dependencies = triggerDetail.getTriggerDescriptionObject().getDependency().getDependencies();
 				comparedDependencies = jobManager.getDependencies(jobKey);
 				supplyJobKeys = ArrayUtils.minus(dependencies, comparedDependencies);
 				if (ArrayUtils.isNotEmpty(supplyJobKeys)) {

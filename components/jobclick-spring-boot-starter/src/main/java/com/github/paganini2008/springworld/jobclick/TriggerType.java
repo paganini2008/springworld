@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.paganini2008.devtools.enums.EnumConstant;
 import com.github.paganini2008.springworld.jobclick.model.TriggerDescription;
 import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Cron;
+import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Dependency;
 import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Periodic;
-import com.github.paganini2008.springworld.jobclick.model.TriggerDescription.Serial;
 
 /**
  * 
@@ -46,15 +46,13 @@ public enum TriggerType implements EnumConstant {
 		}
 	},
 
-	SERIAL(3, "Serial") {
-
+	DEPENDENT(3, "DEPENDENT") {
 		@Override
 		public TriggerDescription getTriggerDescription() {
 			TriggerDescription triggerDescription = new TriggerDescription();
-			triggerDescription.setSerial(new Serial());
+			triggerDescription.setDependency(new Dependency());
 			return triggerDescription;
 		}
-
 	};
 
 	private final int value;
