@@ -16,8 +16,6 @@ public interface JobDependency {
 		return null;
 	}
 
-	default DependencyType getDependencyType() {
-		return DependencyType.NONE;
-	}
+	DependencyType getDependencyType();
 
 }

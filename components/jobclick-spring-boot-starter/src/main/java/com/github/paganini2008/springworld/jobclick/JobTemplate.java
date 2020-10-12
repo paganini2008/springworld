@@ -2,7 +2,9 @@ package com.github.paganini2008.springworld.jobclick;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -13,6 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.Assert;
+import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
 
 /**
@@ -26,21 +31,31 @@ import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
 public abstract class JobTemplate implements JobExecutor, DisposableBean {
 
 	protected final Logger log = LoggerFactory.getLogger(JobExecutor.class);
-	private final Set<JobRuntimeListener> jobRuntimeListeners = Collections.synchronizedNavigableSet(new TreeSet<JobRuntimeListener>());
+	private final Set<JobRuntimeListener> globalJobRuntimeListeners = Collections
+			.synchronizedNavigableSet(new TreeSet<JobRuntimeListener>());
+	private final Map<JobKey, JobRuntimeListener> jobRuntimeListeners = Collections
+			.unmodifiableMap(new TreeMap<JobKey, JobRuntimeListener>());
+
 	private Executor threadPool;
 	private Logger customizedLog;
 
 	@Override
-	public void addListener(JobRuntimeListener listener) {
-		if (listener != null) {
-			jobRuntimeListeners.add(listener);
+	public void addListener(JobKey jobKey, JobRuntimeListener listener) {
+		Assert.isNull(listener, "Nullable JobRuntimeListener");
+		if (jobKey != null) {
+			jobRuntimeListeners.putIfAbsent(jobKey, listener);
+		} else {
+			globalJobRuntimeListeners.add(listener);
 		}
 	}
 
 	@Override
-	public void removeListener(JobRuntimeListener listener) {
-		if (listener != null) {
-			jobRuntimeListeners.remove(listener);
+	public void removeListener(JobKey jobKey, JobRuntimeListener listener) {
+		Assert.isNull(listener, "Nullable JobRuntimeListener");
+		if (jobKey != null) {
+			jobRuntimeListeners.remove(jobKey, listener);
+		} else {
+			globalJobRuntimeListeners.remove(listener);
 		}
 	}
 
@@ -154,8 +169,21 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 		if (log.isTraceEnabled()) {
 			log.trace("Prepare to run Job: {}, traceId: {}", jobKey, traceId);
 		}
-		for (JobRuntimeListener listener : jobRuntimeListeners) {
+
+		for (JobRuntimeListener listener : globalJobRuntimeListeners) {
 			listener.beforeRun(traceId, jobKey, attachment, startDate);
+		}
+
+		if (jobRuntimeListeners.containsKey(jobKey)) {
+			jobRuntimeListeners.get(jobKey).beforeRun(traceId, jobKey, attachment, startDate);
+		}
+
+		Class<?>[] listenerClasses = job.getJobRuntimeListeners();
+		if (ArrayUtils.isNotEmpty(listenerClasses)) {
+			for (Class<?> listenerClass : listenerClasses) {
+				JobRuntimeListener listener = (JobRuntimeListener) BeanUtils.instantiate(listenerClass);
+				listener.beforeRun(traceId, jobKey, attachment, startDate);
+			}
 		}
 	}
 
@@ -164,7 +192,20 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 		if (log.isTraceEnabled()) {
 			log.trace("Job {} with traceId '{}' is ending with state {}", jobKey, traceId, runningState);
 		}
-		for (JobRuntimeListener listener : jobRuntimeListeners) {
+
+		Class<?>[] listenerClasses = job.getJobRuntimeListeners();
+		if (ArrayUtils.isNotEmpty(listenerClasses)) {
+			for (Class<?> listenerClass : listenerClasses) {
+				JobRuntimeListener listener = (JobRuntimeListener) BeanUtils.instantiate(listenerClass);
+				listener.afterRun(traceId, jobKey, attachment, startDate, runningState, result, reason);
+			}
+		}
+
+		if (jobRuntimeListeners.containsKey(jobKey)) {
+			jobRuntimeListeners.get(jobKey).afterRun(traceId, jobKey, attachment, startDate, runningState, result, reason);
+		}
+
+		for (JobRuntimeListener listener : globalJobRuntimeListeners) {
 			listener.afterRun(traceId, jobKey, attachment, startDate, runningState, result, reason);
 		}
 	}

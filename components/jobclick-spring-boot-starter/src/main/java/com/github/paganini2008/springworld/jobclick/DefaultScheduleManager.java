@@ -80,6 +80,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 		Dependency dependency = triggerDescription.getDependency();
 		JobKey[] dependencies = dependency.getDependencies();
 		if (dependency.getDependencyType() == DependencyType.PARALLEL) {
+			
 			JobParallelization jobParallelization;
 			if (job instanceof JobParallelization) {
 				jobParallelization = (JobParallelization) job;

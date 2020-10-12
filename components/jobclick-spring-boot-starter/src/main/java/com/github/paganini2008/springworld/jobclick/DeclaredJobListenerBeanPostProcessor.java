@@ -14,7 +14,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * @since 1.0
  */
 public class DeclaredJobListenerBeanPostProcessor implements BeanPostProcessor {
-	
+
 	@Qualifier(BeanNames.MAIN_JOB_EXECUTOR)
 	@Autowired
 	private JobExecutor jobExecutor;
@@ -24,21 +24,30 @@ public class DeclaredJobListenerBeanPostProcessor implements BeanPostProcessor {
 	private JobExecutor targetJobExecutor;
 
 	@Autowired
-	private LifeCycleListenerContainer lifecycleListenerContainer;
+	private LifeCycleListenerContainer lifeCycleListenerContainer;
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof LifeCycleListener) {
 			LifeCycleListener listener = (LifeCycleListener) bean;
-			lifecycleListenerContainer.addListener(listener);
+			lifeCycleListenerContainer.addListener(listener);
 		}
 
 		if (bean instanceof JobRuntimeListener) {
-			JobRuntimeListener jobListener = (JobRuntimeListener) bean;
-			jobExecutor.addListener(jobListener);
-			if (targetJobExecutor != null) {
-				targetJobExecutor.addListener(jobListener);
+			JobRuntimeListener listener = (JobRuntimeListener) bean;
+			if (bean instanceof JobDefinition) {
+				JobKey jobKey = JobKey.of((JobDefinition) bean);
+				jobExecutor.addListener(jobKey, listener);
+				if (targetJobExecutor != null) {
+					targetJobExecutor.addListener(jobKey, listener);
+				}
+			} else {
+				jobExecutor.addListener(null, listener);
+				if (targetJobExecutor != null) {
+					targetJobExecutor.addListener(null, listener);
+				}
 			}
+
 		}
 		return bean;
 	}

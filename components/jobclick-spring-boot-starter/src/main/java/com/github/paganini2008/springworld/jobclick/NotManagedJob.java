@@ -27,4 +27,8 @@ public interface NotManagedJob {
 
 	Object execute(JobKey jobKey, Object attachment, Logger log) throws Exception;
 
+	default Class<? extends JobRuntimeListener>[] getJobRuntimeListeners() {
+		return null;
+	}
+
 }
