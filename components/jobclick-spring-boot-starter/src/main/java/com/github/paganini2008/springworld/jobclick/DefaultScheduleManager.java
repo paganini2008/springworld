@@ -80,8 +80,13 @@ public class DefaultScheduleManager implements ScheduleManager {
 		Dependency dependency = triggerDescription.getDependency();
 		JobKey[] dependencies = dependency.getDependencies();
 		if (dependency.getDependencyType() == DependencyType.PARALLEL) {
-			JobParallelization jobParallelization = ApplicationContextUtils
-					.autowireBean(new JobParallelization(job, dependencies, dependency.getCompletionRate()));
+			JobParallelization jobParallelization;
+			if (job instanceof JobParallelization) {
+				jobParallelization = (JobParallelization) job;
+			} else {
+				jobParallelization = ApplicationContextUtils
+						.autowireBean(new JobParallelization(job, dependencies, dependency.getCompletionRate()));
+			}
 			if (dependency.getTriggerType() == TriggerType.CRON) {
 				String cronExpression = triggerDescription.getCron().getExpression();
 				if (startDate != null) {

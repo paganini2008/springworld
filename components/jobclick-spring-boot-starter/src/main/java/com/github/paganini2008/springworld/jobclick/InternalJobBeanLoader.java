@@ -76,7 +76,8 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 		if (dependencyType != DependencyType.PARALLEL) {
 			return job;
 		}
-		return new JobParallelization(job, dependency.getDependencies(), dependency.getCompletionRate());
+		return ApplicationContextUtils
+				.autowireBean(new JobParallelization(job, dependency.getDependencies(), dependency.getCompletionRate()));
 	}
 
 	/**
