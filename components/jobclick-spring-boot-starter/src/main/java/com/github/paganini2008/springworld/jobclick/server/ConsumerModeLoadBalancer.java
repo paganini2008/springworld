@@ -15,6 +15,7 @@ import com.github.paganini2008.springworld.jobclick.JobExecutor;
 import com.github.paganini2008.springworld.jobclick.JobFutureHolder;
 import com.github.paganini2008.springworld.jobclick.JobKey;
 import com.github.paganini2008.springworld.jobclick.JobManager;
+import com.github.paganini2008.springworld.jobclick.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobclick.JobState;
 import com.github.paganini2008.springworld.jobclick.JobTemplate;
 import com.github.paganini2008.springworld.jobclick.RunningState;
@@ -47,6 +48,9 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
+	@Autowired
+	private JobRuntimeListenerContainer jobRuntimeListenerContainer;
+
 	@Override
 	protected long getTraceId(JobKey jobKey) {
 		return TraceIdGenerator.NOOP.generateTraceId(jobKey);
@@ -58,14 +62,15 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime) {
-		super.beforeRun(traceId, jobKey, job, attachment, startTime);
-		handleIfDependentJob(traceId, jobKey, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
+		super.beforeRun(traceId, jobKey, job, attachment, startDate);
+		jobRuntimeListenerContainer.beforeRun(traceId, jobKey, job, attachment, startDate);
+		handleIfDependentJob(traceId, jobKey, startDate);
 	}
 
-	private void handleIfDependentJob(long traceId, JobKey jobKey, Date startTime) {
+	private void handleIfDependentJob(long traceId, JobKey jobKey, Date startDate) {
 		if (jobFutureHolder.get(jobKey) instanceof JobDependencyFuture) {
-			stopWatch.startJob(traceId, jobKey, startTime);
+			stopWatch.startJob(traceId, jobKey, startDate);
 		}
 	}
 

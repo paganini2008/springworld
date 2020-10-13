@@ -106,16 +106,16 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 		try {
 			repr = new String(Base64Utils.decodeFromString(identifier), DEFAULT_CHARSET);
 		} catch (RuntimeException e) {
-			throw new InvalidJobKeyException(identifier, e);
+			throw new IllegalJobKeyException(identifier, e);
 		}
 		int index = repr.lastIndexOf("@");
 		if (index < 0) {
-			throw new InvalidJobKeyException(repr);
+			throw new IllegalJobKeyException(repr);
 		}
 		String part = repr.substring(0, index);
 		String[] args = part.split("\\.", 3);
 		if (args.length != 3) {
-			throw new InvalidJobKeyException(repr);
+			throw new IllegalJobKeyException(repr);
 		}
 		return new JobKey(args[0], args[1], args[2], repr.substring(index + 1));
 	}

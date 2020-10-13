@@ -12,8 +12,4 @@ public interface JobExecutor {
 
 	void execute(Job job, Object attachment, int retries);
 
-	void addListener(JobKey jobKey, JobRuntimeListener listener);
-
-	void removeListener(JobKey jobKey, JobRuntimeListener listener);
-
 }

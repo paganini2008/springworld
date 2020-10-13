@@ -12,6 +12,7 @@ import com.github.paganini2008.springworld.jobclick.JobExecutor;
 import com.github.paganini2008.springworld.jobclick.JobKey;
 import com.github.paganini2008.springworld.jobclick.JobLoggerFactory;
 import com.github.paganini2008.springworld.jobclick.JobManager;
+import com.github.paganini2008.springworld.jobclick.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobclick.JobTemplate;
 import com.github.paganini2008.springworld.jobclick.LogManager;
 import com.github.paganini2008.springworld.jobclick.RetryPolicy;
@@ -47,6 +48,9 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Autowired
 	private TraceIdGenerator idGenerator;
 
+	@Autowired
+	private JobRuntimeListenerContainer jobRuntimeListenerContainer;
+
 	@Override
 	protected long getTraceId(JobKey jobKey) {
 		long traceId = idGenerator.generateTraceId(jobKey);
@@ -81,9 +85,10 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	}
 
 	@Override
-	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime, RunningState runningState,
+	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState,
 			Object result, Throwable reason, int retries) {
-		super.afterRun(traceId, jobKey, job, attachment, startTime, runningState, result, reason, retries);
-		stopWatch.finishJob(traceId, jobKey, startTime, runningState, retries);
+		super.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
+		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
+		stopWatch.finishJob(traceId, jobKey, startDate, runningState, retries);
 	}
 }

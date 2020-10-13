@@ -12,8 +12,8 @@ import java.util.Date;
  */
 public interface StopWatch {
 
-	JobState startJob(long traceId, JobKey jobKey, Date startTime);
+	JobState startJob(long traceId, JobKey jobKey, Date startDate);
 
-	JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, int retries);
+	JobState finishJob(long traceId, JobKey jobKey, Date startDate, RunningState runningState, int retries);
 
 }

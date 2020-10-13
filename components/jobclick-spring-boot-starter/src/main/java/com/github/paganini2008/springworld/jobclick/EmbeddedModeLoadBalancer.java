@@ -35,6 +35,9 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
+	
+	@Autowired
+	private JobRuntimeListenerContainer jobRuntimeListenerContainer;
 
 	@Override
 	protected long getTraceId(JobKey jobKey) {
@@ -47,9 +50,10 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	@Override
-	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startTime) {
-		super.beforeRun(traceId, jobKey, job, attachment, startTime);
-		stopWatch.startJob(traceId, jobKey, startTime);
+	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
+		super.beforeRun(traceId, jobKey, job, attachment, startDate);
+		jobRuntimeListenerContainer.beforeRun(traceId, jobKey, job, attachment, startDate);
+		stopWatch.startJob(traceId, jobKey, startDate);
 	}
 
 	@Override

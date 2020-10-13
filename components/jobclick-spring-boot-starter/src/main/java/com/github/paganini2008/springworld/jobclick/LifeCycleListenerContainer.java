@@ -19,7 +19,7 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
  */
 public class LifeCycleListenerContainer implements RedisMessageHandler {
 
-	private final Set<LifeCycleListener> lifecycleListeners = Collections.synchronizedNavigableSet(new TreeSet<LifeCycleListener>());
+	private final Set<LifeCycleListener> lifeCycleListeners = Collections.synchronizedNavigableSet(new TreeSet<LifeCycleListener>());
 
 	private final String clusterName;
 	private final RedisMessageSender redisMessageSender;
@@ -31,13 +31,13 @@ public class LifeCycleListenerContainer implements RedisMessageHandler {
 
 	public void addListener(LifeCycleListener listener) {
 		if (listener != null) {
-			lifecycleListeners.add(listener);
+			lifeCycleListeners.add(listener);
 		}
 	}
 
 	public void removeListener(LifeCycleListener listener) {
 		if (listener != null) {
-			lifecycleListeners.remove(listener);
+			lifeCycleListeners.remove(listener);
 		}
 	}
 
@@ -57,17 +57,17 @@ public class LifeCycleListenerContainer implements RedisMessageHandler {
 	private void accept(JobKey jobKey, JobAction jobAction) {
 		switch (jobAction) {
 		case CREATION:
-			for (LifeCycleListener listener : lifecycleListeners) {
+			for (LifeCycleListener listener : lifeCycleListeners) {
 				listener.afterCreation(jobKey);
 			}
 			break;
 		case DELETION:
-			for (LifeCycleListener listener : lifecycleListeners) {
+			for (LifeCycleListener listener : lifeCycleListeners) {
 				listener.beforeDeletion(jobKey);
 			}
 			break;
 		case REFRESH:
-			for (LifeCycleListener listener : lifecycleListeners) {
+			for (LifeCycleListener listener : lifeCycleListeners) {
 				listener.afterRefresh(jobKey);
 			}
 			break;
