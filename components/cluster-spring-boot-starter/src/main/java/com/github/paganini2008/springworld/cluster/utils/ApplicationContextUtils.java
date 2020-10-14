@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -114,9 +115,14 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static <T> T autowireBean(T object) {
-		getBeanFactory().autowireBean(object);
-		return object;
+	public static <T> T autowireBean(T bean) {
+		getBeanFactory().autowireBean(bean);
+		return bean;
+	}
+
+	public static <T> T instantiateClass(Class<T> clazz) {
+		T bean = BeanUtils.instantiateClass(clazz);
+		return autowireBean(bean);
 	}
 
 	public static String getRequiredProperty(String key) {
