@@ -19,14 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * JobDependencyFuture
+ * SerialJobDependencyFuture
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class JobDependencyFuture implements JobFuture {
+public class SerialJobDependencyFuture implements JobFuture {
 
 	private final List<JobKey> dependencies;
 	private final List<Observer> observers;
@@ -34,7 +34,7 @@ public class JobDependencyFuture implements JobFuture {
 	private final AtomicBoolean cancelled = new AtomicBoolean();
 	private final AtomicBoolean done = new AtomicBoolean();
 
-	JobDependencyFuture(List<JobKey> dependencies, List<Observer> observers, Observable observable) {
+	SerialJobDependencyFuture(List<JobKey> dependencies, List<Observer> observers, Observable observable) {
 		this.dependencies = dependencies;
 		this.observers = observers;
 		this.observable = observable;

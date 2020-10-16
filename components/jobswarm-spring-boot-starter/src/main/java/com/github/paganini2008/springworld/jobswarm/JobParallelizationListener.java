@@ -41,10 +41,7 @@ public class JobParallelizationListener implements JobRuntimeListener {
 		}
 
 		RedisCountDownLatch latch = new RedisCountDownLatch(relation.getIdentifier(), redisMessageSender);
-		JobPeerResult jobPeerResult = new JobPeerResult(jobKey, attachment);
-		jobPeerResult.setResult(result);
-		jobPeerResult.setApproved(runningState == RunningState.COMPLETED || runningState == RunningState.FINISHED);
-		latch.countdown(jobPeerResult);
+		latch.countdown(new JobPeerResult(jobKey, attachment, runningState, result));
 	}
 
 }

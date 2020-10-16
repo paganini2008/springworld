@@ -10,12 +10,18 @@ package com.github.paganini2008.springworld.jobswarm;
  */
 public interface JobDependency {
 
+	default DependencyType getDependencyType() {
+		return DependencyType.SERIAL;
+	}
+
 	JobKey[] getDependencies();
 
 	default Float getCompletionRate() {
 		return null;
 	}
 
-	DependencyType getDependencyType();
+	default boolean approve(JobKey jobKey, RunningState runningState, Object attachment, Object result) {
+		return runningState == RunningState.COMPLETED;
+	}
 
 }

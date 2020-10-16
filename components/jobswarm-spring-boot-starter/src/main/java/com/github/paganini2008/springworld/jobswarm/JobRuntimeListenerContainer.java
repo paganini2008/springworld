@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.beans.BeanUtils;
+import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +75,7 @@ public class JobRuntimeListenerContainer {
 		Class<?>[] listenerClasses = job.getJobRuntimeListeners();
 		if (ArrayUtils.isNotEmpty(listenerClasses)) {
 			for (Class<?> listenerClass : listenerClasses) {
-				JobRuntimeListener listener = (JobRuntimeListener) BeanUtils.instantiate(listenerClass);
+				JobRuntimeListener listener = (JobRuntimeListener) ApplicationContextUtils.instantiateClass(listenerClass);
 				listener.afterRun(traceId, jobKey, attachment, startDate, runningState, result, reason);
 			}
 		}

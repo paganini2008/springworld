@@ -130,14 +130,16 @@ public class JobParallelization implements Job {
 				JobPeerResult jobResult = (JobPeerResult) result;
 				JobDetail jobDetail = jobManager.getJobDetail(jobResult.getJobKey(), false);
 				totalWeight += jobDetail.getWeight();
-				completionWeight += jobResult.isApproved() ? jobDetail.getWeight() : 0;
+				completionWeight += ((JobDependency) delegate).approve(jobResult.getJobKey(), jobResult.getRunningState(),
+						jobResult.getAttachment(), jobResult.getResult()) ? jobDetail.getWeight() : 0;
 			}
 			boolean run = completionRate != null ? (float) completionWeight / totalWeight >= completionRate.floatValue() : true;
 			if (run) {
 				log.trace("The completionRate is '{}' and now start to run job '{}' after all dependent jobs done.",
 						NumberUtils.format(completionRate, 2), jobKey);
-				JobParallelizingResult teamResult = new JobParallelizingResult(jobKey, attachment, ArrayUtils.cast(answer, JobPeerResult.class));
-				jobExecutor.execute(delegate, teamResult, 0);
+				JobParallelizingResult parallelizingResult = new JobParallelizingResult(jobKey, attachment,
+						ArrayUtils.cast(answer, JobPeerResult.class));
+				jobExecutor.execute(delegate, parallelizingResult, 0);
 			}
 		}
 		return null;

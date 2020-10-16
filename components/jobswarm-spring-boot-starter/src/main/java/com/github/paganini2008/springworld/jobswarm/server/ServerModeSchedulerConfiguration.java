@@ -27,7 +27,7 @@ import com.github.paganini2008.springworld.jobswarm.BeanNames;
 import com.github.paganini2008.springworld.jobswarm.ConditionalOnServerMode;
 import com.github.paganini2008.springworld.jobswarm.CurrentThreadRetryPolicy;
 import com.github.paganini2008.springworld.jobswarm.DeclaredJobListenerBeanPostProcessor;
-import com.github.paganini2008.springworld.jobswarm.DefaultJobDependencyObservable;
+import com.github.paganini2008.springworld.jobswarm.SerialJobDependencySchedulerImpl;
 import com.github.paganini2008.springworld.jobswarm.DefaultSchedulerStarterListener;
 import com.github.paganini2008.springworld.jobswarm.ExternalJobBeanLoader;
 import com.github.paganini2008.springworld.jobswarm.FailoverRetryPolicy;
@@ -38,9 +38,9 @@ import com.github.paganini2008.springworld.jobswarm.JdbcStopWatch;
 import com.github.paganini2008.springworld.jobswarm.JobAdmin;
 import com.github.paganini2008.springworld.jobswarm.JobAdminController;
 import com.github.paganini2008.springworld.jobswarm.JobBeanLoader;
-import com.github.paganini2008.springworld.jobswarm.JobDependencyDetector;
+import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyListener;
 import com.github.paganini2008.springworld.jobswarm.JobDependencyFutureListener;
-import com.github.paganini2008.springworld.jobswarm.JobDependencyObservable;
+import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.JobExecutor;
 import com.github.paganini2008.springworld.jobswarm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobswarm.JobIdCache;
@@ -188,13 +188,13 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public JobDependencyObservable jobDependencyObservable() {
-			return new DefaultJobDependencyObservable();
+		public SerialJobDependencyScheduler jobDependencyScheduler() {
+			return new SerialJobDependencySchedulerImpl();
 		}
 
 		@Bean
-		public JobDependencyDetector jobDependencyDetector() {
-			return new JobDependencyDetector();
+		public SerialJobDependencyListener jobDependencyDetector() {
+			return new SerialJobDependencyListener();
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
@@ -293,13 +293,13 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public JobDependencyObservable jobDependencyObservable() {
-			return new DefaultJobDependencyObservable();
+		public SerialJobDependencyScheduler jobDependencyScheduler() {
+			return new SerialJobDependencySchedulerImpl();
 		}
 
 		@Bean
-		public JobDependencyDetector jobDependencyDetector() {
-			return new JobDependencyDetector();
+		public SerialJobDependencyListener jobDependencyDetector() {
+			return new SerialJobDependencyListener();
 		}
 
 		@Bean

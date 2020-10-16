@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.jobswarm.model;
 
 import com.github.paganini2008.springworld.jobswarm.JobKey;
+import com.github.paganini2008.springworld.jobswarm.RunningState;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,15 +20,17 @@ public class JobPeerResult {
 
 	private JobKey jobKey;
 	private Object attachment;
+	private RunningState runningState;
 	private Object result;
-	private boolean approved;
 
 	public JobPeerResult() {
 	}
 
-	public JobPeerResult(JobKey jobKey, Object attachment) {
+	public JobPeerResult(JobKey jobKey, Object attachment, RunningState runningState, Object result) {
 		this.jobKey = jobKey;
 		this.attachment = attachment;
+		this.runningState = runningState;
+		this.result = result;
 	}
 
 }

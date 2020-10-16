@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor.TaskFuture;
 import com.github.paganini2008.springworld.jobswarm.BeanNames;
 import com.github.paganini2008.springworld.jobswarm.Job;
-import com.github.paganini2008.springworld.jobswarm.JobDependencyObservable;
+import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.JobExecutor;
 import com.github.paganini2008.springworld.jobswarm.JobFuture;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
@@ -43,7 +43,7 @@ public class Cron4jScheduler implements Scheduler {
 	private ErrorHandler errorHandler;
 
 	@Autowired
-	private JobDependencyObservable jobDependencyObservable;
+	private SerialJobDependencyScheduler jobDependencyScheduler;
 
 	@Override
 	public JobFuture schedule(Job job, Object attachment, Date startDate) {
@@ -80,13 +80,13 @@ public class Cron4jScheduler implements Scheduler {
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, JobKey[] dependencies) {
-		return jobDependencyObservable.scheduleDependency(job, dependencies);
+		return jobDependencyScheduler.scheduleDependency(job, dependencies);
 	}
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, JobKey[] dependencies, Date startDate) {
 		return schedule(() -> {
-			return jobDependencyObservable.scheduleDependency(job, dependencies);
+			return jobDependencyScheduler.scheduleDependency(job, dependencies);
 		}, startDate);
 	}
 

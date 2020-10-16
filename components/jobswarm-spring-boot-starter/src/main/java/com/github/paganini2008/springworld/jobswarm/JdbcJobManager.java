@@ -185,6 +185,8 @@ public class JdbcJobManager implements JobManager {
 					switch (dependency.getDependencyType()) {
 					case SERIAL:
 						triggerDescription.setDependency(new Dependency(dependency.getDependencies(), dependency.getDependencyType()));
+						triggerDescription.setCron(null);
+						triggerDescription.setPeriodic(null);
 						break;
 					case PARALLEL:
 						triggerDescription.setDependency(new Dependency(dependency.getDependencies(), dependency.getDependencyType(),
@@ -254,6 +256,8 @@ public class JdbcJobManager implements JobManager {
 					switch (dependency.getDependencyType()) {
 					case SERIAL:
 						triggerDescription.setDependency(new Dependency(dependency.getDependencies(), dependency.getDependencyType()));
+						triggerDescription.setCron(null);
+						triggerDescription.setPeriodic(null);
 						break;
 					case PARALLEL:
 						triggerDescription.setDependency(new Dependency(dependency.getDependencies(), dependency.getDependencyType(),

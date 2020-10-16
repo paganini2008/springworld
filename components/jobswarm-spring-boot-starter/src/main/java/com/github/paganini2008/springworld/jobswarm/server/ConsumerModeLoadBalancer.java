@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.jobswarm.Job;
-import com.github.paganini2008.springworld.jobswarm.JobDependencyFuture;
+import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyFuture;
 import com.github.paganini2008.springworld.jobswarm.JobException;
 import com.github.paganini2008.springworld.jobswarm.JobExecutor;
 import com.github.paganini2008.springworld.jobswarm.JobFutureHolder;
@@ -69,7 +69,7 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	}
 
 	private void handleIfDependentJob(long traceId, JobKey jobKey, Date startDate) {
-		if (jobFutureHolder.get(jobKey) instanceof JobDependencyFuture) {
+		if (jobFutureHolder.get(jobKey) instanceof SerialJobDependencyFuture) {
 			stopWatch.startJob(traceId, jobKey, startDate);
 		}
 	}

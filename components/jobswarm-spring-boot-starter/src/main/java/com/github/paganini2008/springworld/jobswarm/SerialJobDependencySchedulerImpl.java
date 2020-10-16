@@ -12,22 +12,23 @@ import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.jobswarm.model.JobParam;
+import com.github.paganini2008.springworld.jobswarm.model.JobPeerResult;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * DefaultJobDependencyObservable
+ * SerialJobDependencySchedulerImpl
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class DefaultJobDependencyObservable extends Observable implements JobDependencyObservable {
+public class SerialJobDependencySchedulerImpl extends Observable implements SerialJobDependencyScheduler {
 
-	public DefaultJobDependencyObservable() {
+	public SerialJobDependencySchedulerImpl() {
 		super(Boolean.TRUE);
 	}
 
@@ -47,9 +48,13 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 	@Override
 	public JobFuture scheduleDependency(final Job job, final JobKey... dependencies) {
 		List<Observer> obs = new CopyOnWriteArrayList<Observer>();
-		for (JobKey dependency : dependencies) {
+		for (final JobKey dependency : dependencies) {
 			Observer ob = (o, attachment) -> {
-				jobExecutor.execute(job, attachment, 0);
+				final JobPeerResult jobPeerResult = (JobPeerResult) attachment;
+				if (((JobDependency) job).approve(dependency, jobPeerResult.getRunningState(), jobPeerResult.getAttachment(),
+						jobPeerResult.getResult())) {
+					jobExecutor.execute(job, jobPeerResult.getResult(), 0);
+				}
 			};
 			addObserver(dependency.getIdentifier(), ob);
 			obs.add(ob);
@@ -57,23 +62,27 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 				log.trace("Add job dependency '{}' to job '{}'", dependency, job);
 			}
 		}
-		return new JobDependencyFuture(new CopyOnWriteArrayList<JobKey>(Arrays.asList(dependencies)), obs, this);
+		return new SerialJobDependencyFuture(new CopyOnWriteArrayList<JobKey>(Arrays.asList(dependencies)), obs, this);
 	}
 
 	@Override
 	public void updateDependency(final Job job, final JobKey... dependencies) {
 		JobKey jobKey = JobKey.of(job);
 		JobFuture jobFuture = JobFutureHolder.get(jobKey);
-		if (!(jobFuture instanceof JobDependencyFuture)) {
+		if (!(jobFuture instanceof SerialJobDependencyFuture)) {
 			throw new JobException("Job '" + jobKey + "' is not a serial dependentcy job.");
 		}
-		JobDependencyFuture jobDependencyFuture = (JobDependencyFuture) jobFuture;
+		SerialJobDependencyFuture jobDependencyFuture = (SerialJobDependencyFuture) jobFuture;
 		for (JobKey dependency : dependencies) {
 			if (jobDependencyFuture.getDependencies().contains(dependency)) {
 				continue;
 			}
 			Observer ob = (o, attachment) -> {
-				jobExecutor.execute(job, attachment, 0);
+				final JobPeerResult jobPeerResult = (JobPeerResult) attachment;
+				if (((JobDependency) job).approve(dependency, jobPeerResult.getRunningState(), jobPeerResult.getAttachment(),
+						jobPeerResult.getResult())) {
+					jobExecutor.execute(job, jobPeerResult.getResult(), 0);
+				}
 			};
 			addObserver(dependency.getIdentifier(), ob);
 			jobDependencyFuture.getDependencies().add(dependency);
@@ -86,15 +95,12 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 
 	@Override
 	public boolean hasScheduled(JobKey jobKey) {
-		return JobFutureHolder.get(jobKey) instanceof JobDependencyFuture;
+		return JobFutureHolder.get(jobKey) instanceof SerialJobDependencyFuture;
 	}
 
 	@Override
-	public void executeDependency(JobKey jobKey, Object attachment) {
+	public void triggerDependency(JobKey jobKey, Object attachment) {
 		notifyObservers(jobKey.getIdentifier(), attachment);
-		if (log.isTraceEnabled()) {
-			log.trace("Job '{}' has done and start to run the serial dependency jobs.", jobKey);
-		}
 	}
 
 	@Override
@@ -104,7 +110,7 @@ public class DefaultJobDependencyObservable extends Observable implements JobDep
 		JobParam jobParam = new JobParam(jobKey, attachment, 0);
 		redisMessageSender.sendMessage(channel, jobParam);
 		if (log.isTraceEnabled()) {
-			log.trace("Notify the serial dependency jobs after job '{}' has done", jobKey);
+			log.trace("Immediately job '{}' is done and all serial dependencies will be notfied.", jobKey);
 		}
 	}
 

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.jobswarm.DependencyType;
 import com.github.paganini2008.springworld.jobswarm.Job;
-import com.github.paganini2008.springworld.jobswarm.JobDependencyObservable;
+import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.JobException;
 import com.github.paganini2008.springworld.jobswarm.JobExecutor;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
@@ -32,7 +32,7 @@ import com.github.paganini2008.springworld.jobswarm.TraceIdGenerator;
 public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor {
 
 	@Autowired
-	private JobDependencyObservable jobDependencyObservable;
+	private SerialJobDependencyScheduler jobDependencyScheduler;
 
 	@Autowired
 	private StopWatch stopWatch;
@@ -73,7 +73,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 		try {
 			if (jobManager.hasRelations(jobKey, DependencyType.SERIAL)) {
-				jobDependencyObservable.notifyDependants(jobKey, result);
+				jobDependencyScheduler.notifyDependants(jobKey, result);
 			}
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);

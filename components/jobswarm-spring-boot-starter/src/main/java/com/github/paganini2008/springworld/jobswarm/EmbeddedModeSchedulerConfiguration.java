@@ -208,13 +208,13 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public JobDependencyObservable jobDependencyObservable() {
-		return new DefaultJobDependencyObservable();
+	public SerialJobDependencyScheduler serialJobDependencyScheduler() {
+		return new SerialJobDependencySchedulerImpl();
 	}
 
 	@Bean
-	public JobDependencyDetector jobDependencyDetector() {
-		return new JobDependencyDetector();
+	public SerialJobDependencyListener jobDependencyDetector() {
+		return new SerialJobDependencyListener();
 	}
 
 	@Bean

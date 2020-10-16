@@ -2,13 +2,13 @@ package com.github.paganini2008.springworld.jobswarm;
 
 /**
  * 
- * JobDependencyObservable
+ * SerialJobDependencyScheduler
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public interface JobDependencyObservable {
+public interface SerialJobDependencyScheduler {
 
 	JobFuture scheduleDependency(Job job, JobKey... dependencies);
 
@@ -16,7 +16,7 @@ public interface JobDependencyObservable {
 
 	void updateDependency(Job job, JobKey... dependencies);
 
-	void executeDependency(JobKey jobKey, Object attachment);
+	void triggerDependency(JobKey jobKey, Object attachment);
 
 	void notifyDependants(JobKey jobKey, Object result);
 

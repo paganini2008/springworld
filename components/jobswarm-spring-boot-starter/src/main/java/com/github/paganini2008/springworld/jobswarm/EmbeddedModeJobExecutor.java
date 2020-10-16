@@ -30,7 +30,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	private StopWatch stopWatch;
 
 	@Autowired
-	private JobDependencyObservable jobDependencyObservable;
+	private SerialJobDependencyScheduler jobDependencyScheduler;
 
 	@Autowired
 	private RetryPolicy retryPolicy;
@@ -73,7 +73,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 		try {
 			if (jobManager.hasRelations(jobKey, DependencyType.SERIAL)) {
-				jobDependencyObservable.notifyDependants(jobKey, result);
+				jobDependencyScheduler.notifyDependants(jobKey, result);
 			}
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);

@@ -6,7 +6,7 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
 
 /**
  * 
- * DependencyType
+ * FlowType
  * 
  * @author Fred Feng
  *
@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
  */
 public enum DependencyType implements EnumConstant {
 
-	NONE(0, ""), SERIAL(1, "Serial"), PARALLEL(2, "Parallel");
+	SERIAL(1, "Serial"), PARALLEL(2, "Parallel");
 
 	private final int value;
 	private final String repr;

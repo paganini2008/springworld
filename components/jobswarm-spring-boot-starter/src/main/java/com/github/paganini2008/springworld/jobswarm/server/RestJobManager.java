@@ -49,8 +49,8 @@ public class RestJobManager implements JobManager {
 
 	@Override
 	public int persistJob(JobPersistParam param) throws Exception {
-		ResponseEntity<JobResult<Integer>> responseEntity = restTemplate.perform(param.getClusterName(), "/job/manager/persistJob",
-				HttpMethod.POST, param, new ParameterizedTypeReference<JobResult<Integer>>() {
+		ResponseEntity<JobResult<Integer>> responseEntity = restTemplate.perform(param.getJobKey().getClusterName(),
+				"/job/manager/persistJob", HttpMethod.POST, param, new ParameterizedTypeReference<JobResult<Integer>>() {
 				});
 		return responseEntity.getBody().getData();
 	}

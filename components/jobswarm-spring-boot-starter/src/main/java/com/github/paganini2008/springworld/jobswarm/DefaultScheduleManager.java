@@ -84,8 +84,8 @@ public class DefaultScheduleManager implements ScheduleManager {
 			if (job instanceof JobParallelization) {
 				jobParallelization = (JobParallelization) job;
 			} else {
-				jobParallelization = ApplicationContextUtils
-						.autowireBean(new JobParallelization(job, dependencies, dependency.getCompletionRate()));
+				jobParallelization = ApplicationContextUtils.instantiateClass(JobParallelization.class, job, dependencies,
+						dependency.getCompletionRate());
 			}
 			switch (triggerDetail.getTriggerType()) {
 			case NONE:

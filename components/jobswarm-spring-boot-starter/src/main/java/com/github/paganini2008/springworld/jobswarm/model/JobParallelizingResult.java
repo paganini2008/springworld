@@ -19,15 +19,15 @@ public class JobParallelizingResult {
 
 	private JobKey jobKey;
 	private Object attachment;
-	private JobPeerResult[] results;
+	private JobPeerResult[] jobPeerResults;
 
 	public JobParallelizingResult() {
 	}
 
-	public JobParallelizingResult(JobKey jobKey, Object attachment, JobPeerResult[] results) {
+	public JobParallelizingResult(JobKey jobKey, Object attachment, JobPeerResult[] jobPeerResults) {
 		this.jobKey = jobKey;
 		this.attachment = attachment;
-		this.results = results;
+		this.jobPeerResults = jobPeerResults;
 	}
 
 }

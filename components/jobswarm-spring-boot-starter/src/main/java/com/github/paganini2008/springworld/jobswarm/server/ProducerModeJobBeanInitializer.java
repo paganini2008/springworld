@@ -7,12 +7,14 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.devtools.jdbc.PageableQuery;
+import com.github.paganini2008.springworld.jobswarm.BeanNames;
 import com.github.paganini2008.springworld.jobswarm.Job;
 import com.github.paganini2008.springworld.jobswarm.JobBeanLoader;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
@@ -33,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProducerModeJobBeanInitializer implements NotManagedJobBeanInitializer {
 
+	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
 	private DataSource dataSource;
 

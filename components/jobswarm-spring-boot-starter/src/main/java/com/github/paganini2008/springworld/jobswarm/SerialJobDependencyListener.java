@@ -12,22 +12,22 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * JobDependencyDetector
+ * SerialJobDependencyListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class JobDependencyDetector implements ApplicationListener<ApplicationClusterNewLeaderEvent> {
+public class SerialJobDependencyListener implements ApplicationListener<ApplicationClusterNewLeaderEvent> {
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
 
 	@Override
 	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
-		RedisMessageHandler redisMessageHandler = ApplicationContextUtils.autowireBean(new JobDependencyProcessor());
-		redisMessageSender.subscribeChannel(JobDependencyProcessor.BEAN_NAME, redisMessageHandler);
+		RedisMessageHandler redisMessageHandler = ApplicationContextUtils.autowireBean(new SerialJobDependencyTrigger());
+		redisMessageSender.subscribeChannel(SerialJobDependencyTrigger.BEAN_NAME, redisMessageHandler);
 		log.info("Add JobDependencyProcessor to context successfully.");
 	}
 

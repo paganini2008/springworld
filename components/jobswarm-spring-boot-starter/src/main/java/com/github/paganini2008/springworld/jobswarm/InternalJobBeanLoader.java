@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.ClassUtils;
-import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.devtools.proxy.JdkProxyFactory;
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
@@ -41,7 +40,7 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 			jobClass = ClassUtils.forName(jobClassName);
 		} catch (RuntimeException e) {
 			if (log.isTraceEnabled()) {
-				log.trace("Can not load JobClass by name '" + jobClassName + "' into job instance.");
+				log.trace("Can not load JobClass of name '" + jobClassName + "' to create job instance.");
 			}
 			return null;
 		}
@@ -56,28 +55,33 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 			if (job == null) {
 				throw new JobBeanNotFoundException(jobKey);
 			}
-			return parallelizeJobIfNecessary(jobKey, job);
+			JobDetail jobDetail = jobManager.getJobDetail(jobKey, true);
+			JobTriggerDetail triggerDetail = jobDetail.getJobTriggerDetail();
+			return parallelizeJobIfNecessary(jobKey, job, triggerDetail);
+
 		} else if (NotManagedJob.class.isAssignableFrom(jobClass)) {
-			NotManagedJob target = ApplicationContextUtils.autowireBean((NotManagedJob) BeanUtils.instantiate(jobClass));
-			JobDetail jobDetail = jobManager.getJobDetail(jobKey, false);
-			Job job = (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), Job.class);
-			return parallelizeJobIfNecessary(jobKey, job);
+			final NotManagedJob target = (NotManagedJob) ApplicationContextUtils.instantiateClass(jobClass);
+			JobDetail jobDetail = jobManager.getJobDetail(jobKey, true);
+			JobTriggerDetail triggerDetail = jobDetail.getJobTriggerDetail();
+			Class<?>[] interfaceClasses = new Class<?>[] { Job.class };
+			Job job = (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), interfaceClasses);
+			return parallelizeJobIfNecessary(jobKey, job, triggerDetail);
 		}
-		throw new JobException("Class '" + jobClass.getName() + "' is not a instance of interface '" + Job.class.getName() + "'.");
+		throw new JobException("Class '" + jobClass.getName() + "' is not a instance of interface '" + Job.class.getName() + "' or '"
+				+ NotManagedJob.class.getName() + "'.");
 	}
 
-	private Job parallelizeJobIfNecessary(JobKey jobKey, Job job) throws Exception {
-		JobTriggerDetail triggerDetail = jobManager.getJobTriggerDetail(jobKey);
+	private Job parallelizeJobIfNecessary(JobKey jobKey, Job job, JobTriggerDetail triggerDetail) throws Exception {
 		if (triggerDetail.getTriggerType() != TriggerType.DEPENDENT) {
 			return job;
 		}
 		Dependency dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
 		DependencyType dependencyType = dependency.getDependencyType();
-		if (dependencyType != DependencyType.PARALLEL) {
-			return job;
+		if (dependencyType == DependencyType.PARALLEL) {
+			return ApplicationContextUtils.instantiateClass(JobParallelization.class, job, dependency.getDependencies(),
+					dependency.getCompletionRate());
 		}
-		return ApplicationContextUtils
-				.autowireBean(new JobParallelization(job, dependency.getDependencies(), dependency.getCompletionRate()));
+		return job;
 	}
 
 	/**
@@ -114,6 +118,10 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				return jobDetail.getEmail();
 			case "getRetries":
 				return jobDetail.getRetries();
+			case "getTimeout":
+				return jobDetail.getTimeout();
+			case "getWeight":
+				return jobDetail.getWeight();
 			case "getTrigger":
 				return null;
 			default:

@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
+import com.github.paganini2008.springworld.jobswarm.model.JobKeyQuery;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +32,13 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	@Value("${spring.application.name}")
 	private String applicationName;
 
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
+
+	@Autowired
+	private JobManager jobManager;
+
+	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
 	private DataSource dataSource;
 
@@ -44,11 +53,19 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	@Autowired(required = false)
 	private JobBeanLoader externalJobBeanLoader;
 
+	@Autowired
+	private JobRuntimeListenerContainer jobRuntimeListenerContainer;
+
+	@Autowired
+	private JobParallelizationListener jobParallelizationListener;
+
 	public void initializeJobBeans() throws Exception {
 		refreshInternalJobBeans();
 		if (externalJobBeanLoader != null) {
 			refreshExternalJobBeans();
 		}
+		
+		initializeJobDependencyBeans();
 	}
 
 	private void refreshInternalJobBeans() throws Exception {
@@ -117,6 +134,25 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				}
 				scheduleManager.schedule(job);
 				log.info("Reload and schedule Job '{}' ok.", jobKey);
+			}
+		}
+	}
+
+	private void initializeJobDependencyBeans() throws Exception {
+		JobKeyQuery jobQuery = new JobKeyQuery();
+		jobQuery.setClusterName(clusterName);
+		jobQuery.setTriggerType(TriggerType.DEPENDENT);
+		JobKey[] jobKeys = jobManager.getJobKeys(jobQuery);
+		if (ArrayUtils.isNotEmpty(jobKeys)) {
+			JobKey[] dependencies;
+			for (JobKey jobKey : jobKeys) {
+				// add listener to watch parallel dependency job done
+				dependencies = jobManager.getDependencies(jobKey, DependencyType.PARALLEL);
+				if (ArrayUtils.isNotEmpty(dependencies)) {
+					for (JobKey dependency : dependencies) {
+						jobRuntimeListenerContainer.addListener(dependency, jobParallelizationListener);
+					}
+				}
 			}
 		}
 	}

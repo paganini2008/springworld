@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.jobswarm;
 
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
+import com.github.paganini2008.springworld.jobswarm.model.JobPeerResult;
 
 /**
  * 
@@ -58,7 +60,7 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 			}
 		} catch (JobTerminationException e) {
 			reason = e.getCause();
-			runningState = RunningState.COMPLETED;
+			runningState = RunningState.FINISHED;
 			cancel(jobKey, job, runningState, e.getMessage(), reason);
 		} catch (Throwable e) {
 			reason = e;
@@ -102,6 +104,17 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 		} catch (JobTerminationException e) {
 			finished = true;
 			throw e;
+		} catch (ExecutionException e) {
+			Throwable real = e.getCause();
+			if (real != null) {
+				if (real instanceof JobTerminationException) {
+					finished = true;
+					throw (JobTerminationException) real;
+				} else {
+					reason = e;
+					success = false;
+				}
+			}
 		} catch (Throwable e) {
 			reason = e;
 			success = false;
@@ -122,13 +135,14 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 
 			if (success) {
 				job.onSuccess(jobKey, result, log);
-				notifyDependants(jobKey, job, result);
 			} else {
 				printError(reason, log);
 
 				runningState = finished ? RunningState.FINISHED : RunningState.FAILED;
 				job.onFailure(jobKey, reason, log);
 			}
+
+			notifyDependants(jobKey, job, new JobPeerResult(jobKey, attachment, runningState, result));
 		}
 		return new Object[] { runningState, result };
 	}

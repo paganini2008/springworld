@@ -9,13 +9,13 @@ import com.github.paganini2008.springworld.jobswarm.BeanNames;
 import com.github.paganini2008.springworld.jobswarm.DependencyType;
 import com.github.paganini2008.springworld.jobswarm.Job;
 import com.github.paganini2008.springworld.jobswarm.JobBeanLoader;
-import com.github.paganini2008.springworld.jobswarm.JobDependencyObservable;
 import com.github.paganini2008.springworld.jobswarm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
 import com.github.paganini2008.springworld.jobswarm.JobManager;
 import com.github.paganini2008.springworld.jobswarm.JobParallelizationListener;
 import com.github.paganini2008.springworld.jobswarm.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobswarm.NotManagedJobBeanInitializer;
+import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.TriggerType;
 import com.github.paganini2008.springworld.jobswarm.model.JobKeyQuery;
 
@@ -44,7 +44,7 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	private JobBeanLoader externalJobBeanLoader;
 
 	@Autowired
-	private JobDependencyObservable jobDependencyObservable;
+	private SerialJobDependencyScheduler jobDependencyScheduler;
 
 	@Autowired
 	private JobFutureHolder jobFutureHolder;
@@ -75,15 +75,18 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				if (job == null || job.managedByApplicationContext()) {
 					continue;
 				}
+
+				// update or schedule serial dependency job
 				dependencies = jobManager.getDependencies(jobKey, DependencyType.SERIAL);
 				if (ArrayUtils.isNotEmpty(dependencies)) {
-					if (jobDependencyObservable.hasScheduled(jobKey)) {
-						jobDependencyObservable.updateDependency(job, dependencies);
+					if (jobDependencyScheduler.hasScheduled(jobKey)) {
+						jobDependencyScheduler.updateDependency(job, dependencies);
 					} else {
-						jobFutureHolder.add(jobKey, jobDependencyObservable.scheduleDependency(job, dependencies));
+						jobFutureHolder.add(jobKey, jobDependencyScheduler.scheduleDependency(job, dependencies));
 					}
 				}
 
+				// add listener to watch parallel dependency job done
 				dependencies = jobManager.getDependencies(jobKey, DependencyType.PARALLEL);
 				if (ArrayUtils.isNotEmpty(dependencies)) {
 					for (JobKey dependency : dependencies) {

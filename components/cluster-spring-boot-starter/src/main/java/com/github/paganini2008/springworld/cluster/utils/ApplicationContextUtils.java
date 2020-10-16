@@ -1,10 +1,12 @@
 package com.github.paganini2008.springworld.cluster.utils;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.devtools.beans.BeanUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,6 +76,29 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		return contextHolder.getEnvironment();
 	}
 
+	public static int countOfBeans() {
+		return getApplicationContext().getBeanDefinitionCount();
+	}
+
+	public static Map<String, Object> getAllBeans() {
+		Map<String, Object> map = new HashMap<String, Object>();
+		String[] beanNames = getApplicationContext().getBeanDefinitionNames();
+		for (String beanName : beanNames) {
+			map.put(beanName, getBean(beanName));
+		}
+		return map;
+	}
+
+	public static <T> List<T> getBeans(Class<T> requiredType, Function<T, Boolean> f) {
+		List<T> list = new ArrayList<T>();
+		for (T bean : getBeansOfType(requiredType).values()) {
+			if (f.apply(bean)) {
+				list.add(bean);
+			}
+		}
+		return list;
+	}
+
 	public static <T> T getBean(Class<T> requiredType, Function<T, Boolean> f) {
 		for (T bean : getBeansOfType(requiredType).values()) {
 			if (f.apply(bean)) {
@@ -86,12 +112,36 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		try {
 			return getApplicationContext().getBeansOfType(requiredType);
 		} catch (RuntimeException e) {
+			log.warn("Not Found Beans of Type: {}, Reason: {}", requiredType.getName(), e.getMessage());
 			return new HashMap<String, T>();
 		}
 	}
 
+	public static <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+		try {
+			return getApplicationContext().getBeansOfType(requiredType, includeNonSingletons, allowEagerInit);
+		} catch (RuntimeException e) {
+			log.warn("Not Found Beans of Type: {}, Reason: {}", requiredType.getName(), e.getMessage());
+			return new HashMap<String, T>();
+		}
+	}
+
+	public static Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
+		try {
+			return getApplicationContext().getBeansWithAnnotation(annotationType);
+		} catch (RuntimeException e) {
+			log.warn("Not Found Beans of annotation type: {}, Reason: {}", annotationType.getName(), e.getMessage());
+			return new HashMap<String, Object>();
+		}
+	}
+
 	public static <T> T getBean(String name) {
-		return (T) getApplicationContext().getBean(name);
+		try {
+			return (T) getApplicationContext().getBean(name);
+		} catch (RuntimeException e) {
+			log.warn("Not Found Bean of name: {}, Reason: {}", name, e.getMessage());
+			return null;
+		}
 	}
 
 	public static <T> T getBean(Class<T> requiredType) {
@@ -120,8 +170,8 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		return bean;
 	}
 
-	public static <T> T instantiateClass(Class<T> clazz) {
-		T bean = BeanUtils.instantiateClass(clazz);
+	public static <T> T instantiateClass(Class<T> clazz, Object... arguments) {
+		T bean = BeanUtils.instantiate(clazz, arguments);
 		return autowireBean(bean);
 	}
 
@@ -131,6 +181,10 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
 	public static <T> T getProperty(String key, Class<T> requiredType) {
 		return getEnvironment().getProperty(key, requiredType);
+	}
+
+	public static <T> T getProperty(String key, Class<T> requiredType, T defaultValue) {
+		return getEnvironment().getProperty(key, requiredType, defaultValue);
 	}
 
 	public static String getProperty(String key, String defaultValue) {

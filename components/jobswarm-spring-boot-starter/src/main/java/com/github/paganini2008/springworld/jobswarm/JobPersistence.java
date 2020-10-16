@@ -11,8 +11,7 @@ import com.github.paganini2008.springworld.jobswarm.model.JobPersistParam;
 public interface JobPersistence {
 
 	default int persistJob(JobPersistParam param) throws Exception {
-		JobDefinition jobDefinition = JobPersistRequest.build(param);
-		return persistJob(jobDefinition, param.getAttachment());
+		throw new UnsupportedOperationException("persistJob");
 	}
 
 	default int persistJob(JobDefinition jobDef, String attachment) throws Exception {
