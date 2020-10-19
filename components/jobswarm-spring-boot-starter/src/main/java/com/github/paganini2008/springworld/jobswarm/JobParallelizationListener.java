@@ -9,6 +9,8 @@ import com.github.paganini2008.springworld.jobswarm.model.JobRuntime;
 import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * JobParallelizationListener
@@ -17,6 +19,7 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
  *
  * @since 1.0
  */
+@Slf4j
 public class JobParallelizationListener implements JobRuntimeListener {
 
 	@Autowired
@@ -28,20 +31,23 @@ public class JobParallelizationListener implements JobRuntimeListener {
 	@Override
 	public void afterRun(long traceId, JobKey jobKey, Object attachment, Date startDate, RunningState runningState, Object result,
 			Throwable reason) {
-		JobKey relation;
+		log.info("++++++++++++++++  Start job: {} ++++++++++++++++++", jobKey);
+
+		JobKey relation = null;
 		JobRuntime jobRuntime;
 		try {
 			relation = jobManager.getRelations(jobKey, DependencyType.PARALLEL)[0];
 			jobRuntime = jobManager.getJobRuntime(relation);
 		} catch (Exception e) {
-			throw ExceptionUtils.wrapExeception(e);
+			throw ExceptionUtils.wrapExeception("Job '" + jobKey + "' has no relations with job '" + relation + "'", e);
 		}
 		if (jobRuntime.getJobState() != JobState.RUNNING) {
-			return;
+			throw new JobException("Job '" + relation + "' is not in the running state.");
 		}
 
 		RedisCountDownLatch latch = new RedisCountDownLatch(relation.getIdentifier(), redisMessageSender);
 		latch.countdown(new JobPeerResult(jobKey, attachment, runningState, result));
+		log.info("++++++++++++++++  End job: {} ++++++++++++++++++", jobKey);
 	}
 
 }

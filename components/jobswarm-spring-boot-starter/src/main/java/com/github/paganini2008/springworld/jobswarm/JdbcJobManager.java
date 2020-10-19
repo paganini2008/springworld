@@ -176,7 +176,8 @@ public class JdbcJobManager implements JobManager {
 				connection.setAutoCommit(false);
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL,
 						new Object[] { jobDef.getDescription(), attachment, jobDef.getEmail(), jobDef.getRetries(), jobDef.getWeight(),
-								jobDef.getClusterName(), jobDef.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+								jobDef.getTimeout(), jobDef.getClusterName(), jobDef.getGroupName(), jobKey.getJobName(),
+								jobKey.getJobClassName() });
 
 				trigger = jobDef.getTrigger();
 				triggerType = trigger.getTriggerType();
@@ -241,7 +242,8 @@ public class JdbcJobManager implements JobManager {
 					ps.setString(7, jobDef.getEmail());
 					ps.setInt(8, jobDef.getRetries());
 					ps.setInt(9, jobDef.getWeight());
-					ps.setTimestamp(10, new Timestamp(System.currentTimeMillis()));
+					ps.setLong(10, jobDef.getTimeout());
+					ps.setTimestamp(11, new Timestamp(System.currentTimeMillis()));
 				});
 
 				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_RUNTIME, ps -> {

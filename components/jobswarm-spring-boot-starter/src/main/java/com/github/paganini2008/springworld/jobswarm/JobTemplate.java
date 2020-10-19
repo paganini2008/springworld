@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
 import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
 import com.github.paganini2008.springworld.jobswarm.model.JobPeerResult;
@@ -22,7 +21,7 @@ import com.github.paganini2008.springworld.jobswarm.model.JobPeerResult;
  *
  * @since 1.0
  */
-public abstract class JobTemplate implements JobExecutor, DisposableBean {
+public abstract class JobTemplate implements JobExecutor {
 
 	protected final Logger log = LoggerFactory.getLogger(JobExecutor.class);
 
@@ -149,14 +148,20 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 
 	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
 		if (log.isTraceEnabled()) {
-			log.trace("Prepare to run Job: {}, traceId: {}", jobKey, traceId);
+			if (traceId > 0) {
+				log.trace("Prepare to run Job '{}' with traceId '{}'", jobKey, traceId);
+			} else {
+				log.trace("Load balance on job '{}'", jobKey);
+			}
 		}
 	}
 
 	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState,
 			Object result, Throwable reason, int retries) {
 		if (log.isTraceEnabled()) {
-			log.trace("Job {} with traceId '{}' is ending with state {}", jobKey, traceId, runningState);
+			if (traceId > 0) {
+				log.trace("Job {} with traceId '{}' is ending with state {}", jobKey, traceId, runningState);
+			}
 		}
 	}
 

@@ -16,8 +16,8 @@ public interface JobDependency {
 
 	JobKey[] getDependencies();
 
-	default Float getCompletionRate() {
-		return null;
+	default float getCompletionRate() {
+		return -1F;
 	}
 
 	default boolean approve(JobKey jobKey, RunningState runningState, Object attachment, Object result) {

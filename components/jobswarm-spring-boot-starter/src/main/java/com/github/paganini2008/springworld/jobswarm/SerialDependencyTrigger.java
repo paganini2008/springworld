@@ -11,22 +11,22 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * SerialJobDependencyTrigger
+ * SerialDependencyTrigger
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class SerialJobDependencyTrigger implements RedisMessageHandler {
+public class SerialDependencyTrigger implements RedisMessageHandler {
 
-	public static final String BEAN_NAME = "jobDependencyTrigger";
+	static final String BEAN_NAME = "serialDependencyTrigger";
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired
-	private SerialJobDependencyScheduler jobDependencyScheduler;
+	private SerialDependencyScheduler serialDependencyScheduler;
 
 	@Override
 	public String getChannel() {
@@ -39,7 +39,7 @@ public class SerialJobDependencyTrigger implements RedisMessageHandler {
 		if (log.isTraceEnabled()) {
 			log.trace("Trigger all serial dependencies by Job: " + jobParam.getJobKey());
 		}
-		jobDependencyScheduler.triggerDependency(jobParam.getJobKey(), jobParam.getAttachment());
+		serialDependencyScheduler.triggerDependency(jobParam.getJobKey(), jobParam.getAttachment());
 	}
 
 }

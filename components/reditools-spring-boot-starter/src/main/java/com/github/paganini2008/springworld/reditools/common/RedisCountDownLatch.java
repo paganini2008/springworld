@@ -1,8 +1,8 @@
 package com.github.paganini2008.springworld.reditools.common;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -150,7 +150,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 
 		private final Latch latch;
 		private final String latchName;
-		private final List<Object> messages = new ArrayList<Object>();
+		private final List<Object> messages = new CopyOnWriteArrayList<Object>();
 
 		Referee(String latchName, Latch latch) {
 			this.latchName = latchName;
@@ -163,7 +163,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 		}
 
 		@Override
-		public synchronized void onMessage(String channel, Object message) throws Exception {
+		public void onMessage(String channel, Object message) throws Exception {
 			messages.add(message);
 			latch.doCountDown();
 		}

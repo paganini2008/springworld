@@ -19,16 +19,16 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * SerialJobDependencySchedulerImpl
+ * SerialDependencySchedulerImpl
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class SerialJobDependencySchedulerImpl extends Observable implements SerialJobDependencyScheduler {
+public class SerialDependencySchedulerImpl extends Observable implements SerialDependencyScheduler {
 
-	public SerialJobDependencySchedulerImpl() {
+	public SerialDependencySchedulerImpl() {
 		super(Boolean.TRUE);
 	}
 
@@ -62,17 +62,17 @@ public class SerialJobDependencySchedulerImpl extends Observable implements Seri
 				log.trace("Add job dependency '{}' to job '{}'", dependency, job);
 			}
 		}
-		return new SerialJobDependencyFuture(new CopyOnWriteArrayList<JobKey>(Arrays.asList(dependencies)), obs, this);
+		return new SerialDependencyFuture(new CopyOnWriteArrayList<JobKey>(Arrays.asList(dependencies)), obs, this);
 	}
 
 	@Override
 	public void updateDependency(final Job job, final JobKey... dependencies) {
-		JobKey jobKey = JobKey.of(job);
+		final JobKey jobKey = JobKey.of(job);
 		JobFuture jobFuture = JobFutureHolder.get(jobKey);
-		if (!(jobFuture instanceof SerialJobDependencyFuture)) {
+		if (!(jobFuture instanceof SerialDependencyFuture)) {
 			throw new JobException("Job '" + jobKey + "' is not a serial dependentcy job.");
 		}
-		SerialJobDependencyFuture jobDependencyFuture = (SerialJobDependencyFuture) jobFuture;
+		SerialDependencyFuture jobDependencyFuture = (SerialDependencyFuture) jobFuture;
 		for (JobKey dependency : dependencies) {
 			if (jobDependencyFuture.getDependencies().contains(dependency)) {
 				continue;
@@ -85,6 +85,7 @@ public class SerialJobDependencySchedulerImpl extends Observable implements Seri
 				}
 			};
 			addObserver(dependency.getIdentifier(), ob);
+			
 			jobDependencyFuture.getDependencies().add(dependency);
 			jobDependencyFuture.getObservers().add(ob);
 			if (log.isTraceEnabled()) {
@@ -95,7 +96,7 @@ public class SerialJobDependencySchedulerImpl extends Observable implements Seri
 
 	@Override
 	public boolean hasScheduled(JobKey jobKey) {
-		return JobFutureHolder.get(jobKey) instanceof SerialJobDependencyFuture;
+		return JobFutureHolder.get(jobKey) instanceof SerialDependencyFuture;
 	}
 
 	@Override

@@ -55,7 +55,7 @@ public class TriggerDescription implements Serializable {
 		private static final long serialVersionUID = -8486773222061112232L;
 		private JobKey[] dependencies;
 		private DependencyType dependencyType;
-		private @Nullable Float completionRate;
+		private float completionRate = -1F;
 		private @Nullable TriggerType triggerType;
 		private @Nullable Cron cron;
 		private @Nullable Periodic periodic;

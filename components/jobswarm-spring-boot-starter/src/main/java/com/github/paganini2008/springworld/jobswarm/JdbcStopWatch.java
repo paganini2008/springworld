@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.jobswarm.model.JobTriggerDetail;
 
 /**
  * 
@@ -42,18 +43,37 @@ public class JdbcStopWatch implements StopWatch {
 	private JobFutureHolder jobFutureHolder;
 
 	@Override
-	public JobState startJob(long traceId, JobKey jobKey, Date startTime) {
+	public JobState startJob(long traceId, JobKey jobKey, Date startDate) {
+		try {
+			if (jobManager.hasJobState(jobKey, JobState.PARALLELIZED)) {
+				return JobState.PARALLELIZED;
+			}
+		} catch (Exception e) {
+			throw ExceptionUtils.wrapExeception(e);
+		}
+
+		DependencyType dependencyType = null;
+		try {
+			JobTriggerDetail triggerDetail = jobManager.getJobTriggerDetail(jobKey);
+			if (triggerDetail.getTriggerType() == TriggerType.DEPENDENT) {
+				dependencyType = triggerDetail.getTriggerDescriptionObject().getDependency().getDependencyType();
+			}
+		} catch (Exception e) {
+			throw ExceptionUtils.wrapExeception(e);
+		}
+
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			long nextExecutionTime = jobFutureHolder.hasKey(jobKey)
-					? jobFutureHolder.get(jobKey).getNextExectionTime(startTime, startTime, startTime)
+					? jobFutureHolder.get(jobKey).getNextExectionTime(startDate, startDate, startDate)
 					: -1L;
+			JobState jobState = dependencyType == DependencyType.PARALLEL ? JobState.PARALLELIZING : JobState.RUNNING;
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_BEGIN,
-					new Object[] { JobState.RUNNING.getValue(), new Timestamp(startTime.getTime()),
-							nextExecutionTime > 0 ? new Timestamp(nextExecutionTime) : null, jobKey.getGroupName(), jobKey.getJobName(),
-							jobKey.getJobClassName() });
-			return JobState.RUNNING;
+					new Object[] { jobState.getValue(), new Timestamp(startDate.getTime()),
+							nextExecutionTime > 0 ? new Timestamp(nextExecutionTime) : null, jobKey.getClusterName(), jobKey.getGroupName(),
+							jobKey.getJobName(), jobKey.getJobClassName() });
+			return jobState;
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		} finally {
@@ -62,15 +82,16 @@ public class JdbcStopWatch implements StopWatch {
 	}
 
 	@Override
-	public JobState finishJob(long traceId, JobKey jobKey, Date startTime, RunningState runningState, int retries) {
+	public JobState finishJob(long traceId, JobKey jobKey, Date startDate, RunningState runningState, int retries) {
 		final int jobId = getJobId(jobKey);
 		final Date endTime = new Date();
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
-			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END, new Object[] { JobState.SCHEDULING.getValue(),
-					runningState.getValue(), endTime, jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
+			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END,
+					new Object[] { JobState.SCHEDULING.getValue(), runningState.getValue(), endTime, jobKey.getClusterName(),
+							jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			int complete = 0, failed = 0, skipped = 0, finished = 0;
 			switch (runningState) {
 			case COMPLETED:
@@ -89,7 +110,7 @@ public class JdbcStopWatch implements StopWatch {
 				break;
 			}
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRACE, new Object[] { traceId, jobId, runningState.getValue(),
-					getSelfAddress(), instanceId.get(), complete, failed, skipped, finished, retries, startTime, endTime });
+					getSelfAddress(), instanceId.get(), complete, failed, skipped, finished, retries, startDate, endTime });
 			connection.commit();
 			return JobState.SCHEDULING;
 		} catch (SQLException e) {

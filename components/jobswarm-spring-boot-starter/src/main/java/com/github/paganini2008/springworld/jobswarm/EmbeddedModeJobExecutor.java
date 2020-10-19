@@ -30,7 +30,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	private StopWatch stopWatch;
 
 	@Autowired
-	private SerialJobDependencyScheduler jobDependencyScheduler;
+	private SerialDependencyScheduler serialDependencyScheduler;
 
 	@Autowired
 	private RetryPolicy retryPolicy;
@@ -63,7 +63,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Override
 	protected boolean isScheduling(JobKey jobKey, Job job) {
 		try {
-			return jobManager.hasJobState(jobKey, JobState.SCHEDULING);
+			return jobManager.hasJobState(jobKey, JobState.SCHEDULING) || jobManager.hasJobState(jobKey, JobState.PARALLELIZING);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
@@ -73,7 +73,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 		try {
 			if (jobManager.hasRelations(jobKey, DependencyType.SERIAL)) {
-				jobDependencyScheduler.notifyDependants(jobKey, result);
+				serialDependencyScheduler.notifyDependants(jobKey, result);
 			}
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
@@ -106,8 +106,8 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState,
 			Object result, Throwable reason, int retries) {
 		super.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
-		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 		stopWatch.finishJob(traceId, jobKey, startDate, runningState, retries);
+		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 	}
 
 }

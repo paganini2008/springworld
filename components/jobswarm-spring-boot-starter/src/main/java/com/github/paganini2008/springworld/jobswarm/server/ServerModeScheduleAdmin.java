@@ -13,11 +13,12 @@ import com.github.paganini2008.springworld.jobswarm.ScheduleManager;
 /**
  * 
  * ServerModeScheduleAdmin
+ * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class ServerModeScheduleAdmin implements ScheduleAdmin{
+public class ServerModeScheduleAdmin implements ScheduleAdmin {
 
 	@Autowired
 	private JobBeanLoader jobBeanLoader;
@@ -43,5 +44,5 @@ public class ServerModeScheduleAdmin implements ScheduleAdmin{
 			throw new JobException(e.getMessage(), e);
 		}
 	}
-	
+
 }

@@ -6,7 +6,7 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
 
 /**
  * 
- * FlowType
+ * DependencyType
  * 
  * @author Fred Feng
  *

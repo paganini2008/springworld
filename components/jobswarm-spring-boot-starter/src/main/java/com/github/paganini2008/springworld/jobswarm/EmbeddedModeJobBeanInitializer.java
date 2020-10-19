@@ -14,6 +14,7 @@ import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
+import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobswarm.model.JobKeyQuery;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,15 +57,12 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	@Autowired
 	private JobRuntimeListenerContainer jobRuntimeListenerContainer;
 
-	@Autowired
-	private JobParallelizationListener jobParallelizationListener;
-
 	public void initializeJobBeans() throws Exception {
 		refreshInternalJobBeans();
 		if (externalJobBeanLoader != null) {
 			refreshExternalJobBeans();
 		}
-		
+
 		initializeJobDependencyBeans();
 	}
 
@@ -87,7 +85,7 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				try {
 					job = internalJobBeanLoader.loadJobBean(jobKey);
 				} catch (Exception e) {
-					log.error(e.getMessage(), e);
+					log.error("Unable to load job Bean: {}", jobKey, e);
 					continue;
 				}
 				if (job == null || job.managedByApplicationContext()) {
@@ -150,7 +148,8 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				dependencies = jobManager.getDependencies(jobKey, DependencyType.PARALLEL);
 				if (ArrayUtils.isNotEmpty(dependencies)) {
 					for (JobKey dependency : dependencies) {
-						jobRuntimeListenerContainer.addListener(dependency, jobParallelizationListener);
+						jobRuntimeListenerContainer.addListener(dependency,
+								ApplicationContextUtils.instantiateClass(JobParallelizationListener.class));
 					}
 				}
 			}

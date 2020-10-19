@@ -14,6 +14,12 @@ import com.github.paganini2008.springworld.jobswarm.model.TriggerDescription;
  */
 public class NoneTrigger implements Trigger {
 
+	private final TriggerDescription triggerDescription;
+
+	public NoneTrigger() {
+		this.triggerDescription = new TriggerDescription();
+	}
+
 	@Override
 	public Date getEndDate() {
 		return null;
@@ -36,7 +42,7 @@ public class NoneTrigger implements Trigger {
 
 	@Override
 	public TriggerDescription getTriggerDescription() {
-		return new TriggerDescription();
+		return triggerDescription;
 	}
 
 }

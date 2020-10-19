@@ -13,8 +13,14 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
  */
 public enum JobState implements EnumConstant {
 
-	NOT_SCHEDULED(0, "Not scheduled"), SCHEDULING(1, "Scheduling"), RUNNING(2, "Running"), PAUSED(3, "Paused"), FINISHED(4,
-			"Finished"), NONE(99, "None");
+	NOT_SCHEDULED(0, "Not scheduled"), 
+	SCHEDULING(1, "Scheduling"), 
+	RUNNING(2, "Running"), 
+	PAUSED(3, "Paused"), 
+	FINISHED(4, "Finished"), 
+	PARALLELIZING(-1, "Parallelizing"),
+	PARALLELIZED(-2, "Parallelized"), 
+	NONE(99, "None");
 
 	private JobState(int value, String repr) {
 		this.value = value;

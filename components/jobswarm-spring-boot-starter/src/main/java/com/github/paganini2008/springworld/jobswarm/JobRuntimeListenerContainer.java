@@ -27,31 +27,39 @@ public class JobRuntimeListenerContainer {
 
 	private final Set<JobRuntimeListener> globalListeners = Collections.synchronizedNavigableSet(new TreeSet<JobRuntimeListener>());
 
-	private final Map<JobKey, JobRuntimeListener> listeners = Collections.unmodifiableMap(new TreeMap<JobKey, JobRuntimeListener>());
+	private final Map<JobKey, JobRuntimeListener> listeners = Collections.synchronizedMap(new TreeMap<JobKey, JobRuntimeListener>());
 
 	public void addListener(JobKey jobKey, JobRuntimeListener listener) {
 		Assert.isNull(listener, "Nullable JobRuntimeListener");
 		if (jobKey != null) {
-			listeners.putIfAbsent(jobKey, listener);
-			log.info("Add JobRuntimeListener: {} to job: {}", listener, jobKey);
+			if (!listeners.containsKey(jobKey)) {
+				listeners.putIfAbsent(jobKey, listener);
+				log.info("Add JobRuntimeListener '{}' to job '{}'", listener, jobKey);
+			}
 		} else {
-			globalListeners.add(listener);
-			log.info("Add JobRuntimeListener: {}", listener);
+			if (globalListeners.add(listener)) {
+				log.info("Add JobRuntimeListener '{}'", listener);
+			}
 		}
 	}
 
 	public void removeListener(JobKey jobKey, JobRuntimeListener listener) {
 		Assert.isNull(listener, "Nullable JobRuntimeListener");
 		if (jobKey != null) {
-			listeners.remove(jobKey, listener);
-			log.info("Remove JobRuntimeListener: {} from job: {}", listener, jobKey);
+			if (listeners.remove(jobKey, listener)) {
+				log.info("Remove JobRuntimeListener '{}' from job '{}'", listener, jobKey);
+			}
 		} else {
-			globalListeners.remove(listener);
-			log.info("Remove JobRuntimeListener: {}", listener);
+			if (globalListeners.remove(listener)) {
+				log.info("Remove JobRuntimeListener '{}'", listener);
+			}
 		}
 	}
 
 	public void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
+		if (log.isTraceEnabled()) {
+			log.trace("Trigger all JobRuntimeListeners on before running job '{}'", jobKey);
+		}
 		for (JobRuntimeListener listener : globalListeners) {
 			listener.beforeRun(traceId, jobKey, attachment, startDate);
 		}
@@ -71,7 +79,9 @@ public class JobRuntimeListenerContainer {
 
 	public void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState, Object result,
 			Throwable reason, int retries) {
-
+		if (log.isTraceEnabled()) {
+			log.trace("Trigger all JobRuntimeListeners on after running job '{}'", jobKey);
+		}
 		Class<?>[] listenerClasses = job.getJobRuntimeListeners();
 		if (ArrayUtils.isNotEmpty(listenerClasses)) {
 			for (Class<?> listenerClass : listenerClasses) {

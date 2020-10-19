@@ -40,7 +40,7 @@ public class SpringScheduler implements Scheduler {
 	private JobExecutor jobExecutor;
 
 	@Autowired
-	private SerialJobDependencyScheduler jobDependencyScheduler;
+	private SerialDependencyScheduler serialDependencyScheduler;
 
 	private final Map<ScheduledFuture<?>, Trigger> futureTriggers = new ConcurrentHashMap<ScheduledFuture<?>, Trigger>();
 
@@ -87,7 +87,7 @@ public class SpringScheduler implements Scheduler {
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, JobKey[] dependencies) {
-		return jobDependencyScheduler.scheduleDependency(job, dependencies);
+		return serialDependencyScheduler.scheduleDependency(job, dependencies);
 	}
 
 	@Override

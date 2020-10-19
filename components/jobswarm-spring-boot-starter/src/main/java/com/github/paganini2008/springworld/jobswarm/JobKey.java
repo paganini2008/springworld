@@ -25,7 +25,7 @@ import lombok.Setter;
 public final class JobKey implements Serializable, Comparable<JobKey> {
 
 	private static final long serialVersionUID = 3147872689801742981L;
-	private static final String NAME_PATTERN = "%s.%s.%s@%s";
+	private static final String IDENTIFIER_PATTERN = "%s.%s.%s@%s";
 	private static final Charset DEFAULT_CHARSET = CharsetUtils.UTF_8;
 	private String clusterName;
 	private String groupName;
@@ -48,7 +48,7 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 
 	@JsonIgnore
 	public String getIdentifier() {
-		final String repr = String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
+		final String repr = String.format(IDENTIFIER_PATTERN, clusterName, groupName, jobName, jobClassName);
 		return Base64Utils.encodeToString(repr.getBytes(DEFAULT_CHARSET));
 	}
 
@@ -77,13 +77,13 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 	}
 
 	public String toString() {
-		return String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
+		return String.format(IDENTIFIER_PATTERN, clusterName, groupName, jobName, jobClassName);
 	}
 
 	@Override
 	public int compareTo(JobKey otherKey) {
-		String left = String.format(NAME_PATTERN, clusterName, groupName, jobName, jobClassName);
-		String right = String.format(NAME_PATTERN, otherKey.getClusterName(), otherKey.getGroupName(), otherKey.getJobName(),
+		String left = String.format(IDENTIFIER_PATTERN, clusterName, groupName, jobName, jobClassName);
+		String right = String.format(IDENTIFIER_PATTERN, otherKey.getClusterName(), otherKey.getGroupName(), otherKey.getJobName(),
 				otherKey.getJobClassName());
 		return left.compareTo(right);
 	}

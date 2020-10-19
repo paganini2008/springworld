@@ -8,11 +8,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.NumberUtils;
+import com.github.paganini2008.devtools.date.Duration;
 import com.github.paganini2008.springworld.jobswarm.model.JobDetail;
 import com.github.paganini2008.springworld.jobswarm.model.JobParallelizingResult;
 import com.github.paganini2008.springworld.jobswarm.model.JobPeerResult;
 import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -22,11 +25,12 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
  *
  * @since 1.0
  */
+@Slf4j
 public class JobParallelization implements Job {
 
 	private final Job delegate;
 	private final JobKey[] dependencies;
-	private final Float completionRate;
+	private final float completionRate;
 
 	@Qualifier(BeanNames.MAIN_JOB_EXECUTOR)
 	@Autowired
@@ -108,22 +112,24 @@ public class JobParallelization implements Job {
 	}
 
 	@Override
-	public Object execute(JobKey jobKey, Object attachment, Logger log) throws Exception {
+	public Object execute(JobKey jobKey, Object attachment, Logger logger) throws Exception {
+		log.trace("Start to parallel all dependent jobs ...");
+		long startTime = System.currentTimeMillis();
 		for (JobKey dependency : dependencies) {
-			log.trace("Start to run dependent job: " + dependency);
+			log.trace("Parallel run dependent job: " + dependency);
 			Job job = getJob(dependency);
-			JobDetail jobDetail = jobManager.getJobDetail(jobKey, false);
+			JobDetail jobDetail = jobManager.getJobDetail(dependency, false);
 			jobExecutor.execute(job, jobDetail.getAttachment(), 0);
 		}
-		log.trace("Job '{}' is waiting for all dependent jobs done ...", jobKey);
 		RedisCountDownLatch latch = new RedisCountDownLatch(jobKey.getIdentifier(), redisMessageSender);
 		Object[] answer = delegate.getTimeout() > 0 ? latch.await(dependencies.length, delegate.getTimeout(), TimeUnit.MILLISECONDS, null)
 				: latch.await(dependencies.length, null);
 		if (ArrayUtils.isNotEmpty(answer)) {
+			log.trace("Parallellizing job '{}' completedly", jobKey);
 			if (answer.length == dependencies.length) {
-				log.trace("All dependent jobs run ok.");
+				log.trace("All dependent jobs run ok. Take time: " + Duration.HOUR.format(System.currentTimeMillis() - startTime));
 			} else {
-				log.warn("Maybe some dependent job spend too much time.");
+				log.warn("Maybe some dependent job spend too much time. Please check them.");
 			}
 			int totalWeight = 0, completionWeight = 0;
 			for (Object result : answer) {
@@ -133,10 +139,10 @@ public class JobParallelization implements Job {
 				completionWeight += ((JobDependency) delegate).approve(jobResult.getJobKey(), jobResult.getRunningState(),
 						jobResult.getAttachment(), jobResult.getResult()) ? jobDetail.getWeight() : 0;
 			}
-			boolean run = completionRate != null ? (float) completionWeight / totalWeight >= completionRate.floatValue() : true;
-			if (run) {
-				log.trace("The completionRate is '{}' and now start to run job '{}' after all dependent jobs done.",
-						NumberUtils.format(completionRate, 2), jobKey);
+			float rate = (float) completionWeight / totalWeight;
+			if (rate >= completionRate) {
+				log.trace("The completionRate is '{}' and now start to run job '{}'.", NumberUtils.format(rate, 2), jobKey);
+				jobManager.setJobState(jobKey, JobState.PARALLELIZED);
 				JobParallelizingResult parallelizingResult = new JobParallelizingResult(jobKey, attachment,
 						ArrayUtils.cast(answer, JobPeerResult.class));
 				jobExecutor.execute(delegate, parallelizingResult, 0);

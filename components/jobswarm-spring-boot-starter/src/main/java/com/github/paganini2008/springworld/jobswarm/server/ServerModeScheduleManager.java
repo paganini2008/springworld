@@ -124,7 +124,7 @@ public class ServerModeScheduleManager implements ScheduleManager {
 	private JobFuture scheduleDependency(Job job, String attachment, JobTriggerDetail triggerDetail) {
 		final Dependency dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
 		Date startDate = triggerDetail.getStartDate();
-		switch (triggerDetail.getTriggerType()) {
+		switch (dependency.getTriggerType()) {
 		case NONE:
 			if (startDate != null) {
 				return scheduler.schedule(job, attachment, startDate);

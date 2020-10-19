@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.devtools.proxy.JdkProxyFactory;
@@ -11,7 +12,7 @@ import com.github.paganini2008.devtools.proxy.ProxyFactory;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobswarm.model.JobDetail;
-import com.github.paganini2008.springworld.jobswarm.model.JobTriggerDetail;
+import com.github.paganini2008.springworld.jobswarm.model.JobRuntime;
 import com.github.paganini2008.springworld.jobswarm.model.TriggerDescription.Dependency;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,30 +57,42 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				throw new JobBeanNotFoundException(jobKey);
 			}
 			JobDetail jobDetail = jobManager.getJobDetail(jobKey, true);
-			JobTriggerDetail triggerDetail = jobDetail.getJobTriggerDetail();
-			return parallelizeJobIfNecessary(jobKey, job, triggerDetail);
-
+			if (jobDetail.getJobTriggerDetail().getTriggerType() != TriggerType.DEPENDENT) {
+				return job;
+			}
+			return parallelizeJobIfNecessary(jobKey, job, jobDetail);
+			
 		} else if (NotManagedJob.class.isAssignableFrom(jobClass)) {
 			final NotManagedJob target = (NotManagedJob) ApplicationContextUtils.instantiateClass(jobClass);
 			JobDetail jobDetail = jobManager.getJobDetail(jobKey, true);
-			JobTriggerDetail triggerDetail = jobDetail.getJobTriggerDetail();
-			Class<?>[] interfaceClasses = new Class<?>[] { Job.class };
-			Job job = (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), interfaceClasses);
-			return parallelizeJobIfNecessary(jobKey, job, triggerDetail);
+			Class<?>[] interfaceClasses;
+			Dependency dependency;
+			if (jobDetail.getJobTriggerDetail().getTriggerType() == TriggerType.DEPENDENT) {
+				interfaceClasses = new Class<?>[] { Job.class, JobDependency.class };
+				dependency = jobDetail.getJobTriggerDetail().getTriggerDescriptionObject().getDependency();
+			} else {
+				interfaceClasses = new Class<?>[] { Job.class };
+				dependency = null;
+			}
+			Job job = (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail, dependency), interfaceClasses);
+			if (jobDetail.getJobTriggerDetail().getTriggerType() != TriggerType.DEPENDENT) {
+				return job;
+			}
+			return parallelizeJobIfNecessary(jobKey, job, jobDetail);
 		}
 		throw new JobException("Class '" + jobClass.getName() + "' is not a instance of interface '" + Job.class.getName() + "' or '"
 				+ NotManagedJob.class.getName() + "'.");
 	}
 
-	private Job parallelizeJobIfNecessary(JobKey jobKey, Job job, JobTriggerDetail triggerDetail) throws Exception {
-		if (triggerDetail.getTriggerType() != TriggerType.DEPENDENT) {
-			return job;
-		}
-		Dependency dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
+	private Job parallelizeJobIfNecessary(JobKey jobKey, Job job, JobDetail jobDetail) throws Exception {
+		Dependency dependency = jobDetail.getJobTriggerDetail().getTriggerDescriptionObject().getDependency();
 		DependencyType dependencyType = dependency.getDependencyType();
 		if (dependencyType == DependencyType.PARALLEL) {
-			return ApplicationContextUtils.instantiateClass(JobParallelization.class, job, dependency.getDependencies(),
-					dependency.getCompletionRate());
+			JobRuntime jobRuntime = jobDetail.getJobRuntime();
+			if (jobRuntime.getJobState() == JobState.PARALLELIZING) {
+				return ApplicationContextUtils.instantiateClass(JobParallelization.class, job, dependency.getDependencies(),
+						dependency.getCompletionRate());
+			}
 		}
 		return job;
 	}
@@ -95,9 +108,11 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 	private static class JobBeanAspect implements Aspect {
 
 		private final JobDetail jobDetail;
+		private final Dependency dependency;
 
-		JobBeanAspect(JobDetail jobDetail) {
+		JobBeanAspect(JobDetail jobDetail, Dependency dependency) {
 			this.jobDetail = jobDetail;
+			this.dependency = dependency;
 		}
 
 		@Override
@@ -124,6 +139,15 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				return jobDetail.getWeight();
 			case "getTrigger":
 				return null;
+			case "getDependencyType":
+				Assert.isNull(dependency, "Dependency must be required");
+				return dependency.getDependencyType();
+			case "getDependencies":
+				Assert.isNull(dependency, "Dependency must be required");
+				return dependency.getDependencies();
+			case "getCompletionRate":
+				Assert.isNull(dependency, "Dependency must be required");
+				return dependency.getCompletionRate();
 			default:
 				return MethodUtils.invokeMethod(target, method, args);
 			}

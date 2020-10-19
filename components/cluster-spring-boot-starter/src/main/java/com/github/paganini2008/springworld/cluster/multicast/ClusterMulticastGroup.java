@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -136,9 +137,11 @@ public class ClusterMulticastGroup {
 
 	public void unicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		String channel = loadBalance.select(message, groupChannels.get(group));
-		if (StringUtils.isNotBlank(channel)) {
-			doSendMessage(channel, topic, message, timeout);
+		if (groupChannels.containsKey(group)) {
+			String channel = loadBalance.select(message, groupChannels.get(group));
+			if (StringUtils.isNotBlank(channel)) {
+				doSendMessage(channel, topic, message, timeout);
+			}
 		}
 	}
 
@@ -159,7 +162,8 @@ public class ClusterMulticastGroup {
 
 	public void multicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		for (String channel : new HashSet<String>(groupChannels.get(group))) {
+		Set<String> copy = groupChannels.containsKey(group) ? new HashSet<String>(groupChannels.get(group)) : new HashSet<String>();
+		for (String channel : copy) {
 			doSendMessage(channel, topic, message, timeout);
 		}
 	}

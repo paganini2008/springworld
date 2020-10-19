@@ -45,6 +45,7 @@ public class RestStopWatch implements StopWatch {
 				new ParameterizedTypeReference<JobResult<JobState>>() {
 				});
 		return responseEntity.getBody().getData();
+
 	}
 
 }

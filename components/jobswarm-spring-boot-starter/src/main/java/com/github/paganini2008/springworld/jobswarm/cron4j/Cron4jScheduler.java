@@ -14,11 +14,11 @@ import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor.TaskFuture;
 import com.github.paganini2008.springworld.jobswarm.BeanNames;
 import com.github.paganini2008.springworld.jobswarm.Job;
-import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.JobExecutor;
 import com.github.paganini2008.springworld.jobswarm.JobFuture;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
 import com.github.paganini2008.springworld.jobswarm.Scheduler;
+import com.github.paganini2008.springworld.jobswarm.SerialDependencyScheduler;
 
 /**
  * 
@@ -43,7 +43,7 @@ public class Cron4jScheduler implements Scheduler {
 	private ErrorHandler errorHandler;
 
 	@Autowired
-	private SerialJobDependencyScheduler jobDependencyScheduler;
+	private SerialDependencyScheduler serialDependencyScheduler;
 
 	@Override
 	public JobFuture schedule(Job job, Object attachment, Date startDate) {
@@ -80,13 +80,13 @@ public class Cron4jScheduler implements Scheduler {
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, JobKey[] dependencies) {
-		return jobDependencyScheduler.scheduleDependency(job, dependencies);
+		return serialDependencyScheduler.scheduleDependency(job, dependencies);
 	}
 
 	@Override
 	public JobFuture scheduleWithDependency(Job job, JobKey[] dependencies, Date startDate) {
 		return schedule(() -> {
-			return jobDependencyScheduler.scheduleDependency(job, dependencies);
+			return serialDependencyScheduler.scheduleDependency(job, dependencies);
 		}, startDate);
 	}
 
@@ -116,7 +116,6 @@ public class Cron4jScheduler implements Scheduler {
 		private final Object attachment;
 
 		SimpleTask(Job job, Object attachment) {
-			super();
 			this.job = job;
 			this.attachment = attachment;
 		}

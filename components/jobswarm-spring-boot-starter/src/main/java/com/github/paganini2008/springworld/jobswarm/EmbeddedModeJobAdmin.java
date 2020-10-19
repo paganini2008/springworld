@@ -16,7 +16,7 @@ import com.github.paganini2008.springworld.jobswarm.model.JobLifeCycleParam;
  * @since 1.0
  */
 public class EmbeddedModeJobAdmin implements JobAdmin {
-	
+
 	@Value("${spring.application.name}")
 	private String applicationName;
 
@@ -34,7 +34,7 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 
 	@Autowired
 	private JobManager jobManager;
-	
+
 	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;
 
@@ -47,7 +47,7 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 		jobExecutor.execute(job, attachment, 0);
 		return jobManager.getJobRuntime(jobKey).getJobState();
 	}
-	
+
 	@Override
 	public void publicLifeCycleEvent(JobKey jobKey, JobLifeCycle lifeCycle) {
 		clusterMulticastGroup.multicast(applicationName, LifeCycleListenerContainer.class.getName(),

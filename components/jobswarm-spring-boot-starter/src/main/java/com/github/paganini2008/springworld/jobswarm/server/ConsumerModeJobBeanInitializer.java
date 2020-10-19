@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.jobswarm.JobManager;
 import com.github.paganini2008.springworld.jobswarm.JobParallelizationListener;
 import com.github.paganini2008.springworld.jobswarm.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobswarm.NotManagedJobBeanInitializer;
-import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyScheduler;
+import com.github.paganini2008.springworld.jobswarm.SerialDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.TriggerType;
 import com.github.paganini2008.springworld.jobswarm.model.JobKeyQuery;
 
@@ -44,7 +44,7 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	private JobBeanLoader externalJobBeanLoader;
 
 	@Autowired
-	private SerialJobDependencyScheduler jobDependencyScheduler;
+	private SerialDependencyScheduler serialDependencyScheduler;
 
 	@Autowired
 	private JobFutureHolder jobFutureHolder;
@@ -79,10 +79,10 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				// update or schedule serial dependency job
 				dependencies = jobManager.getDependencies(jobKey, DependencyType.SERIAL);
 				if (ArrayUtils.isNotEmpty(dependencies)) {
-					if (jobDependencyScheduler.hasScheduled(jobKey)) {
-						jobDependencyScheduler.updateDependency(job, dependencies);
+					if (serialDependencyScheduler.hasScheduled(jobKey)) {
+						serialDependencyScheduler.updateDependency(job, dependencies);
 					} else {
-						jobFutureHolder.add(jobKey, jobDependencyScheduler.scheduleDependency(job, dependencies));
+						jobFutureHolder.add(jobKey, serialDependencyScheduler.scheduleDependency(job, dependencies));
 					}
 				}
 

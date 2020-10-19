@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.jobswarm.DependencyType;
 import com.github.paganini2008.springworld.jobswarm.Job;
-import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.JobException;
 import com.github.paganini2008.springworld.jobswarm.JobExecutor;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
@@ -18,6 +17,7 @@ import com.github.paganini2008.springworld.jobswarm.JobTemplate;
 import com.github.paganini2008.springworld.jobswarm.LogManager;
 import com.github.paganini2008.springworld.jobswarm.RetryPolicy;
 import com.github.paganini2008.springworld.jobswarm.RunningState;
+import com.github.paganini2008.springworld.jobswarm.SerialDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.StopWatch;
 import com.github.paganini2008.springworld.jobswarm.TraceIdGenerator;
 
@@ -32,7 +32,7 @@ import com.github.paganini2008.springworld.jobswarm.TraceIdGenerator;
 public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor {
 
 	@Autowired
-	private SerialJobDependencyScheduler jobDependencyScheduler;
+	private SerialDependencyScheduler serialDependencyScheduler;
 
 	@Autowired
 	private StopWatch stopWatch;
@@ -73,7 +73,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void notifyDependants(JobKey jobKey, Job job, Object result) {
 		try {
 			if (jobManager.hasRelations(jobKey, DependencyType.SERIAL)) {
-				jobDependencyScheduler.notifyDependants(jobKey, result);
+				serialDependencyScheduler.notifyDependants(jobKey, result);
 			}
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
@@ -89,7 +89,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState,
 			Object result, Throwable reason, int retries) {
 		super.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
-		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 		stopWatch.finishJob(traceId, jobKey, startDate, runningState, retries);
+		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 	}
 }

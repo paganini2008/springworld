@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.jobswarm;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -22,6 +23,7 @@ import org.springframework.util.ErrorHandler;
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
+import com.github.paganini2008.devtools.multithreads.ThreadPoolBuilder;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.jobswarm.cron4j.Cron4jScheduler;
 import com.github.paganini2008.springworld.jobswarm.server.ConsumerModeJobExecutor;
@@ -62,9 +64,9 @@ public class EmbeddedModeSchedulerConfiguration {
 		}
 
 		@Bean(BeanNames.TARGET_JOB_EXECUTOR)
-		public JobExecutor consumerModeJobExecutor() {
+		public JobExecutor consumerModeJobExecutor(@Qualifier("jobExecutorThreads") Executor threadPool) {
 			ConsumerModeJobExecutor jobExecutor = new ConsumerModeJobExecutor();
-			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			jobExecutor.setThreadPool(threadPool);
 			return jobExecutor;
 		}
 
@@ -102,9 +104,9 @@ public class EmbeddedModeSchedulerConfiguration {
 		}
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
-		public JobExecutor jobExecutor() {
+		public JobExecutor jobExecutor(@Qualifier("jobExecutorThreads") Executor threadPool) {
 			EmbeddedModeJobExecutor jobExecutor = new EmbeddedModeJobExecutor();
-			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			jobExecutor.setThreadPool(threadPool);
 			return jobExecutor;
 		}
 
@@ -112,6 +114,12 @@ public class EmbeddedModeSchedulerConfiguration {
 		public RetryPolicy retryPolicy() {
 			return new CurrentThreadRetryPolicy();
 		}
+	}
+
+	@Bean
+	public Executor jobExecutorThreads(@Value("${spring.application.cluster.executor.poolSize:16}") int maxPoolSize) {
+		return ThreadPoolBuilder.common(maxPoolSize).setTimeout(-1L).setQueueSize(Integer.MAX_VALUE)
+				.setThreadFactory(new PooledThreadFactory("job-executor-threads")).build();
 	}
 
 	@Configuration
@@ -208,13 +216,13 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public SerialJobDependencyScheduler serialJobDependencyScheduler() {
-		return new SerialJobDependencySchedulerImpl();
+	public SerialDependencyScheduler serialDependencyScheduler() {
+		return new SerialDependencySchedulerImpl();
 	}
 
 	@Bean
-	public SerialJobDependencyListener jobDependencyDetector() {
-		return new SerialJobDependencyListener();
+	public SerialDependencyListener serialDependencyDetector() {
+		return new SerialDependencyListener();
 	}
 
 	@Bean
@@ -256,10 +264,10 @@ public class EmbeddedModeSchedulerConfiguration {
 	public LogManager logManager() {
 		return new JdbcLogManager();
 	}
-	
+
 	@Bean
-	public JobParallelizationListener jobParallelizationListener() {
-		return new JobParallelizationListener();
+	public JobRuntimeListenerContainer jobRuntimeListenerContainer() {
+		return new JobRuntimeListenerContainer();
 	}
 
 }

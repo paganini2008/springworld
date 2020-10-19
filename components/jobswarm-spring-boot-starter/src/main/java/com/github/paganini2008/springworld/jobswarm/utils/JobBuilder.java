@@ -1,7 +1,6 @@
-package com.github.paganini2008.springworld.jobswarm;
+package com.github.paganini2008.springworld.jobswarm.utils;
 
 import java.lang.reflect.Method;
-import java.util.Date;
 
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.proxy.Aspect;
@@ -9,7 +8,10 @@ import com.github.paganini2008.devtools.proxy.JdkProxyFactory;
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.jobswarm.model.TriggerDescription;
+import com.github.paganini2008.springworld.jobswarm.Job;
+import com.github.paganini2008.springworld.jobswarm.JobDependency;
+import com.github.paganini2008.springworld.jobswarm.JobKey;
+import com.github.paganini2008.springworld.jobswarm.NotManagedJob;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -99,51 +101,6 @@ public final class JobBuilder {
 			default:
 				return MethodUtils.invokeMethod(target, method, args);
 			}
-		}
-
-	}
-
-	@Accessors(chain = true)
-	@Setter
-	@Getter
-	public static class TriggerBuilder {
-
-		private final TriggerDescription triggerDescription;
-		private final TriggerType triggerType;
-		private Date startDate;
-		private Date endDate;
-		private int repeatCount = -1;
-
-		TriggerBuilder() {
-			this.triggerDescription = new TriggerDescription();
-			this.triggerType = TriggerType.NONE;
-		}
-
-		TriggerBuilder(String cronExpression) {
-			this.triggerDescription = new TriggerDescription(cronExpression);
-			this.triggerType = TriggerType.CRON;
-		}
-
-		TriggerBuilder(long period, SchedulingUnit schedulingUnit, boolean fixedRate) {
-			this.triggerDescription = new TriggerDescription(period, schedulingUnit, fixedRate);
-			this.triggerType = TriggerType.PERIODIC;
-		}
-
-		public Trigger build() {
-			return new BasicTrigger(triggerType).setTriggerDescription(triggerDescription).setStartDate(startDate).setEndDate(endDate)
-					.setRepeatCount(repeatCount);
-		}
-
-		public static TriggerBuilder newTrigger() {
-			return new TriggerBuilder();
-		}
-
-		public static TriggerBuilder newTrigger(String cronExpression) {
-			return new TriggerBuilder(cronExpression);
-		}
-
-		public static TriggerBuilder newTrigger(long period, SchedulingUnit schedulingUnit, boolean fixedRate) {
-			return new TriggerBuilder(period, schedulingUnit, fixedRate);
 		}
 
 	}

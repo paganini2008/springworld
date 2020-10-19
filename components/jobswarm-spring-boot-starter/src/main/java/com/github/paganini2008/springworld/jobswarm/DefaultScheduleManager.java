@@ -42,7 +42,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 		final JobKey jobKey = JobKey.of(job);
 		jobTrigger.addObserver((jobTrigger, ignored) -> {
 			if (hasScheduled(jobKey)) {
-				log.warn("Job '{}' has been scheduled.", jobKey);
+				log.warn("Job '{}' is being scheduled.", jobKey);
 				return;
 			}
 			JobDetail jobDetail;
@@ -54,12 +54,13 @@ public class DefaultScheduleManager implements ScheduleManager {
 			} catch (Exception e) {
 				throw ExceptionUtils.wrapExeception(e);
 			}
+
 			JobFuture jobFuture;
 			JobTriggerDetail triggerDetail = jobDetail.getJobTriggerDetail();
 			if (triggerDetail.getTriggerType() == TriggerType.DEPENDENT) {
-				jobFuture = scheduleDependency(job, jobDetail.getAttachment(), triggerDetail);
+				jobFuture = scheduleDependency(jobKey, job, jobDetail.getAttachment(), triggerDetail);
 			} else {
-				jobFuture = scheduleJob(job, jobDetail.getAttachment(), triggerDetail);
+				jobFuture = scheduleJob(jobKey, job, jobDetail.getAttachment(), triggerDetail);
 			}
 			if (jobFuture != null) {
 				jobFutureHolder.add(jobKey, jobFuture);
@@ -75,7 +76,7 @@ public class DefaultScheduleManager implements ScheduleManager {
 		return jobManager.getJobRuntime(jobKey).getJobState();
 	}
 
-	private JobFuture scheduleDependency(Job job, String attachment, JobTriggerDetail triggerDetail) {
+	private JobFuture scheduleDependency(JobKey jobKey, Job job, String attachment, JobTriggerDetail triggerDetail) {
 		final Dependency dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
 		Date startDate = triggerDetail.getStartDate();
 		JobKey[] dependencies = dependency.getDependencies();
@@ -87,12 +88,13 @@ public class DefaultScheduleManager implements ScheduleManager {
 				jobParallelization = ApplicationContextUtils.instantiateClass(JobParallelization.class, job, dependencies,
 						dependency.getCompletionRate());
 			}
-			switch (triggerDetail.getTriggerType()) {
+			switch (dependency.getTriggerType()) {
 			case NONE:
 				if (startDate != null) {
 					return scheduler.schedule(jobParallelization, attachment, startDate);
+				} else {
+					return new NoneJobFuture(jobKey);
 				}
-				break;
 			case CRON:
 				String cronExpression = dependency.getCron().getExpression();
 				if (startDate != null) {
@@ -121,15 +123,16 @@ public class DefaultScheduleManager implements ScheduleManager {
 		return null;
 	}
 
-	private JobFuture scheduleJob(Job job, String attachment, JobTriggerDetail triggerDetail) {
+	private JobFuture scheduleJob(JobKey jobKey, Job job, String attachment, JobTriggerDetail triggerDetail) {
 		final TriggerDescription triggerDescription = triggerDetail.getTriggerDescriptionObject();
 		Date startDate = triggerDetail.getStartDate();
 		switch (triggerDetail.getTriggerType()) {
 		case NONE:
 			if (startDate != null) {
 				return scheduler.schedule(job, attachment, startDate);
+			} else {
+				return new NoneJobFuture(jobKey);
 			}
-			break;
 		case CRON:
 			String cronExpression = triggerDescription.getCron().getExpression();
 			if (startDate != null) {

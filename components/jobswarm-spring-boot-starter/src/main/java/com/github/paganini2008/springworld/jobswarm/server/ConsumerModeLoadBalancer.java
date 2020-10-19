@@ -9,16 +9,15 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.jobswarm.Job;
-import com.github.paganini2008.springworld.jobswarm.SerialJobDependencyFuture;
 import com.github.paganini2008.springworld.jobswarm.JobException;
 import com.github.paganini2008.springworld.jobswarm.JobExecutor;
-import com.github.paganini2008.springworld.jobswarm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
 import com.github.paganini2008.springworld.jobswarm.JobManager;
 import com.github.paganini2008.springworld.jobswarm.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobswarm.JobState;
 import com.github.paganini2008.springworld.jobswarm.JobTemplate;
 import com.github.paganini2008.springworld.jobswarm.RunningState;
+import com.github.paganini2008.springworld.jobswarm.SerialDependencyScheduler;
 import com.github.paganini2008.springworld.jobswarm.StopWatch;
 import com.github.paganini2008.springworld.jobswarm.TraceIdGenerator;
 import com.github.paganini2008.springworld.jobswarm.model.JobParam;
@@ -43,7 +42,7 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	private StopWatch stopWatch;
 
 	@Autowired
-	private JobFutureHolder jobFutureHolder;
+	private SerialDependencyScheduler serialDependencyScheduler;
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
@@ -65,11 +64,11 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
 		super.beforeRun(traceId, jobKey, job, attachment, startDate);
 		jobRuntimeListenerContainer.beforeRun(traceId, jobKey, job, attachment, startDate);
-		handleIfDependentJob(traceId, jobKey, startDate);
+		handleIfHasSerialDependency(traceId, jobKey, startDate);
 	}
 
-	private void handleIfDependentJob(long traceId, JobKey jobKey, Date startDate) {
-		if (jobFutureHolder.get(jobKey) instanceof SerialJobDependencyFuture) {
+	private void handleIfHasSerialDependency(long traceId, JobKey jobKey, Date startDate) {
+		if (serialDependencyScheduler.hasScheduled(jobKey)) {
 			stopWatch.startJob(traceId, jobKey, startDate);
 		}
 	}
