@@ -150,7 +150,7 @@ public abstract class JobTemplate implements JobExecutor {
 		if (log.isTraceEnabled()) {
 			if (traceId > 0) {
 				log.trace("Prepare to run Job '{}' with traceId '{}'", jobKey, traceId);
-			} else {
+			} else if (traceId == 0) {
 				log.trace("Load balance on job '{}'", jobKey);
 			}
 		}

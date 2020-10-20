@@ -18,8 +18,6 @@ public enum JobState implements EnumConstant {
 	RUNNING(2, "Running"), 
 	PAUSED(3, "Paused"), 
 	FINISHED(4, "Finished"), 
-	PARALLELIZING(-1, "Parallelizing"),
-	PARALLELIZED(-2, "Parallelized"), 
 	NONE(99, "None");
 
 	private JobState(int value, String repr) {

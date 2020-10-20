@@ -88,7 +88,7 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 					log.error("Unable to load job Bean: {}", jobKey, e);
 					continue;
 				}
-				if (job == null || job.managedByApplicationContext()) {
+				if (job == null) {
 					continue;
 				}
 				if (scheduleManager.hasScheduled(jobKey)) {
@@ -124,7 +124,7 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 					log.error(e.getMessage(), e);
 					continue;
 				}
-				if (job == null || job.managedByApplicationContext()) {
+				if (job == null) {
 					continue;
 				}
 				if (scheduleManager.hasScheduled(jobKey)) {

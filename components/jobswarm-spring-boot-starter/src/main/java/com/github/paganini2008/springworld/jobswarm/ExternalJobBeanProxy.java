@@ -54,9 +54,4 @@ public class ExternalJobBeanProxy implements Job {
 		throw new UnsupportedOperationException("execute");
 	}
 
-	@Override
-	public boolean managedByApplicationContext() {
-		return false;
-	}
-
 }

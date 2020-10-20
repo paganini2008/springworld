@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobswarm.BeanNames;
 import com.github.paganini2008.springworld.jobswarm.DependencyType;
 import com.github.paganini2008.springworld.jobswarm.Job;
@@ -52,9 +53,6 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	@Autowired
 	private JobRuntimeListenerContainer jobRuntimeListenerContainer;
 
-	@Autowired
-	private JobParallelizationListener jobParallelizationListener;
-
 	public void initializeJobBeans() throws Exception {
 		initializeJobDependencyBeans();
 	}
@@ -72,7 +70,7 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				if (job == null && externalJobBeanLoader != null) {
 					job = externalJobBeanLoader.loadJobBean(jobKey);
 				}
-				if (job == null || job.managedByApplicationContext()) {
+				if (job == null) {
 					continue;
 				}
 
@@ -90,7 +88,7 @@ public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				dependencies = jobManager.getDependencies(jobKey, DependencyType.PARALLEL);
 				if (ArrayUtils.isNotEmpty(dependencies)) {
 					for (JobKey dependency : dependencies) {
-						jobRuntimeListenerContainer.addListener(dependency, jobParallelizationListener);
+						jobRuntimeListenerContainer.addListener(dependency, ApplicationContextUtils.instantiateClass(JobParallelizationListener.class));
 					}
 				}
 			}

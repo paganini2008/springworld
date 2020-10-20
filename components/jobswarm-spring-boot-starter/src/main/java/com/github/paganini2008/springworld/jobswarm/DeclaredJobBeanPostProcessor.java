@@ -18,16 +18,12 @@ public class DeclaredJobBeanPostProcessor implements BeanPostProcessor {
 	@Autowired
 	private JobManager jobManager;
 
-	@Autowired
-	private ScheduleManager scheduleManager;
-
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof Job) {
 			Job job = (Job) bean;
 			try {
 				jobManager.persistJob(job, null);
-				scheduleManager.schedule(job);
 			} catch (Exception e) {
 				throw new BeanInitializationException(e.getMessage(), e);
 			}

@@ -5,7 +5,6 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.jobswarm.model.JobPeerResult;
-import com.github.paganini2008.springworld.jobswarm.model.JobRuntime;
 import com.github.paganini2008.springworld.reditools.common.RedisCountDownLatch;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
@@ -33,16 +32,11 @@ public class JobParallelizationListener implements JobRuntimeListener {
 			Throwable reason) {
 		log.info("++++++++++++++++  Start job: {} ++++++++++++++++++", jobKey);
 
-		JobKey relation = null;
-		JobRuntime jobRuntime;
+		JobKey relation;
 		try {
 			relation = jobManager.getRelations(jobKey, DependencyType.PARALLEL)[0];
-			jobRuntime = jobManager.getJobRuntime(relation);
 		} catch (Exception e) {
-			throw ExceptionUtils.wrapExeception("Job '" + jobKey + "' has no relations with job '" + relation + "'", e);
-		}
-		if (jobRuntime.getJobState() != JobState.RUNNING) {
-			throw new JobException("Job '" + relation + "' is not in the running state.");
+			throw ExceptionUtils.wrapExeception("Job '" + jobKey + "' has no relations", e);
 		}
 
 		RedisCountDownLatch latch = new RedisCountDownLatch(relation.getIdentifier(), redisMessageSender);

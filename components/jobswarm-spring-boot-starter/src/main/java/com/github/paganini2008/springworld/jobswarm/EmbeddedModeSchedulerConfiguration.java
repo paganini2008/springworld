@@ -221,7 +221,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public SerialDependencyListener serialDependencyDetector() {
+	public SerialDependencyListener serialDependencyListener() {
 		return new SerialDependencyListener();
 	}
 

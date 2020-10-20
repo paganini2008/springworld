@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.jobswarm.model.JobTriggerDetail;
 
 /**
  * 
@@ -44,36 +43,17 @@ public class JdbcStopWatch implements StopWatch {
 
 	@Override
 	public JobState startJob(long traceId, JobKey jobKey, Date startDate) {
-		try {
-			if (jobManager.hasJobState(jobKey, JobState.PARALLELIZED)) {
-				return JobState.PARALLELIZED;
-			}
-		} catch (Exception e) {
-			throw ExceptionUtils.wrapExeception(e);
-		}
-
-		DependencyType dependencyType = null;
-		try {
-			JobTriggerDetail triggerDetail = jobManager.getJobTriggerDetail(jobKey);
-			if (triggerDetail.getTriggerType() == TriggerType.DEPENDENT) {
-				dependencyType = triggerDetail.getTriggerDescriptionObject().getDependency().getDependencyType();
-			}
-		} catch (Exception e) {
-			throw ExceptionUtils.wrapExeception(e);
-		}
-
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
 			long nextExecutionTime = jobFutureHolder.hasKey(jobKey)
 					? jobFutureHolder.get(jobKey).getNextExectionTime(startDate, startDate, startDate)
 					: -1L;
-			JobState jobState = dependencyType == DependencyType.PARALLEL ? JobState.PARALLELIZING : JobState.RUNNING;
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_BEGIN,
-					new Object[] { jobState.getValue(), new Timestamp(startDate.getTime()),
+					new Object[] { JobState.RUNNING.getValue(), new Timestamp(startDate.getTime()),
 							nextExecutionTime > 0 ? new Timestamp(nextExecutionTime) : null, jobKey.getClusterName(), jobKey.getGroupName(),
 							jobKey.getJobName(), jobKey.getJobClassName() });
-			return jobState;
+			return JobState.RUNNING;
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		} finally {

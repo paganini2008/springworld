@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.date.DateUtils;
-import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobswarm.model.JobDetail;
 import com.github.paganini2008.springworld.jobswarm.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.jobswarm.model.TriggerDescription;
@@ -81,26 +80,19 @@ public class DefaultScheduleManager implements ScheduleManager {
 		Date startDate = triggerDetail.getStartDate();
 		JobKey[] dependencies = dependency.getDependencies();
 		if (dependency.getDependencyType() == DependencyType.PARALLEL) {
-			JobParallelization jobParallelization;
-			if (job instanceof JobParallelization) {
-				jobParallelization = (JobParallelization) job;
-			} else {
-				jobParallelization = ApplicationContextUtils.instantiateClass(JobParallelization.class, job, dependencies,
-						dependency.getCompletionRate());
-			}
 			switch (dependency.getTriggerType()) {
 			case NONE:
 				if (startDate != null) {
-					return scheduler.schedule(jobParallelization, attachment, startDate);
+					return scheduler.schedule(job, attachment, startDate);
 				} else {
 					return new NoneJobFuture(jobKey);
 				}
 			case CRON:
 				String cronExpression = dependency.getCron().getExpression();
 				if (startDate != null) {
-					return scheduler.schedule(jobParallelization, attachment, cronExpression, startDate);
+					return scheduler.schedule(job, attachment, cronExpression, startDate);
 				}
-				return scheduler.schedule(jobParallelization, attachment, cronExpression);
+				return scheduler.schedule(job, attachment, cronExpression);
 			case PERIODIC:
 				Periodic periodic = dependency.getPeriodic();
 				long periodInMs = DateUtils.convertToMillis(periodic.getPeriod(), periodic.getSchedulingUnit().getTimeUnit());
@@ -108,9 +100,9 @@ public class DefaultScheduleManager implements ScheduleManager {
 					startDate = new Date(System.currentTimeMillis() + periodInMs);
 				}
 				if (periodic.isFixedRate()) {
-					return scheduler.scheduleAtFixedRate(jobParallelization, attachment, periodInMs, startDate);
+					return scheduler.scheduleAtFixedRate(job, attachment, periodInMs, startDate);
 				}
-				return scheduler.scheduleWithFixedDelay(jobParallelization, attachment, periodInMs, startDate);
+				return scheduler.scheduleWithFixedDelay(job, attachment, periodInMs, startDate);
 			default:
 				break;
 			}

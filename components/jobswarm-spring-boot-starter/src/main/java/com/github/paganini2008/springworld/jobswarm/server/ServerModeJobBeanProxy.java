@@ -68,11 +68,6 @@ public class ServerModeJobBeanProxy implements Job {
 	}
 
 	@Override
-	public boolean managedByApplicationContext() {
-		return false;
-	}
-
-	@Override
 	public Object execute(JobKey jobKey, Object result, Logger log) {
 		try {
 			return jobAdmin.triggerJob(jobKey, result);

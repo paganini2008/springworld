@@ -107,7 +107,7 @@ public class Cron4jScheduler implements Scheduler {
 
 	@Override
 	public void runJob(Job job, Object attachment) {
-		jobExecutor.execute(job, attachment, 0);
+			jobExecutor.execute(job, attachment, 0);
 	}
 
 	private class SimpleTask implements Task {

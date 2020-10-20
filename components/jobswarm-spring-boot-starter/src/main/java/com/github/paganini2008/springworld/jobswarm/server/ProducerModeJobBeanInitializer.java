@@ -64,8 +64,13 @@ public class ProducerModeJobBeanInitializer implements NotManagedJobBeanInitiali
 				dataList = pageResponse.getContent();
 				for (Tuple tuple : dataList) {
 					jobKey = tuple.toBean(JobKey.class);
-					job = jobBeanLoader.loadJobBean(jobKey);
-					if (job == null || job.managedByApplicationContext()) {
+					try {
+						job = jobBeanLoader.loadJobBean(jobKey);
+					} catch (Exception e) {
+						log.error("Unable to load job Bean: {}", jobKey, e);
+						continue;
+					}
+					if (job == null) {
 						continue;
 					}
 					if (scheduleManager.hasScheduled(jobKey)) {

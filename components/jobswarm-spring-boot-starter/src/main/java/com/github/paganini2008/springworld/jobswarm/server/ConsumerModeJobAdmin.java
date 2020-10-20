@@ -13,7 +13,6 @@ import com.github.paganini2008.springworld.jobswarm.JobExecutor;
 import com.github.paganini2008.springworld.jobswarm.JobKey;
 import com.github.paganini2008.springworld.jobswarm.JobLifeCycle;
 import com.github.paganini2008.springworld.jobswarm.JobManager;
-import com.github.paganini2008.springworld.jobswarm.JobParallelization;
 import com.github.paganini2008.springworld.jobswarm.JobState;
 import com.github.paganini2008.springworld.jobswarm.LifeCycleListenerContainer;
 import com.github.paganini2008.springworld.jobswarm.model.JobLifeCycleParam;
@@ -34,7 +33,7 @@ public class ConsumerModeJobAdmin implements JobAdmin {
 	@Qualifier(BeanNames.MAIN_JOB_EXECUTOR)
 	@Autowired
 	private JobExecutor jobExecutor;
-	
+
 	@Qualifier("jobParalelizationJobExecutor")
 	@Autowired
 	private JobExecutor jobParalelizationJobExecutor;
@@ -56,11 +55,7 @@ public class ConsumerModeJobAdmin implements JobAdmin {
 	@Override
 	public JobState triggerJob(JobKey jobKey, Object attachment) throws Exception {
 		Job job = loadJobBean(jobKey);
-		if (job instanceof JobParallelization) {
-			jobParalelizationJobExecutor.execute(job, attachment, 0);
-		} else {
-			jobExecutor.execute(job, attachment, 0);
-		}
+		jobExecutor.execute(job, attachment, 0);
 		return jobManager.getJobRuntime(jobKey).getJobState();
 	}
 

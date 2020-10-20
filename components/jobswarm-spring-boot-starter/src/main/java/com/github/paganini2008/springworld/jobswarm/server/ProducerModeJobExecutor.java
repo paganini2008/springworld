@@ -63,7 +63,7 @@ public class ProducerModeJobExecutor extends JobTemplate implements JobExecutor 
 	@Override
 	protected boolean isScheduling(JobKey jobKey, Job job) {
 		try {
-			return jobManager.hasJobState(jobKey, JobState.SCHEDULING) || jobManager.hasJobState(jobKey, JobState.PARALLELIZING);
+			return jobManager.hasJobState(jobKey, JobState.SCHEDULING);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}
