@@ -11,6 +11,7 @@ import com.github.paganini2008.devtools.proxy.ProxyFactory;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobstorm.model.JobDetail;
+import com.github.paganini2008.springworld.jobstorm.model.TriggerDescription;
 import com.github.paganini2008.springworld.jobstorm.model.TriggerDescription.Dependency;
 
 import lombok.extern.slf4j.Slf4j;
@@ -94,9 +95,11 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 	private static class JobBeanAspect implements Aspect {
 
 		private final JobDetail jobDetail;
+		private final TriggerDescription triggerDescription;
 
 		JobBeanAspect(JobDetail jobDetail) {
 			this.jobDetail = jobDetail;
+			this.triggerDescription = jobDetail.getJobTriggerDetail().getTriggerDescriptionObject();
 		}
 
 		@Override
@@ -123,6 +126,12 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				return jobDetail.getWeight();
 			case "getTrigger":
 				return null;
+			case "getDependencyType":
+				return triggerDescription.getDependency().getDependencyType();
+			case "getDependencies":
+				return triggerDescription.getDependency().getDependencies();
+			case "getCompletionRate":
+				return triggerDescription.getDependency().getCompletionRate();
 			default:
 				return MethodUtils.invokeMethod(target, method, args);
 			}

@@ -18,19 +18,15 @@ import lombok.Setter;
 @Setter
 public class JobDependencyParam {
 
+	private JobKey jobKey;
 	private DependencyType dependencyType;
-	private JobKey[] dependencies;
-	private float completionRate;
-	private String[] approvalClassNames;
 
 	public JobDependencyParam() {
 	}
 
-	public JobDependencyParam(DependencyType dependencyType, JobKey[] dependencies, float completionRate, String[] approvalClassNames) {
+	public JobDependencyParam(JobKey jobKey, DependencyType dependencyType) {
+		this.jobKey = jobKey;
 		this.dependencyType = dependencyType;
-		this.dependencies = dependencies;
-		this.completionRate = completionRate;
-		this.approvalClassNames = approvalClassNames;
 	}
 
 }

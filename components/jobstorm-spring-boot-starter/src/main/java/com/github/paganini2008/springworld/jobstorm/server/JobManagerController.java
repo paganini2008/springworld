@@ -14,7 +14,7 @@ import com.github.paganini2008.springworld.jobstorm.JobState;
 import com.github.paganini2008.springworld.jobstorm.LogManager;
 import com.github.paganini2008.springworld.jobstorm.StopWatch;
 import com.github.paganini2008.springworld.jobstorm.TraceIdGenerator;
-import com.github.paganini2008.springworld.jobstorm.model.JobRelationParam;
+import com.github.paganini2008.springworld.jobstorm.model.JobDependencyParam;
 import com.github.paganini2008.springworld.jobstorm.model.JobDetail;
 import com.github.paganini2008.springworld.jobstorm.model.JobKeyQuery;
 import com.github.paganini2008.springworld.jobstorm.model.JobLog;
@@ -110,19 +110,19 @@ public class JobManagerController {
 	}
 
 	@PostMapping("/hasRelations")
-	public ResponseEntity<JobResult<Boolean>> hasRelations(@RequestBody JobRelationParam param) throws Exception {
+	public ResponseEntity<JobResult<Boolean>> hasRelations(@RequestBody JobDependencyParam param) throws Exception {
 		boolean result = jobManager.hasRelations(param.getJobKey(), param.getDependencyType());
 		return ResponseEntity.ok(JobResult.success(result));
 	}
 
 	@PostMapping("/getRelations")
-	public ResponseEntity<JobResult<JobKey[]>> getRelations(@RequestBody JobRelationParam param) throws Exception {
+	public ResponseEntity<JobResult<JobKey[]>> getRelations(@RequestBody JobDependencyParam param) throws Exception {
 		JobKey[] jobKeys = jobManager.getRelations(param.getJobKey(), param.getDependencyType());
 		return ResponseEntity.ok(JobResult.success(jobKeys));
 	}
 
 	@PostMapping("/getDependencies")
-	public ResponseEntity<JobResult<JobKey[]>> getDependencies(@RequestBody JobRelationParam param) throws Exception {
+	public ResponseEntity<JobResult<JobKey[]>> getDependencies(@RequestBody JobDependencyParam param) throws Exception {
 		JobKey[] jobKeys = jobManager.getDependencies(param.getJobKey(), param.getDependencyType());
 		return ResponseEntity.ok(JobResult.success(jobKeys));
 	}

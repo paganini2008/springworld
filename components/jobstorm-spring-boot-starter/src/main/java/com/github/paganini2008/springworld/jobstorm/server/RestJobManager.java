@@ -16,7 +16,7 @@ import com.github.paganini2008.springworld.jobstorm.model.JobDetail;
 import com.github.paganini2008.springworld.jobstorm.model.JobKeyQuery;
 import com.github.paganini2008.springworld.jobstorm.model.JobLog;
 import com.github.paganini2008.springworld.jobstorm.model.JobPersistParam;
-import com.github.paganini2008.springworld.jobstorm.model.JobRelationParam;
+import com.github.paganini2008.springworld.jobstorm.model.JobDependencyParam;
 import com.github.paganini2008.springworld.jobstorm.model.JobResult;
 import com.github.paganini2008.springworld.jobstorm.model.JobRuntime;
 import com.github.paganini2008.springworld.jobstorm.model.JobStackTrace;
@@ -127,7 +127,7 @@ public class RestJobManager implements JobManager {
 	@Override
 	public boolean hasRelations(JobKey jobKey, DependencyType dependencyType) throws Exception {
 		ResponseEntity<JobResult<Boolean>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/hasRelations",
-				HttpMethod.POST, new JobRelationParam(jobKey, dependencyType), new ParameterizedTypeReference<JobResult<Boolean>>() {
+				HttpMethod.POST, new JobDependencyParam(jobKey, dependencyType), new ParameterizedTypeReference<JobResult<Boolean>>() {
 				});
 		return responseEntity.getBody().getData();
 	}
@@ -135,7 +135,7 @@ public class RestJobManager implements JobManager {
 	@Override
 	public JobKey[] getRelations(JobKey jobKey, DependencyType dependencyType) throws Exception {
 		ResponseEntity<JobResult<JobKey[]>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/getRelations",
-				HttpMethod.POST, new JobRelationParam(jobKey, dependencyType), new ParameterizedTypeReference<JobResult<JobKey[]>>() {
+				HttpMethod.POST, new JobDependencyParam(jobKey, dependencyType), new ParameterizedTypeReference<JobResult<JobKey[]>>() {
 				});
 		return responseEntity.getBody().getData();
 	}
@@ -143,7 +143,7 @@ public class RestJobManager implements JobManager {
 	@Override
 	public JobKey[] getDependencies(JobKey jobKey, DependencyType dependencyType) throws Exception {
 		ResponseEntity<JobResult<JobKey[]>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/getDependencies",
-				HttpMethod.POST, new JobRelationParam(jobKey, dependencyType), new ParameterizedTypeReference<JobResult<JobKey[]>>() {
+				HttpMethod.POST, new JobDependencyParam(jobKey, dependencyType), new ParameterizedTypeReference<JobResult<JobKey[]>>() {
 				});
 		return responseEntity.getBody().getData();
 	}
