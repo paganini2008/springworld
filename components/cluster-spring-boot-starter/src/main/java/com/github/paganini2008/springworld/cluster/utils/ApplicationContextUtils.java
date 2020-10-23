@@ -139,7 +139,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		try {
 			return (T) getApplicationContext().getBean(name);
 		} catch (RuntimeException e) {
-			log.warn("Not Found Bean of name: {}, Reason: {}", name, e.getMessage());
+			log.warn("Bean '{}' have not found, Reason: {}", name, e.getMessage());
 			return null;
 		}
 	}
@@ -148,8 +148,16 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		try {
 			return getApplicationContext().getBean(requiredType);
 		} catch (RuntimeException e) {
-			log.warn("Not Found Bean: {}, Reason: {}", requiredType.getName(), e.getMessage());
+			log.warn("Bean '{}' have not found, Reason: {}", requiredType.getName(), e.getMessage());
 			return null;
+		}
+	}
+
+	public static <T> T getBeanIfAbsent(Class<T> requiredType) {
+		try {
+			return getApplicationContext().getBean(requiredType);
+		} catch (RuntimeException e) {
+			return instantiateClass(requiredType);
 		}
 	}
 
@@ -160,7 +168,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		try {
 			return getApplicationContext().getBean(name, requiredType);
 		} catch (RuntimeException e) {
-			log.warn("Not Found Bean: {}, Reason: {}", requiredType.getName(), e.getMessage());
+			log.warn("Bean '{}' have not found, Reason: {}", requiredType.getName(), e.getMessage());
 			return null;
 		}
 	}

@@ -16,7 +16,7 @@
     <modules>
 		<module>fastjpa-spring-boot-starter</module>
 		<module>config-spring-boot-starter</module>
-		<module>jobswarm-spring-boot-starter</module>
+		<module>jobstorm-spring-boot-starter</module>
 		<module>reditools-spring-boot-starter</module>
 		<module>cluster-spring-boot-starter</module>
 		<module>cached-spring-boot-starter</module>
