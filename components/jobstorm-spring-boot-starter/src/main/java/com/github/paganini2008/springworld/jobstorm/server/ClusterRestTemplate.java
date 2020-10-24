@@ -41,9 +41,13 @@ public abstract class ClusterRestTemplate extends RestTemplate {
 		defaultHeaders.add(headerName, headerValue);
 	}
 
+	public void setHeader(String headerName, String headerValue) {
+		defaultHeaders.set(headerName, headerValue);
+	}
+
 	public <R> ResponseEntity<R> perform(String clusterName, String path, HttpMethod method, Object body,
 			ParameterizedTypeReference<R> responseType) {
-		String[] contextPaths = getClusterApplicationContextPaths(clusterName);
+		String[] contextPaths = getClusterContextPaths(clusterName);
 		if (ArrayUtils.isEmpty(contextPaths)) {
 			throw new NoJobResourceException(clusterName);
 		}
@@ -52,7 +56,7 @@ public abstract class ClusterRestTemplate extends RestTemplate {
 		for (String contextPath : contextPaths) {
 			url = contextPath + path;
 			if (log.isTraceEnabled()) {
-				log.trace("Perform job on url: " + url);
+				log.trace("Perform job by url: " + url);
 			}
 			try {
 				return super.exchange(url, method, new HttpEntity<Object>(body, getHttpHeaders()), responseType);
@@ -64,7 +68,7 @@ public abstract class ClusterRestTemplate extends RestTemplate {
 		throw reason;
 	}
 
-	protected abstract String[] getClusterApplicationContextPaths(String clusterName);
+	protected abstract String[] getClusterContextPaths(String clusterName);
 
 	protected HttpHeaders getHttpHeaders() {
 		HttpHeaders headers = new HttpHeaders();

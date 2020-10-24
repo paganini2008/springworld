@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-@ConditionalOnProperty(name = "spring.application.cluster.scheduler.deployMode", havingValue = "ui")
+@ConditionalOnProperty(name = "jobstorm.deploy.mode", havingValue = "ui")
 @Configuration
 public class UIModeConfiguration {
 

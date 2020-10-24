@@ -6,14 +6,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JdbcLogManager implements LogManager {
 
-	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
-	private DataSource dataSource;
+	private ConnectionFactory connectionFactory;
 
 	@Autowired
 	private JobManager jobManager;
@@ -52,7 +49,7 @@ public class JdbcLogManager implements LogManager {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_LOG,
 					new Object[] { traceId, jobId, logLevel.name(), msg, new Timestamp(System.currentTimeMillis()) });
 		} catch (SQLException e) {
@@ -66,7 +63,7 @@ public class JdbcLogManager implements LogManager {
 				argsList.add(new Object[] { traceId, jobId, stackTrace });
 			}
 			try {
-				connection = dataSource.getConnection();
+				connection = connectionFactory.getConnection();
 				JdbcUtils.batchUpdate(connection, SqlScripts.DEF_INSERT_JOB_EXCEPTION, argsList);
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);

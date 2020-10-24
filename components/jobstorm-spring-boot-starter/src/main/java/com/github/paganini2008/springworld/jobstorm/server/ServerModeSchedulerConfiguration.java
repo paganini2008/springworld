@@ -1,7 +1,10 @@
 package com.github.paganini2008.springworld.jobstorm.server;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +24,10 @@ import org.springframework.util.ErrorHandler;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
+import com.github.paganini2008.devtools.jdbc.PooledConnectionFactory;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
+import com.github.paganini2008.devtools.multithreads.ThreadPoolBuilder;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.jobstorm.BeanNames;
 import com.github.paganini2008.springworld.jobstorm.ConditionalOnServerMode;
@@ -43,10 +49,12 @@ import com.github.paganini2008.springworld.jobstorm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobstorm.JobIdCache;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
 import com.github.paganini2008.springworld.jobstorm.JobParallelizationListener;
+import com.github.paganini2008.springworld.jobstorm.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobstorm.LifeCycleListenerContainer;
 import com.github.paganini2008.springworld.jobstorm.LoadBalancedJobBeanProcessor;
 import com.github.paganini2008.springworld.jobstorm.LogManager;
 import com.github.paganini2008.springworld.jobstorm.NotManagedJobBeanInitializer;
+import com.github.paganini2008.springworld.jobstorm.OnServerModeCondition.ServerMode;
 import com.github.paganini2008.springworld.jobstorm.RetryPolicy;
 import com.github.paganini2008.springworld.jobstorm.ScheduleAdmin;
 import com.github.paganini2008.springworld.jobstorm.ScheduleManager;
@@ -61,7 +69,6 @@ import com.github.paganini2008.springworld.jobstorm.SpringScheduler;
 import com.github.paganini2008.springworld.jobstorm.StopWatch;
 import com.github.paganini2008.springworld.jobstorm.TimestampTraceIdGenerator;
 import com.github.paganini2008.springworld.jobstorm.TraceIdGenerator;
-import com.github.paganini2008.springworld.jobstorm.OnServerModeCondition.ServerMode;
 import com.github.paganini2008.springworld.jobstorm.cron4j.Cron4jScheduler;
 
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +83,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "spring.application.cluster.scheduler.deployMode", havingValue = "server")
+@ConditionalOnProperty(name = "jobstorm.deploy.mode", havingValue = "server")
 public class ServerModeSchedulerConfiguration {
 
 	public ServerModeSchedulerConfiguration() {
@@ -89,10 +96,10 @@ public class ServerModeSchedulerConfiguration {
 
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.PRODUCER)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring")
+	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "spring")
 	public static class SpringSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:16}")
+		@Value("${jobstorm.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -114,10 +121,10 @@ public class ServerModeSchedulerConfiguration {
 
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.PRODUCER)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "cron4j", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "cron4j", matchIfMissing = true)
 	public static class Cron4jSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:16}")
+		@Value("${jobstorm.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -163,6 +170,12 @@ public class ServerModeSchedulerConfiguration {
 		@Bean
 		public NotManagedJobBeanInitializer producerModeJobBeanInitializer() {
 			return new ProducerModeJobBeanInitializer();
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(ConnectionFactory.class)
+		public ConnectionFactory connectionFactory(DataSource dataSource) {
+			return new PooledConnectionFactory(dataSource);
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
@@ -298,7 +311,7 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean
-		public SerialDependencyListener jobDependencyDetector() {
+		public SerialDependencyListener serialDependencyListener() {
 			return new SerialDependencyListener();
 		}
 
@@ -321,7 +334,7 @@ public class ServerModeSchedulerConfiguration {
 		public LogManager logManager() {
 			return new RestLogManager();
 		}
-		
+
 		@Bean
 		public JobParallelizationListener jobParallelizationListener() {
 			return new JobParallelizationListener();
@@ -333,13 +346,13 @@ public class ServerModeSchedulerConfiguration {
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "master-slave")
+	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "master-slave")
 	public static class MasterSlaveConfig {
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
-		public JobExecutor jobExecutor() {
+		public JobExecutor jobExecutor(@Qualifier("executorThreadPool") Executor threadPool) {
 			ConsumerModeJobExecutor jobExecutor = new ConsumerModeJobExecutor();
-			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			jobExecutor.setThreadPool(threadPool);
 			return jobExecutor;
 		}
 
@@ -358,7 +371,7 @@ public class ServerModeSchedulerConfiguration {
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "loadbalance", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "loadbalance", matchIfMissing = true)
 	public static class LoadBalanceConfig {
 
 		@Bean(BeanNames.INTERNAL_JOB_BEAN_LOADER)
@@ -377,9 +390,9 @@ public class ServerModeSchedulerConfiguration {
 		}
 
 		@Bean(BeanNames.TARGET_JOB_EXECUTOR)
-		public JobExecutor consumerModeJobExecutor() {
+		public JobExecutor consumerModeJobExecutor(@Qualifier("executorThreadPool") Executor threadPool) {
 			ConsumerModeJobExecutor jobExecutor = new ConsumerModeJobExecutor();
-			jobExecutor.setThreadPool(Executors.newCachedThreadPool(new PooledThreadFactory("job-executor-threads")));
+			jobExecutor.setThreadPool(threadPool);
 			return jobExecutor;
 		}
 
@@ -393,6 +406,17 @@ public class ServerModeSchedulerConfiguration {
 			return new FailoverRetryPolicy();
 		}
 
+	}
+
+	@Bean
+	public Executor executorThreadPool(@Value("${jobstorm.scheduler.executor.poolSize:16}") int maxPoolSize) {
+		return ThreadPoolBuilder.common(maxPoolSize).setTimeout(-1L).setQueueSize(Integer.MAX_VALUE)
+				.setThreadFactory(new PooledThreadFactory("job-executor-threads")).build();
+	}
+
+	@Bean
+	public JobRuntimeListenerContainer jobRuntimeListenerContainer() {
+		return new JobRuntimeListenerContainer();
 	}
 
 }

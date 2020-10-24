@@ -11,11 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.collection.Tuple;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
@@ -37,7 +37,7 @@ public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executabl
 	private Timer timer;
 
 	@Autowired
-	private DataSource dataSource;
+	private ConnectionFactory connectionFactory;
 
 	@PostConstruct
 	@Override
@@ -64,7 +64,7 @@ public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executabl
 	private void refresh() {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_ALL_JOB_TRIGGER_DEADLINE, new Object[0]);
 			JobKey jobKey;
 			Date endDate;

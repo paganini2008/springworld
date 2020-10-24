@@ -10,8 +10,6 @@ package com.github.paganini2008.springworld.jobstorm;
  */
 public abstract class BeanNames {
 
-	public static final String DATA_SOURCE = "joblink-ds";
-
 	public static final String CLUSTER_JOB_SCHEDULER = "cluster-job-scheduler";
 
 	public static final String MAIN_JOB_EXECUTOR = "main-job-executor";

@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobstorm.model.JobKeyQuery;
@@ -39,9 +38,8 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 	@Autowired
 	private JobManager jobManager;
 
-	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
-	private DataSource dataSource;
+	private ConnectionFactory connectionFactory;
 
 	@Autowired
 	private ScheduleManager scheduleManager;
@@ -70,7 +68,7 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DETAIL_BY_GROUP_NAME, new Object[] { applicationName });
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
@@ -104,7 +102,7 @@ public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitiali
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DETAIL_BY_OTHER_GROUP_NAME,
 					new Object[] { applicationName });
 		} catch (SQLException e) {

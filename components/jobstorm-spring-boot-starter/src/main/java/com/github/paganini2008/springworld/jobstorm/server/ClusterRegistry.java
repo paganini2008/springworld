@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.collection.Tuple;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.Contact;
@@ -33,13 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ClusterRegistry implements LifeCycle {
 
 	@Autowired
-	private DataSource dataSource;
+	private ConnectionFactory connectionFactory;
 
 	@PostConstruct
 	public void configure() throws Exception {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_CLEAN_CLUSTER_DETAIL);
 			log.info("Clean up cluster registry ok.");
 		} catch (SQLException e) {
@@ -52,7 +52,7 @@ public class ClusterRegistry implements LifeCycle {
 	public void registerCluster(ApplicationInfo applicationInfo) {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_CLUSTER_DETAIL, ps -> {
 				ps.setString(1, applicationInfo.getClusterName());
 				ps.setString(2, applicationInfo.getApplicationName());
@@ -79,7 +79,7 @@ public class ClusterRegistry implements LifeCycle {
 	public void unregisterCluster(String clusterName) {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_DELETE_CLUSTER_DETAIL, new Object[] { clusterName });
 			log.info("Unregistered cluster: " + clusterName);
 		} catch (SQLException e) {
@@ -89,11 +89,11 @@ public class ClusterRegistry implements LifeCycle {
 		}
 	}
 
-	public String[] getClusterApplicationContextPaths(String clusterName) {
+	public String[] getClusterContextPaths(String clusterName) {
 		List<String> results = new ArrayList<String>();
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_CLUSTER_CONTEXT_PATH, new Object[] { clusterName });
 			for (Tuple tuple : dataList) {
 				results.add(tuple.getProperty("contextPath"));

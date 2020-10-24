@@ -14,11 +14,11 @@ import com.github.paganini2008.springworld.jobstorm.server.ClusterRestTemplate;
  */
 public class UIModeClusterRestTemplate extends ClusterRestTemplate {
 
-	@Value("${spring.application.cluster.scheduler.applicationContextPaths}")
+	@Value("${jobstorm.cluster.contextPaths}")
 	private String contextPaths;
 
 	@Override
-	protected String[] getClusterApplicationContextPaths(String clusterName) {
+	protected String[] getClusterContextPaths(String clusterName) {
 		return this.contextPaths.split(",");
 	}
 

@@ -23,7 +23,7 @@ public class NoneJobFuture implements JobFuture {
 
 	private final JobKey jobKey;
 
-	NoneJobFuture(JobKey jobKey) {
+	public NoneJobFuture(JobKey jobKey) {
 		this.jobKey = jobKey;
 	}
 

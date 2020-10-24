@@ -15,6 +15,7 @@ import com.github.paganini2008.springworld.jobstorm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobstorm.JobKey;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
 import com.github.paganini2008.springworld.jobstorm.JobState;
+import com.github.paganini2008.springworld.jobstorm.NoneJobFuture;
 import com.github.paganini2008.springworld.jobstorm.ScheduleManager;
 import com.github.paganini2008.springworld.jobstorm.Scheduler;
 import com.github.paganini2008.springworld.jobstorm.TriggerType;
@@ -71,10 +72,10 @@ public class ServerModeScheduleManager implements ScheduleManager {
 				if (triggerDetail.getTriggerDescriptionObject().getDependency().getDependencyType() == DependencyType.SERIAL) {
 					log.info("Job '{}' will be triggered on client server.", jobKey);
 				} else {
-					scheduleDependency(job, jobDetail.getAttachment(), triggerDetail);
+					jobFuture = scheduleDependency(jobKey, job, jobDetail.getAttachment(), triggerDetail);
 				}
 			} else {
-				jobFuture = scheduleJob(job, jobDetail.getAttachment(), triggerDetail);
+				jobFuture = scheduleJob(jobKey, job, jobDetail.getAttachment(), triggerDetail);
 			}
 			if (jobFuture != null) {
 				jobFutureHolder.add(jobKey, jobFuture);
@@ -90,15 +91,16 @@ public class ServerModeScheduleManager implements ScheduleManager {
 		return jobManager.getJobRuntime(jobKey).getJobState();
 	}
 
-	private JobFuture scheduleJob(Job job, String attachment, JobTriggerDetail triggerDetail) {
+	private JobFuture scheduleJob(JobKey jobKey, Job job, String attachment, JobTriggerDetail triggerDetail) {
 		final TriggerDescription triggerDescription = triggerDetail.getTriggerDescriptionObject();
 		Date startDate = triggerDetail.getStartDate();
 		switch (triggerDetail.getTriggerType()) {
 		case NONE:
 			if (startDate != null) {
 				return scheduler.schedule(job, attachment, startDate);
+			} else {
+				return new NoneJobFuture(jobKey);
 			}
-			break;
 		case CRON:
 			String cronExpression = triggerDescription.getCron().getExpression();
 			if (startDate != null) {
@@ -121,15 +123,16 @@ public class ServerModeScheduleManager implements ScheduleManager {
 		return null;
 	}
 
-	private JobFuture scheduleDependency(Job job, String attachment, JobTriggerDetail triggerDetail) {
+	private JobFuture scheduleDependency(JobKey jobKey, Job job, String attachment, JobTriggerDetail triggerDetail) {
 		final Dependency dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
 		Date startDate = triggerDetail.getStartDate();
 		switch (dependency.getTriggerType()) {
 		case NONE:
 			if (startDate != null) {
 				return scheduler.schedule(job, attachment, startDate);
+			} else {
+				return new NoneJobFuture(jobKey);
 			}
-			break;
 		case CRON:
 			String cronExpression = dependency.getCron().getExpression();
 			if (startDate != null) {

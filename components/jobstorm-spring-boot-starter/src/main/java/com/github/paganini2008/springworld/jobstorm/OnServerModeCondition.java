@@ -24,7 +24,7 @@ public class OnServerModeCondition extends SpringBootCondition {
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(ConditionalOnServerMode.class.getName());
 		ServerMode serverSide = (ServerMode) annotationAttributes.get("value");
-		final String side = context.getEnvironment().getProperty("spring.application.cluster.scheduler.side", "consumer");
+		final String side = context.getEnvironment().getProperty("jobstorm.side", "consumer");
 		if (serverSide.getValue().equals(side)) {
 			return ConditionOutcome.match(EMPYT_MESSAGE);
 		}

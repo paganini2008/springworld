@@ -7,18 +7,17 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
-import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.jobstorm.model.JobKeyQuery;
 import com.github.paganini2008.springworld.jobstorm.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.jobstorm.model.TriggerDescription.Dependency;
@@ -40,6 +39,9 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 
 	@Autowired
 	private JobManager jobManager;
+	
+	@Autowired
+	private ConnectionFactory connectionFactory;
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
@@ -113,8 +115,7 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 		try {
 			final int jobId = jobManager.getJobId(jobKey);
 			final int dependentId = jobManager.getJobId(dependency);
-			DataSource dataSource = ApplicationContextUtils.getBean(BeanNames.DATA_SOURCE, DataSource.class);
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_DEPENDENCY, ps -> {
 				ps.setInt(1, jobId);
 				ps.setInt(2, dependentId);

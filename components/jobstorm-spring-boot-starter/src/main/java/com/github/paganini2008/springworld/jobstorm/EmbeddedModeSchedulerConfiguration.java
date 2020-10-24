@@ -4,6 +4,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -22,6 +24,8 @@ import org.springframework.util.ErrorHandler;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
+import com.github.paganini2008.devtools.jdbc.PooledConnectionFactory;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.devtools.multithreads.ThreadPoolBuilder;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -40,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "spring.application.cluster.scheduler.deployMode", havingValue = "embedded", matchIfMissing = true)
+@ConditionalOnProperty(name = "jobstorm.deploy.mode", havingValue = "embedded", matchIfMissing = true)
 @Import({ JobAdminController.class })
 public class EmbeddedModeSchedulerConfiguration {
 
@@ -55,7 +59,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "loadbalance", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "loadbalance", matchIfMissing = true)
 	public static class LoadBalanceConfig {
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
@@ -64,7 +68,7 @@ public class EmbeddedModeSchedulerConfiguration {
 		}
 
 		@Bean(BeanNames.TARGET_JOB_EXECUTOR)
-		public JobExecutor consumerModeJobExecutor(@Qualifier("jobExecutorThreads") Executor threadPool) {
+		public JobExecutor consumerModeJobExecutor(@Qualifier("executorThreadPool") Executor threadPool) {
 			ConsumerModeJobExecutor jobExecutor = new ConsumerModeJobExecutor();
 			jobExecutor.setThreadPool(threadPool);
 			return jobExecutor;
@@ -95,7 +99,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.runningMode", havingValue = "master-slave")
+	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "master-slave")
 	public static class MasterSlaveConfig {
 
 		@Bean(BeanNames.INTERNAL_JOB_BEAN_LOADER)
@@ -104,7 +108,7 @@ public class EmbeddedModeSchedulerConfiguration {
 		}
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
-		public JobExecutor jobExecutor(@Qualifier("jobExecutorThreads") Executor threadPool) {
+		public JobExecutor jobExecutor(@Qualifier("executorThreadPool") Executor threadPool) {
 			EmbeddedModeJobExecutor jobExecutor = new EmbeddedModeJobExecutor();
 			jobExecutor.setThreadPool(threadPool);
 			return jobExecutor;
@@ -117,16 +121,16 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Bean
-	public Executor jobExecutorThreads(@Value("${spring.application.cluster.executor.poolSize:16}") int maxPoolSize) {
+	public Executor executorThreadPool(@Value("${jobstorm.scheduler.executor.poolSize:16}") int maxPoolSize) {
 		return ThreadPoolBuilder.common(maxPoolSize).setTimeout(-1L).setQueueSize(Integer.MAX_VALUE)
 				.setThreadFactory(new PooledThreadFactory("job-executor-threads")).build();
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "spring")
+	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "spring")
 	public static class SpringSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:16}")
+		@Value("${jobstorm.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -147,10 +151,10 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.cluster.scheduler.engine", havingValue = "cron4j", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "cron4j", matchIfMissing = true)
 	public static class Cron4jSchedulerConfig {
 
-		@Value("${spring.application.cluster.scheduler.poolSize:16}")
+		@Value("${jobstorm.scheduler.poolSize:16}")
 		private int poolSize;
 
 		@Bean
@@ -190,6 +194,12 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Bean("scheduler-starter-listener-container")
 	public SchedulerStarterListener schedulerStarterListener() {
 		return new DefaultSchedulerStarterListener();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(ConnectionFactory.class)
+	public ConnectionFactory connectionFactory(DataSource dataSource) {
+		return new PooledConnectionFactory(dataSource);
 	}
 
 	@Bean(initMethod = "configure", destroyMethod = "close")

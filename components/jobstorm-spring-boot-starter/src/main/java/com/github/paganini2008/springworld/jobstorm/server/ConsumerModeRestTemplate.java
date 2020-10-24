@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class ConsumerModeRestTemplate extends ClusterRestTemplate {
 
-	@Value("${spring.application.cluster.scheduler.applicationContextPaths}")
+	@Value("${jobstorm.cluster.contextPaths}")
 	private String contextPaths;
 
 	@Override
-	protected String[] getClusterApplicationContextPaths(String clusterName) {
+	protected String[] getClusterContextPaths(String clusterName) {
 		return this.contextPaths.split(",");
 	}
 

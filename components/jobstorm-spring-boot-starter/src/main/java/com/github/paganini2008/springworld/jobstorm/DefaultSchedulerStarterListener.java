@@ -33,10 +33,10 @@ public class DefaultSchedulerStarterListener
 	@Autowired(required = false)
 	private NotManagedJobBeanInitializer jobBeanInitializer;
 
-	@Value("${spring.application.cluster.scheduler.listener.inititalDelay:5}")
+	@Value("${jobstorm.scheduler.starter.refresh.inititalDelay:5}")
 	private int inititalDelay;
 
-	@Value("${spring.application.cluster.scheduler.listener.checkInterval:60}")
+	@Value("${jobstorm.scheduler.starter.refresh.checkInterval:60}")
 	private int checkInterval;
 
 	private Timer timer;

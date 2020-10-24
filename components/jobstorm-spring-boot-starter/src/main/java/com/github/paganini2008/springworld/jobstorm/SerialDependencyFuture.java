@@ -7,11 +7,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.sql.DataSource;
-
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
@@ -84,10 +83,10 @@ public class SerialDependencyFuture implements JobFuture {
 		if (jobIds.isEmpty()) {
 			return NEXT_EXECUTION_TIME_NOT_FOUND;
 		}
-		DataSource dataSource = ApplicationContextUtils.getBean(BeanNames.DATA_SOURCE, DataSource.class);
+		ConnectionFactory connectionFactory = ApplicationContextUtils.getBean(ConnectionFactory.class);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			Date latestDate = JdbcUtils.fetchOne(connection,
 					String.format(SqlScripts.DEF_SELECT_LATEST_EXECUTION_TIME_OF_DEPENDENT_JOBS, CollectionUtils.join(jobIds, ",")),
 					Date.class);

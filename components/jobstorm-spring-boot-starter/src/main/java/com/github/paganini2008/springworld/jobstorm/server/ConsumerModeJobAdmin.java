@@ -34,10 +34,6 @@ public class ConsumerModeJobAdmin implements JobAdmin {
 	@Autowired
 	private JobExecutor jobExecutor;
 
-	@Qualifier("jobParalelizationJobExecutor")
-	@Autowired
-	private JobExecutor jobParalelizationJobExecutor;
-
 	@Qualifier(BeanNames.INTERNAL_JOB_BEAN_LOADER)
 	@Autowired
 	private JobBeanLoader jobBeanLoader;

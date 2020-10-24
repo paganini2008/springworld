@@ -11,16 +11,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.date.DateUtils;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.PageRequest;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
@@ -66,11 +64,10 @@ public class JdbcJobManager implements JobManager {
 		}
 	};
 
-	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
-	private DataSource dataSource;
+	private ConnectionFactory connectionFactory;
 
-	@Value("${spring.application.cluster.scheduler.createTable:true}")
+	@Value("${jobstorm.jdbc.createTable:true}")
 	private boolean createTable;
 
 	@Autowired
@@ -84,7 +81,7 @@ public class JdbcJobManager implements JobManager {
 		if (createTable) {
 			Connection connection = null;
 			try {
-				connection = dataSource.getConnection();
+				connection = connectionFactory.getConnection();
 				for (Map.Entry<String, String> entry : new HashMap<String, String>(ddls).entrySet()) {
 					if (!JdbcUtils.existsTable(connection, null, entry.getKey())) {
 						JdbcUtils.update(connection, entry.getValue());
@@ -102,7 +99,7 @@ public class JdbcJobManager implements JobManager {
 		List<String> clusterNames = new ArrayList<String>();
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			List<Tuple> list = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_CLUSTER_NAME);
 			for (Tuple tuple : list) {
 				clusterNames.add(tuple.getProperty("clusterName"));
@@ -145,7 +142,7 @@ public class JdbcJobManager implements JobManager {
 	private int doGetJobId(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			Integer result = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_ID,
 					new Object[] { jobKey.getClusterName(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() },
 					Integer.class);
@@ -172,7 +169,7 @@ public class JdbcJobManager implements JobManager {
 			jobId = getJobId(jobKey);
 			Connection connection = null;
 			try {
-				connection = dataSource.getConnection();
+				connection = connectionFactory.getConnection();
 				connection.setAutoCommit(false);
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_DETAIL,
 						new Object[] { jobDef.getDescription(), attachment, jobDef.getEmail(), jobDef.getRetries(), jobDef.getWeight(),
@@ -230,7 +227,7 @@ public class JdbcJobManager implements JobManager {
 		} else {
 			Connection connection = null;
 			try {
-				connection = dataSource.getConnection();
+				connection = connectionFactory.getConnection();
 				connection.setAutoCommit(false);
 				jobId = JdbcUtils.insert(connection, SqlScripts.DEF_INSERT_JOB_DETAIL, ps -> {
 					ps.setString(1, jobDef.getClusterName());
@@ -326,7 +323,7 @@ public class JdbcJobManager implements JobManager {
 		if (dependentIds.size() > 0) {
 			Connection connection = null;
 			try {
-				connection = dataSource.getConnection();
+				connection = connectionFactory.getConnection();
 				connection.setAutoCommit(false);
 				JdbcUtils.update(connection, SqlScripts.DEF_DELETE_JOB_DEPENDENCY, new Object[] { jobId, dependencyType.getValue() });
 				if (dependentIds.size() > 0) {
@@ -370,7 +367,7 @@ public class JdbcJobManager implements JobManager {
 	public boolean hasJob(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			Integer result = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_NAME_EXISTS,
 					new Object[] { jobKey.getClusterName(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() },
 					Integer.class);
@@ -385,7 +382,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_STATE, new Object[] { jobState.getValue(), jobId });
 		} finally {
 			JdbcUtils.closeQuietly(connection);
@@ -412,7 +409,7 @@ public class JdbcJobManager implements JobManager {
 	private JobDetail doGetJobDetail(JobKey jobKey) throws SQLException {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_DETAIL,
 					new Object[] { jobKey.getClusterName(), jobKey.getGroupName(), jobKey.getJobName(), jobKey.getJobClassName() });
 			if (tuple == null) {
@@ -432,7 +429,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_TRIGGER, new Object[] { jobId });
 			if (tuple == null) {
 				throw new JobBeanNotFoundException(jobKey);
@@ -448,7 +445,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			Integer rowCount = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_HAS_RELATION,
 					new Object[] { jobId, dependencyType.getValue() }, Integer.class);
 			return rowCount != null && rowCount.intValue() > 0;
@@ -463,7 +460,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_RELATIONS,
 					new Object[] { jobId, dependencyType.getValue() });
 			for (Tuple tuple : dataList) {
@@ -481,7 +478,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DEPENDENCIES,
 					new Object[] { jobId, dependencyType.getValue() });
 			for (Tuple tuple : dataList) {
@@ -498,7 +495,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(jobKey);
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			Tuple tuple = JdbcUtils.fetchOne(connection, SqlScripts.DEF_SELECT_JOB_RUNTIME, new Object[] { jobId });
 			if (tuple == null) {
 				throw new JobBeanNotFoundException(jobKey);
@@ -515,7 +512,7 @@ public class JdbcJobManager implements JobManager {
 		Connection connection = null;
 		List<Tuple> dataList = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_KEYS,
 					new Object[] { jobQuery.getClusterName(), jobQuery.getTriggerType().getValue() });
 		} finally {
@@ -531,7 +528,7 @@ public class JdbcJobManager implements JobManager {
 
 	@Override
 	public void selectJobDetail(PageQuery<JobDetail> pageQuery) {
-		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, SqlScripts.DEF_SELECT_JOB_INFO,
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(connectionFactory, SqlScripts.DEF_SELECT_JOB_INFO,
 				new Object[] { pageQuery.getClusterName() });
 		ResultSetSlice<JobDetail> resultSetSlice = new ResultSetSlice<JobDetail>() {
 
@@ -577,7 +574,7 @@ public class JdbcJobManager implements JobManager {
 			endDate = DateUtils.setTime(new Date(), 23, 59, 59);
 		}
 		final int jobId = getJobId(pageQuery.getJobKey());
-		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(dataSource, SqlScripts.DEF_SELECT_JOB_TRACE,
+		final ResultSetSlice<Tuple> delegate = JdbcUtils.pageableQuery(connectionFactory, SqlScripts.DEF_SELECT_JOB_TRACE,
 				new Object[] { jobId, startDate, endDate });
 		ResultSetSlice<JobTrace> resultSetSlice = new ResultSetSlice<JobTrace>() {
 
@@ -610,7 +607,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(query.getJobKey());
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_EXCEPTION,
 					new Object[] { jobId, query.getTraceId() });
 			for (Tuple tuple : dataList) {
@@ -628,7 +625,7 @@ public class JdbcJobManager implements JobManager {
 		final int jobId = getJobId(query.getJobKey());
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_LOG,
 					new Object[] { jobId, query.getTraceId() });
 			for (Tuple tuple : dataList) {
@@ -640,8 +637,8 @@ public class JdbcJobManager implements JobManager {
 		}
 	}
 
-	public DataSource getDataSource() {
-		return dataSource;
+	public ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
 	}
 
 }

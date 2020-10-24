@@ -5,12 +5,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.springworld.cluster.InstanceId;
@@ -31,9 +29,8 @@ public class JdbcStopWatch implements StopWatch {
 	@Value("${server.port}")
 	private int port;
 
-	@Qualifier(BeanNames.DATA_SOURCE)
 	@Autowired
-	private DataSource dataSource;
+	private ConnectionFactory connectionFactory;
 
 	@Autowired
 	private JobManager jobManager;
@@ -45,7 +42,7 @@ public class JdbcStopWatch implements StopWatch {
 	public JobState startJob(long traceId, JobKey jobKey, Date startDate) {
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			long nextExecutionTime = jobFutureHolder.hasKey(jobKey)
 					? jobFutureHolder.get(jobKey).getNextExectionTime(startDate, startDate, startDate)
 					: -1L;
@@ -67,7 +64,7 @@ public class JdbcStopWatch implements StopWatch {
 		final Date endTime = new Date();
 		Connection connection = null;
 		try {
-			connection = dataSource.getConnection();
+			connection = connectionFactory.getConnection();
 			connection.setAutoCommit(false);
 			JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_RUNNING_END,
 					new Object[] { JobState.SCHEDULING.getValue(), runningState.getValue(), endTime, jobKey.getClusterName(),

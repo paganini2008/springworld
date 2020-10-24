@@ -36,7 +36,7 @@ public class ServerModeJobAdmin implements JobAdmin {
 
 	@Override
 	public void publicLifeCycleEvent(JobKey jobKey, JobLifeCycle lifeCycle) {
-		ResponseEntity<JobResult<String>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/admin/triggerJob",
+		ResponseEntity<JobResult<String>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/admin/publicLifeCycleEvent",
 				HttpMethod.POST, new JobLifeCycleParam(jobKey, lifeCycle), new ParameterizedTypeReference<JobResult<String>>() {
 				});
 		responseEntity.getBody();

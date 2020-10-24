@@ -16,8 +16,8 @@ public class ProducerModeRestTemplate extends ClusterRestTemplate {
 	private ClusterRegistry clusterRegistry;
 
 	@Override
-	protected String[] getClusterApplicationContextPaths(String clusterName) {
-		return clusterRegistry.getClusterApplicationContextPaths(clusterName);
+	protected String[] getClusterContextPaths(String clusterName) {
+		return clusterRegistry.getClusterContextPaths(clusterName);
 	}
 
 }
