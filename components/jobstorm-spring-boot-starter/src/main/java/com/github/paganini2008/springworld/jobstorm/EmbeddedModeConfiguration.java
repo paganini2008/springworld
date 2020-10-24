@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * EmbeddedModeSchedulerConfiguration
+ * EmbeddedModeConfiguration
  * 
  * @author Fred Feng
  *
@@ -46,9 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @ConditionalOnProperty(name = "jobstorm.deploy.mode", havingValue = "embedded", matchIfMissing = true)
 @Import({ JobAdminController.class })
-public class EmbeddedModeSchedulerConfiguration {
+public class EmbeddedModeConfiguration {
 
-	public EmbeddedModeSchedulerConfiguration() {
+	public EmbeddedModeConfiguration() {
 		log.info("<<<                                                  >>>");
 		log.info("<<<                Crontab v2.0-RC4                  >>>");
 		log.info("<<<              Current Job Deploy Mode             >>>");
@@ -59,7 +59,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "loadbalance", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.scheduler.running.mode", havingValue = "loadbalance", matchIfMissing = true)
 	public static class LoadBalanceConfig {
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
@@ -99,7 +99,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
 	@Configuration
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "master-slave")
+	@ConditionalOnProperty(name = "jobstorm.scheduler.running.mode", havingValue = "master-slave")
 	public static class MasterSlaveConfig {
 
 		@Bean(BeanNames.INTERNAL_JOB_BEAN_LOADER)
@@ -127,7 +127,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "spring")
+	@ConditionalOnProperty(name = "jobstorm.scheduler.engine", havingValue = "spring")
 	public static class SpringSchedulerConfig {
 
 		@Value("${jobstorm.scheduler.poolSize:16}")
@@ -151,7 +151,7 @@ public class EmbeddedModeSchedulerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "cron4j", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.scheduler.engine", havingValue = "cron4j", matchIfMissing = true)
 	public static class Cron4jSchedulerConfig {
 
 		@Value("${jobstorm.scheduler.poolSize:16}")

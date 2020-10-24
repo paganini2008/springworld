@@ -75,7 +75,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ServerModeSchedulerConfiguration
+ * ServerModeConfiguration
  * 
  * @author Fred Feng
  *
@@ -84,9 +84,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @ConditionalOnProperty(name = "jobstorm.deploy.mode", havingValue = "server")
-public class ServerModeSchedulerConfiguration {
+public class ServerModeConfiguration {
 
-	public ServerModeSchedulerConfiguration() {
+	public ServerModeConfiguration() {
 		log.info("<<<                                                  >>>");
 		log.info("<<<                Crontab v2.0-RC4                  >>>");
 		log.info("<<<              Current Job Deploy Mode             >>>");
@@ -96,7 +96,7 @@ public class ServerModeSchedulerConfiguration {
 
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.PRODUCER)
-	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "spring")
+	@ConditionalOnProperty(name = "jobstorm.scheduler.engine", havingValue = "spring")
 	public static class SpringSchedulerConfig {
 
 		@Value("${jobstorm.scheduler.poolSize:16}")
@@ -121,7 +121,7 @@ public class ServerModeSchedulerConfiguration {
 
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.PRODUCER)
-	@ConditionalOnProperty(name = "jobstorm.engine", havingValue = "cron4j", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.scheduler.engine", havingValue = "cron4j", matchIfMissing = true)
 	public static class Cron4jSchedulerConfig {
 
 		@Value("${jobstorm.scheduler.poolSize:16}")
@@ -346,7 +346,7 @@ public class ServerModeSchedulerConfiguration {
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "master-slave")
+	@ConditionalOnProperty(name = "jobstorm.scheduler.running.mode", havingValue = "master-slave")
 	public static class MasterSlaveConfig {
 
 		@Bean(BeanNames.MAIN_JOB_EXECUTOR)
@@ -371,7 +371,7 @@ public class ServerModeSchedulerConfiguration {
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.CONSUMER)
 	@ConditionalOnBean(ClusterMulticastGroup.class)
-	@ConditionalOnProperty(name = "jobstorm.runningMode", havingValue = "loadbalance", matchIfMissing = true)
+	@ConditionalOnProperty(name = "jobstorm.scheduler.running.mode", havingValue = "loadbalance", matchIfMissing = true)
 	public static class LoadBalanceConfig {
 
 		@Bean(BeanNames.INTERNAL_JOB_BEAN_LOADER)
