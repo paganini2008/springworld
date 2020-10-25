@@ -1,10 +1,13 @@
 package com.github.paganini2008.springworld.jobstorm.server;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.jobstorm.DependencyType;
 import com.github.paganini2008.springworld.jobstorm.Job;
 import com.github.paganini2008.springworld.jobstorm.JobException;
@@ -20,6 +23,7 @@ import com.github.paganini2008.springworld.jobstorm.RunningState;
 import com.github.paganini2008.springworld.jobstorm.SerialDependencyScheduler;
 import com.github.paganini2008.springworld.jobstorm.StopWatch;
 import com.github.paganini2008.springworld.jobstorm.TraceIdGenerator;
+import com.github.paganini2008.springworld.jobstorm.utils.JavaMailService;
 
 /**
  * 
@@ -51,6 +55,9 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 
 	@Autowired
 	private JobRuntimeListenerContainer jobRuntimeListenerContainer;
+
+	@Autowired(required = false)
+	private JavaMailService mailService;
 
 	@Override
 	protected long getTraceId(JobKey jobKey) {
@@ -91,5 +98,21 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 		super.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 		stopWatch.finishJob(traceId, jobKey, startDate, runningState, retries);
 		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
+
+		if ((runningState == RunningState.FAILED || runningState == RunningState.FINISHED) && StringUtils.isNotBlank(job.getEmail())) {
+
+			if (mailService != null) {
+				Map<String, Object> model = new HashMap<String, Object>();
+				model.put("jobKey", jobKey);
+				model.put("traceId", traceId);
+				model.put("attachment", attachment);
+				model.put("startDate", startDate);
+				model.put("runningState", runningState);
+				if (reason != null) {
+					model.put("stackTraceArray", com.github.paganini2008.devtools.ExceptionUtils.toArray(reason));
+				}
+				mailService.sendHtmlMail(job.getEmail(), model);
+			}
+		}
 	}
 }

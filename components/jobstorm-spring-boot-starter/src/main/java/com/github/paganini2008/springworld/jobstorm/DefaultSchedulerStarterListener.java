@@ -31,7 +31,7 @@ public class DefaultSchedulerStarterListener
 	private ScheduleManager scheduleManager;
 
 	@Autowired(required = false)
-	private NotManagedJobBeanInitializer jobBeanInitializer;
+	private JobBeanInitializer jobBeanInitializer;
 
 	@Value("${jobstorm.scheduler.starter.refresh.inititalDelay:5}")
 	private int inititalDelay;

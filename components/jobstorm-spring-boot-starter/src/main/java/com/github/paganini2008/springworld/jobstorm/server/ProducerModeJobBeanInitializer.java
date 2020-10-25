@@ -13,7 +13,7 @@ import com.github.paganini2008.devtools.jdbc.PageableQuery;
 import com.github.paganini2008.springworld.jobstorm.Job;
 import com.github.paganini2008.springworld.jobstorm.JobBeanLoader;
 import com.github.paganini2008.springworld.jobstorm.JobKey;
-import com.github.paganini2008.springworld.jobstorm.NotManagedJobBeanInitializer;
+import com.github.paganini2008.springworld.jobstorm.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.ScheduleManager;
 import com.github.paganini2008.springworld.jobstorm.SqlScripts;
 
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ProducerModeJobBeanInitializer implements NotManagedJobBeanInitializer {
+public class ProducerModeJobBeanInitializer implements JobBeanInitializer {
 
 	@Autowired
 	private ConnectionFactory connectionFactory;

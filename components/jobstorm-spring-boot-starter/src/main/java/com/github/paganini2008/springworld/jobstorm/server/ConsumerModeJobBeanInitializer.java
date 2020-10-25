@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.jobstorm.JobKey;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
 import com.github.paganini2008.springworld.jobstorm.JobParallelizationListener;
 import com.github.paganini2008.springworld.jobstorm.JobRuntimeListenerContainer;
-import com.github.paganini2008.springworld.jobstorm.NotManagedJobBeanInitializer;
+import com.github.paganini2008.springworld.jobstorm.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.SerialDependencyScheduler;
 import com.github.paganini2008.springworld.jobstorm.TriggerType;
 import com.github.paganini2008.springworld.jobstorm.model.JobKeyQuery;
@@ -28,7 +28,7 @@ import com.github.paganini2008.springworld.jobstorm.model.JobKeyQuery;
  *
  * @since 1.0
  */
-public class ConsumerModeJobBeanInitializer implements NotManagedJobBeanInitializer {
+public class ConsumerModeJobBeanInitializer implements JobBeanInitializer {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;

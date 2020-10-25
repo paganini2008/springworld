@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.jobstorm;
 
+import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+
 /**
  * 
  * SchedulerStarterListener
@@ -9,4 +11,6 @@ package com.github.paganini2008.springworld.jobstorm;
  * @since 1.0
  */
 public interface SchedulerStarterListener {
+
+	void onApplicationEvent(ApplicationClusterNewLeaderEvent event);
 }

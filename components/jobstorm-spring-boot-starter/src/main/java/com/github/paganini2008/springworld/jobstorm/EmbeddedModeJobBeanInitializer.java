@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class EmbeddedModeJobBeanInitializer implements NotManagedJobBeanInitializer {
+public class EmbeddedModeJobBeanInitializer implements JobBeanInitializer {
 
 	@Value("${spring.application.name}")
 	private String applicationName;

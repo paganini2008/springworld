@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationListener;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
-import com.github.paganini2008.springworld.jobstorm.NotManagedJobBeanInitializer;
+import com.github.paganini2008.springworld.jobstorm.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.SchedulerStarterListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ public class ConsumerModeSchedulerStarterListener
 		implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable, SchedulerStarterListener {
 
 	@Autowired(required = false)
-	private NotManagedJobBeanInitializer jobBeanInitializer;
+	private JobBeanInitializer jobBeanInitializer;
 
 	@Value("${jobstorm.scheduler.starter.refresh.inititalDelay:5}")
 	private int inititalDelay;

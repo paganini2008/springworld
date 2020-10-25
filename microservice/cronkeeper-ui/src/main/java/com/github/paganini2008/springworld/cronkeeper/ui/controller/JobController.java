@@ -16,11 +16,11 @@ import com.github.paganini2008.springworld.cronkeeper.ui.JobLogForm;
 import com.github.paganini2008.springworld.cronkeeper.ui.JobTraceForm;
 import com.github.paganini2008.springworld.cronkeeper.ui.service.JobManagerService;
 import com.github.paganini2008.springworld.cronkeeper.ui.utils.PageBean;
-import com.github.paganini2008.springworld.jobswarm.model.JobDetail;
-import com.github.paganini2008.springworld.jobswarm.model.JobLog;
-import com.github.paganini2008.springworld.jobswarm.model.JobStackTrace;
-import com.github.paganini2008.springworld.jobswarm.model.JobTrace;
-import com.github.paganini2008.springworld.jobswarm.model.PageQuery;
+import com.github.paganini2008.springworld.jobstorm.model.JobDetail;
+import com.github.paganini2008.springworld.jobstorm.model.JobLog;
+import com.github.paganini2008.springworld.jobstorm.model.JobStackTrace;
+import com.github.paganini2008.springworld.jobstorm.model.JobTrace;
+import com.github.paganini2008.springworld.jobstorm.model.PageQuery;
 
 /**
  * 

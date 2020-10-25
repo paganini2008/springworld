@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +19,11 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
@@ -42,18 +45,17 @@ import com.github.paganini2008.springworld.jobstorm.JdbcLogManager;
 import com.github.paganini2008.springworld.jobstorm.JdbcStopWatch;
 import com.github.paganini2008.springworld.jobstorm.JobAdmin;
 import com.github.paganini2008.springworld.jobstorm.JobAdminController;
+import com.github.paganini2008.springworld.jobstorm.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.JobBeanLoader;
 import com.github.paganini2008.springworld.jobstorm.JobDependencyFutureListener;
 import com.github.paganini2008.springworld.jobstorm.JobExecutor;
 import com.github.paganini2008.springworld.jobstorm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobstorm.JobIdCache;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
-import com.github.paganini2008.springworld.jobstorm.JobParallelizationListener;
 import com.github.paganini2008.springworld.jobstorm.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobstorm.LifeCycleListenerContainer;
 import com.github.paganini2008.springworld.jobstorm.LoadBalancedJobBeanProcessor;
 import com.github.paganini2008.springworld.jobstorm.LogManager;
-import com.github.paganini2008.springworld.jobstorm.NotManagedJobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.OnServerModeCondition.ServerMode;
 import com.github.paganini2008.springworld.jobstorm.RetryPolicy;
 import com.github.paganini2008.springworld.jobstorm.ScheduleAdmin;
@@ -70,6 +72,7 @@ import com.github.paganini2008.springworld.jobstorm.StopWatch;
 import com.github.paganini2008.springworld.jobstorm.TimestampTraceIdGenerator;
 import com.github.paganini2008.springworld.jobstorm.TraceIdGenerator;
 import com.github.paganini2008.springworld.jobstorm.cron4j.Cron4jScheduler;
+import com.github.paganini2008.springworld.jobstorm.utils.JavaMailService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -168,7 +171,7 @@ public class ServerModeConfiguration {
 		}
 
 		@Bean
-		public NotManagedJobBeanInitializer producerModeJobBeanInitializer() {
+		public JobBeanInitializer producerModeJobBeanInitializer() {
 			return new ProducerModeJobBeanInitializer();
 		}
 
@@ -336,8 +339,9 @@ public class ServerModeConfiguration {
 		}
 
 		@Bean
-		public JobParallelizationListener jobParallelizationListener() {
-			return new JobParallelizationListener();
+		@ConditionalOnClass({ JavaMailSenderImpl.class, FreeMarkerConfigurer.class })
+		public JavaMailService javaMailService() {
+			return new JavaMailService();
 		}
 
 	}

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.paganini2008.springworld.jobswarm.model.PageQuery;
+import com.github.paganini2008.springworld.jobstorm.model.PageQuery;
 
 /**
  * 
