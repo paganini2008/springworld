@@ -285,6 +285,11 @@ public class EmbeddedModeConfiguration {
 	}
 
 	@Bean
+	public JobTimeoutResolver timeoutResolver() {
+		return new JobTimeoutResolver();
+	}
+
+	@Bean
 	@ConditionalOnClass({ JavaMailSenderImpl.class, FreeMarkerConfigurer.class })
 	public JavaMailService javaMailService() {
 		return new JavaMailService();

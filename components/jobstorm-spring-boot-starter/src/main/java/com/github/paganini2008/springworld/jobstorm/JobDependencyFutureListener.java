@@ -39,20 +39,12 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 
 	@Autowired
 	private JobManager jobManager;
-	
+
 	@Autowired
 	private ConnectionFactory connectionFactory;
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
-
-	@PreDestroy
-	@Override
-	public void close() {
-		if (timer != null) {
-			timer.cancel();
-		}
-	}
 
 	@Override
 	public boolean execute() {
@@ -131,7 +123,16 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 
 	@Override
 	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
-		this.timer = ThreadUtils.scheduleAtFixedRate(this, 1, TimeUnit.MINUTES);
+		this.timer = ThreadUtils.scheduleWithFixedDelay(this, 1, TimeUnit.MINUTES);
+	}
+
+	@PreDestroy
+	@Override
+	public void close() {
+		if (timer != null) {
+			timer.cancel();
+			timer = null;
+		}
 	}
 
 }

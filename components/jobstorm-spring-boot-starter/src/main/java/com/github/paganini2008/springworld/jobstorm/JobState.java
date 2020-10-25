@@ -18,7 +18,7 @@ public enum JobState implements EnumConstant {
 	RUNNING(2, "Running"), 
 	PAUSED(3, "Paused"), 
 	FINISHED(4, "Finished"), 
-	MAINTAINED(10, "Maintained"),
+	FROZEN(10, "Frozen"),
 	NONE(99, "None");
 
 	private JobState(int value, String repr) {

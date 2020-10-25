@@ -53,6 +53,7 @@ import com.github.paganini2008.springworld.jobstorm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobstorm.JobIdCache;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
 import com.github.paganini2008.springworld.jobstorm.JobRuntimeListenerContainer;
+import com.github.paganini2008.springworld.jobstorm.JobTimeoutResolver;
 import com.github.paganini2008.springworld.jobstorm.LifeCycleListenerContainer;
 import com.github.paganini2008.springworld.jobstorm.LoadBalancedJobBeanProcessor;
 import com.github.paganini2008.springworld.jobstorm.LogManager;
@@ -269,6 +270,11 @@ public class ServerModeConfiguration {
 			return new JdbcLogManager();
 		}
 
+		@Bean
+		public JobTimeoutResolver timeoutResolver() {
+			return new JobTimeoutResolver();
+		}
+
 	}
 
 	@Order(Ordered.LOWEST_PRECEDENCE - 1)
@@ -344,6 +350,12 @@ public class ServerModeConfiguration {
 			return new JavaMailService();
 		}
 
+		@Bean
+		public Executor executorThreadPool(@Value("${jobstorm.scheduler.executor.poolSize:16}") int maxPoolSize) {
+			return ThreadPoolBuilder.common(maxPoolSize).setTimeout(-1L).setQueueSize(Integer.MAX_VALUE)
+					.setThreadFactory(new PooledThreadFactory("job-executor-threads")).build();
+		}
+
 	}
 
 	@Order(Ordered.LOWEST_PRECEDENCE - 10)
@@ -410,12 +422,6 @@ public class ServerModeConfiguration {
 			return new FailoverRetryPolicy();
 		}
 
-	}
-
-	@Bean
-	public Executor executorThreadPool(@Value("${jobstorm.scheduler.executor.poolSize:16}") int maxPoolSize) {
-		return ThreadPoolBuilder.common(maxPoolSize).setTimeout(-1L).setQueueSize(Integer.MAX_VALUE)
-				.setThreadFactory(new PooledThreadFactory("job-executor-threads")).build();
 	}
 
 	@Bean
