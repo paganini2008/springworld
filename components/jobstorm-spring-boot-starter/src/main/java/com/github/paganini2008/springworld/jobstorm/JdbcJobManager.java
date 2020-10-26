@@ -163,7 +163,16 @@ public class JdbcJobManager implements JobManager {
 		int jobId;
 		Trigger trigger;
 		TriggerType triggerType;
-		boolean hasDependencies = ArrayUtils.isNotEmpty(jobDef.getDependencies());
+		DependencyType dependencyType = null;
+		boolean hasDependentKeys = ArrayUtils.isNotEmpty(jobDef.getDependentKeys());
+		boolean hasSubKeys = ArrayUtils.isNotEmpty(jobDef.getSubKeys());
+		if (hasDependentKeys && hasSubKeys) {
+			dependencyType = DependencyType.MIXED;
+		} else if (hasDependentKeys && !hasSubKeys) {
+			dependencyType = DependencyType.SERIAL;
+		} else if (!hasDependentKeys && hasSubKeys) {
+			dependencyType = DependencyType.PARALLEL;
+		}
 
 		if (hasJob(jobKey)) {
 			jobId = getJobId(jobKey);
@@ -178,17 +187,21 @@ public class JdbcJobManager implements JobManager {
 
 				trigger = jobDef.getTrigger();
 				triggerType = trigger.getTriggerType();
-				if (hasDependencies) {
+
+				if (dependencyType != null) {
 					TriggerDescription triggerDescription = trigger.getTriggerDescription();
-					switch (jobDef.getDependencyType()) {
+					triggerDescription.setDependency(new Dependency());
+					Dependency dependency = triggerDescription.getDependency();
+					dependency.setDependencyType(dependencyType);
+					switch (dependencyType) {
 					case SERIAL:
-						triggerDescription.setDependency(new Dependency(jobDef.getDependencies(), jobDef.getDependencyType()));
+						dependency.setDependentKeys(jobDef.getDependentKeys());
 						triggerDescription.setCron(null);
 						triggerDescription.setPeriodic(null);
 						break;
 					case PARALLEL:
-						triggerDescription.setDependency(new Dependency(jobDef.getDependencies(), jobDef.getDependencyType(),
-								jobDef.getCompletionRate(), triggerType));
+						dependency.setSubKeys(jobDef.getSubKeys());
+						dependency.setCompletionRate(jobDef.getCompletionRate());
 						if (triggerType == TriggerType.CRON) {
 							triggerDescription.getDependency().setCron(triggerDescription.getCron());
 							triggerDescription.setCron(null);
@@ -197,20 +210,25 @@ public class JdbcJobManager implements JobManager {
 							triggerDescription.setPeriodic(null);
 						}
 						break;
-					default:
+					case MIXED:
+						dependency.setDependentKeys(jobDef.getDependentKeys());
+						dependency.setSubKeys(jobDef.getSubKeys());
+						triggerDescription.setCron(null);
+						triggerDescription.setPeriodic(null);
 						break;
 					}
 
 				}
+
 				JdbcUtils.update(connection, SqlScripts.DEF_UPDATE_JOB_TRIGGER,
-						new Object[] { hasDependencies ? TriggerType.DEPENDENT.getValue() : triggerType.getValue(),
+						new Object[] { hasDependentKeys || hasSubKeys ? TriggerType.DEPENDENT.getValue() : triggerType.getValue(),
 								JacksonUtils.toJsonString(trigger.getTriggerDescription()),
 								trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null,
 								trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null,
 								trigger.getRepeatCount(), jobId });
 
 				connection.commit();
-				log.info("Merge job info '{}' ok.", jobKey);
+				log.info("Merge job '{}' ok.", jobKey);
 			} catch (SQLException e) {
 				JdbcUtils.rollbackQuietly(connection);
 				throw e;
@@ -218,8 +236,20 @@ public class JdbcJobManager implements JobManager {
 				JdbcUtils.closeQuietly(connection);
 			}
 
-			if (hasDependencies) {
-				handleJobDependency(jobKey, jobId, jobDef.getDependencies(), jobDef.getDependencyType());
+			if (dependencyType != null) {
+				switch (dependencyType) {
+				case SERIAL:
+					handleJobDependency(jobKey, jobId, jobDef.getDependentKeys(), DependencyType.SERIAL);
+					break;
+				case PARALLEL:
+					handleJobDependency(jobKey, jobId, jobDef.getSubKeys(), DependencyType.PARALLEL);
+					break;
+				case MIXED:
+					handleJobDependency(jobKey, jobId, jobDef.getDependentKeys(), DependencyType.SERIAL);
+					handleJobDependency(jobKey, jobId, jobDef.getSubKeys(), DependencyType.PARALLEL);
+					break;
+				}
+
 			}
 
 			lifeCycleListenerContainer.onChange(jobKey, JobLifeCycle.REFRESH);
@@ -250,17 +280,21 @@ public class JdbcJobManager implements JobManager {
 
 				trigger = jobDef.getTrigger();
 				triggerType = trigger.getTriggerType();
-				if (hasDependencies) {
+
+				if (dependencyType != null) {
 					TriggerDescription triggerDescription = trigger.getTriggerDescription();
-					switch (jobDef.getDependencyType()) {
+					triggerDescription.setDependency(new Dependency());
+					Dependency dependency = triggerDescription.getDependency();
+					dependency.setDependencyType(dependencyType);
+					switch (dependencyType) {
 					case SERIAL:
-						triggerDescription.setDependency(new Dependency(jobDef.getDependencies(), jobDef.getDependencyType()));
+						dependency.setDependentKeys(jobDef.getDependentKeys());
 						triggerDescription.setCron(null);
 						triggerDescription.setPeriodic(null);
 						break;
 					case PARALLEL:
-						triggerDescription.setDependency(new Dependency(jobDef.getDependencies(), jobDef.getDependencyType(),
-								jobDef.getCompletionRate(), triggerType));
+						dependency.setSubKeys(jobDef.getSubKeys());
+						dependency.setCompletionRate(jobDef.getCompletionRate());
 						if (triggerType == TriggerType.CRON) {
 							triggerDescription.getDependency().setCron(triggerDescription.getCron());
 							triggerDescription.setCron(null);
@@ -269,7 +303,11 @@ public class JdbcJobManager implements JobManager {
 							triggerDescription.setPeriodic(null);
 						}
 						break;
-					default:
+					case MIXED:
+						dependency.setDependentKeys(jobDef.getDependentKeys());
+						dependency.setSubKeys(jobDef.getSubKeys());
+						triggerDescription.setCron(null);
+						triggerDescription.setPeriodic(null);
 						break;
 					}
 
@@ -277,14 +315,14 @@ public class JdbcJobManager implements JobManager {
 
 				JdbcUtils.update(connection, SqlScripts.DEF_INSERT_JOB_TRIGGER, ps -> {
 					ps.setInt(1, jobId);
-					ps.setInt(2, hasDependencies ? TriggerType.DEPENDENT.getValue() : triggerType.getValue());
+					ps.setInt(2, hasDependentKeys || hasSubKeys ? TriggerType.DEPENDENT.getValue() : triggerType.getValue());
 					ps.setString(3, JacksonUtils.toJsonString(trigger.getTriggerDescription()));
 					ps.setTimestamp(4, trigger.getStartDate() != null ? new Timestamp(trigger.getStartDate().getTime()) : null);
 					ps.setTimestamp(5, trigger.getEndDate() != null ? new Timestamp(trigger.getEndDate().getTime()) : null);
 					ps.setInt(6, trigger.getRepeatCount());
 				});
 				connection.commit();
-				log.info("Add job info '{}' ok.", jobKey);
+				log.info("Add job '{}' ok.", jobKey);
 
 			} catch (SQLException e) {
 				JdbcUtils.rollbackQuietly(connection);
@@ -293,8 +331,20 @@ public class JdbcJobManager implements JobManager {
 				JdbcUtils.closeQuietly(connection);
 			}
 
-			if (hasDependencies) {
-				handleJobDependency(jobKey, jobId, jobDef.getDependencies(), jobDef.getDependencyType());
+			if (dependencyType != null) {
+				switch (dependencyType) {
+				case SERIAL:
+					handleJobDependency(jobKey, jobId, jobDef.getDependentKeys(), DependencyType.SERIAL);
+					break;
+				case PARALLEL:
+					handleJobDependency(jobKey, jobId, jobDef.getSubKeys(), DependencyType.PARALLEL);
+					break;
+				case MIXED:
+					handleJobDependency(jobKey, jobId, jobDef.getDependentKeys(), DependencyType.SERIAL);
+					handleJobDependency(jobKey, jobId, jobDef.getSubKeys(), DependencyType.PARALLEL);
+					break;
+				}
+
 			}
 
 			lifeCycleListenerContainer.onChange(jobKey, JobLifeCycle.CREATION);
@@ -303,7 +353,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	/**
-	 * Save Job Dependency Info, Including Serial Dependency and Parallel Dependency
+	 * Save Job Dependency Info
 	 * 
 	 * @param jobKey
 	 * @param jobId
@@ -473,13 +523,13 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobKey[] getDependencies(JobKey jobKey, DependencyType dependencyType) throws SQLException {
-		Set<JobKey> jobKeys = new TreeSet<JobKey>();
+	public JobKey[] getDependentKeys(JobKey jobKey, DependencyType dependencyType) throws SQLException {
 		final int jobId = getJobId(jobKey);
+		Set<JobKey> jobKeys = new TreeSet<JobKey>();
 		Connection connection = null;
 		try {
 			connection = connectionFactory.getConnection();
-			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DEPENDENCIES,
+			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_DEPENDENT_JOB_KEYS,
 					new Object[] { jobId, dependencyType.getValue() });
 			for (Tuple tuple : dataList) {
 				jobKeys.add(tuple.toBean(JobKey.class));

@@ -47,6 +47,7 @@ import com.github.paganini2008.springworld.jobstorm.JobAdmin;
 import com.github.paganini2008.springworld.jobstorm.JobAdminController;
 import com.github.paganini2008.springworld.jobstorm.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.JobBeanLoader;
+import com.github.paganini2008.springworld.jobstorm.JobDeadlineNotification;
 import com.github.paganini2008.springworld.jobstorm.JobDependencyFutureListener;
 import com.github.paganini2008.springworld.jobstorm.JobExecutor;
 import com.github.paganini2008.springworld.jobstorm.JobFutureHolder;
@@ -62,7 +63,6 @@ import com.github.paganini2008.springworld.jobstorm.RetryPolicy;
 import com.github.paganini2008.springworld.jobstorm.ScheduleAdmin;
 import com.github.paganini2008.springworld.jobstorm.ScheduleManager;
 import com.github.paganini2008.springworld.jobstorm.Scheduler;
-import com.github.paganini2008.springworld.jobstorm.SchedulerDeadlineProcessor;
 import com.github.paganini2008.springworld.jobstorm.SchedulerErrorHandler;
 import com.github.paganini2008.springworld.jobstorm.SchedulerStarterListener;
 import com.github.paganini2008.springworld.jobstorm.SerialDependencyListener;
@@ -241,8 +241,8 @@ public class ServerModeConfiguration {
 		}
 
 		@Bean
-		public SchedulerDeadlineProcessor schedulerDeadlineProcessor() {
-			return new SchedulerDeadlineProcessor();
+		public JobDeadlineNotification jobDeadlineNotification() {
+			return new JobDeadlineNotification();
 		}
 
 		@Bean

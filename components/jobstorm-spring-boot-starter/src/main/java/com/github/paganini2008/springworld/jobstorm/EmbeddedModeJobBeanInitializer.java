@@ -143,7 +143,7 @@ public class EmbeddedModeJobBeanInitializer implements JobBeanInitializer {
 			JobKey[] dependencies;
 			for (JobKey jobKey : jobKeys) {
 				// add listener to watch parallel dependency job done
-				dependencies = jobManager.getDependencies(jobKey, DependencyType.PARALLEL);
+				dependencies = jobManager.getDependentKeys(jobKey, DependencyType.PARALLEL);
 				if (ArrayUtils.isNotEmpty(dependencies)) {
 					for (JobKey dependency : dependencies) {
 						jobRuntimeListenerContainer.addListener(dependency,

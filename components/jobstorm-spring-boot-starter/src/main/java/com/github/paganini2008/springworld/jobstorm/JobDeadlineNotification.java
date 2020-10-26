@@ -24,14 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * SchedulerDeadlineProcessor
+ * JobDeadlineNotification
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executable, LifeCycle {
+public class JobDeadlineNotification implements JobRuntimeListener, Executable, LifeCycle {
 
 	private final Map<JobKey, Date> deadlines = new ConcurrentHashMap<JobKey, Date>();
 	private Timer timer;
@@ -43,7 +43,7 @@ public class SchedulerDeadlineProcessor implements JobRuntimeListener, Executabl
 	@Override
 	public void configure() throws Exception {
 		refresh();
-		timer = ThreadUtils.scheduleAtFixedRate(this, 1, TimeUnit.MINUTES);
+		this.timer = ThreadUtils.scheduleAtFixedRate(this, 1, TimeUnit.MINUTES);
 	}
 
 	@Override

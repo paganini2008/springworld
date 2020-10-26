@@ -121,9 +121,9 @@ public class JobManagerController {
 		return ResponseEntity.ok(JobResult.success(jobKeys));
 	}
 
-	@PostMapping("/getDependencies")
+	@PostMapping("/getDependentKeys")
 	public ResponseEntity<JobResult<JobKey[]>> getDependencies(@RequestBody JobDependencyParam param) throws Exception {
-		JobKey[] jobKeys = jobManager.getDependencies(param.getJobKey(), param.getDependencyType());
+		JobKey[] jobKeys = jobManager.getDependentKeys(param.getJobKey(), param.getDependencyType());
 		return ResponseEntity.ok(JobResult.success(jobKeys));
 	}
 

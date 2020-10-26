@@ -255,8 +255,8 @@ public class EmbeddedModeConfiguration {
 	}
 
 	@Bean
-	public SchedulerDeadlineProcessor schedulerDeadlineProcessor() {
-		return new SchedulerDeadlineProcessor();
+	public JobDeadlineNotification jobDeadlineNotification() {
+		return new JobDeadlineNotification();
 	}
 
 	@Bean

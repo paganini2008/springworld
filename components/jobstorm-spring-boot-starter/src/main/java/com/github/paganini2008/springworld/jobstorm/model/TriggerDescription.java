@@ -53,7 +53,8 @@ public class TriggerDescription implements Serializable {
 	public static class Dependency implements Serializable {
 
 		private static final long serialVersionUID = -8486773222061112232L;
-		private JobKey[] dependencies;
+		private @Nullable JobKey[] dependentKeys;
+		private @Nullable JobKey[] subKeys;
 		private DependencyType dependencyType;
 		private float completionRate = -1F;
 		private @Nullable TriggerType triggerType;
@@ -63,16 +64,15 @@ public class TriggerDescription implements Serializable {
 		public Dependency() {
 		}
 
-		/** Invoke construction if DependencyType is 'Serial' **/
-		public Dependency(JobKey[] dependencies, DependencyType dependencyType) {
-			this.dependencies = dependencies;
+		public Dependency(JobKey[] dependentKeys, DependencyType dependencyType) {
+			this.dependentKeys = dependentKeys;
 			this.dependencyType = dependencyType;
 			this.triggerType = TriggerType.NONE;
 		}
 
-		/** Invoke construction if DependencyType is 'Parallel' **/
-		public Dependency(JobKey[] dependencies, DependencyType dependencyType, Float completionRate, TriggerType triggerType) {
-			this.dependencies = dependencies;
+		public Dependency(JobKey[] dependentKeys, JobKey[] subKeys, DependencyType dependencyType, Float completionRate,
+				TriggerType triggerType) {
+			this.dependentKeys = dependentKeys;
 			this.dependencyType = dependencyType;
 			this.completionRate = completionRate;
 			this.triggerType = triggerType;

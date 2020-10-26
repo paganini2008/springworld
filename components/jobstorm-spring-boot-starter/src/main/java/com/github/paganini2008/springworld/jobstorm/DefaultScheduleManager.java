@@ -78,8 +78,12 @@ public class DefaultScheduleManager implements ScheduleManager {
 	private JobFuture scheduleDependency(JobKey jobKey, Job job, String attachment, JobTriggerDetail triggerDetail) {
 		final Dependency dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
 		Date startDate = triggerDetail.getStartDate();
-		JobKey[] dependencies = dependency.getDependencies();
-		if (dependency.getDependencyType() == DependencyType.PARALLEL) {
+		if (dependency.getDependencyType() == DependencyType.SERIAL || dependency.getDependencyType() == DependencyType.MIXED) {
+			if (startDate != null) {
+				return scheduler.scheduleWithDependency(job, dependency.getDependentKeys(), startDate);
+			}
+			return scheduler.scheduleWithDependency(job, dependency.getDependentKeys());
+		} else if (dependency.getDependencyType() == DependencyType.PARALLEL) {
 			switch (dependency.getTriggerType()) {
 			case NONE:
 				if (startDate != null) {
@@ -106,11 +110,6 @@ public class DefaultScheduleManager implements ScheduleManager {
 			default:
 				break;
 			}
-		} else if (dependency.getDependencyType() == DependencyType.SERIAL) {
-			if (startDate != null) {
-				return scheduler.scheduleWithDependency(job, dependencies, startDate);
-			}
-			return scheduler.scheduleWithDependency(job, dependencies);
 		}
 		return null;
 	}

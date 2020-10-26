@@ -54,7 +54,7 @@ public abstract class SqlScripts {
 	public static final String DEF_SELECT_JOB_RUNTIME_BY_JOB_STATE = "select a.*,b.* from js_job_detail a join js_job_runtime b on a.job_id=b.job_id where b.job_state=?";
 
 	public static final String DEF_SELECT_JOB_STAT = "select job_id, sum(complete) as completeCount, sum(failed) as failedCount, sum(skipped) as skippedCount from js_job_trace where job_id=(select job_id from js_job_detail where group_name=? and job_name=? and job_class_name=?)";
-	public static final String DEF_SELECT_JOB_DEPENDENCIES = "select * from js_job_detail a where job_id in (select dependent_job_id from js_job_dependency where job_id=? and dependency_type=?)";
+	public static final String DEF_SELECT_DEPENDENT_JOB_KEYS = "select * from js_job_detail a where job_id in (select dependent_job_id from js_job_dependency where job_id=? and dependency_type=?)";
 	public static final String DEF_SELECT_JOB_HAS_RELATION = "select count(*) from js_job_dependency where dependent_job_id=? and dependency_type=?";
 	public static final String DEF_SELECT_JOB_RELATIONS = "select * from js_job_detail where job_id in (select job_id from js_job_dependency where dependent_job_id=? and dependency_type=?)";
 

@@ -63,11 +63,11 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 			log.error(e.getMessage(), e);
 		}
 
-		Map<JobKey, JobKey[]> allDependencies = new HashMap<JobKey, JobKey[]>();
+		Map<JobKey, JobKey[]> serialDependencies = new HashMap<JobKey, JobKey[]>();
+		Map<JobKey, JobKey[]> parallelDependencies = new HashMap<JobKey, JobKey[]>();
 		Map<JobKey, DependencyType> allDependencyTypes = new HashMap<JobKey, DependencyType>();
-
-		JobKey[] dependencies;
-		JobKey[] comparedDependencies;
+		JobKey[] dependentKeys;
+		JobKey[] comparedDependentKeys;
 		JobKey[] requiredJobKeys;
 		for (JobKey jobKey : jobKeys) {
 			JobTriggerDetail triggerDetail = null;
@@ -75,28 +75,72 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 			try {
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
 				dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
-				dependencies = dependency.getDependencies();
-				comparedDependencies = jobManager.getDependencies(jobKey, dependency.getDependencyType());
-				requiredJobKeys = ArrayUtils.minus(dependencies, comparedDependencies);
-				if (ArrayUtils.isNotEmpty(requiredJobKeys)) {
-					allDependencies.put(jobKey, requiredJobKeys);
-					allDependencyTypes.put(jobKey, dependency.getDependencyType());
+
+				switch (dependency.getDependencyType()) {
+				case SERIAL:
+					dependentKeys = dependency.getDependentKeys();
+					comparedDependentKeys = jobManager.getDependentKeys(jobKey, DependencyType.SERIAL);
+					requiredJobKeys = ArrayUtils.minus(dependentKeys, comparedDependentKeys);
+					if (ArrayUtils.isNotEmpty(requiredJobKeys)) {
+						serialDependencies.put(jobKey, requiredJobKeys);
+					}
+					break;
+				case PARALLEL:
+					dependentKeys = dependency.getSubKeys();
+					comparedDependentKeys = jobManager.getDependentKeys(jobKey, DependencyType.PARALLEL);
+					requiredJobKeys = ArrayUtils.minus(dependentKeys, comparedDependentKeys);
+					if (ArrayUtils.isNotEmpty(requiredJobKeys)) {
+						parallelDependencies.put(jobKey, requiredJobKeys);
+					}
+					break;
+				case MIXED:
+					dependentKeys = dependency.getDependentKeys();
+					comparedDependentKeys = jobManager.getDependentKeys(jobKey, DependencyType.SERIAL);
+					requiredJobKeys = ArrayUtils.minus(dependentKeys, comparedDependentKeys);
+					if (ArrayUtils.isNotEmpty(requiredJobKeys)) {
+						serialDependencies.put(jobKey, requiredJobKeys);
+					}
+
+					dependentKeys = dependency.getSubKeys();
+					comparedDependentKeys = jobManager.getDependentKeys(jobKey, DependencyType.PARALLEL);
+					requiredJobKeys = ArrayUtils.minus(dependentKeys, comparedDependentKeys);
+					if (ArrayUtils.isNotEmpty(requiredJobKeys)) {
+						parallelDependencies.put(jobKey, requiredJobKeys);
+					}
+					break;
 				}
+				allDependencyTypes.put(jobKey, dependency.getDependencyType());
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
 		}
 
-		for (Map.Entry<JobKey, JobKey[]> entry : allDependencies.entrySet()) {
+		for (Map.Entry<JobKey, DependencyType> entry : allDependencyTypes.entrySet()) {
 			JobKey jobKey = entry.getKey();
-			DependencyType dependencyType = allDependencyTypes.get(jobKey);
-			for (JobKey dependency : entry.getValue()) {
-				try {
-					if (jobManager.hasJob(dependency)) {
-						saveJobDependency(jobKey, dependency, dependencyType);
+			DependencyType dependencyType = entry.getValue();
+			JobKey[] keys = serialDependencies.get(jobKey);
+			if (ArrayUtils.isNotEmpty(keys)) {
+				for (JobKey key : keys) {
+					try {
+						if (jobManager.hasJob(key)) {
+							saveJobDependency(jobKey, key, dependencyType);
+						}
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
 					}
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
+				}
+			}
+
+			keys = parallelDependencies.get(jobKey);
+			if (ArrayUtils.isNotEmpty(keys)) {
+				for (JobKey key : keys) {
+					try {
+						if (jobManager.hasJob(key)) {
+							saveJobDependency(jobKey, key, dependencyType);
+						}
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
+					}
 				}
 			}
 		}

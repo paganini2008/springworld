@@ -77,9 +77,9 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 	private Job parallelizeJobIfNecessary(JobKey jobKey, Job job, JobDetail jobDetail) throws Exception {
 		Dependency dependency = jobDetail.getJobTriggerDetail().getTriggerDescriptionObject().getDependency();
 		DependencyType dependencyType = dependency.getDependencyType();
-		if (dependencyType == DependencyType.PARALLEL) {
+		if (dependencyType == DependencyType.PARALLEL || dependencyType == DependencyType.MIXED) {
 			return (Job) proxyFactory.getProxy(job, ApplicationContextUtils.instantiateClass(JobParallelizationAspect.class,
-					dependency.getDependencies(), dependency.getCompletionRate()), Job.class);
+					dependency.getSubKeys(), dependency.getCompletionRate()), Job.class);
 		}
 		return job;
 	}
@@ -128,8 +128,10 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 				return null;
 			case "getDependencyType":
 				return triggerDescription.getDependency().getDependencyType();
-			case "getDependencies":
-				return triggerDescription.getDependency().getDependencies();
+			case "getDependentKeys":
+				return triggerDescription.getDependency().getDependentKeys();
+			case "getSubKeys":
+				return triggerDescription.getDependency().getSubKeys();
 			case "getCompletionRate":
 				return triggerDescription.getDependency().getCompletionRate();
 			default:

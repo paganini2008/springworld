@@ -1,6 +1,8 @@
 package com.github.paganini2008.springworld.jobstorm;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * 
@@ -12,18 +14,13 @@ import org.slf4j.Logger;
  */
 public class CurrentThreadRetryPolicy implements RetryPolicy {
 
+	@Qualifier(BeanNames.MAIN_JOB_EXECUTOR)
+	@Autowired
+	private JobExecutor jobExecutor;
+
 	@Override
-	public Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable previous, int retries, Logger log)
-			throws Throwable {
-		Throwable reason = null;
-		for (int i = 0; i < job.getRetries(); i++) {
-			try {
-				return job.execute(jobKey, attachment, log);
-			} catch (Throwable e) {
-				log.error(e.getMessage(), e);
-				reason = e;
-			}
-		}
+	public Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries, Logger log) throws Throwable {
+		jobExecutor.execute(job, attachment, retries);
 		throw reason;
 	}
 

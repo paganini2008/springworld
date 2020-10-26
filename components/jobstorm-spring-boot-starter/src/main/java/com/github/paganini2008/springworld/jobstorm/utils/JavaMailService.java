@@ -36,7 +36,7 @@ public class JavaMailService {
 	@Value("${jobstorm.mail.default.sender:jobstorm-supporter@yourmail.com}")
 	private String defaultMailSender;
 
-	@Value("${jobstorm.mail.default.subject:Job Interruption Warning}")
+	@Value("${jobstorm.mail.default.subject:Job Email Warning}")
 	private String defaultMailSubject;
 
 	@Value("${jobstorm.mail.default.recipients:}")
@@ -56,12 +56,12 @@ public class JavaMailService {
 			javaMailSender.send(mimeMailMessage);
 			log.info("Send mail to: {}", to);
 		} catch (Exception e) {
-			log.error("Failed to send html mail.", e.getMessage());
+			log.error("Failed to send html mail.", e);
 		}
 	}
 
 	private String getContent(Map<String, Object> model) throws Exception {
-		Template template = freeMarkerConfigurer.getConfiguration().getTemplate("META-INF/static/email.template.ftl");
+		Template template = freeMarkerConfigurer.getConfiguration().getTemplate("email.template.ftl");
 		return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
 	}
 

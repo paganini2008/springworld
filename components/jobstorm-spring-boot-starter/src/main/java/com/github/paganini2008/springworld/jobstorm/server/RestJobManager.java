@@ -141,8 +141,8 @@ public class RestJobManager implements JobManager {
 	}
 
 	@Override
-	public JobKey[] getDependencies(JobKey jobKey, DependencyType dependencyType) throws Exception {
-		ResponseEntity<JobResult<JobKey[]>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/getDependencies",
+	public JobKey[] getDependentKeys(JobKey jobKey, DependencyType dependencyType) throws Exception {
+		ResponseEntity<JobResult<JobKey[]>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/getDependentKeys",
 				HttpMethod.POST, new JobDependencyParam(jobKey, dependencyType), new ParameterizedTypeReference<JobResult<JobKey[]>>() {
 				});
 		return responseEntity.getBody().getData();

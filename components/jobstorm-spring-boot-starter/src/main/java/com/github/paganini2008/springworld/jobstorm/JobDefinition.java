@@ -46,12 +46,12 @@ public interface JobDefinition {
 	default String getEmail() {
 		return null;
 	}
-	
-	default DependencyType getDependencyType() {
-		return DependencyType.SERIAL;
+
+	default JobKey[] getDependentKeys() {
+		return null;
 	}
 
-	default JobKey[] getDependencies() {
+	default JobKey[] getSubKeys() {
 		return null;
 	}
 

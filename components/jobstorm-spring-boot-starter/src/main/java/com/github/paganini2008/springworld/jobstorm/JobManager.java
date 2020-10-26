@@ -38,7 +38,7 @@ public interface JobManager extends JobPersistence, LifeCycle {
 
 	JobKey[] getRelations(JobKey jobKey, DependencyType dependencyType) throws Exception;
 
-	JobKey[] getDependencies(JobKey jobKey, DependencyType dependencyType) throws Exception;
+	JobKey[] getDependentKeys(JobKey jobKey, DependencyType dependencyType) throws Exception;
 
 	JobKey[] getJobKeys(JobKeyQuery jobQuery) throws Exception;
 

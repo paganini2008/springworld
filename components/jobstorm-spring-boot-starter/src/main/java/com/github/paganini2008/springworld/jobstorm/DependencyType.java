@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.enums.EnumConstant;
  */
 public enum DependencyType implements EnumConstant {
 
-	SERIAL(1, "Serial"), PARALLEL(2, "Parallel");
+	SERIAL(1, "Serial"), PARALLEL(2, "Parallel"), MIXED(3, "Mixed");
 
 	private final int value;
 	private final String repr;
