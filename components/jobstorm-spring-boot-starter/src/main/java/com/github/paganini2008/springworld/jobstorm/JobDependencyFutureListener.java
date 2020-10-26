@@ -65,13 +65,12 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 
 		Map<JobKey, JobKey[]> serialDependencies = new HashMap<JobKey, JobKey[]>();
 		Map<JobKey, JobKey[]> parallelDependencies = new HashMap<JobKey, JobKey[]>();
-		Map<JobKey, DependencyType> allDependencyTypes = new HashMap<JobKey, DependencyType>();
 		JobKey[] dependentKeys;
 		JobKey[] comparedDependentKeys;
 		JobKey[] requiredJobKeys;
+		JobTriggerDetail triggerDetail;
+		Dependency dependency;
 		for (JobKey jobKey : jobKeys) {
-			JobTriggerDetail triggerDetail = null;
-			Dependency dependency;
 			try {
 				triggerDetail = jobManager.getJobTriggerDetail(jobKey);
 				dependency = triggerDetail.getTriggerDescriptionObject().getDependency();
@@ -109,34 +108,20 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 					}
 					break;
 				}
-				allDependencyTypes.put(jobKey, dependency.getDependencyType());
+
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
 		}
 
-		for (Map.Entry<JobKey, DependencyType> entry : allDependencyTypes.entrySet()) {
+		for (Map.Entry<JobKey, JobKey[]> entry : serialDependencies.entrySet()) {
 			JobKey jobKey = entry.getKey();
-			DependencyType dependencyType = entry.getValue();
-			JobKey[] keys = serialDependencies.get(jobKey);
+			JobKey[] keys = entry.getValue();
 			if (ArrayUtils.isNotEmpty(keys)) {
 				for (JobKey key : keys) {
 					try {
 						if (jobManager.hasJob(key)) {
-							saveJobDependency(jobKey, key, dependencyType);
-						}
-					} catch (Exception e) {
-						log.error(e.getMessage(), e);
-					}
-				}
-			}
-
-			keys = parallelDependencies.get(jobKey);
-			if (ArrayUtils.isNotEmpty(keys)) {
-				for (JobKey key : keys) {
-					try {
-						if (jobManager.hasJob(key)) {
-							saveJobDependency(jobKey, key, dependencyType);
+							saveJobDependency(jobKey, key, DependencyType.SERIAL);
 						}
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
@@ -144,6 +129,23 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 				}
 			}
 		}
+
+		for (Map.Entry<JobKey, JobKey[]> entry : parallelDependencies.entrySet()) {
+			JobKey jobKey = entry.getKey();
+			JobKey[] keys = entry.getValue();
+			if (ArrayUtils.isNotEmpty(keys)) {
+				for (JobKey key : keys) {
+					try {
+						if (jobManager.hasJob(key)) {
+							saveJobDependency(jobKey, key, DependencyType.PARALLEL);
+						}
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
+					}
+				}
+			}
+		}
+
 	}
 
 	private void saveJobDependency(JobKey jobKey, JobKey dependency, DependencyType dependencyType) {

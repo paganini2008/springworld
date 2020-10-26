@@ -73,6 +73,7 @@ public class TriggerDescription implements Serializable {
 		public Dependency(JobKey[] dependentKeys, JobKey[] subKeys, DependencyType dependencyType, Float completionRate,
 				TriggerType triggerType) {
 			this.dependentKeys = dependentKeys;
+			this.subKeys = subKeys;
 			this.dependencyType = dependencyType;
 			this.completionRate = completionRate;
 			this.triggerType = triggerType;

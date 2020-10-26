@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
 import com.github.paganini2008.springworld.jobstorm.model.JobPeerResult;
 
@@ -41,7 +42,7 @@ public abstract class JobTemplate implements JobExecutor {
 	}
 
 	protected final void runJob(Job job, Object attachment, int retries) {
-		final Date startTime = new Date();
+		final Date startDate = new Date();
 		final JobKey jobKey = JobKey.of(job);
 		final long traceId = getTraceId(jobKey);
 		RunningState runningState = RunningState.SKIPPED;
@@ -50,7 +51,7 @@ public abstract class JobTemplate implements JobExecutor {
 		final Logger log = customizedLog != null ? customizedLog : this.log;
 		try {
 			if (isScheduling(jobKey, job)) {
-				beforeRun(traceId, jobKey, job, attachment, startTime);
+				beforeRun(traceId, jobKey, job, attachment, startDate);
 				if (job.shouldRun(jobKey, log)) {
 					Object[] answer = doRun(jobKey, job, attachment, retries, log);
 					runningState = (RunningState) answer[0];
@@ -67,7 +68,11 @@ public abstract class JobTemplate implements JobExecutor {
 			throw ExceptionUtils.wrapExeception("An exception occured during job running.", e);
 		} finally {
 			printError(reason, log);
-			afterRun(traceId, jobKey, job, attachment, startTime, runningState, result, reason, retries);
+			afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
+
+			if ((runningState == RunningState.FAILED || runningState == RunningState.FINISHED) && StringUtils.isNotBlank(job.getEmail())) {
+				sendMail(job.getEmail(), traceId, jobKey, attachment, startDate, runningState, reason);
+			}
 		}
 	}
 
@@ -181,6 +186,10 @@ public abstract class JobTemplate implements JobExecutor {
 		if (e != null) {
 			log.error(e.getMessage(), e);
 		}
+	}
+
+	protected void sendMail(String mailAddress, long traceId, JobKey jobKey, Object attachment, Date startDate, RunningState runningState,
+			Throwable reason) {
 	}
 
 	public void destroy() {
