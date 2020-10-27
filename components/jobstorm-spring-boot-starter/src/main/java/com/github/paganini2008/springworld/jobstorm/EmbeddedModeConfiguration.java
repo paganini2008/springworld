@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.jobstorm;
 
+import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -9,9 +10,9 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -19,16 +20,15 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
-import com.github.paganini2008.devtools.jdbc.PooledConnectionFactory;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.devtools.multithreads.ThreadPoolBuilder;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -36,6 +36,7 @@ import com.github.paganini2008.springworld.jobstorm.cron4j.Cron4jScheduler;
 import com.github.paganini2008.springworld.jobstorm.server.ConsumerModeJobExecutor;
 import com.github.paganini2008.springworld.jobstorm.utils.JavaMailService;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -201,9 +202,8 @@ public class EmbeddedModeConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(ConnectionFactory.class)
 	public ConnectionFactory connectionFactory(DataSource dataSource) {
-		return new PooledConnectionFactory(dataSource);
+		return new JobManagerConnectionFactory(dataSource);
 	}
 
 	@Bean(initMethod = "configure", destroyMethod = "close")
@@ -290,9 +290,42 @@ public class EmbeddedModeConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnClass({ JavaMailSenderImpl.class, FreeMarkerConfigurer.class })
+	@ConditionalOnBean(JavaMailSender.class)
 	public JavaMailService javaMailService() {
 		return new JavaMailService();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(MailContentSource.class)
+	public MailContentSource printableMailContentSource() {
+		return new PrintableMailContentSource();
+	}
+
+	@Setter
+	@Configuration
+	@ConfigurationProperties(prefix = "jobstorm.mail")
+	public static class JavaMailConfig {
+
+		private String host;
+		private String username;
+		private String password;
+		private String defaultEncoding;
+
+		@Bean
+		public JavaMailSender jobMailSender() {
+			JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+			javaMailSender.setHost(host);
+			javaMailSender.setUsername(username);
+			javaMailSender.setPassword(password);
+			javaMailSender.setDefaultEncoding(defaultEncoding);
+			Properties javaMailProperties = new Properties();
+			javaMailProperties.put("mail.smtp.auth", true);
+			javaMailProperties.put("mail.smtp.starttls.enable", false);
+			javaMailProperties.put("mail.smtp.starttls.required", false);
+			javaMailProperties.put("mail.smtp.timeout", 60000);
+			javaMailSender.setJavaMailProperties(javaMailProperties);
+			return javaMailSender;
+		}
 	}
 
 }

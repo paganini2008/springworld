@@ -34,7 +34,7 @@ public class JavaMailService {
 	@Autowired
 	private MailContentSource contentSource;
 
-	@Value("${jobstorm.mail.default.sender:jobstorm-supporter@yourmail.com}")
+	@Value("${jobstorm.mail.username}")
 	private String defaultMailSender;
 
 	@Value("${jobstorm.mail.default.subject:Job Email Warning}")
@@ -64,6 +64,7 @@ public class JavaMailService {
 			}
 			simpleMailMessage.setText(contentSource.getContent(traceId, jobKey, attachment, startDate, runningState, reason));
 			javaMailSender.send(simpleMailMessage);
+			log.info("Send mail to: {}", to);
 		} catch (Exception e) {
 			log.error("Failed to send text mail.", e);
 		}

@@ -55,13 +55,14 @@ public class TriggerDescription implements Serializable {
 		private static final long serialVersionUID = -8486773222061112232L;
 		private @Nullable JobKey[] dependentKeys;
 		private @Nullable JobKey[] subKeys;
-		private DependencyType dependencyType;
+		private @Nullable DependencyType dependencyType;
 		private float completionRate = -1F;
-		private @Nullable TriggerType triggerType;
+		private TriggerType triggerType;
 		private @Nullable Cron cron;
 		private @Nullable Periodic periodic;
 
 		public Dependency() {
+			this.triggerType = TriggerType.NONE;
 		}
 
 		public Dependency(JobKey[] dependentKeys, DependencyType dependencyType) {

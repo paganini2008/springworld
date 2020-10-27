@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
@@ -22,7 +23,7 @@ import com.github.paganini2008.springworld.jobstorm.model.JobPeerResult;
  *
  * @since 1.0
  */
-public abstract class JobTemplate implements JobExecutor {
+public abstract class JobTemplate implements JobExecutor, DisposableBean {
 
 	protected final Logger log = LoggerFactory.getLogger(JobExecutor.class);
 

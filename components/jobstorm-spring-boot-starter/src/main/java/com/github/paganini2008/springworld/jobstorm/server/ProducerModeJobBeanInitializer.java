@@ -11,9 +11,9 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.devtools.jdbc.PageableQuery;
 import com.github.paganini2008.springworld.jobstorm.Job;
+import com.github.paganini2008.springworld.jobstorm.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.JobBeanLoader;
 import com.github.paganini2008.springworld.jobstorm.JobKey;
-import com.github.paganini2008.springworld.jobstorm.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobstorm.ScheduleManager;
 import com.github.paganini2008.springworld.jobstorm.SqlScripts;
 
@@ -62,7 +62,6 @@ public class ProducerModeJobBeanInitializer implements JobBeanInitializer {
 					continue;
 				}
 				scheduleManager.schedule(job);
-				log.info("Reload and schedule Job '{}' ok.", jobKey);
 			}
 		}
 	}

@@ -9,7 +9,6 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -23,12 +22,10 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.ErrorHandler;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.github.paganini2008.devtools.cron4j.TaskExecutor;
 import com.github.paganini2008.devtools.cron4j.ThreadPoolTaskExecutor;
 import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
-import com.github.paganini2008.devtools.jdbc.PooledConnectionFactory;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.devtools.multithreads.ThreadPoolBuilder;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -53,12 +50,15 @@ import com.github.paganini2008.springworld.jobstorm.JobExecutor;
 import com.github.paganini2008.springworld.jobstorm.JobFutureHolder;
 import com.github.paganini2008.springworld.jobstorm.JobIdCache;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
+import com.github.paganini2008.springworld.jobstorm.JobManagerConnectionFactory;
 import com.github.paganini2008.springworld.jobstorm.JobRuntimeListenerContainer;
 import com.github.paganini2008.springworld.jobstorm.JobTimeoutResolver;
 import com.github.paganini2008.springworld.jobstorm.LifeCycleListenerContainer;
 import com.github.paganini2008.springworld.jobstorm.LoadBalancedJobBeanProcessor;
 import com.github.paganini2008.springworld.jobstorm.LogManager;
+import com.github.paganini2008.springworld.jobstorm.MailContentSource;
 import com.github.paganini2008.springworld.jobstorm.OnServerModeCondition.ServerMode;
+import com.github.paganini2008.springworld.jobstorm.PrintableMailContentSource;
 import com.github.paganini2008.springworld.jobstorm.RetryPolicy;
 import com.github.paganini2008.springworld.jobstorm.ScheduleAdmin;
 import com.github.paganini2008.springworld.jobstorm.ScheduleManager;
@@ -177,9 +177,8 @@ public class ServerModeConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(ConnectionFactory.class)
 		public ConnectionFactory connectionFactory(DataSource dataSource) {
-			return new PooledConnectionFactory(dataSource);
+			return new JobManagerConnectionFactory(dataSource);
 		}
 
 		@Bean(initMethod = "configure", destroyMethod = "close")
@@ -345,9 +344,15 @@ public class ServerModeConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnClass({ JavaMailSenderImpl.class, FreeMarkerConfigurer.class })
+		@ConditionalOnBean(JavaMailSenderImpl.class)
 		public JavaMailService javaMailService() {
 			return new JavaMailService();
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(MailContentSource.class)
+		public MailContentSource printableMailContentSource() {
+			return new PrintableMailContentSource();
 		}
 
 		@Bean

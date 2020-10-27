@@ -5,14 +5,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
@@ -49,50 +46,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JdbcJobManager implements JobManager {
 
-	private static final Map<String, String> ddls = new HashMap<String, String>() {
-		private static final long serialVersionUID = 1L;
-
-		{
-			put("js_server_detail", SqlScripts.DEF_DDL_CLUSTER_DETAIL);
-			put("js_job_detail", SqlScripts.DEF_DDL_JOB_DETAIL);
-			put("js_job_trigger", SqlScripts.DEF_DDL_JOB_TRIGGER);
-			put("js_job_runtime", SqlScripts.DEF_DDL_JOB_RUNTIME);
-			put("js_job_trace", SqlScripts.DEF_DDL_JOB_TRACE);
-			put("js_job_exception", SqlScripts.DEF_DDL_JOB_EXCEPTION);
-			put("js_job_log", SqlScripts.DEF_DDL_JOB_LOG);
-			put("js_job_dependency", SqlScripts.DEF_DDL_JOB_DEPENDENCY);
-		}
-	};
-
 	@Autowired
 	private ConnectionFactory connectionFactory;
-
-	@Value("${jobstorm.jdbc.createTable:true}")
-	private boolean createTable;
 
 	@Autowired
 	private LifeCycleListenerContainer lifeCycleListenerContainer;
 
 	@Autowired
 	private JobIdCache jobIdCache;
-
-	@Override
-	public void configure() throws SQLException {
-		if (createTable) {
-			Connection connection = null;
-			try {
-				connection = connectionFactory.getConnection();
-				for (Map.Entry<String, String> entry : new HashMap<String, String>(ddls).entrySet()) {
-					if (!JdbcUtils.existsTable(connection, null, entry.getKey())) {
-						JdbcUtils.update(connection, entry.getValue());
-						log.info("Create table: " + entry.getKey());
-					}
-				}
-			} finally {
-				JdbcUtils.closeQuietly(connection);
-			}
-		}
-	}
 
 	@Override
 	public String[] selectClusterNames() throws SQLException {
@@ -202,6 +163,7 @@ public class JdbcJobManager implements JobManager {
 					case PARALLEL:
 						dependency.setSubKeys(jobDef.getSubKeys());
 						dependency.setCompletionRate(jobDef.getCompletionRate());
+						dependency.setTriggerType(triggerType);
 						if (triggerType == TriggerType.CRON) {
 							triggerDescription.getDependency().setCron(triggerDescription.getCron());
 							triggerDescription.setCron(null);
@@ -295,6 +257,7 @@ public class JdbcJobManager implements JobManager {
 					case PARALLEL:
 						dependency.setSubKeys(jobDef.getSubKeys());
 						dependency.setCompletionRate(jobDef.getCompletionRate());
+						dependency.setTriggerType(triggerType);
 						if (triggerType == TriggerType.CRON) {
 							triggerDescription.getDependency().setCron(triggerDescription.getCron());
 							triggerDescription.setCron(null);
