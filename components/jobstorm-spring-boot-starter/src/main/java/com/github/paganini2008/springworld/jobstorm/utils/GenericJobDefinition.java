@@ -32,8 +32,8 @@ public class GenericJobDefinition implements JobDefinition {
 	private final long timeout;
 
 	// Dependency settings
-	private final DependencyType dependencyType;
-	private final JobKey[] dependencies;
+	private final JobKey[] dependentKeys;
+	private final JobKey[] subKeys;
 	private final float completionRate;
 
 	// Trigger settings
@@ -47,8 +47,8 @@ public class GenericJobDefinition implements JobDefinition {
 		this.weight = builder.weight;
 		this.timeout = builder.timeout;
 		this.trigger = builder.trigger;
-		this.dependencyType = builder.dependencyType;
-		this.dependencies = builder.dependencies;
+		this.dependentKeys = builder.dependentKeys;
+		this.subKeys = builder.subKeys;
 		this.completionRate = builder.completionRate;
 	}
 
@@ -85,7 +85,8 @@ public class GenericJobDefinition implements JobDefinition {
 		private long timeout = -1L;
 
 		private DependencyType dependencyType = DependencyType.SERIAL;
-		private JobKey[] dependencies;
+		private JobKey[] dependentKeys;
+		private JobKey[] subKeys;
 		private float completionRate = -1F;
 
 		private Trigger trigger;
@@ -111,8 +112,8 @@ public class GenericJobDefinition implements JobDefinition {
 		param.setTimeout(timeout);
 		param.setWeight(weight);
 		param.setJobKey(jobKey);
-		param.setDependencyType(dependencyType);
-		param.setDependencies(dependencies);
+		param.setDependentKeys(dependentKeys);
+		param.setSubKeys(subKeys);
 		param.setCompletionRate(completionRate);
 
 		JobTriggerParam triggerParam = new JobTriggerParam();

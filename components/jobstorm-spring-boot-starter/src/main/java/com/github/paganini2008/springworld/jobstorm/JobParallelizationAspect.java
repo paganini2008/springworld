@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.NumberUtils;
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.date.Duration;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
@@ -73,7 +74,7 @@ public class JobParallelizationAspect implements Aspect {
 				log.trace("Parallel run dependent job: " + dependency);
 				Job job = getJob(dependency);
 				JobDetail jobDetail = jobManager.getJobDetail(dependency, false);
-				jobExecutor.execute(job, jobDetail.getAttachment(), 0);
+				jobExecutor.execute(job, StringUtils.isNotBlank(jobDetail.getAttachment()) ? jobDetail.getAttachment() : attachment, 0);
 				maxTimeout = Long.max(maxTimeout, job.getTimeout());
 			}
 			RedisCountDownLatch latch = new RedisCountDownLatch(jobKey.getIdentifier(), redisMessageSender);

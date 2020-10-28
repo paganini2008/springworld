@@ -1,4 +1,7 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.controller;
+package com.github.paganini2008.springworld.jobstorm.ui.controller;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -8,19 +11,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
-import com.github.paganini2008.springworld.cronkeeper.ui.JobLogForm;
-import com.github.paganini2008.springworld.cronkeeper.ui.JobTraceForm;
-import com.github.paganini2008.springworld.cronkeeper.ui.service.JobManagerService;
-import com.github.paganini2008.springworld.cronkeeper.ui.utils.PageBean;
+import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springworld.jobstorm.JacksonUtils;
 import com.github.paganini2008.springworld.jobstorm.model.JobDetail;
 import com.github.paganini2008.springworld.jobstorm.model.JobLog;
+import com.github.paganini2008.springworld.jobstorm.model.JobPersistParam;
 import com.github.paganini2008.springworld.jobstorm.model.JobStackTrace;
 import com.github.paganini2008.springworld.jobstorm.model.JobTrace;
 import com.github.paganini2008.springworld.jobstorm.model.PageQuery;
+import com.github.paganini2008.springworld.jobstorm.ui.JobLogForm;
+import com.github.paganini2008.springworld.jobstorm.ui.JobTraceForm;
+import com.github.paganini2008.springworld.jobstorm.ui.service.JobManagerService;
+import com.github.paganini2008.springworld.jobstorm.ui.utils.PageBean;
 
 /**
  * 
@@ -36,6 +44,32 @@ public class JobController {
 
 	@Autowired
 	private JobManagerService jobManagerService;
+
+	@PostMapping("/save")
+	public @ResponseBody Map<String, Object> saveJob(@RequestBody JobPersistParam param) throws Exception {
+		Map<String, Object> data = new HashMap<String, Object>();
+		try {
+			jobManagerService.saveJob(param);
+			data.put("success", true);
+		} catch (Exception e) {
+			data.put("success", false);
+			data.put("msg", "Server Internal Error: " + e.getMessage());
+		}
+		return data;
+	}
+
+	@GetMapping(value = { "/edit", "/edit/{jobKey}" })
+	public String editJob(@PathVariable(name = "jobKey", required = false) String jobKey, Model ui) throws Exception {
+		JobPersistParam param;
+		if (StringUtils.isNotBlank(jobKey)) {
+			JobDetail jobDetail = jobManagerService.getJobDetail(jobKey);
+			param = JobPersistParam.wrap(jobDetail);
+		} else {
+			param = JobPersistParam.forExample();
+		}
+		ui.addAttribute("jobDefinition", JacksonUtils.toJsonString(param));
+		return "job_edit";
+	}
 
 	@PostMapping("")
 	public String selectJobDetail(@SessionAttribute("currentClusterName") String clusterName,

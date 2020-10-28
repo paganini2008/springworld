@@ -56,7 +56,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
 		super.beforeRun(traceId, jobKey, job, attachment, startDate);
 		jobRuntimeListenerContainer.beforeRun(traceId, jobKey, job, attachment, startDate);
-		stopWatch.startJob(traceId, jobKey, startDate);
+		stopWatch.onJobBegin(traceId, jobKey, startDate);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
 		try {
 			scheduleManager.unscheduleJob(jobKey);
-			jobManager.deleteJob(jobKey);
+			jobManager.finishJob(jobKey);
 		} catch (Exception e) {
 			throw ExceptionUtils.wrapExeception(e);
 		}
@@ -110,7 +110,7 @@ public class EmbeddedModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState,
 			Object result, Throwable reason, int retries) {
 		super.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
-		stopWatch.finishJob(traceId, jobKey, startDate, runningState, retries);
+		stopWatch.onJobEnd(traceId, jobKey, startDate, runningState, retries);
 		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 	}
 

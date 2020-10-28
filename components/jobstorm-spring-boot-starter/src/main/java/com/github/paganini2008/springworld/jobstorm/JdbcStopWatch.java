@@ -39,7 +39,7 @@ public class JdbcStopWatch implements StopWatch {
 	private JobFutureHolder jobFutureHolder;
 
 	@Override
-	public JobState startJob(long traceId, JobKey jobKey, Date startDate) {
+	public JobState onJobBegin(long traceId, JobKey jobKey, Date startDate) {
 		Connection connection = null;
 		try {
 			connection = connectionFactory.getConnection();
@@ -59,7 +59,7 @@ public class JdbcStopWatch implements StopWatch {
 	}
 
 	@Override
-	public JobState finishJob(long traceId, JobKey jobKey, Date startDate, RunningState runningState, int retries) {
+	public JobState onJobEnd(long traceId, JobKey jobKey, Date startDate, RunningState runningState, int retries) {
 		final int jobId = getJobId(jobKey);
 		final Date endTime = new Date();
 		Connection connection = null;

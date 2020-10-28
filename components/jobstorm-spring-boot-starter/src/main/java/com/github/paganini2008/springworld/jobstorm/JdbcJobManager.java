@@ -361,7 +361,7 @@ public class JdbcJobManager implements JobManager {
 	}
 
 	@Override
-	public JobState deleteJob(JobKey jobKey) throws SQLException {
+	public JobState finishJob(JobKey jobKey) throws SQLException {
 		if (!hasJob(jobKey)) {
 			throw new JobBeanNotFoundException(jobKey);
 		}

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui;
+package com.github.paganini2008.springworld.jobstorm.ui;
 
 import java.util.Date;
 

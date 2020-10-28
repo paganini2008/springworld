@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.paganini2008.springworld.jobstorm.RunningState;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 
@@ -18,7 +17,6 @@ import lombok.Setter;
  * @since 1.0
  */
 @Getter
-@Setter
 public class JobTrace implements Serializable {
 
 	private static final long serialVersionUID = 1886119510627026178L;
@@ -34,5 +32,45 @@ public class JobTrace implements Serializable {
 	private Date executionTime;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date completionTime;
+
+	public void setTraceId(long traceId) {
+		this.traceId = traceId;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+
+	public void setRunningState(int runningState) {
+		this.runningState = RunningState.valueOf(runningState);
+	}
+
+	public void setCompleted(int completed) {
+		this.completed = completed;
+	}
+
+	public void setFailed(int failed) {
+		this.failed = failed;
+	}
+
+	public void setSkipped(int skipped) {
+		this.skipped = skipped;
+	}
+
+	public void setRetries(int retries) {
+		this.retries = retries;
+	}
+
+	public void setExecutionTime(Date executionTime) {
+		this.executionTime = executionTime;
+	}
+
+	public void setCompletionTime(Date completionTime) {
+		this.completionTime = completionTime;
+	}
 
 }

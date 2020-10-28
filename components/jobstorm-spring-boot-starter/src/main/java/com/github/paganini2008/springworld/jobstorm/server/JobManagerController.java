@@ -67,9 +67,9 @@ public class JobManagerController {
 		return ResponseEntity.ok(JobResult.success(jobId));
 	}
 
-	@PostMapping("/deleteJob")
-	public ResponseEntity<JobResult<JobState>> deleteJob(@RequestBody JobKey jobKey) throws Exception {
-		JobState jobState = jobManager.deleteJob(jobKey);
+	@PostMapping("/finishJob")
+	public ResponseEntity<JobResult<JobState>> finishJob(@RequestBody JobKey jobKey) throws Exception {
+		JobState jobState = jobManager.finishJob(jobKey);
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 
@@ -164,15 +164,15 @@ public class JobManagerController {
 		return ResponseEntity.ok(JobResult.success(traces));
 	}
 
-	@PostMapping("/startJob")
-	public ResponseEntity<JobResult<JobState>> startJob(@RequestBody JobRuntimeParam param) throws Exception {
-		JobState jobState = stopWatch.startJob(param.getTraceId(), param.getJobKey(), param.getStartTime());
+	@PostMapping("/onJobBegin")
+	public ResponseEntity<JobResult<JobState>> onJobBegin(@RequestBody JobRuntimeParam param) throws Exception {
+		JobState jobState = stopWatch.onJobBegin(param.getTraceId(), param.getJobKey(), param.getStartTime());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}
 
-	@PostMapping("/finishJob")
-	public ResponseEntity<JobResult<JobState>> finishJob(@RequestBody JobRuntimeParam param) throws Exception {
-		JobState jobState = stopWatch.finishJob(param.getTraceId(), param.getJobKey(), param.getStartTime(), param.getRunningState(),
+	@PostMapping("/onJobEnd")
+	public ResponseEntity<JobResult<JobState>> onJobEnd(@RequestBody JobRuntimeParam param) throws Exception {
+		JobState jobState = stopWatch.onJobEnd(param.getTraceId(), param.getJobKey(), param.getStartTime(), param.getRunningState(),
 				param.getRetries());
 		return ResponseEntity.ok(JobResult.success(jobState));
 	}

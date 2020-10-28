@@ -53,7 +53,7 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
 		super.beforeRun(traceId, jobKey, job, attachment, startDate);
 		jobRuntimeListenerContainer.beforeRun(traceId, jobKey, job, attachment, startDate);
-		stopWatch.startJob(traceId, jobKey, startDate);
+		stopWatch.onJobBegin(traceId, jobKey, startDate);
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
 		try {
 			scheduleManager.unscheduleJob(jobKey);
-			jobManager.deleteJob(jobKey);
+			jobManager.finishJob(jobKey);
 		} catch (Exception e) {
 			throw new JobException(e.getMessage(), e);
 		}

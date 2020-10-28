@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.config;
+package com.github.paganini2008.springworld.jobstorm.ui.config;
 
 import java.time.Duration;
 

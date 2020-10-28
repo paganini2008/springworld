@@ -69,7 +69,7 @@ public class ConsumerModeLoadBalancer extends JobTemplate implements JobExecutor
 
 	private void handleIfHasSerialDependency(long traceId, JobKey jobKey, Date startDate) {
 		if (serialDependencyScheduler.hasScheduled(jobKey)) {
-			stopWatch.startJob(traceId, jobKey, startDate);
+			stopWatch.onJobBegin(traceId, jobKey, startDate);
 		}
 	}
 

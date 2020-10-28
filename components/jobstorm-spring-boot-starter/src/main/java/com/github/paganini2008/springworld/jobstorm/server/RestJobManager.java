@@ -12,11 +12,11 @@ import com.github.paganini2008.springworld.jobstorm.JobDefinition;
 import com.github.paganini2008.springworld.jobstorm.JobKey;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
 import com.github.paganini2008.springworld.jobstorm.JobState;
+import com.github.paganini2008.springworld.jobstorm.model.JobDependencyParam;
 import com.github.paganini2008.springworld.jobstorm.model.JobDetail;
 import com.github.paganini2008.springworld.jobstorm.model.JobKeyQuery;
 import com.github.paganini2008.springworld.jobstorm.model.JobLog;
 import com.github.paganini2008.springworld.jobstorm.model.JobPersistParam;
-import com.github.paganini2008.springworld.jobstorm.model.JobDependencyParam;
 import com.github.paganini2008.springworld.jobstorm.model.JobResult;
 import com.github.paganini2008.springworld.jobstorm.model.JobRuntime;
 import com.github.paganini2008.springworld.jobstorm.model.JobStackTrace;
@@ -67,8 +67,8 @@ public class RestJobManager implements JobManager {
 	}
 
 	@Override
-	public JobState deleteJob(JobKey jobKey) throws Exception {
-		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/deleteJob",
+	public JobState finishJob(JobKey jobKey) throws Exception {
+		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/finishJob",
 				HttpMethod.POST, jobKey, new ParameterizedTypeReference<JobResult<JobState>>() {
 				});
 		return responseEntity.getBody().getData();

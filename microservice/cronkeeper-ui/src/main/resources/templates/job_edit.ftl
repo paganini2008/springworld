@@ -18,7 +18,7 @@
 	}
 	
 	#saveBtn{
-		width: 160px;
+		width: 90px;
 		height: 32px;
 		padding: 3px 10px;
 		cursor: pointer;
@@ -29,37 +29,39 @@
 	}
 	    
 </style>
+<link href="${contextPath}/static/css/json-editor.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="${contextPath}/static/js/common.js"></script>
+<script type="text/javascript" src="${contextPath}/static/js/lib/jquery-json-editor.js"></script>
 <script type="text/javascript">
+    
 	$(function(){
-		$('#searchForm').submit(function(){
-			var obj = $(this);
-			var url = obj.attr('action');
-			$.ajax({
+	
+		var example = JSON.parse('${jobDefinition}');
+	
+		$('#editor').jsonEditor(example, { change: function() {}
+	    });
+	    
+	    $('#saveBtn').click(function(){
+	    	var url = '${contextPath}/job/save';
+	    	$.ajax({
 			    url: url,
 				type:'post',
-				dataType:'html',
-				data: obj.serialize(),
+				contentType: "application/json; charset=utf-8",
+				dataType:'json',
+				data: JSON.stringify(example),
 				success: function(data){
-				    $('#tabBox').html(data);
+				    if(data.success){
+				    	alert('保存成功');
+				    	window.location.href = '${contextPath}/job';
+				    }else{
+				    	alert('保存失败：' + data.msg);
+				    }
 				}
 			});
-			return false;
-		});
-	
-		$('#saveBtn').click(function(){
-			window.location.href= "${contextPath}/job/edit";
-		});
-	
-		onLoad();
+	    });
 	});
 	
-	function onLoad(){
-		$('#searchForm').submit();
-	}
-	
 </script>
-<#import "common/page.ftl" as pageToolbar>
 <body>
 		<div id="top">
 			<#include "top.ftl">
@@ -70,13 +72,10 @@
 			</div>
 			<div id="right">
 				<div id="searchBox">
-					<form class="pageForm" id="searchForm" method="post" action="${contextPath}/job">
-						<input type="hidden" value="${(page.page)!}" name="page" id="pageNo"/>
-						<input type="button" value="Create or Update Job" id="saveBtn"></input>
-					</form>
+					<input type="button" value="Save Job" id="saveBtn"></input>
 				</div>
-				<div id="tabBox">
-				</div>
+				<div id="editor" class="json-editor"></div>
+				<input type="hidden" id="json"></input>
 			</div>
 		</div>
 		<#include "foot.ftl">

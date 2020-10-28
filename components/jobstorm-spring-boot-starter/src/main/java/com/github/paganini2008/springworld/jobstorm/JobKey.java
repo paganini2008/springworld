@@ -120,11 +120,4 @@ public final class JobKey implements Serializable, Comparable<JobKey> {
 		return new JobKey(args[0], args[1], args[2], repr.substring(index + 1));
 	}
 
-	public static void main(String[] args) {
-		JobKey jobKey = JobKey.by("111111111111", "22222222222", "33333333333", "123fengyan0000000000000000000000000000");
-		String id = jobKey.getIdentifier();
-		System.out.println(id);
-		System.out.println(JobKey.decode(id));
-	}
-
 }

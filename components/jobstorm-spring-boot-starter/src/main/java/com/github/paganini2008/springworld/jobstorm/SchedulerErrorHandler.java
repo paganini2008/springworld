@@ -29,7 +29,7 @@ public class SchedulerErrorHandler implements ErrorHandler {
 			final JobKey jobKey = cause.getJobKey();
 			try {
 				scheduleManager.unscheduleJob(jobKey);
-				jobManager.deleteJob(jobKey);
+				jobManager.finishJob(jobKey);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}

@@ -20,12 +20,20 @@ public interface JobPersistence {
 		throw new UnsupportedOperationException("persistJob");
 	}
 
-	default JobState deleteJob(JobKey jobKey) throws Exception {
+	default JobState finishJob(JobKey jobKey) throws Exception {
 		throw new UnsupportedOperationException("deleteJob");
 	}
 
 	default boolean hasJob(JobKey jobKey) throws Exception {
 		return true;
 	}
+	
+	JobState pauseJob(JobKey jobKey) throws Exception;
+
+	JobState resumeJob(JobKey jobKey) throws Exception;
+
+	boolean hasJobState(JobKey jobKey, JobState jobState) throws Exception;
+
+	JobState setJobState(JobKey jobKey, JobState jobState) throws Exception;
 
 }

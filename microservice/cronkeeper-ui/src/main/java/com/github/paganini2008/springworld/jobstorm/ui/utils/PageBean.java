@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.utils;
+package com.github.paganini2008.springworld.jobstorm.ui.utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;

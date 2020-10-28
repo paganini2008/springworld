@@ -37,11 +37,8 @@
 					<td class="tdLeft5">
 						InstanceId
 					</td>
-					<td width="6%" class="tdLeft5">
+					<td width="8%" class="tdLeft5">
 						Running State
-					</td>
-					<td width="6%" class="tdLeft5">
-						Running Result
 					</td>
 					<td width="6%" class="tdRight5">
 						Retries
@@ -64,20 +61,11 @@
 							<td width="12%" class="tdLeft5">
 								${(bean.address)!}
 							</td>
-							<td width="12%" class="tdLeft5">
+							<td class="tdLeft5">
 								${(bean.instanceId)!}
 							</td>
-							<td width="6%" class="tdLeft5">
-								${(bean.runningState)!}
-							</td>
-							<td class="tdLeft5">
-								<#if bean.completed gt 0>
-									Completed
-								<#elseif bean.failed gt 0>
-									Failed
-								<#elseif bean.skipped gt 0>
-									Skipped
-								</#if>
+							<td width="8%" class="tdLeft5">
+								${(bean.runningState.repr)!}
 							</td>
 							<td width="6%" class="tdRight5">
 								${(bean.retries)!}

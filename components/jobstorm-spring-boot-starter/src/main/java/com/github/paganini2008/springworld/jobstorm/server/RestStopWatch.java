@@ -30,8 +30,8 @@ public class RestStopWatch implements StopWatch {
 
 	@Async
 	@Override
-	public JobState startJob(long traceId, JobKey jobKey, Date startDate) {
-		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/startJob",
+	public JobState onJobBegin(long traceId, JobKey jobKey, Date startDate) {
+		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/onJobBegin",
 				HttpMethod.POST, new JobRuntimeParam(traceId, jobKey, startDate), new ParameterizedTypeReference<JobResult<JobState>>() {
 				});
 		return responseEntity.getBody().getData();
@@ -39,8 +39,8 @@ public class RestStopWatch implements StopWatch {
 
 	@Async
 	@Override
-	public JobState finishJob(long traceId, JobKey jobKey, Date startDate, RunningState runningState, int retries) {
-		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/finishJob",
+	public JobState onJobEnd(long traceId, JobKey jobKey, Date startDate, RunningState runningState, int retries) {
+		ResponseEntity<JobResult<JobState>> responseEntity = restTemplate.perform(jobKey.getClusterName(), "/job/manager/onJobEnd",
 				HttpMethod.POST, new JobRuntimeParam(traceId, jobKey, startDate, runningState, retries),
 				new ParameterizedTypeReference<JobResult<JobState>>() {
 				});

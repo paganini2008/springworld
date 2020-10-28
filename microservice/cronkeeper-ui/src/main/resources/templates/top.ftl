@@ -8,9 +8,8 @@
 	});
 	
 </script>
-<img src="${contextPath}/static/img/spring-logo.jpg" style="height: 70px;width: 220px;float: left; display: inline-block;">
 <label id="logoText">
-	Cronkeeper UI
+	JobStorm
 </label>
 <select id="currentClusterName" name="clusterName">
 	<#if clusterNames?? && clusterNames? size gt 0>

@@ -22,14 +22,6 @@ public interface JobManager extends JobPersistence, LifeCycle {
 
 	String[] selectClusterNames() throws Exception;
 
-	JobState pauseJob(JobKey jobKey) throws Exception;
-
-	JobState resumeJob(JobKey jobKey) throws Exception;
-
-	boolean hasJobState(JobKey jobKey, JobState jobState) throws Exception;
-
-	JobState setJobState(JobKey jobKey, JobState jobState) throws Exception;
-
 	JobDetail getJobDetail(JobKey jobKey, boolean detailed) throws Exception;
 
 	JobTriggerDetail getJobTriggerDetail(JobKey jobKey) throws Exception;

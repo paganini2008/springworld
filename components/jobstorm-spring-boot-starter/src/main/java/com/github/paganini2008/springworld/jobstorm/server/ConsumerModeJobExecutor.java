@@ -93,7 +93,7 @@ public class ConsumerModeJobExecutor extends JobTemplate implements JobExecutor 
 	protected void afterRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate, RunningState runningState,
 			Object result, Throwable reason, int retries) {
 		super.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
-		stopWatch.finishJob(traceId, jobKey, startDate, runningState, retries);
+		stopWatch.onJobEnd(traceId, jobKey, startDate, runningState, retries);
 		jobRuntimeListenerContainer.afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 	}
 

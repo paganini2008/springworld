@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui;
+package com.github.paganini2008.springworld.jobstorm.ui;
 
 import java.io.File;
 
@@ -10,19 +10,19 @@ import com.github.paganini2008.devtools.io.FileUtils;
 
 /**
  * 
- * CronKeeperUIMain
+ * JobStormUIMain
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.github.paganini2008.springworld.cronkeeper.ui" })
-public class CronKeeperUIMain {
+@ComponentScan(basePackages = { "com.github.paganini2008.springworld.jobstorm.ui" })
+public class JobStormUIMain {
 
 	static {
 		System.setProperty("spring.devtools.restart.enabled", "false");
-		File logDir = FileUtils.getFile(FileUtils.getUserDirectory(), "logs", "springworld", "crontabui");
+		File logDir = FileUtils.getFile(FileUtils.getUserDirectory(), "logs", "springworld", "jobstorm", "ui");
 		if (!logDir.exists()) {
 			logDir.mkdirs();
 		}
@@ -30,7 +30,7 @@ public class CronKeeperUIMain {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(CronKeeperUIMain.class, args);
+		SpringApplication.run(JobStormUIMain.class, args);
 		System.out.println(Env.getPid());
 	}
 

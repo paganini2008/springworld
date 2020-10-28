@@ -1,20 +1,21 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.service;
+package com.github.paganini2008.springworld.jobstorm.ui.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.springworld.cronkeeper.ui.JobLogForm;
-import com.github.paganini2008.springworld.cronkeeper.ui.JobTraceForm;
 import com.github.paganini2008.springworld.jobstorm.JobKey;
 import com.github.paganini2008.springworld.jobstorm.JobManager;
 import com.github.paganini2008.springworld.jobstorm.model.JobDetail;
 import com.github.paganini2008.springworld.jobstorm.model.JobLog;
+import com.github.paganini2008.springworld.jobstorm.model.JobPersistParam;
 import com.github.paganini2008.springworld.jobstorm.model.JobStackTrace;
 import com.github.paganini2008.springworld.jobstorm.model.JobTrace;
 import com.github.paganini2008.springworld.jobstorm.model.JobTracePageQuery;
 import com.github.paganini2008.springworld.jobstorm.model.JobTraceQuery;
 import com.github.paganini2008.springworld.jobstorm.model.PageQuery;
+import com.github.paganini2008.springworld.jobstorm.ui.JobLogForm;
+import com.github.paganini2008.springworld.jobstorm.ui.JobTraceForm;
 
 /**
  * 
@@ -29,6 +30,10 @@ public class JobManagerService {
 
 	@Autowired
 	private JobManager jobManager;
+
+	public void saveJob(JobPersistParam param) throws Exception {
+		jobManager.persistJob(param);
+	}
 
 	public String[] selectClusterNames() throws Exception {
 		String[] clusterNames = jobManager.selectClusterNames();

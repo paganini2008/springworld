@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.config;
+package com.github.paganini2008.springworld.jobstorm.ui.config;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServletRequest;
@@ -29,8 +29,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springworld.cronkeeper.ui.UIModel;
-import com.github.paganini2008.springworld.cronkeeper.ui.WebUtils;
+import com.github.paganini2008.springworld.jobstorm.ui.UIModel;
+import com.github.paganini2008.springworld.jobstorm.ui.WebUtils;
 
 import lombok.extern.slf4j.Slf4j;
 

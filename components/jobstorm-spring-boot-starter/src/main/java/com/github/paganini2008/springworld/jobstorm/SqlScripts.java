@@ -14,7 +14,7 @@ public abstract class SqlScripts {
 	public static final String DEF_DDL_JOB_TRIGGER = "create table js_job_trigger(job_id int not null, trigger_type int not null, trigger_description text not null, start_date timestamp, end_date timestamp, repeat_count int)";
 	public static final String DEF_DDL_JOB_RUNTIME = "create table js_job_runtime(job_id int not null, job_state int not null, last_running_state int, last_execution_time timestamp, last_completion_time timestamp, next_execution_time timestamp)";
 	public static final String DEF_DDL_JOB_TRACE = "create table js_job_trace(trace_id bigint primary key, job_id int not null, running_state int, address varchar(45), instance_id varchar(45), completed int, failed int, skipped int, finished int, retries int, execution_time timestamp, completion_time timestamp)";
-	public static final String DEF_DDL_JOB_EXCEPTION = "create table js_job_exception(trace_id bigint not null, job_id int not null, stajs_trace varchar(600))";
+	public static final String DEF_DDL_JOB_EXCEPTION = "create table js_job_exception(trace_id bigint not null, job_id int not null, stack_trace varchar(600))";
 	public static final String DEF_DDL_JOB_LOG = "create table js_job_log(trace_id bigint not null, job_id int not null, level varchar(45), log varchar(600), create_date timestamp)";
 	public static final String DEF_DDL_JOB_DEPENDENCY = "create table js_job_dependency(job_id int not null, dependent_job_id int not null, dependency_type int not null)";
 

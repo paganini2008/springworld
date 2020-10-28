@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cronkeeper.ui.controller;
+package com.github.paganini2008.springworld.jobstorm.ui.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,7 +10,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springworld.cronkeeper.ui.service.JobManagerService;
+import com.github.paganini2008.springworld.jobstorm.ui.service.JobManagerService;
 
 /**
  * 
