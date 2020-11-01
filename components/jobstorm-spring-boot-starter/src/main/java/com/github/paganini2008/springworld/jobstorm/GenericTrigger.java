@@ -2,8 +2,8 @@ package com.github.paganini2008.springworld.jobstorm;
 
 import java.util.Date;
 
-import com.github.paganini2008.springworld.jobstorm.model.TriggerDescription;
 import com.github.paganini2008.springworld.jobstorm.model.JobTriggerParam;
+import com.github.paganini2008.springworld.jobstorm.model.TriggerDescription;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -78,10 +78,10 @@ public class GenericTrigger implements Trigger {
 
 	}
 
-	public static Trigger parse(JobTriggerParam triggerParam) {
+	public static Builder parse(JobTriggerParam triggerParam) {
 		return GenericTrigger.Builder.newTrigger().setTriggerType(triggerParam.getTriggerType())
 				.setTriggerDescription(triggerParam.getTriggerDescription()).setStartDate(triggerParam.getStartDate())
-				.setEndDate(triggerParam.getEndDate()).setRepeatCount(triggerParam.getRepeatCount()).build();
+				.setEndDate(triggerParam.getEndDate()).setRepeatCount(triggerParam.getRepeatCount());
 	}
 
 }

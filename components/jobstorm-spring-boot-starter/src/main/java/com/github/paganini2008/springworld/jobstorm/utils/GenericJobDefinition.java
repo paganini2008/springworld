@@ -130,8 +130,8 @@ public class GenericJobDefinition implements JobDefinition {
 		private long timeout = -1L;
 
 		private DependencyType dependencyType = DependencyType.SERIAL;
-		private JobKey[] dependentKeys = new JobKey[0];
-		private JobKey[] subKeys = new JobKey[0];
+		private JobKey[] dependentKeys;
+		private JobKey[] subKeys;
 		private float completionRate = -1F;
 
 		private Trigger trigger;
@@ -173,8 +173,12 @@ public class GenericJobDefinition implements JobDefinition {
 	}
 
 	public static Builder parse(JobPersistParam param) {
-		return newJob(param.getJobKey()).setDescription(param.getDescription()).setEmail(param.getEmail()).setRetries(param.getRetries())
-				.setTimeout(param.getTimeout()).setWeight(param.getWeight()).setTrigger(GenericTrigger.parse(param.getTrigger()));
+		Builder builder = newJob(param.getJobKey()).setDescription(param.getDescription()).setEmail(param.getEmail())
+				.setRetries(param.getRetries()).setTimeout(param.getTimeout()).setWeight(param.getWeight())
+				.setDependentKeys(param.getDependentKeys()).setSubKeys(param.getSubKeys());
+		GenericTrigger.Builder triggerBuilder = GenericTrigger.parse(param.getTrigger());
+		builder.setTrigger(triggerBuilder.build());
+		return builder;
 	}
 
 	public static Builder newJob(JobKey jobKey) {
