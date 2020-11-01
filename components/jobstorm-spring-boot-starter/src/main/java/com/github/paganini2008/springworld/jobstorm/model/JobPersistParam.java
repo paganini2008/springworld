@@ -1,12 +1,11 @@
 package com.github.paganini2008.springworld.jobstorm.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.paganini2008.springworld.jobstorm.JobKey;
 import com.github.paganini2008.springworld.jobstorm.model.TriggerDescription.Dependency;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -18,7 +17,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@JsonInclude(value = Include.NON_NULL)
+@ToString
 public class JobPersistParam {
 
 	private JobKey jobKey;

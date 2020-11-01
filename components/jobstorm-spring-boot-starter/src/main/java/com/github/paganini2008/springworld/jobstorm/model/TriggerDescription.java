@@ -14,6 +14,7 @@ import com.github.paganini2008.springworld.jobstorm.TriggerType;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -26,6 +27,7 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Setter
+@ToString
 @JsonInclude(value = Include.NON_NULL)
 public class TriggerDescription implements Serializable {
 

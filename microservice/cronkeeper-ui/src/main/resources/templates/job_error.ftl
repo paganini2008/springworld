@@ -1,4 +1,4 @@
-<div id="stackTraceBox" style="height: calc(100% - 210px);">
+<div id="stackTraceBox" style="height: auto;">
 	<#list stackTraceArray as trace>
 		<div class="traceItem">
 		<pre>

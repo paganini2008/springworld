@@ -22,7 +22,7 @@ public abstract class SqlScripts {
 	public static final String DEF_INSERT_JOB_DETAIL = "insert into js_job_detail(cluster_name,group_name,job_name,job_class_name,description,attachment,email,retries,weight,timeout,create_date) values (?,?,?,?,?,?,?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_RUNTIME = "insert into js_job_runtime(job_id, job_state) values (?,?)";
 	public static final String DEF_INSERT_JOB_TRACE = "insert into js_job_trace(trace_id, job_id, running_state, address, instance_id, completed, failed, skipped, finished, retries, execution_time, completion_time) values (?,?,?,?,?,?,?,?,?,?,?,?)";
-	public static final String DEF_INSERT_JOB_EXCEPTION = "insert into js_job_exception(trace_id, job_id, stajs_trace) values (?,?,?)";
+	public static final String DEF_INSERT_JOB_EXCEPTION = "insert into js_job_exception(trace_id, job_id, stack_trace) values (?,?,?)";
 	public static final String DEF_INSERT_JOB_LOG = "insert into js_job_log(trace_id, job_id, level, log, create_date) values (?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_TRIGGER = "insert into js_job_trigger(job_id, trigger_type, trigger_description, start_date, end_date, repeat_count) values (?,?,?,?,?,?)";
 	public static final String DEF_INSERT_JOB_DEPENDENCY = "insert into js_job_dependency(job_id, dependent_job_id, dependency_type) value (?,?,?)";

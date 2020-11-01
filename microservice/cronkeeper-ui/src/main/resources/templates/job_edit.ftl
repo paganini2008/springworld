@@ -3,30 +3,61 @@
 <style type="text/css">
 
     #searchBox{
-    	height: 36px;
+    	height: 60px;
     	width: 100%;
+    	clear: both;
     }
 
 	#tabBox {
-		height: calc(100% - 36px);
 		width: 100%;
+		height: auto;
 	}
-	    
 	
 	#tabContent{
-		height: calc(100% - 110px);
+		height: auto;
 	}
 	
-	#saveBtn{
-		width: 90px;
-		height: 32px;
-		padding: 3px 10px;
+	#saveBtn {
+		width: calc(100% - 5px);
+		height: 36px;
+		line-height: 36px;
+		padding: 2px 10px;
 		cursor: pointer;
 		text-align: center;
 		font-weight: bold;
 		float: left;
 		display: inline-block;
+		margin: 10px auto;
 	}
+	
+	#jsonBox {
+		width: 100%;
+		clear: both;
+		text-align: left;
+	}
+	
+	#jsonEditor {
+		width: 100%;
+	}
+	
+	#jsonData {
+		width: 100%;
+		display: none;
+	}
+	
+	#editBtn {
+		background-color: #97CBFF;
+		display: inline-block;
+		height: 32px;
+		line-height: 32px;
+		color: #fff;
+		text-align: center;
+		font-weight: bold;
+		padding: 2px 10px;
+		border-radius: 8px;
+		cursor: pointer;
+	}
+
 	    
 </style>
 <link href="${contextPath}/static/css/json-editor.css" rel="stylesheet" type="text/css" />
@@ -34,11 +65,17 @@
 <script type="text/javascript" src="${contextPath}/static/js/lib/jquery-json-editor.js"></script>
 <script type="text/javascript">
     
+	var dataJson; 
+    
 	$(function(){
 	
 		var example = JSON.parse('${jobDefinition}');
+		$('#jsonData > pre').html(JSON.stringify(JSON.parse('${jobDefinition}'), null, 4));
 	
-		$('#editor').jsonEditor(example, { change: function() {}
+		$('#jsonEditor').jsonEditor(example, { change: function(data) {
+				dataJson = JSON.stringify(data);
+				$('#jsonData > pre').html(JSON.stringify(JSON.parse(dataJson), null, 4));
+			}
 	    });
 	    
 	    $('#saveBtn').click(function(){
@@ -48,17 +85,28 @@
 				type:'post',
 				contentType: "application/json; charset=utf-8",
 				dataType:'json',
-				data: JSON.stringify(example),
+				data: dataJson,
 				success: function(data){
 				    if(data.success){
-				    	alert('保存成功');
+				    	alert('Save OK');
 				    	window.location.href = '${contextPath}/job';
 				    }else{
-				    	alert('保存失败：' + data.msg);
+				    	alert('Oh, no. Reason: ' + data.msg);
 				    }
 				}
 			});
 	    });
+	    
+	    $('#editBtn').toggle(function(){
+	    	$(this).html('Edit Json');
+	    	$('#jsonData').show();
+	    	$('#jsonEditor').hide();
+	    },function(){
+	    	$(this).html('Show Json');
+	    	$('#jsonData').hide();
+	    	$('#jsonEditor').show();
+	    });
+	    
 	});
 	
 </script>
@@ -72,10 +120,15 @@
 			</div>
 			<div id="right">
 				<div id="searchBox">
-					<input type="button" value="Save Job" id="saveBtn"></input>
+					<input type="button" value="Save Your Job" id="saveBtn"></input>
 				</div>
-				<div id="editor" class="json-editor"></div>
-				<input type="hidden" id="json"></input>
+				<div id="jsonBox">
+					<div style="width: 100%; height: 36px; line-height: 36px; text-align: left;"><span id="editBtn">Show Json</span></div>
+					<div id="jsonEditor" class="json-editor"></div>
+					<div id="jsonData">
+						<pre></pre>
+					</div>
+				</div>
 			</div>
 		</div>
 		<#include "foot.ftl">

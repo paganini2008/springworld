@@ -28,7 +28,7 @@ public interface JobDefinition {
 	}
 
 	default String getDescription() {
-		return "";
+		return null;
 	}
 
 	default int getRetries() {

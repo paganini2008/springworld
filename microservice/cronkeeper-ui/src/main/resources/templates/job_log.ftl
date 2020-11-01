@@ -1,4 +1,9 @@
 <#setting number_format="#">
+<style type="text/css">
+	#logBox {
+		height: 100%;
+	}
+</style>
 <script type="text/javascript">
 	$(function(){
 		

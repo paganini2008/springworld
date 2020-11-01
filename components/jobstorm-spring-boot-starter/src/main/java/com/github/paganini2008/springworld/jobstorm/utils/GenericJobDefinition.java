@@ -72,21 +72,66 @@ public class GenericJobDefinition implements JobDefinition {
 		return jobKey.getJobClassName();
 	}
 
+	@Override
+	public Trigger getTrigger() {
+		return trigger;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public int getRetries() {
+		return retries;
+	}
+
+	@Override
+	public int getWeight() {
+		return weight;
+	}
+
+	@Override
+	public long getTimeout() {
+		return timeout;
+	}
+
+	@Override
+	public String getEmail() {
+		return email;
+	}
+
+	@Override
+	public JobKey[] getDependentKeys() {
+		return dependentKeys;
+	}
+
+	@Override
+	public JobKey[] getSubKeys() {
+		return subKeys;
+	}
+
+	@Override
+	public float getCompletionRate() {
+		return completionRate;
+	}
+
 	@Accessors(chain = true)
 	@Getter
 	@Setter
 	public static class Builder {
 
 		private final JobKey jobKey;
-		private String description;
-		private String email;
+		private String description = "";
+		private String email = "";
 		private int retries;
 		private int weight = 100;
 		private long timeout = -1L;
 
 		private DependencyType dependencyType = DependencyType.SERIAL;
-		private JobKey[] dependentKeys;
-		private JobKey[] subKeys;
+		private JobKey[] dependentKeys = new JobKey[0];
+		private JobKey[] subKeys = new JobKey[0];
 		private float completionRate = -1F;
 
 		private Trigger trigger;

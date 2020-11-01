@@ -3,28 +3,29 @@
 <style style="text/css">
 	#pageULBox{
 		width: 100%;
-		height: 30px;
-		margin-top: 5px;
+		height: 60px;
+		clear: both;
+		background-color: #FCFCFC;
 	}
 
 	.pageUL {
 		float: right;
-		margin-right: 10px;
-		height: 30px;
-		width: auto;
 		display: inline-block;
+		margin-right: 10px;
+		height: 32px;
+		width: auto;
+		margin: 10px auto;
 	}
 	
 	.pageUL li {
 		list-style: none;
 		float: left;
 		display: inline-block;
-		line-height: 26px;
-		height: 26px;
+		line-height: 32px;
+		height: 32px;
 		width: auto;
 		text-align: center;
 		margin: 0px 3px;
-		float: left;
 	}
 	
 	.pageAction {
@@ -43,9 +44,9 @@
 <div id="pageULBox">
 	<ul class="pageUL">
 		  <li>
-		  		Current Records:&nbsp;<b>${page.results?size}</b>
-		  		Total Records:&nbsp;<b>${page.rows}</b>&nbsp;&nbsp;
-		  		Total Pages:&nbsp;<b>${page.totalPages}</b>
+		  		<b>Current Records:&nbsp;</b>${page.results?size}
+		  		<b>Total Records:&nbsp;</b>${page.rows}&nbsp;&nbsp;
+		  		<b>Total Pages:&nbsp;</b>${page.totalPages}
 		  </li>
 		  <li class="pageAction">
 		  		<a href="javascript:void(0);" onclick="javascript:goToPage(${page.firstPage})">First Page</a>&nbsp;|
@@ -77,7 +78,7 @@
 	       		<input type="text" value="${page.page}" id="pageNoValue" style="width:40px;padding-left: 3px;"/>
 	       </li>
 	       <li class="pageGo">
-	       		<input onclick="javascript:goToPage(-1)" type="button" value="Go" style="width: 50px; padding: 0px 10px;cursor: pointer;"/>
+	       		<input onclick="javascript:goToPage(-1)" type="button" value="Go" style="width: 60px; padding: 2px 10px;cursor: pointer;"/>
 	       </li>
 	       <#if display == 1>
 	       		<li class="pageShow"> <a <#if page.size == 10>class="hoverLink" </#if> href="javascript:void(0);" onclick="javascript:setPageSize(20);"><span>20 Rows</span></a></li>

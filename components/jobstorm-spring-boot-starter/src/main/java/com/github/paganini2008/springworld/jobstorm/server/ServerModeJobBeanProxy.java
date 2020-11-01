@@ -77,7 +77,7 @@ public class ServerModeJobBeanProxy implements Job {
 			log.error(e.getMessage(), e);
 		} catch (NoJobResourceException e) {
 			resetJobState();
-			log.info("Job: " + jobKey.toString() + " is not available now.");
+			log.warn("Job: " + jobKey.toString() + " is not available now.");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

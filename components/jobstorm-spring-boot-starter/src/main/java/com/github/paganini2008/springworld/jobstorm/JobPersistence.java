@@ -21,7 +21,7 @@ public interface JobPersistence {
 	}
 
 	default JobState finishJob(JobKey jobKey) throws Exception {
-		throw new UnsupportedOperationException("deleteJob");
+		throw new UnsupportedOperationException("finishJob");
 	}
 
 	default boolean hasJob(JobKey jobKey) throws Exception {

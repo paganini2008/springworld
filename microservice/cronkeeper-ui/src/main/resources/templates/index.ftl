@@ -3,35 +3,41 @@
 <style type="text/css">
 
     #searchBox{
-    	height: 36px;
+    	height: 60px;
     	width: 100%;
+    	clear: both;
     }
 
 	#tabBox {
-		height: calc(100% - 36px);
+		height: auto;
 		width: 100%;
+		position: relative;
+		bottom: 5px;
 	}
 	    
 	
 	#tabContent{
-		height: calc(100% - 110px);
+		height: auto;
 	}
 	
 	#saveBtn{
-		width: 160px;
-		height: 32px;
-		padding: 3px 10px;
+		width: calc(100% - 5px);
+		height: 36px;
+		line-height: 36px;
+		padding: 2px 10px;
 		cursor: pointer;
 		text-align: center;
 		font-weight: bold;
 		float: left;
 		display: inline-block;
+		margin: 10px auto;
 	}
 	    
 </style>
 <script type="text/javascript" src="${contextPath}/static/js/common.js"></script>
 <script type="text/javascript">
 	$(function(){
+	
 		$('#searchForm').submit(function(){
 			var obj = $(this);
 			var url = obj.attr('action');
@@ -42,6 +48,7 @@
 				data: obj.serialize(),
 				success: function(data){
 				    $('#tabBox').html(data);
+
 				}
 			});
 			return false;
@@ -70,9 +77,9 @@
 			</div>
 			<div id="right">
 				<div id="searchBox">
-					<form class="pageForm" id="searchForm" method="post" action="${contextPath}/job">
+					<form class="pageForm" id="searchForm" action="${contextPath}/job">
 						<input type="hidden" value="${(page.page)!}" name="page" id="pageNo"/>
-						<input type="button" value="Create or Update Job" id="saveBtn"></input>
+						<input type="button" value="Create Your Job" id="saveBtn"></input>
 					</form>
 				</div>
 				<div id="tabBox">

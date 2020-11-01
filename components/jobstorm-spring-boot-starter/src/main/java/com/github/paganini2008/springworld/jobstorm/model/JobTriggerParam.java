@@ -2,13 +2,12 @@ package com.github.paganini2008.springworld.jobstorm.model;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.paganini2008.springworld.jobstorm.SchedulingUnit;
 import com.github.paganini2008.springworld.jobstorm.TriggerType;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -20,7 +19,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@JsonInclude(value = Include.NON_NULL)
+@ToString
 public class JobTriggerParam {
 
 	private TriggerType triggerType;

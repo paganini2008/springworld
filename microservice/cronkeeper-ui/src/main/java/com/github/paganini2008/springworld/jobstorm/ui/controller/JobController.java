@@ -74,7 +74,7 @@ public class JobController {
 	@PostMapping("")
 	public String selectJobDetail(@SessionAttribute("currentClusterName") String clusterName,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@CookieValue(value = "DATA_LIST_SIZE", required = false, defaultValue = "20") int size, Model ui) throws Exception {
+			@CookieValue(value = "DATA_LIST_SIZE", required = false, defaultValue = "10") int size, Model ui) throws Exception {
 		PageQuery<JobDetail> pageQuery = jobManagerService.selectJobDetail(clusterName, page, size);
 		ui.addAttribute("page", PageBean.wrap(pageQuery));
 		return "job_list";
@@ -83,7 +83,7 @@ public class JobController {
 	@PostMapping("/trace")
 	public String selectJobTrace(@ModelAttribute JobTraceForm form,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@CookieValue(value = "DATA_LIST_SIZE", required = false, defaultValue = "20") int size, Model ui) throws Exception {
+			@CookieValue(value = "DATA_LIST_SIZE", required = false, defaultValue = "10") int size, Model ui) throws Exception {
 		PageQuery<JobTrace> pageQuery = jobManagerService.selectJobTrace(form, page, size);
 		ui.addAttribute("page", PageBean.wrap(pageQuery));
 		ui.addAttribute("jobKey", form.getJobKey());

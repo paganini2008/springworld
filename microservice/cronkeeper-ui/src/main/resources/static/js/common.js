@@ -7,7 +7,7 @@ $(function() {
 
 var TableUtils = {
 	rowColour : function() {
-		$('.tblCom tbody tr:odd').css('background-color', '#DEFFAC');
+		$('.tblCom tbody tr:odd').css('background-color', '#F0F0F0');
 	},
 
 	initialize : function(line) {
