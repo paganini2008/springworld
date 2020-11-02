@@ -13,6 +13,8 @@ import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * RedisCountDownLatch
@@ -21,6 +23,7 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
  *
  * @since 1.0
  */
+@Slf4j
 public class RedisCountDownLatch implements DistributedCountDownLatch {
 
 	private static final String DEFAULT_PREFIX_LATCH_NAME = "countdown-latch:";
@@ -40,6 +43,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 
 	public void countdown(int permits, Object attachment) {
 		for (int i = 0; i < permits; i++) {
+			ThreadUtils.randomSleep(100, 1000);
 			redisMessageSender.sendMessage(latchName, attachment);
 		}
 	}
@@ -53,6 +57,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 		latch = new Latch(permits);
 		Referee referee = new Referee(latchName, latch);
 		redisMessageSender.subscribeChannel(beanName, referee);
+		log.trace("Wait for lock releasing of name: {}", latchName);
 		try {
 			latch.doWait();
 		} catch (InterruptedException e) {
@@ -75,6 +80,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 		latch = new Latch(permits);
 		Referee referee = new Referee(latchName, latch);
 		redisMessageSender.subscribeChannel(beanName, referee);
+		log.trace("Wait for lock releasing of name: {}", latchName);
 		try {
 			latch.doWait(timeout, timeUnit);
 		} catch (InterruptedException e) {
@@ -120,16 +126,17 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 				currentThread.interrupt();
 				throw e;
 			}
-			long elapsed = System.currentTimeMillis() - now;
 			ThreadUtils.randomSleep(100, 500);
+			long elapsed = System.currentTimeMillis() - now;
 			long timeoutInMs;
 			if (elapsed > (timeoutInMs = DateUtils.convertToMillis(timeout, timeUnit))) {
 				throw new TimeoutException("Timeout: " + timeoutInMs);
 			}
 		}
 
-		public void doCountDown() {
+		public long doCountDown() {
 			latch.countDown();
+			return latch.getCount();
 		}
 
 		public void doCancel() {
@@ -165,7 +172,8 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 		@Override
 		public void onMessage(String channel, Object message) throws Exception {
 			messages.add(message);
-			latch.doCountDown();
+			long count = latch.doCountDown();
+			log.trace("Countdown lock of name: {}, remaining: {}", latchName, count);
 		}
 
 		@Override
@@ -177,6 +185,10 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 			return messages.toArray();
 		}
 
+	}
+
+	public String toString() {
+		return "RedisCountDownLatch (latchName=" + latchName + ")";
 	}
 
 }

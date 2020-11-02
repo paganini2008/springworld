@@ -16,7 +16,7 @@
     <modules>
 		<module>blogonline</module>
 		<module>webcrawler</module>
-		<module>cronkeeper-ui</module>
+		<module>jobsoup-ui</module>
     </modules>
 
 	
