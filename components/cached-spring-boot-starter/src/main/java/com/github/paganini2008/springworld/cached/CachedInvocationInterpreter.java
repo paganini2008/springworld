@@ -29,7 +29,7 @@ public class CachedInvocationInterpreter {
 	@Pointcut("execution(public * *(..))")
 	public void signature() {
 	}
-	
+
 	@Around("signature() && @annotation(com.github.paganini2008.springworld.cached.Cached)")
 	public Object arround(ProceedingJoinPoint pjp) throws Throwable {
 		MethodSignature signature = (MethodSignature) pjp.getSignature();
@@ -55,7 +55,7 @@ public class CachedInvocationInterpreter {
 			String methodName = signature.getMethod().getName();
 			keyRepr.append(".").append(methodName);
 			Object[] arguments = pjp.getArgs();
-			keyRepr.append("(").append(ArrayUtils.join(arguments, ",")).append(")");
+			keyRepr.append("(").append(ArrayUtils.join(arguments, ",", false)).append(")");
 			key = keyRepr.toString();
 		}
 		Object result = cache.get(key);

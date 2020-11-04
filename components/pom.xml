@@ -5,13 +5,12 @@
     <parent>
 		<artifactId>springworld</artifactId>
 		<groupId>com.github.paganini2008</groupId>
-		<version>2.0-RC4</version>
+		<version>2.0-RC5</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	
     <artifactId>components</artifactId>
 	<groupId>com.github.paganini2008.springworld</groupId>
-	<version>2.0-RC4</version>
 	
     <modules>
 		<module>fastjpa-spring-boot-starter</module>

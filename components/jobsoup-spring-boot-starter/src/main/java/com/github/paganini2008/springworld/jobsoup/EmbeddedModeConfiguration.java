@@ -35,7 +35,6 @@ import com.github.paganini2008.springworld.jobsoup.server.ConsumerModeJobExecuto
 import com.github.paganini2008.springworld.jobsoup.utils.JavaMailService;
 
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -45,19 +44,10 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
 @ConditionalOnWebApplication
 @Configuration
 @Import({ JobAdminController.class })
 public class EmbeddedModeConfiguration {
-
-	public EmbeddedModeConfiguration() {
-		log.info("<<<                                                  >>>");
-		log.info("<<<                Crontab v2.0-RC4                  >>>");
-		log.info("<<<              Current Job Deploy Mode             >>>");
-		log.info("<<<                 [Embedded Mode]                  >>>");
-		log.info("<<<                                                  >>>");
-	}
 
 	@Configuration
 	@ConditionalOnProperty(name = "jobsoup.scheduler.running.mode", havingValue = "loadbalance", matchIfMissing = true)

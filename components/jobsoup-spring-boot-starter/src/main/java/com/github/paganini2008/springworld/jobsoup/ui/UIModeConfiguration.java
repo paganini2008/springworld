@@ -26,14 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class UIModeConfiguration {
 
-	public UIModeConfiguration() {
-		log.info("<<<                                                  >>>");
-		log.info("<<<                Crontab v2.0-RC4                  >>>");
-		log.info("<<<              Current Job Deploy Mode             >>>");
-		log.info("<<<                 [UI Mode]                        >>>");
-		log.info("<<<                                                  >>>");
-	}
-
 	@Bean
 	public ClusterRestTemplate clusterRestTemplate() {
 		return new UIModeClusterRestTemplate();

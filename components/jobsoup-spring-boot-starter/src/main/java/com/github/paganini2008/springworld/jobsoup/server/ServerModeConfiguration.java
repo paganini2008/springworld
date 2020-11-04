@@ -58,6 +58,7 @@ import com.github.paganini2008.springworld.jobsoup.LifeCycleListenerContainer;
 import com.github.paganini2008.springworld.jobsoup.LoadBalancedJobBeanProcessor;
 import com.github.paganini2008.springworld.jobsoup.LogManager;
 import com.github.paganini2008.springworld.jobsoup.MailContentSource;
+import com.github.paganini2008.springworld.jobsoup.OnServerModeCondition.ServerMode;
 import com.github.paganini2008.springworld.jobsoup.PrintableMailContentSource;
 import com.github.paganini2008.springworld.jobsoup.RetryPolicy;
 import com.github.paganini2008.springworld.jobsoup.ScheduleAdmin;
@@ -72,7 +73,6 @@ import com.github.paganini2008.springworld.jobsoup.SpringScheduler;
 import com.github.paganini2008.springworld.jobsoup.StopWatch;
 import com.github.paganini2008.springworld.jobsoup.TimestampTraceIdGenerator;
 import com.github.paganini2008.springworld.jobsoup.TraceIdGenerator;
-import com.github.paganini2008.springworld.jobsoup.OnServerModeCondition.ServerMode;
 import com.github.paganini2008.springworld.jobsoup.cron4j.Cron4jScheduler;
 import com.github.paganini2008.springworld.jobsoup.utils.JavaMailService;
 
@@ -90,14 +90,6 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnWebApplication
 @Configuration
 public class ServerModeConfiguration {
-
-	public ServerModeConfiguration() {
-		log.info("<<<                                                  >>>");
-		log.info("<<<                Crontab v2.0-RC4                  >>>");
-		log.info("<<<              Current Job Deploy Mode             >>>");
-		log.info("<<<                 [Server Mode]                    >>>");
-		log.info("<<<                                                  >>>");
-	}
 
 	@Configuration
 	@ConditionalOnServerMode(ServerMode.PRODUCER)

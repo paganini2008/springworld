@@ -325,7 +325,7 @@ public class CrawlerHandler implements Handler {
 			boolean update) {
 		String fullContent = sourceId + "$" + refer + "$" + href + "$" + version;
 		if (update || !bloomFilter.mightContain(fullContent)) {
-			Tuple tuple = Tuple.newTuple();
+			Tuple tuple = Tuple.newOne();
 			tuple.setField("action", update ? "update" : "crawl");
 			tuple.setField("sourceId", sourceId);
 			tuple.setField("refer", refer);
@@ -337,7 +337,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void sendIndex(long sourceId, long resourceId) {
-		Tuple tuple = Tuple.newTuple();
+		Tuple tuple = Tuple.newOne();
 		tuple.setField("action", "index");
 		tuple.setField("sourceId", sourceId);
 		tuple.setField("resourceId", resourceId);
@@ -345,7 +345,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void postHandle(long sourceId, long resourceId) {
-		Tuple tuple = Tuple.newTuple();
+		Tuple tuple = Tuple.newOne();
 		tuple.setField("action", "customize");
 		tuple.setField("sourceId", sourceId);
 		tuple.setField("resourceId", resourceId);

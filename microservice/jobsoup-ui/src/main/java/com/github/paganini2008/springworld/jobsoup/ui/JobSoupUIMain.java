@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.github.paganini2008.devtools.io.FileUtils;
+import com.github.paganini2008.springworld.jobsoup.DeployMode;
+import com.github.paganini2008.springworld.jobsoup.EnableJobSoupApi;
 
 /**
  * 
@@ -16,8 +18,9 @@ import com.github.paganini2008.devtools.io.FileUtils;
  *
  * @since 1.0
  */
+@EnableJobSoupApi(DeployMode.UI)
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.github.paganini2008.springworld.jobstorm.ui" })
+@ComponentScan(basePackages = { "com.github.paganini2008.springworld.jobsoup.ui" })
 public class JobSoupUIMain {
 
 	static {
