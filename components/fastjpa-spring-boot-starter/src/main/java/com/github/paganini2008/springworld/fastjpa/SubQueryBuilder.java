@@ -8,8 +8,8 @@ import javax.persistence.criteria.Subquery;
  * SubQueryBuilder
  * 
  * @author Fred Feng
- * 
- * 
+ *
+ * @since 1.0
  */
 public interface SubQueryBuilder<T> {
 

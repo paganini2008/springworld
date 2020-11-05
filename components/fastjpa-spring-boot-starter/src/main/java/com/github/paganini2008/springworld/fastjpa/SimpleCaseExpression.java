@@ -12,7 +12,8 @@ import javax.persistence.criteria.Expression;
  * SimpleCaseExpression
  * 
  * @author Fred Feng
- * 
+ *
+ * @since 1.0
  */
 public class SimpleCaseExpression<T, R> implements Field<R> {
 

@@ -7,10 +7,11 @@ import javax.persistence.criteria.Selection;
 
 /**
  * 
- * AbstractTransformer 
- *
+ * AbstractTransformer
+ * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 public abstract class AbstractTransformer<E, T> implements Transformer<E, T> {
 
@@ -19,7 +20,7 @@ public abstract class AbstractTransformer<E, T> implements Transformer<E, T> {
 		for (Selection<?> selection : selections) {
 			setAttributeValue(model, selection.getAlias(), selection.getJavaType(), tuple, object);
 		}
-		afterTransfer(model, tuple, object);
+		afterTransferring(model, tuple, object);
 		return object;
 	}
 
@@ -27,7 +28,7 @@ public abstract class AbstractTransformer<E, T> implements Transformer<E, T> {
 
 	protected abstract T createObject(int columns);
 
-	protected void afterTransfer(Model<E> model, Tuple tuple, T object) {
+	protected void afterTransferring(Model<E> model, Tuple tuple, T object) {
 	}
 
 }

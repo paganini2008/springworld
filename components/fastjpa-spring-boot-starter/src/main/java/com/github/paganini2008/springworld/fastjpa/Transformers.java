@@ -11,11 +11,10 @@ import com.github.paganini2008.springworld.fastjpa.support.BeanTransformer;
 /**
  * 
  * Transformers
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 public abstract class Transformers {
 
@@ -33,6 +32,11 @@ public abstract class Transformers {
 
 	public static <E, T> Transformer<E, T> asBean(Class<T> resultClass, String... includedProperties) {
 		return new BeanTransformer<E, T>(resultClass, includedProperties);
+	}
+
+	public static <E, T> Transformer<E, T> asBean(Class<T> resultClass, String[] includedProperties,
+			TransformerPostHandler<T> postHandler) {
+		return new BeanTransformer<E, T>(resultClass, includedProperties, postHandler);
 	}
 
 	/**

@@ -10,9 +10,10 @@ import com.github.paganini2008.devtools.beans.PropertyUtils;
 /**
  * 
  * SimpleTransformerSupport
- *
+ * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 public abstract class SimpleTransformerSupport<E, T> extends AbstractTransformer<E, T> {
 

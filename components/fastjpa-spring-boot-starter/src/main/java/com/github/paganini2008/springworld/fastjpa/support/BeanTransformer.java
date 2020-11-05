@@ -18,23 +18,30 @@ import com.github.paganini2008.devtools.reflection.FieldUtils;
 import com.github.paganini2008.springworld.fastjpa.AbstractTransformer;
 import com.github.paganini2008.springworld.fastjpa.JpaAttributeDetail;
 import com.github.paganini2008.springworld.fastjpa.Model;
+import com.github.paganini2008.springworld.fastjpa.TransformerPostHandler;
 
 /**
  * 
  * BeanTransformer
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 public class BeanTransformer<E, T> extends AbstractTransformer<E, T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeanTransformer.class);
 	private final BeanReflection<T> beanReflection;
+	private TransformerPostHandler<T> postHandler;
 
 	public BeanTransformer(Class<T> resultClass, String... includedProperties) {
 		this.beanReflection = new BeanReflection<T>(resultClass, includedProperties);
+		initialize(resultClass);
+	}
+
+	public BeanTransformer(Class<T> resultClass, String[] includedProperties, TransformerPostHandler<T> postHandler) {
+		this.beanReflection = new BeanReflection<T>(resultClass, includedProperties);
+		this.postHandler = postHandler;
 		initialize(resultClass);
 	}
 
@@ -59,6 +66,7 @@ public class BeanTransformer<E, T> extends AbstractTransformer<E, T> {
 		}
 	}
 
+	@Override
 	protected void setAttributeValue(Model<E> model, String attributeName, Class<?> javaType, Tuple tuple, T object) {
 		final Object result = tuple.get(attributeName);
 		if (model.isManaged(javaType)) {
@@ -97,7 +105,16 @@ public class BeanTransformer<E, T> extends AbstractTransformer<E, T> {
 		}
 	}
 
+	@Override
 	protected T createObject(int columns) {
 		return beanReflection.instantiateBean();
 	}
+
+	@Override
+	protected final void afterTransferring(Model<E> model, Tuple tuple, T object) {
+		if (postHandler != null) {
+			postHandler.handleAfterTransferring(tuple, object);
+		}
+	}
+
 }
