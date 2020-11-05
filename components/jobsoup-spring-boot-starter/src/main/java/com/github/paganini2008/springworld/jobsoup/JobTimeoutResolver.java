@@ -64,7 +64,12 @@ public class JobTimeoutResolver implements ApplicationListener<ApplicationCluste
 		try {
 			for (JobKey jobKey : jobKeys) {
 				jobManager.setJobState(jobKey, JobState.NOT_SCHEDULED);
-				log.info("Unfreeze job: {}", jobKey);
+				AtomicIntegerSequence sequence = getTimeoutInterval(jobKey);
+				int interval = sequence.get();
+				if (interval > 1) {
+					interval = sequence.decrementAndGet();
+				}
+				log.info("Unfreeze job '{}', interval={}", jobKey, interval);
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -78,7 +83,7 @@ public class JobTimeoutResolver implements ApplicationListener<ApplicationCluste
 				scheduleManager.unscheduleJob(jobKey);
 				jobManager.setJobState(jobKey, JobState.FROZEN);
 				int interval = getTimeoutInterval(jobKey).getAndIncrement();
-				log.info("Freeze job '{}', times={}", jobKey, interval);
+				log.info("Freeze job '{}', interval={}", jobKey, interval);
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -97,7 +102,7 @@ public class JobTimeoutResolver implements ApplicationListener<ApplicationCluste
 		try {
 			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_RUNTIME_BY_JOB_STATE,
-					new Object[] { JobState.RUNNING });
+					new Object[] { JobState.RUNNING.getValue() });
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				for (Tuple tuple : dataList) {
 					JobDetail jobDetail = tuple.toBean(JobDetail.class);
@@ -122,7 +127,7 @@ public class JobTimeoutResolver implements ApplicationListener<ApplicationCluste
 		try {
 			connection = connectionFactory.getConnection();
 			List<Tuple> dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_RUNTIME_BY_JOB_STATE,
-					new Object[] { JobState.FROZEN });
+					new Object[] { JobState.FROZEN.getValue() });
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				for (Tuple tuple : dataList) {
 					JobKey jobKey = tuple.toBean(JobKey.class);

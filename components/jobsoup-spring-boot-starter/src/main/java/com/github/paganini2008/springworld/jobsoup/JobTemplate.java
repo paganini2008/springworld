@@ -46,6 +46,7 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 		final Date startDate = new Date();
 		final JobKey jobKey = JobKey.of(job);
 		final long traceId = getTraceId(jobKey);
+
 		RunningState runningState = RunningState.SKIPPED;
 		Object result = null;
 		Throwable reason = null;
@@ -54,9 +55,10 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 			if (isScheduling(jobKey, job)) {
 				beforeRun(traceId, jobKey, job, attachment, startDate);
 				if (job.shouldRun(jobKey, log)) {
-					Object[] answer = doRun(jobKey, job, attachment, retries, log);
+					Object[] answer = doRun(traceId, jobKey, job, attachment, retries, log);
 					runningState = (RunningState) answer[0];
 					result = answer[1];
+					reason = (Throwable) answer[2];
 				}
 			}
 		} catch (JobTerminationException e) {
@@ -68,7 +70,7 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 			runningState = RunningState.FAILED;
 			throw ExceptionUtils.wrapExeception("An exception occured during job running.", e);
 		} finally {
-			printError(reason, log);
+			handleError(reason, log);
 			afterRun(traceId, jobKey, job, attachment, startDate, runningState, result, reason, retries);
 
 			if ((runningState == RunningState.FAILED || runningState == RunningState.FINISHED) && StringUtils.isNotBlank(job.getEmail())) {
@@ -79,11 +81,9 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 
 	protected abstract long getTraceId(JobKey jobKey);
 
-	protected Object[] doRun(JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
+	protected Object[] doRun(long traceId, JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
 		if (retries > 0) {
-			if (log.isTraceEnabled()) {
-				log.trace("Retry to run job '{}' on {} times again.", jobKey, retries);
-			}
+			log.info("Retry to run job '{}' on {} times again.", jobKey, retries);
 		}
 
 		job.prepare(jobKey, log);
@@ -116,10 +116,13 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 					finished = true;
 					throw (JobTerminationException) real;
 				} else {
-					reason = e;
-					success = false;
+					reason = real;
 				}
+			} else {
+				reason = e;
 			}
+			success = false;
+
 		} catch (Throwable e) {
 			reason = e;
 			success = false;
@@ -141,15 +144,14 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 			if (success) {
 				job.onSuccess(jobKey, result, log);
 			} else {
-				printError(reason, log);
-
 				runningState = finished ? RunningState.FINISHED : RunningState.FAILED;
+				handleError(reason, log);
 				job.onFailure(jobKey, reason, log);
 			}
 
 			notifyDependants(jobKey, job, new JobPeerResult(jobKey, attachment, runningState, result));
 		}
-		return new Object[] { runningState, result };
+		return new Object[] { runningState, result, reason };
 	}
 
 	protected void beforeRun(long traceId, JobKey jobKey, Job job, Object attachment, Date startDate) {
@@ -183,7 +185,7 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 	protected void cancel(JobKey jobKey, Job job, RunningState runningState, String msg, Throwable reason) {
 	}
 
-	protected void printError(Throwable e, Logger log) {
+	protected void handleError(Throwable e, Logger log) {
 		if (e != null) {
 			log.error(e.getMessage(), e);
 		}

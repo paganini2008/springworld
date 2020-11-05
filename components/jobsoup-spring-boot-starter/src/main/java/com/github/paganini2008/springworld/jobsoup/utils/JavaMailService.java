@@ -37,7 +37,7 @@ public class JavaMailService {
 	@Value("${jobsoup.mail.username}")
 	private String defaultMailSender;
 
-	@Value("${jobsoup.mail.default.subject:Job Email Warning}")
+	@Value("${jobsoup.mail.default.subject:JobSoup Email Warning}")
 	private String defaultMailSubject;
 
 	@Value("${jobsoup.mail.default.recipients:}")
