@@ -108,10 +108,10 @@ public class JobParallelizationAspect implements Aspect {
 	}
 
 	private boolean approveIfJobCompleted(Job targetJob, JobPeerResult jobResult) {
-		if (ArrayUtils.isNotEmpty(targetJob.getDependencyHandlers())) {
+		if (ArrayUtils.isNotEmpty(targetJob.getDependencyPostHandlers())) {
 			boolean result = true;
-			for (Class<?> handlerClass : targetJob.getDependencyHandlers()) {
-				DependencyHandler handler = (DependencyHandler) ApplicationContextUtils.getBeanIfAbsent(handlerClass);
+			for (Class<?> handlerClass : targetJob.getDependencyPostHandlers()) {
+				DependencyPostHandler handler = (DependencyPostHandler) ApplicationContextUtils.getBeanIfAbsent(handlerClass);
 				result &= handler.approve(jobResult.getJobKey(), jobResult.getRunningState(), jobResult.getAttachment(),
 						jobResult.getResult());
 			}

@@ -116,10 +116,10 @@ public class SerialDependencySchedulerImpl extends Observable implements SerialD
 	}
 
 	private boolean approveIfJobCompleted(Job targetJob, JobPeerResult jobResult) {
-		if (ArrayUtils.isNotEmpty(targetJob.getDependencyHandlers())) {
+		if (ArrayUtils.isNotEmpty(targetJob.getDependencyPostHandlers())) {
 			boolean result = true;
-			for (Class<?> requiredType : targetJob.getDependencyHandlers()) {
-				DependencyHandler handler = (DependencyHandler) ApplicationContextUtils.getBeanIfAbsent(requiredType);
+			for (Class<?> requiredType : targetJob.getDependencyPostHandlers()) {
+				DependencyPostHandler handler = (DependencyPostHandler) ApplicationContextUtils.getBeanIfAbsent(requiredType);
 				result &= handler.approve(jobResult.getJobKey(), jobResult.getRunningState(), jobResult.getAttachment(),
 						jobResult.getResult());
 			}

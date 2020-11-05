@@ -31,7 +31,7 @@ public interface NotManagedJob {
 		return null;
 	}
 	
-	default Class<? extends DependencyHandler>[] getDependencyHandlers(){
+	default Class<? extends DependencyPostHandler>[] getDependencyPostHandlers(){
 		return null;
 	}
 
