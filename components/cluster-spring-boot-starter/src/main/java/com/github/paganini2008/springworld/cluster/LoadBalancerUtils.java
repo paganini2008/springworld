@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster.multicast;
+package com.github.paganini2008.springworld.cluster;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -8,14 +8,22 @@ import com.github.paganini2008.devtools.multithreads.AtomicIntegerSequence;
 
 /**
  * 
- * PreparedLoadBalancer
+ * LoadBalancerUtils
  *
  * @author Fred Feng
  * @version 1.0
  */
-public abstract class PreparedLoadBalancer {
+public abstract class LoadBalancerUtils {
 
-	public static class RoundRobinLoadBalance implements LoadBalance {
+	/**
+	 * 
+	 * RoundRobinLoadBalancer
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	public static class RoundRobinLoadBalancer implements LoadBalancer<String> {
 
 		private final AtomicIntegerSequence counter = new AtomicIntegerSequence();
 
@@ -28,7 +36,15 @@ public abstract class PreparedLoadBalancer {
 
 	}
 
-	public static class RandomLoadBalance implements LoadBalance {
+	/**
+	 * 
+	 * RandomLoadBalancer
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	public static class RandomLoadBalancer implements LoadBalancer<String> {
 
 		public String select(Object message, List<String> channels) {
 			if (CollectionUtils.isEmpty(channels)) {
@@ -39,7 +55,15 @@ public abstract class PreparedLoadBalancer {
 
 	}
 
-	public static class HashLoadBalance implements LoadBalance {
+	/**
+	 * 
+	 * HashLoadBalancer
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	public static class HashLoadBalancer implements LoadBalancer<String> {
 
 		public String select(Object message, List<String> channels) {
 			if (CollectionUtils.isEmpty(channels)) {

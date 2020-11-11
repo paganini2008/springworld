@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.ObjectUtils;
-import com.github.paganini2008.devtools.TableArray;
+import com.github.paganini2008.devtools.TableView;
 import com.github.paganini2008.devtools.date.DateUtils;
 
 /**
@@ -22,7 +22,7 @@ public class PrintableMailContentSource implements MailContentSource {
 		StringBuilder html = new StringBuilder();
 		html.append("<html lang=\"en\"><body>");
 		html.append("<h5>Dear All: </h5>");
-		TableArray tableArray = new TableArray(9, 2);
+		TableView tableArray = new TableView(9, 2);
 		tableArray.setWidth(0, 20).setWidth(1, 80);
 		tableArray.setValueOnLeft(0, 0, "[job runtime info]: ", 0);
 		tableArray.setValueOnRight(1, 0, "[cluster name]: ", 0);
@@ -48,7 +48,7 @@ public class PrintableMailContentSource implements MailContentSource {
 		if (reason != null) {
 			html.append("<br/>");
 			String[] thrownArray = ExceptionUtils.toArray(reason);
-			tableArray = new TableArray(thrownArray.length + 1, 1);
+			tableArray = new TableView(thrownArray.length + 1, 1);
 			tableArray.setWidth(0, 100);
 			tableArray.setValueOnLeft(0, 0, "[throwable]: ", 0);
 			for (int i = 0; i < thrownArray.length; i++) {

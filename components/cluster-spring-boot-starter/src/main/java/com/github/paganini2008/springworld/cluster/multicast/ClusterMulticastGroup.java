@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.StringUtils;
@@ -24,6 +25,7 @@ import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.cluster.LoadBalancer;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.Getter;
@@ -46,8 +48,9 @@ public class ClusterMulticastGroup {
 	@Autowired
 	private RedisMessageSender redisMessageSender;
 
+	@Qualifier("multicastLoadBalancer")
 	@Autowired
-	private LoadBalance loadBalance;
+	private LoadBalancer<String> loadBalancer;
 
 	@Autowired
 	private InstanceId instanceId;
@@ -125,7 +128,7 @@ public class ClusterMulticastGroup {
 
 	public void unicast(String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		String channel = loadBalance.select(message, allChannels);
+		String channel = loadBalancer.select(message, allChannels);
 		if (StringUtils.isNotBlank(channel)) {
 			doSendMessage(channel, topic, message, timeout);
 		}
@@ -138,7 +141,7 @@ public class ClusterMulticastGroup {
 	public void unicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
 		if (groupChannels.containsKey(group)) {
-			String channel = loadBalance.select(message, groupChannels.get(group));
+			String channel = loadBalancer.select(message, groupChannels.get(group));
 			if (StringUtils.isNotBlank(channel)) {
 				doSendMessage(channel, topic, message, timeout);
 			}

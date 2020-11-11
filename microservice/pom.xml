@@ -14,6 +14,7 @@
 	
     <modules>
 		<module>jobsoup-ui</module>
+		<module>jobsoup-remote</module>
     </modules>
 
 	

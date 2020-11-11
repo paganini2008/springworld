@@ -56,10 +56,10 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		if (redisTemplate.hasKey(key) && redisTemplate.getExpire(key) < 0) {
 			redisTemplate.delete(key);
 		}
-		final ApplicationInfo myInfo = instanceId.getApplicationInfo();
-		redisTemplate.opsForList().leftPush(key, myInfo);
+		final ApplicationInfo selfInfo = instanceId.getApplicationInfo();
+		redisTemplate.opsForList().leftPush(key, selfInfo);
 		ApplicationInfo leaderInfo;
-		if (myInfo.equals(leaderInfo = (ApplicationInfo) redisTemplate.opsForList().index(key, -1))) {
+		if (selfInfo.equals(leaderInfo = (ApplicationInfo) redisTemplate.opsForList().index(key, -1))) {
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
 			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", clusterName,
 					ApplicationClusterNewLeaderEvent.class.getName());
@@ -80,7 +80,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 			if (info.equals(leaderInfo)) {
 				info.setLeader(true);
 				redisTemplate.opsForList().set(key, i, info);
-			} else if (info.equals(myInfo)) {
+			} else if (info.equals(selfInfo)) {
 				info.setLeaderInfo(leaderInfo);
 				redisTemplate.opsForList().set(key, i, info);
 			}
@@ -89,8 +89,8 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		if (instanceId.isLeader()) {
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
 		}
-		
-		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext));
+
+		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));
 	}
 
 	@Override

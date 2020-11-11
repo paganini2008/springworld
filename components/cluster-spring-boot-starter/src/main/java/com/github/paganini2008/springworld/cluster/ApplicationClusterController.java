@@ -34,6 +34,11 @@ public class ApplicationClusterController {
 	@Autowired
 	private InstanceId instanceId;
 
+	@GetMapping("/ping")
+	public ResponseEntity<String> ping() {
+		return ResponseEntity.ok("pong");
+	}
+
 	@GetMapping("/info")
 	public ResponseEntity<ApplicationInfo[]> info() {
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;

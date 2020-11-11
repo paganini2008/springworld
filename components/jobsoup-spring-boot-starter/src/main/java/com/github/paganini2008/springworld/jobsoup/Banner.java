@@ -2,7 +2,7 @@ package com.github.paganini2008.springworld.jobsoup;
 
 import org.slf4j.Logger;
 
-import com.github.paganini2008.devtools.TableArray;
+import com.github.paganini2008.devtools.TableView;
 
 /**
  * 
@@ -21,7 +21,7 @@ public abstract class Banner {
 	public static final String PRODUCT_DESCRIPTION = "A light job schedule framework and workflow tools writen in Java";
 
 	public static void printBanner(String deployMode, Logger logger) {
-		TableArray tableArray = new TableArray(6, 2);
+		TableView tableArray = new TableView(6, 2);
 		tableArray.setWidth(0, 30);
 		tableArray.setWidth(1, 70);
 		tableArray.setValueOnRight(1, 0, "[my name]: ", 0);

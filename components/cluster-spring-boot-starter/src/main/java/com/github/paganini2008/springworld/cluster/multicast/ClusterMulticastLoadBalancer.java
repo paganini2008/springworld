@@ -5,22 +5,23 @@ import java.util.List;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.springworld.cluster.LoadBalancer;
 import com.github.paganini2008.springworld.reditools.common.RedisAtomicLongSequence;
 
 /**
  * 
- * CachedRoundRobinLoadBalance
+ * ClusterMulticastLoadBalancer
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class CachedRoundRobinLoadBalance implements LoadBalance {
+public class ClusterMulticastLoadBalancer implements LoadBalancer<String> {
 
 	private final RedisAtomicLongSequence counter;
 
-	public CachedRoundRobinLoadBalance(String key, RedisConnectionFactory connectionFactory) {
-		this.counter = new RedisAtomicLongSequence(key, connectionFactory);
+	public ClusterMulticastLoadBalancer(String name, RedisConnectionFactory connectionFactory) {
+		this.counter = new RedisAtomicLongSequence(name, connectionFactory);
 	}
 
 	@Override
