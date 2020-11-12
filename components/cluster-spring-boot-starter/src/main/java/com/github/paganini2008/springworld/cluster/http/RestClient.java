@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -19,12 +19,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface RestClient {
 
-	String provider() default "";
+	String provider();
 
 	int retries() default 0;
 
 	int timeout() default -1;
 
-	Class<?> fallback();
+	Class<?> fallback() default Void.class;
 
 }

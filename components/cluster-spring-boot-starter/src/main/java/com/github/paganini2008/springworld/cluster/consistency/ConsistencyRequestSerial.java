@@ -29,7 +29,7 @@ public class ConsistencyRequestSerial {
 	private static final String CONSISTENCY_SERIAL_PATTERN = "%s:consistency:serial:%s";
 	private final Map<String, RedisAtomicLong> serials = new ConcurrentHashMap<String, RedisAtomicLong>();
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired

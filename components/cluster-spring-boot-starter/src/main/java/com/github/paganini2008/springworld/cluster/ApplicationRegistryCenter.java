@@ -8,10 +8,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +25,11 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ApplicationRegistryCenter implements ApplicationListener<ApplicationClusterRefreshedEvent> {
+public class ApplicationRegistryCenter implements ClusterStateChangeListener {
 
 	private final Map<String, List<ApplicationInfo>> appInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
@@ -47,19 +47,24 @@ public class ApplicationRegistryCenter implements ApplicationListener<Applicatio
 	}
 
 	@Override
-	public void onApplicationEvent(ApplicationClusterRefreshedEvent event) {
-		this.leaderInfo = event.getLeaderInfo();
-		this.appInfoCache.clear();
-		final String namespace = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
-		List<Object> dataList = redisTemplate.opsForList().range(namespace, 0, -1);
-		ApplicationInfo appInfo;
-		for (Object data : dataList) {
-			appInfo = (ApplicationInfo) data;
-			MapUtils.get(appInfoCache, appInfo.getApplicationName(), () -> {
-				return new CopyOnWriteArrayList<ApplicationInfo>();
-			}).add(appInfo);
+	public void onActive(ApplicationInfo applicationInfo) {
+		String applicationName = applicationInfo.getApplicationName();
+		List<ApplicationInfo> infoList = MapUtils.get(appInfoCache, applicationName, () -> {
+			return new CopyOnWriteArrayList<ApplicationInfo>();
+		});
+		infoList.add(applicationInfo);
+		// printSelf();
+		System.out.println("appName: " + applicationName + " 加入");
+	}
+
+	@Override
+	public void onInactive(ApplicationInfo applicationInfo) {
+		String applicationName = applicationInfo.getApplicationName();
+		List<ApplicationInfo> infoList = appInfoCache.get(applicationName);
+		if (infoList != null) {
+			infoList.remove(applicationInfo);
 		}
-		printSelf();
+		System.out.println("appName: " + applicationName + " 离开");
 	}
 
 	public void printSelf() {

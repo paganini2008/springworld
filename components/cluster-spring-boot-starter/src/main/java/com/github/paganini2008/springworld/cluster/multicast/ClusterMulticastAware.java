@@ -19,7 +19,7 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
  */
 public class ClusterMulticastAware implements ApplicationListener<ContextRefreshedEvent> {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired

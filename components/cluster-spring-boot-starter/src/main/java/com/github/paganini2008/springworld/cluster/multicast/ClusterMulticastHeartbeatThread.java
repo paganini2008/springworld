@@ -30,7 +30,7 @@ public class ClusterMulticastHeartbeatThread implements Executable {
 	@Value("${spring.application.cluster.member.lifespanTtl:5}")
 	private int lifespanTtl;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired

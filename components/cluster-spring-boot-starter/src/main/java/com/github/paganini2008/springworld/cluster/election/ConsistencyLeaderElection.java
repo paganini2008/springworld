@@ -36,7 +36,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 
 	private ApplicationContext applicationContext;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Value("${spring.application.cluster.leader.timeout:5}")

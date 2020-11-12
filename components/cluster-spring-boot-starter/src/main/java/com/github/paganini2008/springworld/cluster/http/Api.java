@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 
 /**
  * 
- * Feature
+ * Api
  * 
  * @author Fred Feng
  *
@@ -21,7 +21,7 @@ import org.springframework.http.MediaType;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Feature {
+public @interface Api {
 
 	String path();
 

@@ -27,7 +27,7 @@ public class CachedDelayQueue implements DelayQueue {
 	@Value("${spring.application.cluster.pool.pending-queue.maxSize:-1}")
 	private int queueMaxSize;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	public void offer(Invocation invocation) {

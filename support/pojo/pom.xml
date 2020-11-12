@@ -20,12 +20,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.github.paganini2008.springworld</groupId>
-			<artifactId>fastjpa-spring-boot-starter</artifactId>
-			<version>1.0</version>
-		</dependency>
-
-		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>${springfox-swagger.version}</version>

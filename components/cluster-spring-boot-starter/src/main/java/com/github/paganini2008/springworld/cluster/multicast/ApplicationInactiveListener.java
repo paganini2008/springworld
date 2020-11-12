@@ -29,7 +29,7 @@ public class ApplicationInactiveListener implements RedisMessageHandler {
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Override

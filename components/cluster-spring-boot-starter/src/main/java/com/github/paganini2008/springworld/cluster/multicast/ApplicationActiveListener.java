@@ -18,7 +18,7 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender
  */
 public class ApplicationActiveListener implements RedisMessageHandler {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired

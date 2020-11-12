@@ -44,7 +44,7 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 	@Autowired
 	private InstanceId instanceId;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Value("${spring.application.cluster.consistency.leader-election.minimumParticipants:3}")

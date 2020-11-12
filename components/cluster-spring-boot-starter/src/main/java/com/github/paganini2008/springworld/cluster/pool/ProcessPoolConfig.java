@@ -31,7 +31,7 @@ import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
 @ConditionalOnProperty(value = "spring.application.cluster.pool.enabled", havingValue = "true")
 public class ProcessPoolConfig {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Value("${spring.application.cluster.pool.size:16}")

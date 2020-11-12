@@ -1,5 +1,10 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.BackOffPolicy;
@@ -10,63 +15,61 @@ import org.springframework.retry.support.RetryTemplate;
 
 /**
  * 
- * RetryTemplateBuilder
+ * RetryTemplateFactory
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class RetryTemplateBuilder {
+public class RetryTemplateFactory implements BeanPostProcessor {
 
 	private RetryPolicy retryPolicy = new SimpleRetryPolicy();
 	private BackOffPolicy backOffPolicy = new FixedBackOffPolicy();
-	private RetryListener[] retryListeners = new RetryListener[0];
+	private List<RetryListener> retryListeners = new ArrayList<RetryListener>();
 
-	public RetryPolicy getRetryPolicy() {
-		return retryPolicy;
-	}
-
-	public RetryTemplateBuilder setRetryPolicy(int maxAttempts) {
+	public RetryTemplateFactory setRetryPolicy(int maxAttempts) {
 		this.retryPolicy = maxAttempts > 0 ? new SimpleRetryPolicy(maxAttempts) : new NeverRetryPolicy();
 		return this;
 	}
 
-	public RetryTemplateBuilder setRetryPolicy(RetryPolicy retryPolicy) {
+	public RetryTemplateFactory setRetryPolicy(RetryPolicy retryPolicy) {
 		this.retryPolicy = retryPolicy;
 		return this;
 	}
 
-	public BackOffPolicy getBackOffPolicy() {
-		return backOffPolicy;
-	}
-
-	public RetryTemplateBuilder setBackOffPolicy(BackOffPolicy backOffPolicy) {
+	public RetryTemplateFactory setBackOffPolicy(BackOffPolicy backOffPolicy) {
 		this.backOffPolicy = backOffPolicy;
 		return this;
 	}
 
-	public RetryTemplateBuilder setBackOffPeriod(long backOffPeriod) {
+	public RetryTemplateFactory setBackOffPeriod(long backOffPeriod) {
 		FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
 		backOffPolicy.setBackOffPeriod(backOffPeriod);
 		this.backOffPolicy = backOffPolicy;
 		return this;
 	}
 
-	public RetryListener[] getRetryListeners() {
-		return retryListeners;
-	}
-
-	public RetryTemplateBuilder setRetryListeners(RetryListener... retryListeners) {
-		this.retryListeners = retryListeners;
+	public RetryTemplateFactory addRetryListener(RetryListener retryListener) {
+		if (retryListener != null) {
+			this.retryListeners.add(retryListener);
+		}
 		return this;
 	}
 
-	public RetryTemplate build() {
+	public RetryTemplate createObject() {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		retryTemplate.setRetryPolicy(retryPolicy);
 		retryTemplate.setBackOffPolicy(backOffPolicy);
-		retryTemplate.setListeners(retryListeners);
+		retryTemplate.setListeners(retryListeners.toArray(new RetryListener[0]));
 		return retryTemplate;
+	}
+
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		if (bean instanceof RetryListener) {
+			addRetryListener((RetryListener) bean);
+		}
+		return bean;
 	}
 
 }

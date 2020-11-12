@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class DefaultInstanceIdGenerator implements InstanceIdGenerator {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Override

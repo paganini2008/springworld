@@ -1,6 +1,7 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +18,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.Comparables;
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.date.DateUtils;
 
@@ -40,30 +40,30 @@ public class DefaultRequestProcessor implements RequestProcessor {
 	private final @Nullable MultiValueMap<String, String> defaultHttpHeaders;
 	private final RoutingPolicy routingPolicy;
 	private final EnhancedRestTemplate restTemplate;
+	private final RetryTemplateFactory retryTemplateFactory;
 	private final ThreadPoolTaskExecutor taskExecutor;
 
 	DefaultRequestProcessor(String provider, int retries, int timeout, MultiValueMap<String, String> headers, RoutingPolicy routingPolicy,
-			EnhancedRestTemplate restTemplate, ThreadPoolTaskExecutor taskExecutor) {
+			EnhancedRestTemplate restTemplate, RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
 		this.provider = provider;
 		this.defaultRetries = retries;
 		this.defaultTimeout = timeout;
 		this.defaultHttpHeaders = headers;
 		this.routingPolicy = routingPolicy;
 		this.restTemplate = restTemplate;
+		this.retryTemplateFactory = retryTemplateFactory;
 		this.taskExecutor = taskExecutor;
-	}
-
-	protected RetryTemplate createRetryTemplate(String provider, String path, int retries) {
-		return new RetryTemplateBuilder().setRetryPolicy(retries).build();
 	}
 
 	@Override
 	public <T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int retries) {
-		RetryTemplate retryTemplate = createRetryTemplate(provider, request.getPath(),
-				Comparables.getOrDefault(retries, 0, defaultRetries));
+		RetryTemplate retryTemplate = retryTemplateFactory.setRetryPolicy(Comparables.getOrDefault(retries, 0, defaultRetries))
+				.createObject();
 		return retryTemplate.execute(context -> {
+			context.setAttribute(CURRENT_REQUEST_IDENTIFIER, request);
 			return sendRequest(request, responseType);
 		}, context -> {
+			context.removeAttribute(CURRENT_REQUEST_IDENTIFIER);
 			Throwable e = context.getLastThrowable();
 			if (e instanceof RestClientException) {
 				throw (RestClientException) e;
@@ -75,18 +75,34 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
 	@Override
 	public <T> ResponseEntity<T> sendRequest(Request request, Type responseType) {
+		Map<String, Object> uriVariables = new HashMap<String, Object>();
 		String path = request.getPath();
-		Map<String, Object> pathVariables = request.getPathVariables();
-		if (MapUtils.isNotEmpty(pathVariables)) {
-			path = StringUtils.parseText(path, "{", "}", pathVariables);
+		if (MapUtils.isNotEmpty(request.getPathVariables())) {
+			uriVariables.putAll(request.getPathVariables());
 		}
 		String url = routingPolicy.extractUrl(provider, path);
+		if (MapUtils.isNotEmpty(request.getRequestParameters())) {
+			url += "?" + getQueryString(request.getRequestParameters());
+			uriVariables.putAll(request.getRequestParameters());
+		}
 		HttpEntity<?> body = request.getBody();
 		if (MapUtils.isNotEmpty(defaultHttpHeaders)) {
 			body.getHeaders().addAll(defaultHttpHeaders);
 		}
 		printFoot(url, request);
-		return restTemplate.perform(url, request.getMethod(), body, responseType, request.getRequestParameters());
+		return restTemplate.perform(url, request.getMethod(), body, responseType, uriVariables);
+	}
+
+	private String getQueryString(Map<String, Object> queryMap) {
+		StringBuilder str = new StringBuilder();
+		String[] names = queryMap.keySet().toArray(new String[0]);
+		for (int i = 0, l = names.length; i < l; i++) {
+			str.append(names[i]).append("={").append(names[i]).append("}");
+			if (i != l - 1) {
+				str.append("&");
+			}
+		}
+		return str.toString();
 	}
 
 	@Override

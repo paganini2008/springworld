@@ -1,13 +1,16 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.beans.BeanUtils;
-import com.github.paganini2008.devtools.proxy.JdkProxyFactory;
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +24,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class RestClientBeanFactory<T> implements FactoryBean<T> {
+public class RestClientBeanFactory<T> implements FactoryBean<T>, BeanFactoryAware {
 
-	private static final ProxyFactory proxyFactory = new JdkProxyFactory();
 	private final Class<T> interfaceClass;
 
 	public RestClientBeanFactory(Class<T> interfaceClass) {
@@ -41,29 +43,40 @@ public class RestClientBeanFactory<T> implements FactoryBean<T> {
 	private EnhancedRestTemplate restTemplate;
 
 	@Autowired
+	private RetryTemplateFactory retryTemplateFactory;
+
+	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
 
 	@Autowired
 	private RequestInterceptorContainer requestInterceptorContainer;
 
+	private ConfigurableBeanFactory beanFactory;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject() throws Exception {
 		RestClient restClient = interfaceClass.getAnnotation(RestClient.class);
-		String provider = restClient.provider();
+		String provider = beanFactory.resolveEmbeddedValue(restClient.provider());
 		int retries = restClient.retries();
 		int timeout = restClient.timeout();
+		Class<?> fallbackClass = restClient.fallback();
 		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, retries, timeout, defaultHttpHeaders, routingPolicy,
-				restTemplate, taskExecutor);
-		Object fallback = BeanUtils.instantiate(restClient.fallback());
+				restTemplate, retryTemplateFactory, taskExecutor);
+		Object fallback = fallbackClass != Void.class ? BeanUtils.instantiate(fallbackClass) : null;
 		log.info("Create rest client for provider: {}, retries:{}, timeout: {}", provider, retries, timeout);
-		return (T) proxyFactory.getProxy(getObjectType().cast(fallback),
-				new RestClientBeanAspect(requestProcessor, requestInterceptorContainer), new Class<?>[] { interfaceClass });
+		return (T) ProxyFactory.getDefault().getProxy(fallback, new RestClientBeanAspect(requestProcessor, requestInterceptorContainer),
+				new Class<?>[] { interfaceClass });
 	}
 
 	@Override
 	public Class<?> getObjectType() {
 		return interfaceClass;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = (ConfigurableBeanFactory) beanFactory;
 	}
 
 }

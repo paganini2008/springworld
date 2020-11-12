@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.lang.reflect.Type;
 import java.util.Map;

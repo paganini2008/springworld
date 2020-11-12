@@ -27,7 +27,7 @@ public final class InstanceId {
 	private InstanceIdGenerator idGenerator;
 
 	@Getter
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Getter

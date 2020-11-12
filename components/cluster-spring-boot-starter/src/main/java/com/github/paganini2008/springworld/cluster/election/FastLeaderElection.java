@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FastLeaderElection implements LeaderElection, ApplicationContextAware {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Value("${spring.application.cluster.leader.timeout:5}")

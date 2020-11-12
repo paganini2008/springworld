@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -37,7 +37,7 @@ public class RestClientBeanAspect implements Aspect {
 
 	@Override
 	public Object call(Object fallback, Method method, Object[] args) throws Throwable {
-		final Feature feature = method.getAnnotation(Feature.class);
+		final Api feature = method.getAnnotation(Api.class);
 		String path = feature.path();
 		int timeout = feature.timeout();
 		int retries = feature.retries();
@@ -64,7 +64,9 @@ public class RestClientBeanAspect implements Aspect {
 			} else {
 				responseEntity = requestProcessor.sendRequest(request, responseType);
 			}
-			return responseEntity.getBody();
+			if (responseEntity != null) {
+				return responseEntity.getBody();
+			}
 		} catch (RestClientException e) {
 			reason = e;
 			return executeFallback(fallback, method, args, e, feature.fallbackException(), feature.fallbackHttpStatus());
@@ -101,11 +103,13 @@ public class RestClientBeanAspect implements Aspect {
 	}
 
 	private Object invokeFallbackMethod(Object fallback, Method method, Object[] args) {
-		try {
-			return MethodUtils.invokeMethod(fallback, method, args);
-		} catch (Exception ignored) {
-			return null;
+		if (fallback != null) {
+			try {
+				return MethodUtils.invokeMethod(fallback, method, args);
+			} catch (Exception ignored) {
+			}
 		}
+		return null;
 	}
 
 }

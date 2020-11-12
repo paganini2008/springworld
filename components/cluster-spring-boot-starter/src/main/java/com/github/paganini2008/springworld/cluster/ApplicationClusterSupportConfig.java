@@ -4,9 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-
-import com.github.paganini2008.springworld.restclient.RoutingPolicy;
 
 /**
  * 
@@ -18,7 +15,7 @@ import com.github.paganini2008.springworld.restclient.RoutingPolicy;
 @Configuration
 public class ApplicationClusterSupportConfig {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Bean
@@ -30,22 +27,6 @@ public class ApplicationClusterSupportConfig {
 	@Bean
 	public InstanceId instanceId() {
 		return new InstanceId();
-	}
-	
-	@Bean
-	public ApplicationRegistryCenter applicationRegistryCenter() {
-		return new ApplicationRegistryCenter();
-	}
-
-	@Bean
-	public LoadBalancer<ApplicationInfo> applicationClusterLoadBalancer(RedisConnectionFactory connectionFactory) {
-		final String name = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter";
-		return new ApplicationClusterLoadBalancer(name, connectionFactory);
-	}
-
-	@Bean
-	public RoutingPolicy routingPolicy() {
-		return new LoadBalanceRoutingPolicy();
 	}
 
 }

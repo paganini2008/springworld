@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("all")
 public class FastLeaderElectionListener implements ApplicationListener<RedisKeyExpiredEvent>, LeaderElectionListener {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired

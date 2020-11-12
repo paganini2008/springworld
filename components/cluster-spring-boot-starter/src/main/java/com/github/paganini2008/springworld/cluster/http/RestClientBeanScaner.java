@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -12,15 +12,15 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 /**
  * 
- * RestClientScaner
+ * RestClientBeanScaner
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class RestClientScaner extends ClassPathBeanDefinitionScanner {
+public class RestClientBeanScaner extends ClassPathBeanDefinitionScanner {
 
-	public RestClientScaner(BeanDefinitionRegistry registry) {
+	public RestClientBeanScaner(BeanDefinitionRegistry registry) {
 		super(registry, false);
 	}
 
@@ -29,7 +29,8 @@ public class RestClientScaner extends ClassPathBeanDefinitionScanner {
 		addIncludeFilter(new AnnotationTypeFilter(RestClient.class));
 		Set<BeanDefinitionHolder> beanDefinitionHolders = super.doScan(basePackages);
 		if (beanDefinitionHolders.isEmpty()) {
-			logger.warn("No Dao mapping was found in '" + Arrays.toString(basePackages) + "' package. Please check your configuration.");
+			logger.warn("No RestClient interfaces was found in package '" + Arrays.toString(basePackages)
+					+ "'. Please check your configuration again.");
 		} else {
 			processBeanDefinitions(beanDefinitionHolders);
 		}

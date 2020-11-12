@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.restclient;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -29,11 +30,11 @@ public class SimpleRequest implements Request {
 
 	private final String path;
 	private final HttpMethod method;
+	private final long timestamp;
 	private HttpHeaders headers = new HttpHeaders();
 	private Map<String, Object> requestParameters = new HashMap<String, Object>();
 	private Map<String, Object> pathVariables = new HashMap<String, Object>();
 	private HttpEntity<Object> body;
-	private final long timestamp;
 
 	SimpleRequest(String path, HttpMethod method) {
 		this.path = path;
@@ -85,7 +86,7 @@ public class SimpleRequest implements Request {
 					parameterName = ObjectUtils.toString(pathVariable.value(), parameter.getName());
 					pathVariables.put(parameterName, argument);
 				}
-				if (annotation.annotationType() == RequestBody.class) {
+				if (annotation.annotationType() == RequestBody.class || annotation.annotationType() == ModelAttribute.class) {
 					body = new HttpEntity<Object>(argument, headers);
 				}
 			}
@@ -97,6 +98,10 @@ public class SimpleRequest implements Request {
 
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	public String toString() {
+		return method.name().toUpperCase() + " " + path;
 	}
 
 }

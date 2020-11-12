@@ -3,9 +3,9 @@ package com.github.paganini2008.springworld.cluster;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.github.paganini2008.springworld.restclient.RoutingPolicy;
+import com.github.paganini2008.springworld.cluster.http.RoutingPolicy;
+import com.github.paganini2008.springworld.cluster.http.RoutingPolicyException;
 
 /**
  * 
@@ -22,9 +22,8 @@ public class LoadBalanceRoutingPolicy implements RoutingPolicy {
 	@Autowired
 	private ApplicationRegistryCenter applicationRegistryCenter;
 
-	@Qualifier("applicationClusterLoadBalancer")
 	@Autowired
-	private LoadBalancer<ApplicationInfo> loadBalancer;
+	private ApplicationClusterLoadBalancer loadBalancer;
 
 	@Override
 	public String extractUrl(String provider, String path) {
@@ -32,8 +31,11 @@ public class LoadBalanceRoutingPolicy implements RoutingPolicy {
 		if (provider.equals(LEADER_ALIAS)) {
 			selectedApplication = applicationRegistryCenter.getLeaderInfo();
 		} else {
-			List<ApplicationInfo> candidates = applicationRegistryCenter.getApplicationInfos(provider);
+			List<ApplicationInfo> candidates = applicationRegistryCenter.getApplicationInfos(provider.toLowerCase());
 			selectedApplication = loadBalancer.select(path, candidates);
+		}
+		if (selectedApplication == null) {
+			throw new RoutingPolicyException("Invalid provider name: " + provider);
 		}
 		return selectedApplication.getApplicationContextPath() + path;
 	}

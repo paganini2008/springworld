@@ -25,7 +25,7 @@ public class ConsistencyRequestRound {
 	private static final String CONSISTENCY_ROUND_PATTERN = "%s:consistency:round:%s";
 	private final Map<String, RedisAtomicLong> rounds = new ConcurrentHashMap<String, RedisAtomicLong>();
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired

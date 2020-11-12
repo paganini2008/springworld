@@ -21,7 +21,7 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandle
 @ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true")
 public class ClusterMulticastConfig {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Bean

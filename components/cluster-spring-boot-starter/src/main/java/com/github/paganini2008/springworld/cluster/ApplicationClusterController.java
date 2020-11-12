@@ -28,7 +28,7 @@ public class ApplicationClusterController {
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired
