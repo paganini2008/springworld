@@ -17,8 +17,10 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEve
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.ClusterMode;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestConfirmationEvent;
+import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestContext;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
 
@@ -52,8 +54,18 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 	@Autowired
 	private TtlKeeper ttlKeeper;
 
+	@Autowired
+	private ConsistencyRequestContext requestContext;
+
 	@Override
-	public void lookupLeader(ApplicationEvent applicationEvent) {
+	public void launch() {
+		final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":leader";
+		requestContext.propose(leaderIdentify, instanceId.getApplicationInfo(), DEFAULT_TIMEOUT);
+		log.info("Start leader election. Identify: " + leaderIdentify);
+	}
+
+	@Override
+	public void adapt(ApplicationEvent applicationEvent) {
 		final ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
 		ApplicationInfo leaderInfo = (ApplicationInfo) event.getRequest().getValue();
 		if (instanceId.getApplicationInfo().equals(leaderInfo)) {
@@ -74,6 +86,8 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 		if (instanceId.isLeader()) {
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
 		}
+
+		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));
 	}
 
@@ -93,7 +107,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 		final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":leader";
 		if (leaderIdentify.equals(event.getRequest().getName())) {
 			if (event.isOk()) {
-				lookupLeader(event);
+				adapt(event);
 			} else {
 				throw new LeaderNotFoundException();
 			}

@@ -11,10 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 
+import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -24,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
 public class RestClientBeanAspect implements Aspect {
 
 	private final RequestProcessor requestProcessor;
@@ -37,16 +35,24 @@ public class RestClientBeanAspect implements Aspect {
 
 	@Override
 	public Object call(Object fallback, Method method, Object[] args) throws Throwable {
-		final Api feature = method.getAnnotation(Api.class);
-		String path = feature.path();
-		int timeout = feature.timeout();
-		int retries = feature.retries();
-		HttpMethod httpMethod = feature.method();
-		final Type responseType = method.getGenericReturnType();
-
+		final Api api = method.getAnnotation(Api.class);
+		String path = api.path();
+		int timeout = api.timeout();
+		int retries = api.retries();
+		HttpMethod httpMethod = api.method();
+		String[] headers = api.headers();
 		SimpleRequest request = new SimpleRequest(path, httpMethod);
-		request.getHeaders().setContentType(MediaType.parseMediaType(feature.contentType()));
+		request.getHeaders().setContentType(MediaType.parseMediaType(api.contentType()));
+		if (ArrayUtils.isNotEmpty(headers)) {
+			for (String header : headers) {
+				String[] headerArgs = header.split("=", 2);
+				if (headerArgs.length == 2) {
+					request.getHeaders().add(headerArgs[0], headerArgs[1]);
+				}
+			}
+		}
 
+		Type responseType = method.getGenericReturnType();
 		Parameter[] parameters = method.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			request.accessParameter(parameters[i], args[i]);
@@ -64,23 +70,32 @@ public class RestClientBeanAspect implements Aspect {
 			} else {
 				responseEntity = requestProcessor.sendRequest(request, responseType);
 			}
-			if (responseEntity != null) {
-				return responseEntity.getBody();
-			}
 		} catch (RestClientException e) {
-			reason = e;
-			return executeFallback(fallback, method, args, e, feature.fallbackException(), feature.fallbackHttpStatus());
+			try {
+				responseEntity = executeFallback(fallback, method, args, e, api.fallbackException(), api.fallbackHttpStatus());
+			} catch (Exception ee) {
+				reason = ee;
+			}
 		} catch (Exception e) {
 			reason = e;
-			log.error(e.getMessage(), e);
 		} finally {
 			requestInterceptorContainer.afterSubmit(request, responseEntity, reason);
 		}
-		return null;
+		if (responseEntity != null) {
+			return responseEntity.getBody();
+		}
+		if (reason != null) {
+			if (reason instanceof RestClientException) {
+				throw (RestClientException) reason;
+			} else {
+				throw new RestClientException(reason.getMessage(), reason);
+			}
+		}
+		throw new RestClientException("No result");
 	}
 
-	private Object executeFallback(Object fallback, Method method, Object[] args, RestClientException e, Class<?>[] exceptionClasses,
-			HttpStatus[] httpStatuses) {
+	private ResponseEntity<?> executeFallback(Object fallback, Method method, Object[] args, RestClientException e,
+			Class<?>[] exceptionClasses, HttpStatus[] httpStatuses) {
 		if (e instanceof RestfulApiException) {
 			RestfulApiException apiException = (RestfulApiException) e;
 			for (Class<?> cls : exceptionClasses) {
@@ -96,18 +111,14 @@ public class RestClientBeanAspect implements Aspect {
 				}
 			}
 
-		} else {
-			log.error(e.getMessage(), e);
 		}
-		return null;
+		throw e;
 	}
 
-	private Object invokeFallbackMethod(Object fallback, Method method, Object[] args) {
+	private ResponseEntity<?> invokeFallbackMethod(Object fallback, Method method, Object[] args) {
 		if (fallback != null) {
-			try {
-				return MethodUtils.invokeMethod(fallback, method, args);
-			} catch (Exception ignored) {
-			}
+			Object result = MethodUtils.invokeMethod(fallback, method, args);
+			return ResponseEntity.ok(result);
 		}
 		return null;
 	}

@@ -60,9 +60,11 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		RetryTemplate retryTemplate = retryTemplateFactory.setRetryPolicy(Comparables.getOrDefault(retries, 0, defaultRetries))
 				.createObject();
 		return retryTemplate.execute(context -> {
+			context.setAttribute(CURRENT_PROVIDER_IDENTIFIER, provider);
 			context.setAttribute(CURRENT_REQUEST_IDENTIFIER, request);
 			return sendRequest(request, responseType);
 		}, context -> {
+			context.removeAttribute(CURRENT_PROVIDER_IDENTIFIER);
 			context.removeAttribute(CURRENT_REQUEST_IDENTIFIER);
 			Throwable e = context.getLastThrowable();
 			if (e instanceof RestClientException) {

@@ -17,8 +17,6 @@ import com.github.paganini2008.springworld.cluster.http.RoutingPolicyException;
  */
 public class LoadBalanceRoutingPolicy implements RoutingPolicy {
 
-	private static final String LEADER_ALIAS = "*";
-
 	@Autowired
 	private ApplicationRegistryCenter applicationRegistryCenter;
 

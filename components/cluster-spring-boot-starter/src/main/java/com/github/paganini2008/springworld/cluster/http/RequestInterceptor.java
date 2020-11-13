@@ -1,6 +1,7 @@
 package com.github.paganini2008.springworld.cluster.http;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 
 /**
  * 
@@ -14,7 +15,7 @@ public interface RequestInterceptor {
 
 	void beforeSubmit(Request request);
 
-	void afterSubmit(Request request, ResponseEntity<?> responseEntity, Throwable reason);
+	void afterSubmit(Request request, @Nullable ResponseEntity<?> responseEntity, Throwable reason);
 
 	default boolean matches(Request request) {
 		return true;

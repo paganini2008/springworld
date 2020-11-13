@@ -59,6 +59,10 @@ public final class InstanceId {
 	@Getter
 	private ApplicationInfo leaderInfo;
 
+	@Setter
+	@Getter
+	private ClusterMode clusterMode;
+
 	public String get() {
 		if (StringUtils.isBlank(id)) {
 			synchronized (this) {

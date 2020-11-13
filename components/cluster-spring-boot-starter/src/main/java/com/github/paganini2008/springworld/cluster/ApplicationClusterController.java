@@ -34,13 +34,13 @@ public class ApplicationClusterController {
 	@Autowired
 	private InstanceId instanceId;
 
-	@GetMapping("/ping")
-	public ResponseEntity<String> ping() {
-		return ResponseEntity.ok("pong");
+	@GetMapping("/health")
+	public ResponseEntity<ApplicationInfo> health() {
+		return ResponseEntity.ok(instanceId.getApplicationInfo());
 	}
 
-	@GetMapping("/info")
-	public ResponseEntity<ApplicationInfo[]> info() {
+	@GetMapping("/list")
+	public ResponseEntity<ApplicationInfo[]> list() {
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
 		ApplicationInfo[] results = new ApplicationInfo[dataList != null ? dataList.size() : 0];

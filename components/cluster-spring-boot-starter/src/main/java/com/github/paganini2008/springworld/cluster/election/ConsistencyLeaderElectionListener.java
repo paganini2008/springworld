@@ -11,8 +11,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.ClusterMode;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestContext;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
 import com.github.paganini2008.springworld.reditools.BeanNames;
@@ -29,13 +29,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConsistencyLeaderElectionListener implements ClusterStateChangeListener, ApplicationContextAware, LeaderElectionListener {
 
-	private static final int LEADER_ELECTION_TIMEOUT = 30;
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
 
+	@Value("${spring.application.cluster.consistency.leader-election.minimumParticipants:3}")
+	private int minimumParticipants;
+	
 	@Autowired
-	private ConsistencyRequestContext context;
+	private LeaderElection leaderElection;
 
 	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;
+	
+	@Autowired
+	private LeaderRecoveryCallback recoveryCallback;
 
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	@Autowired
@@ -43,12 +50,6 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 
 	@Autowired
 	private InstanceId instanceId;
-
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
-
-	@Value("${spring.application.cluster.consistency.leader-election.minimumParticipants:3}")
-	private int minimumParticipants;
 
 	private ApplicationContext applicationContext;
 
@@ -77,9 +78,7 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 		} else {
 			final int channelCount = clusterMulticastGroup.countOfChannel();
 			if (channelCount >= minimumParticipants) {
-				final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":leader";
-				log.info("Start leader election. Identify: " + leaderIdentify);
-				context.propose(leaderIdentify, instanceId.getApplicationInfo(), LEADER_ELECTION_TIMEOUT);
+				leaderElection.launch();
 			}
 		}
 	}
@@ -91,10 +90,9 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 			redisTemplate.opsForList().remove(key, 1, instanceId.getApplicationInfo());
 
 			instanceId.setLeaderInfo(null);
-
-			final String leaderIdentify = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":leader";
-			log.info("Start leader election. Identify: " + leaderIdentify);
-			context.propose(leaderIdentify, instanceId.getApplicationInfo(), LEADER_ELECTION_TIMEOUT);
+			instanceId.setClusterMode(ClusterMode.PROTECTED);
+			
+			recoveryCallback.recover();
 		}
 	}
 

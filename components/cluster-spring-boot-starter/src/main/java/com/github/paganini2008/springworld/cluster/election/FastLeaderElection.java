@@ -16,6 +16,7 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEve
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.ClusterMode;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
@@ -51,7 +52,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 	private ApplicationContext applicationContext;
 
 	@Override
-	public void lookupLeader(ApplicationEvent applicationEvent) {
+	public void launch() {
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		if (redisTemplate.hasKey(key) && redisTemplate.getExpire(key) < 0) {
 			redisTemplate.delete(key);
@@ -89,8 +90,14 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		if (instanceId.isLeader()) {
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
 		}
-
+		
+		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));
+	}
+
+	@Override
+	public void adapt(ApplicationEvent applicationEvent) {
+		launch();
 	}
 
 	@Override

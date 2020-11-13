@@ -8,14 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * DefaultRetryListener
+ * LoggingRetryListener
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class DefaultRetryListener implements RetryListener {
+public class LoggingRetryListener implements RetryListener {
 
 	@Override
 	public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
@@ -29,8 +29,9 @@ public class DefaultRetryListener implements RetryListener {
 	@Override
 	public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
 		if (log.isInfoEnabled()) {
+			String provider = (String) context.getAttribute(RequestProcessor.CURRENT_PROVIDER_IDENTIFIER);
 			Request request = (Request) context.getAttribute(RequestProcessor.CURRENT_REQUEST_IDENTIFIER);
-			log.info("Retry: {}, Times: {}", request, context.getRetryCount());
+			log.info("[{}] Retry: {}, Times: {}", provider, request, context.getRetryCount());
 		}
 	}
 

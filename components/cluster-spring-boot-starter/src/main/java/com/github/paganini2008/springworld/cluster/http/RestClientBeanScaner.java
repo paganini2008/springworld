@@ -47,7 +47,7 @@ public class RestClientBeanScaner extends ClassPathBeanDefinitionScanner {
 		for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
 			beanDefinition = ((GenericBeanDefinition) beanDefinitionHolder.getBeanDefinition());
 			beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-			beanDefinition.setBeanClass(RestClientBeanFactory.class);
+			beanDefinition.setBeanClass(RestClientProxyFactoryBean.class);
 			beanDefinition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
 		}
 	}

@@ -10,6 +10,8 @@ package com.github.paganini2008.springworld.cluster.http;
  */
 public interface RoutingPolicy {
 
+	static final String LEADER_ALIAS = "*";
+
 	String extractUrl(String provider, String path);
 
 }

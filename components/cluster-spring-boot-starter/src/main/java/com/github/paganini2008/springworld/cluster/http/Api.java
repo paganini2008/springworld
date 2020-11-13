@@ -31,6 +31,8 @@ public @interface Api {
 
 	HttpMethod method() default HttpMethod.GET;
 
+	String[] headers() default {};
+
 	String contentType() default MediaType.APPLICATION_JSON_VALUE;
 
 	Class<? super Throwable>[] fallbackException() default {};

@@ -17,18 +17,18 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * RestClientBeanFactory
+ * RestClientProxyFactoryBean
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class RestClientBeanFactory<T> implements FactoryBean<T>, BeanFactoryAware {
+public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactoryAware {
 
 	private final Class<T> interfaceClass;
 
-	public RestClientBeanFactory(Class<T> interfaceClass) {
+	public RestClientProxyFactoryBean(Class<T> interfaceClass) {
 		this.interfaceClass = interfaceClass;
 	}
 

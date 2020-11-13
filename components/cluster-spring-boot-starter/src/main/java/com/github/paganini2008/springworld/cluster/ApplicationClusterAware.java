@@ -34,7 +34,7 @@ public class ApplicationClusterAware implements ApplicationListener<ContextRefre
 		if (leaderElection instanceof ConsistencyLeaderElection) {
 			log.warn("Leader election will be launched if cluster's node equal or greater than {}.", minimumParticipants);
 		} else {
-			leaderElection.lookupLeader(event);
+			leaderElection.adapt(event);
 		}
 	}
 

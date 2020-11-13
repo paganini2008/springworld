@@ -58,8 +58,18 @@ public class RestClientConfig {
 	}
 
 	@Bean
-	public DefaultRetryListener defaultRetryListener() {
-		return new DefaultRetryListener();
+	public ApiRetryListenerContainer apiRetryListenerContainer() {
+		return new ApiRetryListenerContainer();
+	}
+
+	@Bean
+	public LoggingRetryListener loggingRetryListener() {
+		return new LoggingRetryListener();
+	}
+
+	@Bean
+	public LeaderServiceFactoryBean leaderServiceFactoryBean() {
+		return new LeaderServiceFactoryBean();
 	}
 
 }

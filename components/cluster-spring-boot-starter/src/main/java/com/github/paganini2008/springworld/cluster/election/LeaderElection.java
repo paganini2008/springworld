@@ -11,6 +11,10 @@ import org.springframework.context.ApplicationEvent;
  */
 public interface LeaderElection {
 
-	void lookupLeader(ApplicationEvent applicationEvent);
+	static final int DEFAULT_TIMEOUT = 60;
+
+	void launch();
+
+	void adapt(ApplicationEvent applicationEvent);
 
 }
