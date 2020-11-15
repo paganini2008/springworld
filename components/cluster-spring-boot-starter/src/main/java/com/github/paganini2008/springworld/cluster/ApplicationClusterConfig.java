@@ -52,7 +52,6 @@ public class ApplicationClusterConfig {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(LeaderRecoveryCallback.class)
 	public LeaderRecoveryCallback leaderRecoveryCallback() {
 		return new DefaultLeaderRecoveryCallback();
 	}

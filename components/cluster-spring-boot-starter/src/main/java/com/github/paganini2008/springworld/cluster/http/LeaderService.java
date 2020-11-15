@@ -12,10 +12,10 @@ import com.github.paganini2008.springworld.cluster.ApplicationInfo;
  *
  * @since 1.0
  */
-@RestClient(provider = "*", retries = 2)
+@RestClient(provider = RoutingPolicy.LEADER_ALIAS)
 public interface LeaderService {
 
-	@Api(path = "/application/cluster/ping", method = HttpMethod.GET)
+	@Api(path = "/application/cluster/ping", method = HttpMethod.GET, retries = 3, timeout = 60)
 	ApplicationInfo ping();
 
 }

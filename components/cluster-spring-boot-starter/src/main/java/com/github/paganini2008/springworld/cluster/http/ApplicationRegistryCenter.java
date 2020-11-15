@@ -8,11 +8,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 
@@ -27,7 +28,8 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ApplicationRegistryCenter implements ClusterStateChangeListener, RegistryCenter {
+public class ApplicationRegistryCenter
+		implements ApplicationListener<ApplicationClusterFollowerEvent>, ClusterStateChangeListener, RegistryCenter {
 
 	private final Map<String, List<ApplicationInfo>> appInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 
@@ -38,15 +40,19 @@ public class ApplicationRegistryCenter implements ClusterStateChangeListener, Re
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Autowired
-	private InstanceId instanceId;
+	private ApplicationInfo leaderInfo;
 
 	public List<ApplicationInfo> getApplications(String applicationName) {
 		return appInfoCache.get(applicationName);
 	}
 
 	public ApplicationInfo getLeader() {
-		return instanceId.getLeaderInfo();
+		return leaderInfo;
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {
+		this.leaderInfo = event.getLeaderInfo();
 	}
 
 	@Override
@@ -56,8 +62,7 @@ public class ApplicationRegistryCenter implements ClusterStateChangeListener, Re
 			return new CopyOnWriteArrayList<ApplicationInfo>();
 		});
 		infoList.add(applicationInfo);
-		// printSelf();
-		System.out.println("appName: " + applicationName + " 加入");
+		log.info("Register application: [{}]", applicationInfo);
 	}
 
 	@Override
@@ -67,14 +72,7 @@ public class ApplicationRegistryCenter implements ClusterStateChangeListener, Re
 		if (infoList != null) {
 			infoList.remove(applicationInfo);
 		}
-		System.out.println("appName: " + applicationName + " 离开");
-	}
-
-	public void printSelf() {
-		for (Map.Entry<String, List<ApplicationInfo>> entry : appInfoCache.entrySet()) {
-			log.info("Application: " + entry.getKey());
-			log.info("Members: " + entry.getValue());
-		}
+		log.info("Unregister application: [{}]", applicationInfo);
 	}
 
 }

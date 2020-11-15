@@ -1,8 +1,5 @@
 package com.github.paganini2008.springworld.cluster.http;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.retry.RetryListener;
@@ -23,9 +20,9 @@ import org.springframework.retry.support.RetryTemplate;
  */
 public class RetryTemplateFactory implements BeanPostProcessor {
 
+	private final RetryListenerContainer retryListenerContainer = new RetryListenerContainer();
 	private RetryPolicy retryPolicy = new SimpleRetryPolicy();
 	private BackOffPolicy backOffPolicy = new FixedBackOffPolicy();
-	private List<RetryListener> retryListeners = new ArrayList<RetryListener>();
 
 	public RetryTemplateFactory setRetryPolicy(int maxAttempts) {
 		this.retryPolicy = maxAttempts > 0 ? new SimpleRetryPolicy(maxAttempts) : new NeverRetryPolicy();
@@ -49,9 +46,30 @@ public class RetryTemplateFactory implements BeanPostProcessor {
 		return this;
 	}
 
-	public RetryTemplateFactory addRetryListener(RetryListener retryListener) {
+	public RetryTemplateFactory addListener(RetryListener retryListener) {
 		if (retryListener != null) {
-			this.retryListeners.add(retryListener);
+			this.retryListenerContainer.addListener(retryListener);
+		}
+		return this;
+	}
+
+	public RetryTemplateFactory removeListener(RetryListener retryListener) {
+		if (retryListener != null) {
+			this.retryListenerContainer.removeListener(retryListener);
+		}
+		return this;
+	}
+
+	public RetryTemplateFactory addListener(ApiRetryListener retryListener) {
+		if (retryListener != null) {
+			this.retryListenerContainer.addListener(retryListener);
+		}
+		return this;
+	}
+
+	public RetryTemplateFactory removeListener(ApiRetryListener retryListener) {
+		if (retryListener != null) {
+			this.retryListenerContainer.removeListener(retryListener);
 		}
 		return this;
 	}
@@ -60,14 +78,16 @@ public class RetryTemplateFactory implements BeanPostProcessor {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		retryTemplate.setRetryPolicy(retryPolicy);
 		retryTemplate.setBackOffPolicy(backOffPolicy);
-		retryTemplate.setListeners(retryListeners.toArray(new RetryListener[0]));
+		retryTemplate.setListeners(this.retryListenerContainer.getRetryListeners().toArray(new RetryListener[0]));
 		return retryTemplate;
 	}
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof RetryListener) {
-			addRetryListener((RetryListener) bean);
+			addListener((RetryListener) bean);
+		} else if (bean instanceof ApiRetryListener) {
+			addListener((ApiRetryListener) bean);
 		}
 		return bean;
 	}

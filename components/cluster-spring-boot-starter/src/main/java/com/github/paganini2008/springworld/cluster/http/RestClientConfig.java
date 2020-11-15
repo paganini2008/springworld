@@ -60,11 +60,6 @@ public class RestClientConfig {
 	}
 
 	@Bean
-	public ApiRetryListenerContainer apiRetryListenerContainer() {
-		return new ApiRetryListenerContainer();
-	}
-
-	@Bean
 	public LoggingRetryListener loggingRetryListener() {
 		return new LoggingRetryListener();
 	}
@@ -85,13 +80,13 @@ public class RestClientConfig {
 		public LeaderHeartbeater leaderHeartbeater() {
 			return new LeaderHeartbeater();
 		}
-		
+
 		@Primary
 		@Bean
-		public LeaderRecoveryCallback leaderRecoveryCallback() {
+		public LeaderRecoveryCallback retryableLeaderRecoveryCallback() {
 			return new RetryableLeaderRecoveryCallback();
 		}
-		
+
 	}
 
 }

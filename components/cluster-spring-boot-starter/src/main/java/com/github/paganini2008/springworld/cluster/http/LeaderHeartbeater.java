@@ -5,10 +5,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,17 +32,24 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 	@Autowired
 	private LeaderService leaderService;
 
+	private ApplicationInfo currentLeaderInfo;
+
 	@Override
 	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {
-		if (timer != null) {
-			return;
+		this.currentLeaderInfo = event.getLeaderInfo();
+		if (timer == null) {
+			timer = ThreadUtils.scheduleWithFixedDelay(this, DEFAULT_CHECKED_INTERVAL, TimeUnit.SECONDS);
+			log.info("Keep heartbeating with cluster leader [{}]", currentLeaderInfo);
 		}
-		timer = ThreadUtils.scheduleWithFixedDelay(this, DEFAULT_CHECKED_INTERVAL, TimeUnit.SECONDS);
 	}
 
 	@Override
 	public boolean execute() {
-		leaderService.ping();
+		try {
+			leaderService.ping();
+		} catch (RestClientException e) {
+			log.error(e.getMessage(), e);
+		}
 		return true;
 	}
 

@@ -17,10 +17,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 
-import com.github.paganini2008.devtools.Comparables;
+import com.github.paganini2008.devtools.collection.LruMap;
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.devtools.collection.MultiMappedMap;
 import com.github.paganini2008.devtools.date.DateUtils;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -35,19 +38,15 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultRequestProcessor implements RequestProcessor {
 
 	private final String provider;
-	private final int defaultRetries;
-	private final int defaultTimeout;
 	private final @Nullable MultiValueMap<String, String> defaultHttpHeaders;
 	private final RoutingPolicy routingPolicy;
 	private final EnhancedRestTemplate restTemplate;
 	private final RetryTemplateFactory retryTemplateFactory;
 	private final ThreadPoolTaskExecutor taskExecutor;
 
-	DefaultRequestProcessor(String provider, int retries, int timeout, MultiValueMap<String, String> headers, RoutingPolicy routingPolicy,
+	DefaultRequestProcessor(String provider, MultiValueMap<String, String> headers, RoutingPolicy routingPolicy,
 			EnhancedRestTemplate restTemplate, RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
 		this.provider = provider;
-		this.defaultRetries = retries;
-		this.defaultTimeout = timeout;
 		this.defaultHttpHeaders = headers;
 		this.routingPolicy = routingPolicy;
 		this.restTemplate = restTemplate;
@@ -55,23 +54,43 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		this.taskExecutor = taskExecutor;
 	}
 
+	private MultiMappedMap<String, String, RetryTemplate> retryTemplateCache = new MultiMappedMap<>(() -> {
+		return new LruMap<String, RetryTemplate>(256);
+	});
+
 	@Override
 	public <T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int retries) {
-		RetryTemplate retryTemplate = retryTemplateFactory.setRetryPolicy(Comparables.getOrDefault(retries, 0, defaultRetries))
-				.createObject();
+		RetryTemplate retryTemplate = retryTemplateCache.get(provider, request.getPath(), () -> {
+			return retryTemplateFactory.setRetryPolicy(retries).createObject();
+		});
+		RetryEntry retryEntry = new RetryEntry(provider, request, retries);
 		return retryTemplate.execute(context -> {
-			context.setAttribute(CURRENT_PROVIDER_IDENTIFIER, provider);
-			context.setAttribute(CURRENT_REQUEST_IDENTIFIER, request);
+			context.setAttribute(CURRENT_RETRY_IDENTIFIER, retryEntry);
 			return sendRequest(request, responseType);
 		}, context -> {
-			context.removeAttribute(CURRENT_PROVIDER_IDENTIFIER);
-			context.removeAttribute(CURRENT_REQUEST_IDENTIFIER);
+			context.removeAttribute(CURRENT_RETRY_IDENTIFIER);
 			Throwable e = context.getLastThrowable();
 			if (e instanceof RestClientException) {
 				throw (RestClientException) e;
 			}
 			throw new RestfulApiException(e.getMessage(), e);
 		});
+
+	}
+
+	@Getter
+	@Setter
+	static class RetryEntry {
+
+		private String provider;
+		private Request request;
+		private int retries;
+
+		RetryEntry(String provider, Request request, int retries) {
+			this.provider = provider;
+			this.request = request;
+			this.retries = retries;
+		}
 
 	}
 
@@ -112,7 +131,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		Future<ResponseEntity<T>> future = taskExecutor.submit(() -> {
 			return sendRequest(request, responseType);
 		});
-		timeout = Comparables.getOrDefault(timeout, -1, defaultTimeout);
 		try {
 			if (timeout > 0) {
 				return future.get(timeout, TimeUnit.SECONDS);
@@ -134,7 +152,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		Future<ResponseEntity<T>> future = taskExecutor.submit(() -> {
 			return sendRequestWithRetry(request, responseType, retries);
 		});
-		timeout = Comparables.getOrDefault(timeout, -1, defaultTimeout);
 		try {
 			if (timeout > 0) {
 				return future.get(timeout, TimeUnit.SECONDS);

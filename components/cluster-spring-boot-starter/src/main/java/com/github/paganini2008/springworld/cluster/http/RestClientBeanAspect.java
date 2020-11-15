@@ -12,6 +12,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.Comparables;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 
@@ -25,10 +26,15 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
  */
 public class RestClientBeanAspect implements Aspect {
 
+	private final int defaultRetries;
+	private final int defaultTimeout;
 	private final RequestProcessor requestProcessor;
 	private final RequestInterceptorContainer requestInterceptorContainer;
 
-	public RestClientBeanAspect(RequestProcessor requestProcessor, RequestInterceptorContainer requestInterceptorContainer) {
+	public RestClientBeanAspect(RequestProcessor requestProcessor, int defaultRetries, int defaultTimeout,
+			RequestInterceptorContainer requestInterceptorContainer) {
+		this.defaultRetries = defaultRetries;
+		this.defaultTimeout = defaultTimeout;
 		this.requestProcessor = requestProcessor;
 		this.requestInterceptorContainer = requestInterceptorContainer;
 	}
@@ -38,7 +44,10 @@ public class RestClientBeanAspect implements Aspect {
 		final Api api = method.getAnnotation(Api.class);
 		String path = api.path();
 		int timeout = api.timeout();
+		timeout = Comparables.getOrDefault(timeout, -1, defaultTimeout);
 		int retries = api.retries();
+		retries = Comparables.getOrDefault(retries, 0, defaultRetries);
+
 		HttpMethod httpMethod = api.method();
 		String[] headers = api.headers();
 		SimpleRequest request = new SimpleRequest(path, httpMethod);

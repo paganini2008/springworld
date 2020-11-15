@@ -10,6 +10,6 @@ package com.github.paganini2008.springworld.cluster;
  */
 public interface LeaderRecoveryCallback {
 
-	void recover();
+	void recover(ApplicationInfo leaderInfo);
 
 }

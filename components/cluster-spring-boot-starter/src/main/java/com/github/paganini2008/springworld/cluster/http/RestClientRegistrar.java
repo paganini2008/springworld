@@ -45,12 +45,13 @@ public class RestClientRegistrar implements ImportBeanDefinitionRegistrar, Resou
 				}
 			}
 		}
-		RestClientBeanScaner scanner = new RestClientBeanScaner(registry);
-		if (resourceLoader != null) {
-			scanner.setResourceLoader(resourceLoader);
+		if (basePackages.size() > 0) {
+			RestClientBeanScaner scanner = new RestClientBeanScaner(registry);
+			if (resourceLoader != null) {
+				scanner.setResourceLoader(resourceLoader);
+			}
+			scanner.scan(StringUtils.toStringArray(basePackages));
 		}
-		scanner.scan(StringUtils.toStringArray(basePackages));
-
 		if (annotationAttributes.containsKey("include")) {
 			for (Class<?> clz : annotationAttributes.getClassArray("include")) {
 				BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clz);

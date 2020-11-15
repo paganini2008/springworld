@@ -14,8 +14,7 @@ import org.springframework.http.ResponseEntity;
  */
 public interface RequestProcessor {
 
-	static final String CURRENT_PROVIDER_IDENTIFIER = "current-provider";
-	static final String CURRENT_REQUEST_IDENTIFIER = "current-request";
+	static final String CURRENT_RETRY_IDENTIFIER = "current-retry";
 
 	<T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int retries);
 

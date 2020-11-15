@@ -2,7 +2,6 @@ package com.github.paganini2008.springworld.cluster.multicast;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequestMapping("/application/cluster")
 @RestController
-@ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true")
 public class ClusterMulticastController {
 
 	@Autowired

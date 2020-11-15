@@ -61,11 +61,12 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 		int retries = restClient.retries();
 		int timeout = restClient.timeout();
 		Class<?> fallbackClass = restClient.fallback();
-		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, retries, timeout, defaultHttpHeaders, routingPolicy,
-				restTemplate, retryTemplateFactory, taskExecutor);
+		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, defaultHttpHeaders, routingPolicy, restTemplate,
+				retryTemplateFactory, taskExecutor);
 		Object fallback = fallbackClass != Void.class ? BeanUtils.instantiate(fallbackClass) : null;
 		log.info("Create rest client for provider: {}, retries:{}, timeout: {}", provider, retries, timeout);
-		return (T) ProxyFactory.getDefault().getProxy(fallback, new RestClientBeanAspect(requestProcessor, requestInterceptorContainer),
+		return (T) ProxyFactory.getDefault().getProxy(fallback,
+				new RestClientBeanAspect(requestProcessor, retries, timeout, requestInterceptorContainer),
 				new Class<?>[] { interfaceClass });
 	}
 

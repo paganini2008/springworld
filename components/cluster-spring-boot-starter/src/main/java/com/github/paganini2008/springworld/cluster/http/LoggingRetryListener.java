@@ -1,8 +1,12 @@
 package com.github.paganini2008.springworld.cluster.http;
 
+import static com.github.paganini2008.springworld.cluster.http.RequestProcessor.CURRENT_RETRY_IDENTIFIER;
+
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryListener;
+
+import com.github.paganini2008.springworld.cluster.http.DefaultRequestProcessor.RetryEntry;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,10 +32,11 @@ public class LoggingRetryListener implements RetryListener {
 
 	@Override
 	public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-		if (log.isInfoEnabled()) {
-			String provider = (String) context.getAttribute(RequestProcessor.CURRENT_PROVIDER_IDENTIFIER);
-			Request request = (Request) context.getAttribute(RequestProcessor.CURRENT_REQUEST_IDENTIFIER);
-			log.info("[{}] Retry: {}, Times: {}", provider, request, context.getRetryCount());
+		if (log.isTraceEnabled()) {
+			RetryEntry retryEntry = (RetryEntry) context.getAttribute(CURRENT_RETRY_IDENTIFIER);
+			String provider = retryEntry.getProvider();
+			Request request = retryEntry.getRequest();
+			log.trace("[{}] Retry: {}, Times: {}/{}", provider, request, context.getRetryCount(), retryEntry.getRetries());
 		}
 	}
 

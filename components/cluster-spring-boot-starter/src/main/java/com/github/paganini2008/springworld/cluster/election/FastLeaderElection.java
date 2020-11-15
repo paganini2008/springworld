@@ -71,6 +71,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		}
 		leaderInfo.setLeader(true);
 		instanceId.setLeaderInfo(leaderInfo);
+		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		log.info("Leader's info: " + leaderInfo);
 
 		// Update lead info from redis
@@ -91,7 +92,6 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
 		}
 
-		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));
 	}
 

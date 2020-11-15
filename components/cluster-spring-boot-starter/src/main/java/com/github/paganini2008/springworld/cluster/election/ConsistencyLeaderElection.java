@@ -79,6 +79,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 		}
 		leaderInfo.setLeader(true);
 		instanceId.setLeaderInfo(leaderInfo);
+		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		log.info("Leader's info: " + leaderInfo);
 
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
@@ -87,7 +88,6 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
 		}
 
-		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));
 	}
 

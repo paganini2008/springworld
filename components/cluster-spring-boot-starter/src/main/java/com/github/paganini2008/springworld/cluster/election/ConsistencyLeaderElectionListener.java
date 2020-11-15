@@ -93,7 +93,7 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 			instanceId.setLeaderInfo(null);
 			instanceId.setClusterMode(ClusterMode.PROTECTED);
 			
-			recoveryCallback.recover();
+			recoveryCallback.recover(applicationInfo);
 		}
 	}
 
