@@ -15,7 +15,7 @@ import com.github.paganini2008.devtools.converter.ConvertUtils;
 
 /**
  * 
- * ApplicationPropertiesUtils
+ * BeanExpressionUtils
  * 
  * @author Fred Feng
  *

@@ -22,7 +22,7 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandle
  */
 @Configuration
 @AutoConfigureAfter(ApplicationClusterConfig.class)
-@ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true", matchIfMissing = true)
 @Import({ ClusterMulticastController.class })
 public class ClusterMulticastConfig {
 
@@ -50,7 +50,7 @@ public class ClusterMulticastConfig {
 	}
 
 	@Bean
-	public ClusterMulticastGroup multicastGroup() {
+	public ClusterMulticastGroup clusterMulticastGroup() {
 		return new ClusterMulticastGroup();
 	}
 
