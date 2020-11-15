@@ -1,15 +1,16 @@
 package com.github.paganini2008.springworld.cluster.http;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterLoadBalancer;
-import com.github.paganini2008.springworld.cluster.ApplicationRegistryCenter;
-import com.github.paganini2008.springworld.cluster.LoadBalanceRoutingPolicy;
+import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
 
 /**
  * 
@@ -20,13 +21,14 @@ import com.github.paganini2008.springworld.cluster.LoadBalanceRoutingPolicy;
  * @since 1.0
  */
 @Configuration
+@ConditionalOnBean(ClusterMulticastConfig.class)
 public class RestClientConfig {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Bean
-	public ApplicationRegistryCenter applicationRegistryCenter() {
+	public RegistryCenter applicationRegistryCenter() {
 		return new ApplicationRegistryCenter();
 	}
 
@@ -67,9 +69,29 @@ public class RestClientConfig {
 		return new LoggingRetryListener();
 	}
 
-	@Bean
-	public LeaderServiceFactoryBean leaderServiceFactoryBean() {
-		return new LeaderServiceFactoryBean();
+	/**
+	 * 
+	 * LeaderHeartbeaterConfig
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
+	@EnableRestClient(include = { LeaderService.class })
+	@Configuration
+	public static class LeaderHeartbeaterConfig {
+
+		@Bean
+		public LeaderHeartbeater leaderHeartbeater() {
+			return new LeaderHeartbeater();
+		}
+		
+		@Primary
+		@Bean
+		public LeaderRecoveryCallback leaderRecoveryCallback() {
+			return new RetryableLeaderRecoveryCallback();
+		}
+		
 	}
 
 }

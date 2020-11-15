@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisKeyExpiredEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ClusterMode;
 import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
 
 import lombok.extern.slf4j.Slf4j;
 

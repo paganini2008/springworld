@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 
@@ -25,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ApplicationRegistryCenter implements ClusterStateChangeListener {
+public class ApplicationRegistryCenter implements ClusterStateChangeListener, RegistryCenter {
 
 	private final Map<String, List<ApplicationInfo>> appInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 
@@ -36,14 +38,15 @@ public class ApplicationRegistryCenter implements ClusterStateChangeListener {
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	private ApplicationInfo leaderInfo;
+	@Autowired
+	private InstanceId instanceId;
 
-	public List<ApplicationInfo> getApplicationInfos(String applicationName) {
+	public List<ApplicationInfo> getApplications(String applicationName) {
 		return appInfoCache.get(applicationName);
 	}
 
-	public ApplicationInfo getLeaderInfo() {
-		return leaderInfo;
+	public ApplicationInfo getLeader() {
+		return instanceId.getLeaderInfo();
 	}
 
 	@Override

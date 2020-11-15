@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -19,7 +21,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeE
  * @author Fred Feng
  * @version 1.0
  */
-public class ClusterMulticastListenerContainer implements ApplicationContextAware {
+public class ClusterMulticastListenerContainer implements ApplicationContextAware, BeanPostProcessor {
 
 	private final List<ClusterStateChangeListener> listeners = new CopyOnWriteArrayList<ClusterStateChangeListener>();
 	private final Map<String, List<ClusterMessageListener>> topicListeners = new ConcurrentHashMap<String, List<ClusterMessageListener>>();
@@ -101,6 +103,16 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 		if (listeners.contains(eventListener)) {
 			listeners.remove(eventListener);
 		}
+	}
+	
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		if (bean instanceof ClusterStateChangeListener) {
+		registerListener((ClusterStateChangeListener) bean);
+		} else if (bean instanceof ClusterMessageListener) {
+			registerListener((ClusterMessageListener) bean);
+		}
+		return bean;
 	}
 
 }

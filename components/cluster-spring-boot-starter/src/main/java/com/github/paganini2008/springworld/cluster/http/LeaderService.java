@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.http;
 
+import org.springframework.http.HttpMethod;
+
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 /**
@@ -10,8 +12,10 @@ import com.github.paganini2008.springworld.cluster.ApplicationInfo;
  *
  * @since 1.0
  */
+@RestClient(provider = "*", retries = 2)
 public interface LeaderService {
 
-	ApplicationInfo info();
-	
+	@Api(path = "/application/cluster/ping", method = HttpMethod.GET)
+	ApplicationInfo ping();
+
 }

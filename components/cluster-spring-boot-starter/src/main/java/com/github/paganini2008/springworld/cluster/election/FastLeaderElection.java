@@ -62,12 +62,12 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		ApplicationInfo leaderInfo;
 		if (selfInfo.equals(leaderInfo = (ApplicationInfo) redisTemplate.opsForList().index(key, -1))) {
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
-			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", clusterName,
+			log.info("This is the leader of application cluster '{}'. Current application event type is '{}'", clusterName,
 					ApplicationClusterNewLeaderEvent.class.getName());
 		} else {
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
-			log.info("I am the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
-					clusterName, ApplicationClusterFollowerEvent.class.getName());
+			log.info("This is the follower of application cluster '{}'. Current application event type is '{}'", clusterName,
+					ApplicationClusterFollowerEvent.class.getName());
 		}
 		leaderInfo.setLeader(true);
 		instanceId.setLeaderInfo(leaderInfo);
@@ -90,7 +90,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		if (instanceId.isLeader()) {
 			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
 		}
-		
+
 		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));
 	}

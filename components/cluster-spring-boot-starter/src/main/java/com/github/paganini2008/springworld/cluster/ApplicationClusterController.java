@@ -34,8 +34,8 @@ public class ApplicationClusterController {
 	@Autowired
 	private InstanceId instanceId;
 
-	@GetMapping("/health")
-	public ResponseEntity<ApplicationInfo> health() {
+	@GetMapping("/ping")
+	public ResponseEntity<ApplicationInfo> ping() {
 		return ResponseEntity.ok(instanceId.getApplicationInfo());
 	}
 

@@ -70,12 +70,12 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 		ApplicationInfo leaderInfo = (ApplicationInfo) event.getRequest().getValue();
 		if (instanceId.getApplicationInfo().equals(leaderInfo)) {
 			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
-			log.info("I am the leader of application cluster '{}'. Implement ApplicationListener to listen event type {}", clusterName,
+			log.info("This is the leader of application cluster '{}'. Current application event type is '{}'", clusterName,
 					ApplicationClusterNewLeaderEvent.class.getName());
 		} else {
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
-			log.info("I am the follower of application cluster '{}'. Implement ApplicationListener to listen the event type {}",
-					clusterName, ApplicationClusterFollowerEvent.class.getName());
+			log.info("This is the follower of application cluster '{}'. Current application event type is '{}'", clusterName,
+					ApplicationClusterFollowerEvent.class.getName());
 		}
 		leaderInfo.setLeader(true);
 		instanceId.setLeaderInfo(leaderInfo);

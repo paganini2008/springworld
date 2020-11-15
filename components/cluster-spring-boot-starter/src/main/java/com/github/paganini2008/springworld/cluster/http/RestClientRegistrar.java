@@ -3,8 +3,12 @@ package com.github.paganini2008.springworld.cluster.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanNameGenerator;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ResourceLoaderAware;
+import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.io.ResourceLoader;
@@ -21,6 +25,7 @@ import org.springframework.util.StringUtils;
  */
 public class RestClientRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
+	private final BeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
 	private ResourceLoader resourceLoader;
 
 	@Override
@@ -45,6 +50,19 @@ public class RestClientRegistrar implements ImportBeanDefinitionRegistrar, Resou
 			scanner.setResourceLoader(resourceLoader);
 		}
 		scanner.scan(StringUtils.toStringArray(basePackages));
+
+		if (annotationAttributes.containsKey("include")) {
+			for (Class<?> clz : annotationAttributes.getClassArray("include")) {
+				BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clz);
+				GenericBeanDefinition beanDefinition = (GenericBeanDefinition) beanDefinitionBuilder.getBeanDefinition();
+				beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
+				beanDefinition.setBeanClass(RestClientProxyFactoryBean.class);
+				beanDefinition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
+				String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
+				registry.registerBeanDefinition(beanName, beanDefinition);
+			}
+		}
+
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster.election;
+package com.github.paganini2008.springworld.cluster;
 
 /**
  * 

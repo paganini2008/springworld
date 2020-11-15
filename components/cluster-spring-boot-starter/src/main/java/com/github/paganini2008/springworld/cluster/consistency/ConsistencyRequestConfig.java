@@ -1,12 +1,13 @@
 package com.github.paganini2008.springworld.cluster.consistency;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
 
 /**
  * 
@@ -16,7 +17,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListe
  * @since 1.0
  */
 @Configuration
-@ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true")
+@ConditionalOnBean(ClusterMulticastConfig.class)
 public class ConsistencyRequestConfig {
 
 	@ConditionalOnMissingBean(Clock.class)

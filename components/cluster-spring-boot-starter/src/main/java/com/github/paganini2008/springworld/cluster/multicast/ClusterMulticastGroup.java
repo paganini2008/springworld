@@ -25,7 +25,7 @@ import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.cluster.LoadBalancer;
+import com.github.paganini2008.springworld.cluster.utils.LoadBalancer;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.Getter;

@@ -1,8 +1,8 @@
-package com.github.paganini2008.springworld.cluster;
+package com.github.paganini2008.springworld.cluster.http;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.http.RoutingPolicy;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 /**
  * 
@@ -15,11 +15,11 @@ import com.github.paganini2008.springworld.cluster.http.RoutingPolicy;
 public class LeaderRoutingPolicy implements RoutingPolicy {
 
 	@Autowired
-	private ApplicationRegistryCenter applicationRegistryCenter;
+	private RegistryCenter registryCenter;
 
 	@Override
 	public String extractUrl(String provider, String path) {
-		ApplicationInfo leaderInfo = applicationRegistryCenter.getLeaderInfo();
+		ApplicationInfo leaderInfo = registryCenter.getLeader();
 		return leaderInfo.getApplicationContextPath() + path;
 	}
 

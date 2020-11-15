@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster.election;
+package com.github.paganini2008.springworld.cluster;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,19 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.devtools.Observable;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
-import com.github.paganini2008.springworld.cluster.ClusterMode;
-import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.cluster.election.LeaderElection;
 
 /**
  * 
- * UnsafeLeaderRecoveryCallback
+ * DefaultLeaderRecoveryCallback
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class UnsafeLeaderRecoveryCallback implements ApplicationListener<ApplicationClusterFollowerEvent>, LeaderRecoveryCallback {
+public class DefaultLeaderRecoveryCallback implements ApplicationListener<ApplicationClusterFollowerEvent>, LeaderRecoveryCallback {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 

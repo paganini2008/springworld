@@ -19,9 +19,11 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ RestClientRegistrar.class, RestClientConfig.class })
+@Import({ RestClientRegistrar.class })
 public @interface EnableRestClient {
 
-	String[] basePackages();
+	String[] basePackages() default {};
+
+	Class<?>[] include() default {};
 
 }

@@ -1,11 +1,10 @@
-package com.github.paganini2008.springworld.cluster;
+package com.github.paganini2008.springworld.cluster.http;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.paganini2008.springworld.cluster.http.RoutingPolicy;
-import com.github.paganini2008.springworld.cluster.http.RoutingPolicyException;
+import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 /**
  * 
@@ -18,7 +17,7 @@ import com.github.paganini2008.springworld.cluster.http.RoutingPolicyException;
 public class LoadBalanceRoutingPolicy implements RoutingPolicy {
 
 	@Autowired
-	private ApplicationRegistryCenter applicationRegistryCenter;
+	private RegistryCenter registryCenter;
 
 	@Autowired
 	private ApplicationClusterLoadBalancer loadBalancer;
@@ -27,9 +26,9 @@ public class LoadBalanceRoutingPolicy implements RoutingPolicy {
 	public String extractUrl(String provider, String path) {
 		ApplicationInfo selectedApplication;
 		if (provider.equals(LEADER_ALIAS)) {
-			selectedApplication = applicationRegistryCenter.getLeaderInfo();
+			selectedApplication = registryCenter.getLeader();
 		} else {
-			List<ApplicationInfo> candidates = applicationRegistryCenter.getApplicationInfos(provider.toLowerCase());
+			List<ApplicationInfo> candidates = registryCenter.getApplications(provider.toLowerCase());
 			selectedApplication = loadBalancer.select(path, candidates);
 		}
 		if (selectedApplication == null) {

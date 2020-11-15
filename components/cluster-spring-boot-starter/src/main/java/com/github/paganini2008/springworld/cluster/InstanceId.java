@@ -96,6 +96,7 @@ public final class InstanceId {
 			applicationContextPath = "http://" + NetUtils.getLocalHost() + ":" + port + contextPath;
 		}
 		applicationInfo.setApplicationContextPath(applicationContextPath);
+		applicationInfo.setClusterMode(clusterMode);
 		return applicationInfo;
 	}
 
