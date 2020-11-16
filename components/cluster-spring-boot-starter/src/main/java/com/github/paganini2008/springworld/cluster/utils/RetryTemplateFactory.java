@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.cluster.http;
+package com.github.paganini2008.springworld.cluster.utils;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -9,6 +9,8 @@ import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+
+import com.github.paganini2008.springworld.cluster.http.RetryListenerContainer;
 
 /**
  * 

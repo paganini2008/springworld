@@ -8,8 +8,8 @@ package com.github.paganini2008.springworld.cluster;
  *
  * @since 1.0
  */
-public enum ClusterMode {
+public enum ClusterState {
 
-	ACCESSABLE, PROTECTED, UNKOWN;
+	ACCESSABLE, PROTECTED, FATAL, UNKOWN;
 
 }

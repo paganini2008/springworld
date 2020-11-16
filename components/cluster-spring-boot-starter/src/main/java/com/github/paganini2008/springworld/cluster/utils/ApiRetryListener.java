@@ -1,4 +1,6 @@
-package com.github.paganini2008.springworld.cluster.http;
+package com.github.paganini2008.springworld.cluster.utils;
+
+import com.github.paganini2008.springworld.cluster.http.Request;
 
 /**
  * 

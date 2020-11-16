@@ -37,7 +37,7 @@ public class ApplicationInfo implements Serializable, Comparable<ApplicationInfo
 	private ApplicationInfo leaderInfo;
 	private String applicationContextPath;
 	private Contact contact;
-	private ClusterMode clusterMode;
+	private ClusterState clusterState;
 
 	public ApplicationInfo() {
 	}

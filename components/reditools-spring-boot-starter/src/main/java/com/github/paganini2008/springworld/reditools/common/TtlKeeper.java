@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.reditools.common;
 
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.redis.core.RedisOperations;
 
 import com.github.paganini2008.devtools.multithreads.Clock;
@@ -18,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class TtlKeeper {
+public class TtlKeeper implements DisposableBean {
 
 	private static final int TTL_RESET_THRESHOLD = 10;
 	private final Clock clock;
@@ -31,10 +32,6 @@ public class TtlKeeper {
 	public TtlKeeper(Clock clock, RedisOperations<String, Object> redisOperations) {
 		this.clock = clock;
 		this.redisOperations = redisOperations;
-	}
-
-	public void stop() {
-		clock.stop();
 	}
 
 	public void keep(String key, long timeout, TimeUnit timeUnit) {
@@ -53,6 +50,11 @@ public class TtlKeeper {
 
 	public int getKeepingCount() {
 		return clock.getTaskCount();
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		clock.stop();
 	}
 
 	private class TtlKeepingTask extends ClockTask {
@@ -78,7 +80,7 @@ public class TtlKeeper {
 				}
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
-				
+
 			}
 		}
 

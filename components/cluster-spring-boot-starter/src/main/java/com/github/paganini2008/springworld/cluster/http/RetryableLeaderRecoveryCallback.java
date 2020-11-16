@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.DefaultLeaderRecoveryCallback;
+import com.github.paganini2008.springworld.cluster.utils.ApiRetryListener;
 
 import lombok.extern.slf4j.Slf4j;
 

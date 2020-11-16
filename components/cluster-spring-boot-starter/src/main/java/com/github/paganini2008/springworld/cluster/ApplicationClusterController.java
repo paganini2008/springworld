@@ -39,6 +39,11 @@ public class ApplicationClusterController {
 		return ResponseEntity.ok(instanceId.getApplicationInfo());
 	}
 
+	@GetMapping("/state")
+	public ResponseEntity<ClusterState> state() {
+		return ResponseEntity.ok(instanceId.getClusterState());
+	}
+
 	@GetMapping("/list")
 	public ResponseEntity<ApplicationInfo[]> list() {
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;

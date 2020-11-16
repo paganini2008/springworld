@@ -12,6 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
+import com.github.paganini2008.springworld.cluster.utils.RetryTemplateFactory;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -11,7 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.ClusterMode;
+import com.github.paganini2008.springworld.cluster.ClusterState;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -91,7 +91,7 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 			redisTemplate.opsForList().remove(key, 1, instanceId.getApplicationInfo());
 
 			instanceId.setLeaderInfo(null);
-			instanceId.setClusterMode(ClusterMode.PROTECTED);
+			instanceId.setClusterState(ClusterState.PROTECTED);
 			
 			recoveryCallback.recover(applicationInfo);
 		}

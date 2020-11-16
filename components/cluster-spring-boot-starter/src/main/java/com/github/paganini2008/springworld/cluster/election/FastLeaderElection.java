@@ -16,7 +16,7 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEve
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.ClusterMode;
+import com.github.paganini2008.springworld.cluster.ClusterState;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
@@ -37,7 +37,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 	private String clusterName;
 
 	@Value("${spring.application.cluster.leader.lease:5}")
-	private int leaderTimeout;
+	private int leaderLease;
 
 	@Autowired
 	private InstanceId instanceId;
@@ -71,9 +71,9 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		}
 		
 		leaderInfo.setLeader(true);
-		leaderInfo.setClusterMode(ClusterMode.ACCESSABLE);
+		leaderInfo.setClusterState(ClusterState.ACCESSABLE);
 		instanceId.setLeaderInfo(leaderInfo);
-		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
+		instanceId.setClusterState(ClusterState.ACCESSABLE);
 		log.info("Leader's info: " + leaderInfo);
 
 		// Update lead info from redis
@@ -91,7 +91,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		}
 
 		if (instanceId.isLeader()) {
-			ttlKeeper.keep(key, leaderTimeout, TimeUnit.SECONDS);
+			ttlKeeper.keep(key, leaderLease, TimeUnit.SECONDS);
 		}
 
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));

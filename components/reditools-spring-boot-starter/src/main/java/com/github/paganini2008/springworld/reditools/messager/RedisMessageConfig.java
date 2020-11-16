@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.paganini2008.springworld.reditools.BeanNames;
-import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
 
 /**
  * 
@@ -169,11 +168,6 @@ public class RedisMessageConfig {
 	@Bean
 	public RedisMessageHandlerBeanProcessor redisMessageHandlerBeanProcessor() {
 		return new RedisMessageHandlerBeanProcessor();
-	}
-
-	@Bean(destroyMethod = "stop")
-	public TtlKeeper ttlKeeper(@Qualifier(BeanNames.REDIS_TEMPLATE) RedisTemplate<String, Object> redisTemplate) {
-		return new TtlKeeper(redisTemplate);
 	}
 
 }
