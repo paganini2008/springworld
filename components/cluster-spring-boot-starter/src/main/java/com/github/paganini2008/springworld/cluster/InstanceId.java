@@ -61,7 +61,7 @@ public final class InstanceId {
 
 	@Setter
 	@Getter
-	private ClusterMode clusterMode;
+	private ClusterMode clusterMode = ClusterMode.UNKOWN;
 
 	public String get() {
 		if (StringUtils.isBlank(id)) {

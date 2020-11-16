@@ -84,12 +84,12 @@ public class DefaultRequestProcessor implements RequestProcessor {
 
 		private String provider;
 		private Request request;
-		private int retries;
+		private int maxAttempts;
 
-		RetryEntry(String provider, Request request, int retries) {
+		RetryEntry(String provider, Request request, int maxAttempts) {
 			this.provider = provider;
 			this.request = request;
-			this.retries = retries;
+			this.maxAttempts = maxAttempts;
 		}
 
 	}

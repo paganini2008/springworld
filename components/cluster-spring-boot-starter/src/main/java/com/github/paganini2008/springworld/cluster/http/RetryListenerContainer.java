@@ -80,10 +80,11 @@ public class RetryListenerContainer implements RetryListener {
 				if (listener.matches(provider, request)) {
 					if (retryCount == 1) {
 						listener.onRetryBegin(provider, request);
-					} else if (retryCount == retryEntry.getRetries()) {
+					}
+					listener.onEachRetry(provider, request, throwable);
+					
+					if (retryCount == retryEntry.getMaxAttempts()) {
 						listener.onRetryEnd(provider, request, throwable);
-					} else {
-						listener.onEachRetry(provider, request, throwable);
 					}
 				}
 			});

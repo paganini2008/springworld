@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.http;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.DefaultLeaderRecoveryCallback;
@@ -19,6 +21,9 @@ public class RetryableLeaderRecoveryCallback extends DefaultLeaderRecoveryCallba
 
 	private static final String LEADER_PING_PATH = "/application/cluster/ping";
 
+	@Autowired
+	private LeaderHeartbeater leaderHeartbeater;
+
 	private ApplicationInfo leaderInfo;
 
 	@Override
@@ -34,6 +39,7 @@ public class RetryableLeaderRecoveryCallback extends DefaultLeaderRecoveryCallba
 	@Override
 	public void onRetryEnd(String provider, Request request, Throwable e) {
 		log.warn("Cluster leader [{}] is exhausted", leaderInfo);
+		leaderHeartbeater.cancel();
 		super.recover(leaderInfo);
 	}
 

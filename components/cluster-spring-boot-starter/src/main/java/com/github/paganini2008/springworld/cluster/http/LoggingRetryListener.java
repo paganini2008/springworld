@@ -33,10 +33,12 @@ public class LoggingRetryListener implements RetryListener {
 	@Override
 	public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
 		if (log.isTraceEnabled()) {
-			RetryEntry retryEntry = (RetryEntry) context.getAttribute(CURRENT_RETRY_IDENTIFIER);
-			String provider = retryEntry.getProvider();
-			Request request = retryEntry.getRequest();
-			log.trace("[{}] Retry: {}, Times: {}/{}", provider, request, context.getRetryCount(), retryEntry.getRetries());
+			if (context.hasAttribute(CURRENT_RETRY_IDENTIFIER)) {
+				RetryEntry retryEntry = (RetryEntry) context.getAttribute(CURRENT_RETRY_IDENTIFIER);
+				String provider = retryEntry.getProvider();
+				Request request = retryEntry.getRequest();
+				log.trace("[{}] Retry: {}, Times: {}/{}", provider, request, context.getRetryCount(), retryEntry.getMaxAttempts());
+			}
 		}
 	}
 

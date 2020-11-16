@@ -69,11 +69,16 @@ public class TtlKeeper {
 
 		@Override
 		protected void runTask() {
-			Long ttl = redisOperations.getExpire(key, TimeUnit.SECONDS);
-			if (ttl != null) {
-				if (ttl < TTL_RESET_THRESHOLD) {
-					redisOperations.expire(key, timeout, timeUnit);
+			try {
+				Long ttl = redisOperations.getExpire(key, TimeUnit.SECONDS);
+				if (ttl != null) {
+					if (ttl < TTL_RESET_THRESHOLD) {
+						redisOperations.expire(key, timeout, timeUnit);
+					}
 				}
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				
 			}
 		}
 

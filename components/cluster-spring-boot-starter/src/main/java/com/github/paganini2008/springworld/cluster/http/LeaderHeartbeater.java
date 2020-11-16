@@ -34,6 +34,12 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 
 	private ApplicationInfo currentLeaderInfo;
 
+	public void cancel() {
+		if (timer != null) {
+			timer.cancel();
+		}
+	}
+
 	@Override
 	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {
 		this.currentLeaderInfo = event.getLeaderInfo();
@@ -55,7 +61,9 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 
 	@Override
 	public void onCancellation(Throwable e) {
-		log.error(e.getMessage(), e);
+		if (e != null) {
+			log.error(e.getMessage(), e);
+		}
 		timer = null;
 	}
 

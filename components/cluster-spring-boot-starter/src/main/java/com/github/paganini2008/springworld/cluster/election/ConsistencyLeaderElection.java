@@ -41,7 +41,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@Value("${spring.application.cluster.leader.timeout:5}")
+	@Value("${spring.application.cluster.leader.lease:5}")
 	private int leaderTimeout;
 
 	@Autowired
@@ -78,6 +78,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 					ApplicationClusterFollowerEvent.class.getName());
 		}
 		leaderInfo.setLeader(true);
+		leaderInfo.setClusterMode(ClusterMode.ACCESSABLE);
 		instanceId.setLeaderInfo(leaderInfo);
 		instanceId.setClusterMode(ClusterMode.ACCESSABLE);
 		log.info("Leader's info: " + leaderInfo);

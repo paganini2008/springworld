@@ -10,6 +10,6 @@ package com.github.paganini2008.springworld.cluster;
  */
 public enum ClusterMode {
 
-	ACCESSABLE, PROTECTED;
+	ACCESSABLE, PROTECTED, UNKOWN;
 
 }
