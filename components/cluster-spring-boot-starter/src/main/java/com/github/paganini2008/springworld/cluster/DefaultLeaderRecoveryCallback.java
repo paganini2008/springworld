@@ -26,7 +26,7 @@ public class DefaultLeaderRecoveryCallback implements ApplicationListener<Applic
 	private LeaderElection leaderElection;
 
 	@Autowired
-	private InstanceId instanceId;
+	protected InstanceId instanceId;
 
 	@Override
 	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {

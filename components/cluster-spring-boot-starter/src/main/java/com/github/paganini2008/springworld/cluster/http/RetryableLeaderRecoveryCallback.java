@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.ClusterState;
 import com.github.paganini2008.springworld.cluster.DefaultLeaderRecoveryCallback;
 import com.github.paganini2008.springworld.cluster.utils.ApiRetryListener;
 
@@ -40,8 +41,10 @@ public class RetryableLeaderRecoveryCallback extends DefaultLeaderRecoveryCallba
 	@Override
 	public void onRetryEnd(String provider, Request request, Throwable e) {
 		log.warn("Cluster leader [{}] is exhausted", leaderInfo);
-		leaderHeartbeater.cancel();
-		super.recover(leaderInfo);
+		if (instanceId.getClusterState() == ClusterState.PROTECTED) {
+			leaderHeartbeater.cancel();
+			super.recover(leaderInfo);
+		}
 	}
 
 	@Override

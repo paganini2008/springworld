@@ -55,4 +55,9 @@ public class ApplicationClusterConfig {
 	public LeaderRecoveryCallback leaderRecoveryCallback() {
 		return new DefaultLeaderRecoveryCallback();
 	}
+
+	@Bean
+	public RedisConnectionFailureHandler redisConnectionFailureHandler() {
+		return new RedisConnectionFailureHandler();
+	}
 }

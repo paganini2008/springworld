@@ -31,6 +31,7 @@ public class RedisConnectionFailureHandler implements ConnectionFailureHandler {
 
 	@Override
 	public void handleException(Throwable e) {
+		log.warn("RedisConnection refused");
 		final RetryTemplate retryTemplate = retryTemplateFactory.setRetryPolicy(3).createObject();
 		retryTemplate.execute(context -> {
 			return redisKeepAliveResolver.ping();
