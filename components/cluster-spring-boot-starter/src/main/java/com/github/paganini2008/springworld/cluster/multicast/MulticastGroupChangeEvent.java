@@ -4,20 +4,21 @@ import org.springframework.context.ApplicationContext;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.ClusterState;
 
 /**
  * 
- * ClusterStateChangeEvent
+ * MulticastGroupChangeEvent
  *
  * @author Fred Feng
  * @since 1.0
  */
-public class ClusterStateChangeEvent extends ApplicationClusterEvent {
+public class MulticastGroupChangeEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = -2482108960259276628L;
 
-	public ClusterStateChangeEvent(ApplicationContext source, ApplicationInfo applicationInfo, EventType eventType) {
-		super(source);
+	public MulticastGroupChangeEvent(ApplicationContext source, ApplicationInfo applicationInfo, EventType eventType) {
+		super(source, ClusterState.ACCESSABLE);
 		this.applicationInfo = applicationInfo;
 		this.eventType = eventType;
 	}

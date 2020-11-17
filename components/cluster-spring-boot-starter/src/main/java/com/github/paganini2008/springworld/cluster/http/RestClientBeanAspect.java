@@ -9,12 +9,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.Comparables;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
+import com.github.paganini2008.springworld.cluster.ClusterState;
+import com.github.paganini2008.springworld.cluster.LeaderContext;
 
 /**
  * 
@@ -26,17 +29,27 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
  */
 public class RestClientBeanAspect implements Aspect {
 
+	private final LeaderContext leaderContext;
+	private final RequestProcessor requestProcessor;
 	private final int defaultRetries;
 	private final int defaultTimeout;
-	private final RequestProcessor requestProcessor;
 	private final RequestInterceptorContainer requestInterceptorContainer;
 
-	public RestClientBeanAspect(RequestProcessor requestProcessor, int defaultRetries, int defaultTimeout,
+	public RestClientBeanAspect(LeaderContext leaderContext, RequestProcessor requestProcessor, int defaultRetries, int defaultTimeout,
 			RequestInterceptorContainer requestInterceptorContainer) {
+		this.leaderContext = leaderContext;
 		this.defaultRetries = defaultRetries;
 		this.defaultTimeout = defaultTimeout;
 		this.requestProcessor = requestProcessor;
 		this.requestInterceptorContainer = requestInterceptorContainer;
+	}
+
+	@Override
+	public boolean beforeCall(Object target, Method method, Object[] args) {
+		if (leaderContext.getClusterState() == ClusterState.FATAL) {
+			throw new ResourceAccessException("Fatal Cluster State");
+		}
+		return true;
 	}
 
 	@Override
@@ -130,6 +143,13 @@ public class RestClientBeanAspect implements Aspect {
 			return ResponseEntity.ok(result);
 		}
 		return null;
+	}
+
+	@Override
+	public void catchException(Object target, Method method, Object[] args, Throwable e) {
+		if (e instanceof RestClientException) {
+			throw (RestClientException) e;
+		}
 	}
 
 }

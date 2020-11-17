@@ -26,7 +26,7 @@ public class DefaultLeaderRecoveryCallback implements ApplicationListener<Applic
 	private LeaderElection leaderElection;
 
 	@Autowired
-	protected InstanceId instanceId;
+	protected LeaderContext leaderContext;
 
 	@Override
 	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {
@@ -37,10 +37,9 @@ public class DefaultLeaderRecoveryCallback implements ApplicationListener<Applic
 
 	@Override
 	public void recover(ApplicationInfo leaderInfo) {
-		if (instanceId.getClusterState() == ClusterState.PROTECTED) {
-			log.info("Start to leader election recovery ...");
-			electionObservable.notifyObservers(leaderInfo);
-		}
+		log.info("Start to leader election recovery ...");
+		leaderContext.setClusterState(ClusterState.PROTECTED);
+		electionObservable.notifyObservers(leaderInfo);
 	}
 
 	protected Observable getObservable() {

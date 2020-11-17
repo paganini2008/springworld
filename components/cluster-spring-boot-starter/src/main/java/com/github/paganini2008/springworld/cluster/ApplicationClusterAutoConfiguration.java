@@ -1,5 +1,6 @@
 package com.github.paganini2008.springworld.cluster;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -9,6 +10,7 @@ import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastCon
 import com.github.paganini2008.springworld.cluster.pool.ProcessPoolConfig;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.cluster.utils.BeanExpressionUtils;
+import com.github.paganini2008.springworld.cluster.utils.LazilyAutowiredBeanInspector;
 
 /**
  * 
@@ -26,4 +28,9 @@ import com.github.paganini2008.springworld.cluster.utils.BeanExpressionUtils;
 		ConsistencyRequestConfig.class,
 		RestClientConfig.class })
 public class ApplicationClusterAutoConfiguration {
+	
+	@Bean
+	public LazilyAutowiredBeanInspector lazilyAutowiredBeanInspector() {
+		return new LazilyAutowiredBeanInspector();
+	}
 }

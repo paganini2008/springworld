@@ -1,6 +1,9 @@
 package com.github.paganini2008.springworld.cluster;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.retry.support.RetryTemplate;
 
 import com.github.paganini2008.springworld.cluster.utils.RetryTemplateFactory;
@@ -18,16 +21,15 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class RedisConnectionFailureHandler implements ConnectionFailureHandler {
-
-	@Autowired
-	private InstanceId instanceId;
+public class RedisConnectionFailureHandler implements ConnectionFailureHandler, ApplicationContextAware {
 
 	@Autowired
 	private RedisKeepAliveResolver redisKeepAliveResolver;
 
 	@Autowired
 	private RetryTemplateFactory retryTemplateFactory;
+
+	private ApplicationContext applicationContext;
 
 	@Override
 	public void handleException(Throwable e) {
@@ -40,10 +42,15 @@ public class RedisConnectionFailureHandler implements ConnectionFailureHandler {
 			if (reason != null) {
 				log.error(reason.getMessage(), reason);
 			}
-			instanceId.setClusterState(ClusterState.FATAL);
 			redisKeepAliveResolver.addListener(RedisConnectionFailureHandler.this);
+			applicationContext.publishEvent(new ApplicationClusterFatalEvent(applicationContext));
 			return "";
 		});
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
 	}
 
 }

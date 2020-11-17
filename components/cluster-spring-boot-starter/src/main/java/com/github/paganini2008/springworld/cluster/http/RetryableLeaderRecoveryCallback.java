@@ -26,24 +26,28 @@ public class RetryableLeaderRecoveryCallback extends DefaultLeaderRecoveryCallba
 	@Autowired
 	private LeaderHeartbeater leaderHeartbeater;
 
-	private ApplicationInfo leaderInfo;
-
 	@Override
 	public void recover(ApplicationInfo leaderInfo) {
-		this.leaderInfo = leaderInfo;
+	}
+
+	@Override
+	public void onRetryBegin(String provider, Request request) {
+		leaderContext.setClusterState(ClusterState.PROTECTED);
+		leaderHeartbeater.cancel();
 	}
 
 	@Override
 	public void onEachRetry(String provider, Request request, Throwable e) {
-		log.warn("Attempt to keep heartbeating from cluster leader [{}]", leaderInfo);
+		ApplicationInfo leader = leaderContext.getLeader();
+		log.warn("Attempt to keep heartbeating from cluster leader [{}]", leader);
 	}
 
 	@Override
 	public void onRetryEnd(String provider, Request request, Throwable e) {
-		log.warn("Cluster leader [{}] is exhausted", leaderInfo);
-		if (instanceId.getClusterState() == ClusterState.PROTECTED) {
-			leaderHeartbeater.cancel();
-			super.recover(leaderInfo);
+		ApplicationInfo leader = leaderContext.getLeader();
+		log.warn("Cluster leader [{}] is exhausted", leader);
+		if (leaderContext.getClusterState() == ClusterState.PROTECTED) {
+			super.recover(leader);
 		}
 	}
 

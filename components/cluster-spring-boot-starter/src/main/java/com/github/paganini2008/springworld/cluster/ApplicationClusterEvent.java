@@ -14,8 +14,15 @@ public abstract class ApplicationClusterEvent extends ApplicationContextEvent {
 
 	private static final long serialVersionUID = -9030425105386583374L;
 
-	public ApplicationClusterEvent(ApplicationContext source) {
+	public ApplicationClusterEvent(ApplicationContext source, ClusterState clusterState) {
 		super(source);
+		this.clusterState = clusterState;
+	}
+
+	private final ClusterState clusterState;
+
+	public ClusterState getClusterState() {
+		return clusterState;
 	}
 
 }

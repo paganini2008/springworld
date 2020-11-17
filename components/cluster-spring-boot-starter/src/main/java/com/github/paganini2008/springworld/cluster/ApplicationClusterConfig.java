@@ -39,6 +39,11 @@ public class ApplicationClusterConfig {
 		return new ApplicationClusterAware();
 	}
 
+	@Bean
+	public LeaderContext leaderContext() {
+		return new LeaderContext();
+	}
+
 	@ConditionalOnMissingBean(LeaderElectionListener.class)
 	@Bean
 	public LeaderElectionListener fastLeaderElectionListener() {

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 
 /**
@@ -24,15 +25,18 @@ import com.github.paganini2008.springworld.reditools.BeanNames;
 @RestController
 public class ApplicationClusterController {
 
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
+
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
-
 	@Autowired
 	private InstanceId instanceId;
+
+	@Autowired
+	private LeaderContext leaderContext;
 
 	@GetMapping("/ping")
 	public ResponseEntity<ApplicationInfo> ping() {
@@ -41,23 +45,15 @@ public class ApplicationClusterController {
 
 	@GetMapping("/state")
 	public ResponseEntity<ClusterState> state() {
-		return ResponseEntity.ok(instanceId.getClusterState());
+		return ResponseEntity.ok(leaderContext.getClusterState());
 	}
 
 	@GetMapping("/list")
 	public ResponseEntity<ApplicationInfo[]> list() {
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
-		ApplicationInfo[] results = new ApplicationInfo[dataList != null ? dataList.size() : 0];
-		int i = 0;
-		ApplicationInfo applicationInfo;
-		for (Object data : dataList) {
-			applicationInfo = (ApplicationInfo) data;
-			applicationInfo
-					.setLeader(instanceId.getLeaderInfo() != null && instanceId.getLeaderInfo().getId().equals(applicationInfo.getId()));
-			results[i++] = applicationInfo;
-		}
-		return ResponseEntity.ok(results);
+		ApplicationInfo[] infos = ArrayUtils.cast(dataList.toArray(), ApplicationInfo.class);
+		return ResponseEntity.ok(infos);
 	}
 
 }

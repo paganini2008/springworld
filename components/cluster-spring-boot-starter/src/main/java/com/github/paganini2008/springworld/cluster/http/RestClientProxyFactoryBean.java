@@ -12,6 +12,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
+import com.github.paganini2008.springworld.cluster.LeaderContext;
+import com.github.paganini2008.springworld.cluster.utils.LazilyAutowiredBeanInspector;
 import com.github.paganini2008.springworld.cluster.utils.RetryTemplateFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +52,13 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	private ThreadPoolTaskExecutor taskExecutor;
 
 	@Autowired
+	private LeaderContext leaderContext;
+
+	@Autowired
 	private RequestInterceptorContainer requestInterceptorContainer;
+
+	@Autowired
+	private LazilyAutowiredBeanInspector lazilyAutowiredBeanInspector;
 
 	private ConfigurableBeanFactory beanFactory;
 
@@ -64,10 +72,13 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 		Class<?> fallbackClass = restClient.fallback();
 		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, defaultHttpHeaders, routingPolicy, restTemplate,
 				retryTemplateFactory, taskExecutor);
-		Object fallback = fallbackClass != Void.class ? BeanUtils.instantiate(fallbackClass) : null;
+		Object fallback = fallbackClass != Void.class || fallbackClass != void.class ? BeanUtils.instantiate(fallbackClass) : null;
+		if (fallback != null) {
+			lazilyAutowiredBeanInspector.autowireLazily(fallback);
+		}
 		log.info("Create rest client for provider: {}, retries:{}, timeout: {}", provider, retries, timeout);
 		return (T) ProxyFactory.getDefault().getProxy(fallback,
-				new RestClientBeanAspect(requestProcessor, retries, timeout, requestInterceptorContainer),
+				new RestClientBeanAspect(leaderContext, requestProcessor, retries, timeout, requestInterceptorContainer),
 				new Class<?>[] { interfaceClass });
 	}
 

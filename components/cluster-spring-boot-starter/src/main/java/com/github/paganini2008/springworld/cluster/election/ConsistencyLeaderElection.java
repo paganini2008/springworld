@@ -17,7 +17,6 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEve
 import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.ClusterState;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestConfirmationEvent;
 import com.github.paganini2008.springworld.cluster.consistency.ConsistencyRequestContext;
@@ -78,9 +77,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 					ApplicationClusterFollowerEvent.class.getName());
 		}
 		leaderInfo.setLeader(true);
-		leaderInfo.setClusterState(ClusterState.ACCESSABLE);
 		instanceId.setLeaderInfo(leaderInfo);
-		instanceId.setClusterState(ClusterState.ACCESSABLE);
 		log.info("Leader's info: " + leaderInfo);
 
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;

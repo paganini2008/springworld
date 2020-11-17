@@ -21,5 +21,8 @@ public interface LeaderService {
 
 	@Api(path = "/application/cluster/state", method = HttpMethod.GET, retries = 3, timeout = 60)
 	ClusterState state();
+	
+	@Api(path = "/application/cluster/list", method = HttpMethod.GET)
+	ApplicationInfo[] list();
 
 }

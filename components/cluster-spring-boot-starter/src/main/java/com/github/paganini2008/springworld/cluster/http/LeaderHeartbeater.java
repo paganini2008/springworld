@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LeaderHeartbeater implements ApplicationListener<ApplicationClusterFollowerEvent>, Executable {
 
-	public static final int DEFAULT_CHECKED_INTERVAL = 5;
+	public static final int DEFAULT_CHECKED_INTERVAL = 3;
 
 	private Timer timer;
 
@@ -34,19 +34,24 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 
 	private ApplicationInfo currentLeaderInfo;
 
+	public void start() {
+		if (timer == null) {
+			timer = ThreadUtils.scheduleWithFixedDelay(this, DEFAULT_CHECKED_INTERVAL, TimeUnit.SECONDS);
+			log.info("Keep heartbeating with cluster leader [{}]", currentLeaderInfo);
+		}
+	}
+
 	public void cancel() {
 		if (timer != null) {
 			timer.cancel();
+			timer = null;
 		}
 	}
 
 	@Override
 	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {
 		this.currentLeaderInfo = event.getLeaderInfo();
-		if (timer == null) {
-			timer = ThreadUtils.scheduleWithFixedDelay(this, DEFAULT_CHECKED_INTERVAL, TimeUnit.SECONDS);
-			log.info("Keep heartbeating with cluster leader [{}]", currentLeaderInfo);
-		}
+		start();
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeEvent.EventType;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastGroupChangeEvent.EventType;
 
 /**
  * 
@@ -38,7 +38,7 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 				handler.onActive(applicationInfo);
 			});
 		}
-		applicationContext.publishEvent(new ClusterStateChangeEvent(applicationContext, applicationInfo, EventType.ON_ACTIVE));
+		applicationContext.publishEvent(new MulticastGroupChangeEvent(applicationContext, applicationInfo, EventType.ON_ACTIVE));
 	}
 
 	public void fireOnInactive(final ApplicationInfo applicationInfo) {
@@ -48,7 +48,7 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 				handler.onInactive(applicationInfo);
 			});
 		}
-		applicationContext.publishEvent(new ClusterStateChangeEvent(applicationContext, applicationInfo, EventType.ON_INACTIVE));
+		applicationContext.publishEvent(new MulticastGroupChangeEvent(applicationContext, applicationInfo, EventType.ON_INACTIVE));
 	}
 
 	public void fireOnMessage(final ApplicationInfo applicationInfo, final Object message) {
@@ -58,7 +58,7 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 				handler.onMessage(applicationInfo, message);
 			});
 		}
-		ClusterStateChangeEvent event = new ClusterStateChangeEvent(applicationContext, applicationInfo, EventType.ON_MESSAGE);
+		MulticastGroupChangeEvent event = new MulticastGroupChangeEvent(applicationContext, applicationInfo, EventType.ON_MESSAGE);
 		event.setMessage(message);
 		applicationContext.publishEvent(event);
 	}

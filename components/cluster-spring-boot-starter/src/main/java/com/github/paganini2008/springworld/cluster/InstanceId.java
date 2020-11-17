@@ -59,10 +59,6 @@ public final class InstanceId {
 	@Getter
 	private ApplicationInfo leaderInfo;
 
-	@Setter
-	@Getter
-	private ClusterState clusterState = ClusterState.UNKOWN;
-
 	public String get() {
 		if (StringUtils.isBlank(id)) {
 			synchronized (this) {
@@ -96,7 +92,6 @@ public final class InstanceId {
 			applicationContextPath = "http://" + NetUtils.getLocalHost() + ":" + port + contextPath;
 		}
 		applicationInfo.setApplicationContextPath(applicationContextPath);
-		applicationInfo.setClusterState(clusterState);
 		return applicationInfo;
 	}
 

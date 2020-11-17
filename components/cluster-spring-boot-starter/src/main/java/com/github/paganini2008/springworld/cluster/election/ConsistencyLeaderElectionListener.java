@@ -11,7 +11,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.ClusterState;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
@@ -35,15 +34,6 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 
 	@Value("${spring.application.cluster.consistency.leader-election.minimumParticipants:3}")
 	private int minimumParticipants;
-	
-	@Autowired
-	private LeaderElection leaderElection;
-
-	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
-	
-	@Autowired
-	private LeaderRecoveryCallback recoveryCallback;
 
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	@Autowired
@@ -51,6 +41,15 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 
 	@Autowired
 	private InstanceId instanceId;
+
+	@Autowired
+	private LeaderElection leaderElection;
+
+	@Autowired
+	private ClusterMulticastGroup clusterMulticastGroup;
+
+	@Autowired
+	private LeaderRecoveryCallback recoveryCallback;
 
 	private ApplicationContext applicationContext;
 
@@ -91,8 +90,7 @@ public class ConsistencyLeaderElectionListener implements ClusterStateChangeList
 			redisTemplate.opsForList().remove(key, 1, instanceId.getApplicationInfo());
 
 			instanceId.setLeaderInfo(null);
-			instanceId.setClusterState(ClusterState.PROTECTED);
-			
+
 			recoveryCallback.recover(applicationInfo);
 		}
 	}

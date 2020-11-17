@@ -7,8 +7,8 @@ import org.springframework.data.redis.core.RedisKeyExpiredEvent;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.ClusterState;
 import com.github.paganini2008.springworld.cluster.InstanceId;
+import com.github.paganini2008.springworld.cluster.LeaderContext;
 import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +26,12 @@ public class FastLeaderElectionListener implements ApplicationListener<RedisKeyE
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
-
+	
 	@Autowired
 	private InstanceId instanceId;
 
 	@Autowired
-	private LeaderElection leaderElection;
+	private LeaderContext leaderContext;
 
 	@Autowired
 	private LeaderRecoveryCallback recoveryCallback;
@@ -44,7 +44,6 @@ public class FastLeaderElectionListener implements ApplicationListener<RedisKeyE
 			log.info("The leader of application cluster '{}' is expired.", clusterName);
 			ApplicationInfo leaderInfo = instanceId.getLeaderInfo();
 			instanceId.setLeaderInfo(null);
-			instanceId.setClusterState(ClusterState.PROTECTED);
 
 			recoveryCallback.recover(leaderInfo);
 		}
