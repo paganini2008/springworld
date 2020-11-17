@@ -56,7 +56,7 @@ public class ClusterMulticastGroup {
 	private InstanceId instanceId;
 
 	@Autowired
-	private ClusterMulticastMessageAcker clusterMulticastMessageAcker;
+	private MulticastMessageAcker clusterMulticastMessageAcker;
 
 	private ClusterMulticastMessageAckerChecker clusterMulticastMessageAckerChecker;
 
@@ -74,9 +74,6 @@ public class ClusterMulticastGroup {
 			allChannels.add(channel);
 		}
 		Collections.sort(allChannels);
-		if (log.isTraceEnabled()) {
-			log.trace("Current channels'size: {}", allChannels.size());
-		}
 
 		List<String> channels = MapUtils.get(groupChannels, group, () -> {
 			return new CopyOnWriteArrayList<String>();
@@ -85,9 +82,7 @@ public class ClusterMulticastGroup {
 			channels.add(channel);
 		}
 		Collections.sort(channels);
-		if (log.isTraceEnabled()) {
-			log.trace("Current channels'size of {}: {}", group, channels.size());
-		}
+		log.info("Registered channel: {}.{}, Proportion: {}/{}", group, channel, channels.size(), allChannels.size());
 	}
 
 	public boolean hasRegistered(String group, String channel) {
@@ -99,19 +94,15 @@ public class ClusterMulticastGroup {
 		while (allChannels.contains(channel)) {
 			allChannels.remove(channel);
 		}
-		if (log.isTraceEnabled()) {
-			log.trace("Current channels'size: {}", allChannels.size());
-		}
 
 		if (groupChannels.containsKey(group)) {
 			List<String> channels = groupChannels.get(group);
 			while (channels.contains(channel)) {
 				channels.remove(channel);
 			}
-			if (log.isTraceEnabled()) {
-				log.trace("Current channels'size of {}: {}", group, channels.size());
-			}
+			log.info("Removed channel: {}.{}, Proportion: {}/{}", group, channel, channels.size(), allChannels.size());
 		}
+
 	}
 
 	public int countOfChannel() {
@@ -182,7 +173,7 @@ public class ClusterMulticastGroup {
 	}
 
 	public void ack(String channel, ClusterMulticastMessage messageObject) {
-		messageObject.setTopic(ClusterMulticastMessageAcker.TOPIC_NAME);
+		messageObject.setTopic(MulticastMessageAcker.TOPIC_NAME);
 		doSendMessage(channel, messageObject, -1);
 	}
 

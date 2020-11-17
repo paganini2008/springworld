@@ -25,8 +25,9 @@ public class LeaderContext implements SmartApplicationListener {
 	}
 
 	public void setClusterState(ClusterState clusterState) {
-		
-		this.clusterState = clusterState;
+		if (clusterState.compareTo(ClusterState.FATAL) < 0) {
+			this.clusterState = clusterState;
+		}
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastGroupListener;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ApplicationRegistryCenter
-		implements ApplicationListener<ApplicationClusterFollowerEvent>, ClusterStateChangeListener, RegistryCenter {
+		implements ApplicationListener<ApplicationClusterFollowerEvent>, MulticastGroupListener, RegistryCenter {
 
 	private final Map<String, List<ApplicationInfo>> appInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 

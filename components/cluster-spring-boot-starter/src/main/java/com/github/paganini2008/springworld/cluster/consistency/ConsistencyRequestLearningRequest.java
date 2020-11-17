@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyRequestLearningRequest implements ClusterMessageListener, ApplicationContextAware {
+public class ConsistencyRequestLearningRequest implements MulticastMessageListener, ApplicationContextAware {
 
 	@Autowired
 	private ConsistencyRequestRound requestRound;

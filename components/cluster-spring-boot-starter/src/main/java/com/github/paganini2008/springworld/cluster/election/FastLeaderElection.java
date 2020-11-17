@@ -53,7 +53,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 	@Override
 	public void launch() {
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
-		if (redisTemplate.hasKey(key) || redisTemplate.getExpire(key) < 0) {
+		if (redisTemplate.hasKey(key) && redisTemplate.getExpire(key) < 0) {
 			redisTemplate.delete(key);
 		}
 		final ApplicationInfo selfInfo = instanceId.getApplicationInfo();
@@ -68,7 +68,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 			log.info("This is the follower of application cluster '{}'. Current application event type is '{}'", clusterName,
 					ApplicationClusterFollowerEvent.class.getName());
 		}
-		
+
 		leaderInfo.setLeader(true);
 		instanceId.setLeaderInfo(leaderInfo);
 		log.info("Leader's info: " + leaderInfo);

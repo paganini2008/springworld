@@ -14,7 +14,7 @@ import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastGroupListener;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyLeaderElectionListener implements ClusterStateChangeListener, ApplicationContextAware, LeaderElectionListener {
+public class ConsistencyLeaderElectionListener implements MulticastGroupListener, ApplicationContextAware, LeaderElectionListener {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;

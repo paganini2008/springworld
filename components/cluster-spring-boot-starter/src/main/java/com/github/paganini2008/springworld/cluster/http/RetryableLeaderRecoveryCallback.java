@@ -27,7 +27,7 @@ public class RetryableLeaderRecoveryCallback extends DefaultLeaderRecoveryCallba
 	private LeaderHeartbeater leaderHeartbeater;
 
 	@Override
-	public void recover(ApplicationInfo leaderInfo) {
+	public void recover(ApplicationInfo leader) {
 	}
 
 	@Override
@@ -48,6 +48,8 @@ public class RetryableLeaderRecoveryCallback extends DefaultLeaderRecoveryCallba
 		log.warn("Cluster leader [{}] is exhausted", leader);
 		if (leaderContext.getClusterState() == ClusterState.PROTECTED) {
 			super.recover(leader);
+		} else {
+			log.warn("Now cluster state switch to {}", leaderContext.getClusterState());
 		}
 	}
 

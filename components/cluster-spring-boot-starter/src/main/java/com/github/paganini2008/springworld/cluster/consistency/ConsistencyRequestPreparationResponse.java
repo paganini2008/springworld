@@ -3,7 +3,7 @@ package com.github.paganini2008.springworld.cluster.consistency;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyRequestPreparationResponse implements ClusterMessageListener {
+public class ConsistencyRequestPreparationResponse implements MulticastMessageListener {
 
 	@Autowired
 	private Court court;

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyRequestCommitmentRequest implements ClusterMessageListener {
+public class ConsistencyRequestCommitmentRequest implements MulticastMessageListener {
 
 	@Autowired
 	private ConsistencyRequestRound requestRound;

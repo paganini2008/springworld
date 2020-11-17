@@ -10,6 +10,6 @@ package com.github.paganini2008.springworld.cluster;
  */
 public enum ClusterState {
 
-	ACCESSABLE, PROTECTED, FATAL, UNKOWN;
+	ACCESSABLE, PROTECTED, UNKOWN, FATAL;
 
 }

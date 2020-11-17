@@ -24,7 +24,7 @@ public class ApplicationMessageListener implements RedisMessageHandler {
 	private InstanceId instanceId;
 
 	@Autowired
-	private ClusterMulticastListenerContainer multicastListenerContainer;
+	private MulticastListenerContainer multicastListenerContainer;
 
 	@Autowired
 	private ClusterMulticastGroup clusterMulticastGroup;

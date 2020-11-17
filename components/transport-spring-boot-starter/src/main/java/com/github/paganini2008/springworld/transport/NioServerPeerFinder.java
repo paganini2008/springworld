@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterStateChangeListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastGroupListener;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.NodeFinder;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class NioServerPeerFinder implements ClusterStateChangeListener {
+public class NioServerPeerFinder implements MulticastGroupListener {
 
 	@Value("${spring.application.cluster.name:default}")
 	private String clusterName;

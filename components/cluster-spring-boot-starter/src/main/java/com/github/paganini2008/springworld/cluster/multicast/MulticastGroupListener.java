@@ -4,12 +4,12 @@ import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 /**
  * 
- * ClusterStateChangeListener
+ * MulticastGroupListener
  * 
  * @author Fred Feng
  * @version 1.0
  */
-public interface ClusterStateChangeListener extends ClusterMulticastListener {
+public interface MulticastGroupListener extends MulticastListener {
 
 	default void onActive(ApplicationInfo applicationInfo) {
 	}

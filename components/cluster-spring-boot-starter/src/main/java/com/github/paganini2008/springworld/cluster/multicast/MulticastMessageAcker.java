@@ -12,16 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ClusterMulticastMessageAcker
+ * MulticastMessageAcker
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
 @Slf4j
-public class ClusterMulticastMessageAcker implements ClusterMessageListener {
+public class MulticastMessageAcker implements MulticastMessageListener {
 
-	static final String TOPIC_NAME = "<CLUSTER-MULTICAST-MESSAGE-ACKER>";
+	static final String TOPIC_NAME = "<MULTICAST-MESSAGE-ACKER>";
 
 	private final Map<String, ClusterMulticastMessage> ackQueue = new ConcurrentHashMap<String, ClusterMulticastMessage>();
 

@@ -2,6 +2,7 @@ package com.github.paganini2008.springworld.cluster;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.retry.support.RetryTemplate;
@@ -23,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RedisConnectionFailureHandler implements ConnectionFailureHandler, ApplicationContextAware {
 
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
+
 	@Autowired
 	private RedisKeepAliveResolver redisKeepAliveResolver;
 
@@ -33,7 +37,7 @@ public class RedisConnectionFailureHandler implements ConnectionFailureHandler, 
 
 	@Override
 	public void handleException(Throwable e) {
-		log.warn("RedisConnection refused");
+		log.warn("RedisConnection Refused");
 		final RetryTemplate retryTemplate = retryTemplateFactory.setRetryPolicy(3).createObject();
 		retryTemplate.execute(context -> {
 			return redisKeepAliveResolver.ping();
@@ -44,6 +48,7 @@ public class RedisConnectionFailureHandler implements ConnectionFailureHandler, 
 			}
 			redisKeepAliveResolver.addListener(RedisConnectionFailureHandler.this);
 			applicationContext.publishEvent(new ApplicationClusterFatalEvent(applicationContext, reason));
+			log.warn("Application cluster '{}' will be unserviceable due to redisConnection refused.", clusterName);
 			return "";
 		});
 	}

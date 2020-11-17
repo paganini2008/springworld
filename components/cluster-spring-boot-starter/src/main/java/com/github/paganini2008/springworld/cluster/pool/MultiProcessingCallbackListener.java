@@ -3,7 +3,7 @@ package com.github.paganini2008.springworld.cluster.pool;
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class MultiProcessingCallbackListener implements ClusterMessageListener {
+public class MultiProcessingCallbackListener implements MulticastMessageListener {
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {

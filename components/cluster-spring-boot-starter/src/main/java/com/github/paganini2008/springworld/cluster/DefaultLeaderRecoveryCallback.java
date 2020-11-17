@@ -37,7 +37,7 @@ public class DefaultLeaderRecoveryCallback implements ApplicationListener<Applic
 
 	@Override
 	public void recover(ApplicationInfo leaderInfo) {
-		log.info("Start to leader election recovery ...");
+		log.warn("Recovery cluster leader election soon");
 		leaderContext.setClusterState(ClusterState.PROTECTED);
 		electionObservable.notifyObservers(leaderInfo);
 	}

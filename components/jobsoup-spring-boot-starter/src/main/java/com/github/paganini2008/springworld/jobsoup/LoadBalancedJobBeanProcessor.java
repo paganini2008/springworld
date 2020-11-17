@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springworld.jobsoup.model.JobParam;
 
 /**
@@ -16,7 +16,7 @@ import com.github.paganini2008.springworld.jobsoup.model.JobParam;
  * @author Fred Feng
  * @since 1.0
  */
-public class LoadBalancedJobBeanProcessor implements ClusterMessageListener {
+public class LoadBalancedJobBeanProcessor implements MulticastMessageListener {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;

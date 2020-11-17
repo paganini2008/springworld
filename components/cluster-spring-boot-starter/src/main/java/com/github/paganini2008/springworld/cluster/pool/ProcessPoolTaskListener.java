@@ -8,7 +8,7 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMessageListener;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springworld.reditools.common.SharedLatch;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class ProcessPoolTaskListener implements ClusterMessageListener {
+public class ProcessPoolTaskListener implements MulticastMessageListener {
 
 	@Value("${spring.application.name}")
 	private String applicationName;

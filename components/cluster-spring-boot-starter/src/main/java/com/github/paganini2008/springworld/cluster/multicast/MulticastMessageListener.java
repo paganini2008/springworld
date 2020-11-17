@@ -4,12 +4,12 @@ import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 
 /**
  * 
- * ClusterMessageListener
+ * MulticastMessageListener
  *
  * @author Fred Feng
  * @since 1.0
  */
-public interface ClusterMessageListener extends ClusterMulticastListener {
+public interface MulticastMessageListener extends MulticastListener {
 
 	void onMessage(ApplicationInfo applicationInfo, String id, Object message);
 

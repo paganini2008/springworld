@@ -31,7 +31,7 @@ public class ApplicationActiveListener implements RedisMessageHandler {
 	private InstanceId instanceId;
 
 	@Autowired
-	private ClusterMulticastListenerContainer multicastListenerContainer;
+	private MulticastListenerContainer multicastListenerContainer;
 
 	@Override
 	public void onMessage(String channel, Object message) {

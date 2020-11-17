@@ -66,18 +66,18 @@ public class ClusterMulticastConfig {
 	}
 
 	@Bean
-	public ClusterMulticastMessageAcker clusterMulticastMessageAcker() {
-		return new ClusterMulticastMessageAcker();
+	public MulticastMessageAcker clusterMulticastMessageAcker() {
+		return new MulticastMessageAcker();
 	}
 
 	@Bean
-	public ClusterMulticastListenerContainer multicastListenerContainer() {
-		return new ClusterMulticastListenerContainer();
+	public MulticastListenerContainer multicastListenerContainer() {
+		return new MulticastListenerContainer();
 	}
 
 	@Bean
-	public ClusterStateChangeListener loggingMulticastEventListener() {
-		return new LoggingClusterMulticastEventListener();
+	public MulticastGroupListener loggingMulticastGroupListener() {
+		return new LoggingMulticastGroupListener();
 	}
 
 }

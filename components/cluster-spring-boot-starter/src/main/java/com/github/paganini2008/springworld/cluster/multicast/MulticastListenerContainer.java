@@ -12,19 +12,19 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.MulticastGroupChangeEvent.EventType;
+import com.github.paganini2008.springworld.cluster.multicast.MulticastGroupEvent.EventType;
 
 /**
  * 
- * ClusterMulticastListenerContainer
+ * MulticastListenerContainer
  * 
  * @author Fred Feng
  * @version 1.0
  */
-public class ClusterMulticastListenerContainer implements ApplicationContextAware, BeanPostProcessor {
+public class MulticastListenerContainer implements ApplicationContextAware, BeanPostProcessor {
 
-	private final List<ClusterStateChangeListener> listeners = new CopyOnWriteArrayList<ClusterStateChangeListener>();
-	private final Map<String, List<ClusterMessageListener>> topicListeners = new ConcurrentHashMap<String, List<ClusterMessageListener>>();
+	private final List<MulticastGroupListener> listeners = new CopyOnWriteArrayList<MulticastGroupListener>();
+	private final Map<String, List<MulticastMessageListener>> topicListeners = new ConcurrentHashMap<String, List<MulticastMessageListener>>();
 	private ApplicationContext applicationContext;
 
 	public void setApplicationContext(ApplicationContext applicationContext) {
@@ -32,39 +32,39 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 	}
 
 	public void fireOnActive(final ApplicationInfo applicationInfo) {
-		List<ClusterStateChangeListener> eventListeners = listeners;
+		List<MulticastGroupListener> eventListeners = listeners;
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
 				handler.onActive(applicationInfo);
 			});
 		}
-		applicationContext.publishEvent(new MulticastGroupChangeEvent(applicationContext, applicationInfo, EventType.ON_ACTIVE));
+		applicationContext.publishEvent(new MulticastGroupEvent(applicationContext, applicationInfo, EventType.ON_ACTIVE));
 	}
 
 	public void fireOnInactive(final ApplicationInfo applicationInfo) {
-		List<ClusterStateChangeListener> eventListeners = listeners;
+		List<MulticastGroupListener> eventListeners = listeners;
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
 				handler.onInactive(applicationInfo);
 			});
 		}
-		applicationContext.publishEvent(new MulticastGroupChangeEvent(applicationContext, applicationInfo, EventType.ON_INACTIVE));
+		applicationContext.publishEvent(new MulticastGroupEvent(applicationContext, applicationInfo, EventType.ON_INACTIVE));
 	}
 
 	public void fireOnMessage(final ApplicationInfo applicationInfo, final Object message) {
-		List<ClusterStateChangeListener> eventListeners = listeners;
+		List<MulticastGroupListener> eventListeners = listeners;
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
 				handler.onMessage(applicationInfo, message);
 			});
 		}
-		MulticastGroupChangeEvent event = new MulticastGroupChangeEvent(applicationContext, applicationInfo, EventType.ON_MESSAGE);
+		MulticastGroupEvent event = new MulticastGroupEvent(applicationContext, applicationInfo, EventType.ON_MESSAGE);
 		event.setMessage(message);
 		applicationContext.publishEvent(event);
 	}
 
 	public void fireOnMessage(final ApplicationInfo applicationInfo, final String topic, final String id, final Object message) {
-		List<ClusterMessageListener> eventListeners = topicListeners.get(topic);
+		List<MulticastMessageListener> eventListeners = topicListeners.get(topic);
 		if (eventListeners != null) {
 			eventListeners.forEach(handler -> {
 				handler.onMessage(applicationInfo, id, message);
@@ -72,19 +72,19 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 		}
 	}
 
-	public void registerListener(ClusterMessageListener eventListener) {
+	public void registerListener(MulticastMessageListener eventListener) {
 		final String topic = eventListener.getTopic();
-		List<ClusterMessageListener> eventListeners = MapUtils.get(topicListeners, topic, () -> {
-			return new CopyOnWriteArrayList<ClusterMessageListener>();
+		List<MulticastMessageListener> eventListeners = MapUtils.get(topicListeners, topic, () -> {
+			return new CopyOnWriteArrayList<MulticastMessageListener>();
 		});
 		if (!eventListeners.contains(eventListener)) {
 			eventListeners.add(eventListener);
 		}
 	}
 
-	public void unregisterListener(ClusterMessageListener eventListener) {
+	public void unregisterListener(MulticastMessageListener eventListener) {
 		final String topic = eventListener.getTopic();
-		List<ClusterMessageListener> eventListeners = topicListeners.get(topic);
+		List<MulticastMessageListener> eventListeners = topicListeners.get(topic);
 		if (eventListeners != null && eventListeners.contains(eventListener)) {
 			eventListeners.remove(eventListener);
 			if (eventListeners.isEmpty()) {
@@ -93,13 +93,13 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 		}
 	}
 
-	public void registerListener(ClusterStateChangeListener eventListener) {
+	public void registerListener(MulticastGroupListener eventListener) {
 		if (!listeners.contains(eventListener)) {
 			listeners.add(eventListener);
 		}
 	}
 
-	public void unregisterListener(ClusterStateChangeListener eventListener) {
+	public void unregisterListener(MulticastGroupListener eventListener) {
 		if (listeners.contains(eventListener)) {
 			listeners.remove(eventListener);
 		}
@@ -107,10 +107,10 @@ public class ClusterMulticastListenerContainer implements ApplicationContextAwar
 	
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		if (bean instanceof ClusterStateChangeListener) {
-		registerListener((ClusterStateChangeListener) bean);
-		} else if (bean instanceof ClusterMessageListener) {
-			registerListener((ClusterMessageListener) bean);
+		if (bean instanceof MulticastGroupListener) {
+		registerListener((MulticastGroupListener) bean);
+		} else if (bean instanceof MulticastMessageListener) {
+			registerListener((MulticastMessageListener) bean);
 		}
 		return bean;
 	}

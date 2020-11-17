@@ -23,7 +23,7 @@ public class ApplicationInactiveListener implements RedisMessageHandler {
 	private ClusterMulticastGroup multicastGroup;
 
 	@Autowired
-	private ClusterMulticastListenerContainer multicastListenerContainer;
+	private MulticastListenerContainer multicastListenerContainer;
 
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	@Autowired
