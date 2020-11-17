@@ -14,7 +14,7 @@ import org.springframework.context.event.SmartApplicationListener;
 public class LeaderContext implements SmartApplicationListener {
 
 	private ApplicationInfo leaderInfo;
-	private volatile ClusterState clusterState;
+	private volatile ClusterState clusterState = ClusterState.UNKOWN;
 
 	public ApplicationInfo getLeader() {
 		return leaderInfo;
@@ -25,6 +25,7 @@ public class LeaderContext implements SmartApplicationListener {
 	}
 
 	public void setClusterState(ClusterState clusterState) {
+		
 		this.clusterState = clusterState;
 	}
 

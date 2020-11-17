@@ -24,5 +24,8 @@ public interface LeaderService {
 	
 	@Api(path = "/application/cluster/list", method = HttpMethod.GET)
 	ApplicationInfo[] list();
+	
+	@Api(path = "/application/cluster/recovery", method = HttpMethod.GET)
+	ApplicationInfo[] recovery();
 
 }

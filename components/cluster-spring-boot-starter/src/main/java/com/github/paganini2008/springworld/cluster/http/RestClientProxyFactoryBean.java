@@ -65,7 +65,7 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject() throws Exception {
-		RestClient restClient = interfaceClass.getAnnotation(RestClient.class);
+		final RestClient restClient = interfaceClass.getAnnotation(RestClient.class);
 		String provider = beanFactory.resolveEmbeddedValue(restClient.provider());
 		int retries = restClient.retries();
 		int timeout = restClient.timeout();

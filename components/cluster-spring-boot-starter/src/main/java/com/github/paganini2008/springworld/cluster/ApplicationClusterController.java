@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.springworld.cluster.election.LeaderElection;
 import com.github.paganini2008.springworld.reditools.BeanNames;
 
 /**
@@ -38,6 +39,9 @@ public class ApplicationClusterController {
 	@Autowired
 	private LeaderContext leaderContext;
 
+	@Autowired
+	private LeaderElection leaderElection;
+
 	@GetMapping("/ping")
 	public ResponseEntity<ApplicationInfo> ping() {
 		return ResponseEntity.ok(instanceId.getApplicationInfo());
@@ -54,6 +58,12 @@ public class ApplicationClusterController {
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
 		ApplicationInfo[] infos = ArrayUtils.cast(dataList.toArray(), ApplicationInfo.class);
 		return ResponseEntity.ok(infos);
+	}
+
+	@GetMapping("/recovery")
+	public ResponseEntity<String> recovery() {
+		leaderElection.launch();
+		return ResponseEntity.ok("ok");
 	}
 
 }

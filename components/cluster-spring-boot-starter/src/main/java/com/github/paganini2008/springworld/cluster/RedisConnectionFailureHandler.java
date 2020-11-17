@@ -43,7 +43,7 @@ public class RedisConnectionFailureHandler implements ConnectionFailureHandler, 
 				log.error(reason.getMessage(), reason);
 			}
 			redisKeepAliveResolver.addListener(RedisConnectionFailureHandler.this);
-			applicationContext.publishEvent(new ApplicationClusterFatalEvent(applicationContext));
+			applicationContext.publishEvent(new ApplicationClusterFatalEvent(applicationContext, reason));
 			return "";
 		});
 	}

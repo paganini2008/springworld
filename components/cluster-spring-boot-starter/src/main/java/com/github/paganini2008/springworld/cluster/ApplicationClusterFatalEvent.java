@@ -14,8 +14,15 @@ public class ApplicationClusterFatalEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = -922319097605054253L;
 
-	public ApplicationClusterFatalEvent(ApplicationContext source) {
+	public ApplicationClusterFatalEvent(ApplicationContext source, Throwable reason) {
 		super(source, ClusterState.FATAL);
+		this.reason = reason;
+	}
+
+	private final Throwable reason;
+
+	public Throwable getReason() {
+		return reason;
 	}
 
 }
