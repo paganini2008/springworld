@@ -35,7 +35,7 @@ public class TipProperties extends RefreshingProperties {
 		Connection connection = null;
 		try {
 			connection = dataSource.getConnection();
-			Iterator<Tuple> iterator = JdbcUtils.executeQuery(connection, SELECT_SQL);
+			Iterator<Tuple> iterator = JdbcUtils.cursor(connection, SELECT_SQL);
 			while (iterator.hasNext()) {
 				Tuple t = iterator.next();
 				p.setProperty((String) t.get("code"), (String) t.get("msg"));

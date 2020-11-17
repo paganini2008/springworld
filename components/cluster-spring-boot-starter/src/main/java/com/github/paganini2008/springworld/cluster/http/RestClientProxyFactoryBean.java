@@ -72,7 +72,7 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 		Class<?> fallbackClass = restClient.fallback();
 		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, defaultHttpHeaders, routingPolicy, restTemplate,
 				retryTemplateFactory, taskExecutor);
-		Object fallback = fallbackClass != Void.class || fallbackClass != void.class ? BeanUtils.instantiate(fallbackClass) : null;
+		Object fallback = fallbackClass != Void.class && fallbackClass != void.class ? BeanUtils.instantiate(fallbackClass) : null;
 		if (fallback != null) {
 			lazilyAutowiredBeanInspector.autowireLazily(fallback);
 		}

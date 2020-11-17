@@ -11,6 +11,8 @@ import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
+import com.github.paganini2008.springworld.cluster.ClusterState;
+import com.github.paganini2008.springworld.cluster.LeaderContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +33,9 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 
 	@Autowired
 	private LeaderService leaderService;
+
+	@Autowired
+	private LeaderContext leaderContext;
 
 	private ApplicationInfo currentLeaderInfo;
 
@@ -61,7 +66,7 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 		} catch (RestClientException e) {
 			log.error(e.getMessage(), e);
 		}
-		return true;
+		return leaderContext.getClusterState() != ClusterState.FATAL;
 	}
 
 	@Override
