@@ -38,6 +38,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultRequestProcessor implements RequestProcessor {
 
+	private static final int retryTemplateCacheSize = 256;
+
+	private static final MultiMappedMap<String, String, RetryTemplate> retryTemplateCache = new MultiMappedMap<>(() -> {
+		return new LruMap<String, RetryTemplate>(retryTemplateCacheSize);
+	});
+
 	private final String provider;
 	private final @Nullable MultiValueMap<String, String> defaultHttpHeaders;
 	private final RoutingPolicy routingPolicy;
@@ -54,10 +60,6 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		this.retryTemplateFactory = retryTemplateFactory;
 		this.taskExecutor = taskExecutor;
 	}
-
-	private MultiMappedMap<String, String, RetryTemplate> retryTemplateCache = new MultiMappedMap<>(() -> {
-		return new LruMap<String, RetryTemplate>(256);
-	});
 
 	@Override
 	public <T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int retries) {

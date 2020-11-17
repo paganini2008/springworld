@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
+import com.github.paganini2008.springworld.jobsoup.server.ServerMode;
+
 /**
  * 
  * EnableJobSoupApi
@@ -23,5 +25,9 @@ import org.springframework.context.annotation.Import;
 public @interface EnableJobSoupApi {
 
 	DeployMode value() default DeployMode.EMBEDDED;
+
+	ServerMode serverMode() default ServerMode.CONSUMER;
+
+	String producer() default "http://localhost:19010";
 
 }

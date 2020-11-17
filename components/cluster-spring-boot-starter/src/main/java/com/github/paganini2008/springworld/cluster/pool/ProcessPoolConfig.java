@@ -41,7 +41,7 @@ public class ProcessPoolConfig {
 	public RedisCounter redisCounter(RedisConnectionFactory redisConnectionFactory, TtlKeeper ttlKeeper) {
 		final String fullName = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool";
 		RedisCounter redisCounter = new RedisCounter(fullName, redisConnectionFactory);
-		redisCounter.keep(ttlKeeper, 5, TimeUnit.SECONDS);
+		redisCounter.keepAlive(ttlKeeper, 5, TimeUnit.SECONDS);
 		return redisCounter;
 	}
 

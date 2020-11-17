@@ -14,7 +14,7 @@ import com.github.paganini2008.springworld.jobsoup.server.ClusterRestTemplate;
  */
 public class UIModeClusterRestTemplate extends ClusterRestTemplate {
 
-	@Value("${jobsoup.cluster.contextPaths}")
+	@Value("${jobsoup.server.mode.producer.location}")
 	private String contextPaths;
 
 	@Override

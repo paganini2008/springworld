@@ -104,11 +104,11 @@ public class MulticastListenerContainer implements ApplicationContextAware, Bean
 			listeners.remove(eventListener);
 		}
 	}
-	
+
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof MulticastGroupListener) {
-		registerListener((MulticastGroupListener) bean);
+			registerListener((MulticastGroupListener) bean);
 		} else if (bean instanceof MulticastMessageListener) {
 			registerListener((MulticastMessageListener) bean);
 		}

@@ -45,8 +45,8 @@ public abstract class SqlScripts {
 	public static final String DEF_SELECT_JOB_ID = "select job_id from js_job_detail where cluster_name=? and group_name=? and job_name=? and job_class_name=?";
 	public static final String DEF_SELECT_ALL_JOB_TRIGGER_DEADLINE = "select c.cluster_name,c.group_name,c.job_name,c.job_class_name,a.* from js_job_trigger a join js_job_runtime b on a.job_id=b.job_id join js_job_detail c on c.job_id=b.job_id where a.end_date is not null and b.job_state<4";
 	public static final String DEF_SELECT_JOB_KEYS = "select * from js_job_detail a where a.cluster_name=? and exists (select job_id from js_job_trigger where job_id=a.job_id and trigger_type=?)";
-	public static final String DEF_SELECT_JOB_DETAIL_BY_GROUP_NAME = "select a.* from js_job_detail a join js_job_runtime b on a.job_id=b.job_id where a.group_name=? and b.job_state<4";
-	public static final String DEF_SELECT_JOB_DETAIL_BY_OTHER_GROUP_NAME = "select a.* from js_job_detail a join js_job_runtime b on a.job_id=b.job_id where a.group_name!=? and b.job_state<4";
+	public static final String DEF_SELECT_JOB_DETAIL_BY_GROUP_NAME = "select a.* from js_job_detail a join js_job_runtime b on a.job_id=b.job_id where a.cluster_name=? and a.group_name=? and b.job_state<4";
+	public static final String DEF_SELECT_JOB_DETAIL_BY_OTHER_GROUP_NAME = "select a.* from js_job_detail a join js_job_runtime b on a.job_id=b.job_id where a.cluster_name=? and a.group_name!=? and b.job_state<4";
 	public static final String DEF_SELECT_JOB_NAME_EXISTS = "select count(*) from js_job_detail where cluster_name=? and group_name=? and job_name=? and job_class_name=?";
 	public static final String DEF_SELECT_JOB_TRIGGER = "select * from js_job_trigger where job_id=?";
 	public static final String DEF_SELECT_LATEST_EXECUTION_TIME_OF_DEPENDENT_JOBS = "select min(next_execution_time) from js_job_runtime where next_execution_time is not null and job_id in (%s)";

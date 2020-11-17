@@ -33,7 +33,7 @@ public class ConsumerModeController {
 	private InstanceId instanceId;
 
 	@Autowired
-	private ConsumerModeRestTemplate restTemplate;
+	private ClusterRestTemplate restTemplate;
 
 	@Autowired
 	private JobAdmin jobAdmin;

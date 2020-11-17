@@ -69,7 +69,8 @@ public class EmbeddedModeJobBeanInitializer implements JobBeanInitializer {
 		List<Tuple> dataList = null;
 		try {
 			connection = connectionFactory.getConnection();
-			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DETAIL_BY_GROUP_NAME, new Object[] { applicationName });
+			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DETAIL_BY_GROUP_NAME,
+					new Object[] { clusterName, applicationName });
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		} finally {
@@ -104,7 +105,7 @@ public class EmbeddedModeJobBeanInitializer implements JobBeanInitializer {
 		try {
 			connection = connectionFactory.getConnection();
 			dataList = JdbcUtils.fetchAll(connection, SqlScripts.DEF_SELECT_JOB_DETAIL_BY_OTHER_GROUP_NAME,
-					new Object[] { applicationName });
+					new Object[] { clusterName, applicationName });
 		} catch (SQLException e) {
 			throw new JobException(e.getMessage(), e);
 		} finally {

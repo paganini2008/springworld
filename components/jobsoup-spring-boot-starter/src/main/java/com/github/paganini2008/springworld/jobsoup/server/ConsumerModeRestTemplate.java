@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class ConsumerModeRestTemplate extends ClusterRestTemplate {
 
-	@Value("${jobsoup.cluster.contextPaths}")
+	@Value("${jobsoup.server.mode.producer.location}")
 	private String contextPaths;
 
 	@Override

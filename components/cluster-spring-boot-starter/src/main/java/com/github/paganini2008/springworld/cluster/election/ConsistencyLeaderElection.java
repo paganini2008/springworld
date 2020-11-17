@@ -83,7 +83,7 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		redisTemplate.opsForList().leftPush(key, instanceId.getApplicationInfo());
 		if (instanceId.isLeader()) {
-			ttlKeeper.keep(key, leaderLease, TimeUnit.SECONDS);
+			ttlKeeper.keepAlive(key, leaderLease, 1, TimeUnit.SECONDS);
 		}
 
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));

@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.jobsoup.server;
 
+import java.util.List;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -7,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -35,6 +38,10 @@ public abstract class ClusterRestTemplate extends RestTemplate {
 		super(httpRequestFactory);
 	}
 
+	public ClusterRestTemplate(List<HttpMessageConverter<?>> messageConverters) {
+		super(messageConverters);
+	}
+
 	private final MultiValueMap<String, String> defaultHeaders = new LinkedMultiValueMap<String, String>();
 
 	public void addHeader(String headerName, String headerValue) {
@@ -56,7 +63,7 @@ public abstract class ClusterRestTemplate extends RestTemplate {
 		for (String contextPath : contextPaths) {
 			url = contextPath + path;
 			if (log.isTraceEnabled()) {
-				log.trace("Perform job by url: " + url);
+				log.trace("Perform job with url: " + url);
 			}
 			try {
 				return super.exchange(url, method, new HttpEntity<Object>(body, getHttpHeaders()), responseType);
@@ -72,8 +79,7 @@ public abstract class ClusterRestTemplate extends RestTemplate {
 
 	protected HttpHeaders getHttpHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-		headers.setContentType(type);
+		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.addAll(defaultHeaders);
 		return headers;
 	}

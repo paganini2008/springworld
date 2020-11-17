@@ -1,7 +1,6 @@
 package com.github.paganini2008.springworld.cluster.multicast;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +8,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterConfig;
 import com.github.paganini2008.springworld.cluster.utils.LoadBalancer;
 import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
@@ -21,7 +19,6 @@ import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandle
  * @version 1.0
  */
 @Configuration
-@AutoConfigureAfter(ApplicationClusterConfig.class)
 @ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true", matchIfMissing = true)
 @Import({ ClusterMulticastController.class })
 public class ClusterMulticastConfig {
@@ -60,13 +57,8 @@ public class ClusterMulticastConfig {
 		return new ClusterMulticastLoadBalancer(name, connectionFactory);
 	}
 
-	@Bean(name = "multicastHeartbeatThread", initMethod = "start", destroyMethod = "stop")
-	public ClusterMulticastHeartbeatThread multicastHeartbeatThread() {
-		return new ClusterMulticastHeartbeatThread();
-	}
-
 	@Bean
-	public MulticastMessageAcker clusterMulticastMessageAcker() {
+	public MulticastMessageAcker multicastMessageAcker() {
 		return new MulticastMessageAcker();
 	}
 

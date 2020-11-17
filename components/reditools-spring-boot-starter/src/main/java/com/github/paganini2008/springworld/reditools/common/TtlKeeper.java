@@ -3,10 +3,15 @@ package com.github.paganini2008.springworld.reditools.common;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 
+import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.devtools.multithreads.ClockTask;
+import com.github.paganini2008.springworld.reditools.BeanNames;
+import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,29 +27,57 @@ import lombok.extern.slf4j.Slf4j;
 public class TtlKeeper implements DisposableBean {
 
 	private static final int TTL_RESET_THRESHOLD = 10;
-	private final Clock clock;
-	private final RedisOperations<String, Object> redisOperations;
 
-	public TtlKeeper(RedisOperations<String, Object> redisOperations) {
-		this(new Clock(), redisOperations);
+	private final Clock clock = new Clock();
+
+	@Qualifier(BeanNames.REDIS_TEMPLATE)
+	@Autowired
+	private RedisTemplate<String, Object> redisTemplate;
+
+	@Autowired
+	private RedisMessageSender redisMessageSender;
+	
+	public void keepAlive(String key, int timeout) {
+		keepAlive(key, timeout, 1);
 	}
 
-	public TtlKeeper(Clock clock, RedisOperations<String, Object> redisOperations) {
-		this.clock = clock;
-		this.redisOperations = redisOperations;
+	public void keepAlive(String key, int timeout, int checkInterval) {
+		keepAlive(key, timeout, checkInterval, TimeUnit.SECONDS);
 	}
 
-	public void keep(String key, long timeout, TimeUnit timeUnit) {
+	public void keepAlive(String key, int timeout, int checkInterval, TimeUnit timeUnit) {
 		if (timeUnit.compareTo(TimeUnit.SECONDS) < 0) {
 			throw new IllegalArgumentException("Don't accept the TimeUnit: " + timeUnit);
 		}
-		if (redisOperations.hasKey(key)) {
-			redisOperations.expire(key, timeout, timeUnit);
-			clock.scheduleAtFixedRate(new TtlKeepingTask(key, timeout, timeUnit), 1, 1, TimeUnit.SECONDS);
+		if (redisTemplate.hasKey(key)) {
+			redisTemplate.expire(key, timeout, timeUnit);
+			long checkIntervalInSec = DateUtils.converToSecond(checkInterval, timeUnit);
+			clock.scheduleAtFixedRate(new KeyKeepingTask(key, timeout, timeUnit), checkIntervalInSec, checkIntervalInSec, TimeUnit.SECONDS);
 
 			if (log.isTraceEnabled()) {
 				log.trace("Keeping redis key {}, current count: {}", key, getKeepingCount());
 			}
+		}
+	}
+
+	public void keepAlive(String key, Object value, int timeout) {
+		keepAlive(key, value, timeout, 1);
+	}
+
+	public void keepAlive(String key, Object value, int timeout, int checkInterval) {
+		keepAlive(key, value, timeout, checkInterval, TimeUnit.SECONDS);
+	}
+
+	public void keepAlive(String key, Object value, int timeout, int checkInterval, TimeUnit timeUnit) {
+		if (timeUnit.compareTo(TimeUnit.SECONDS) < 0) {
+			throw new IllegalArgumentException("Don't accept the TimeUnit: " + timeUnit);
+		}
+		redisMessageSender.sendEphemeralMessage(key, value, timeout, timeUnit);
+		long checkIntervalInSec = DateUtils.converToSecond(checkInterval, timeUnit);
+		clock.scheduleAtFixedRate(new KeyValueKeepingTask(key, value, timeout, timeUnit), checkIntervalInSec, checkIntervalInSec,
+				TimeUnit.SECONDS);
+		if (log.isTraceEnabled()) {
+			log.trace("Keeping redis key {}, current count: {}", key, getKeepingCount());
 		}
 	}
 
@@ -57,13 +90,13 @@ public class TtlKeeper implements DisposableBean {
 		clock.stop();
 	}
 
-	private class TtlKeepingTask extends ClockTask {
+	private class KeyKeepingTask extends ClockTask {
 
 		private final String key;
 		private final long timeout;
 		private final TimeUnit timeUnit;
 
-		TtlKeepingTask(String key, long timeout, TimeUnit timeUnit) {
+		KeyKeepingTask(String key, long timeout, TimeUnit timeUnit) {
 			this.key = key;
 			this.timeout = timeout;
 			this.timeUnit = timeUnit;
@@ -72,15 +105,40 @@ public class TtlKeeper implements DisposableBean {
 		@Override
 		protected void runTask() {
 			try {
-				Long ttl = redisOperations.getExpire(key, TimeUnit.SECONDS);
-				if (ttl != null) {
-					if (ttl < TTL_RESET_THRESHOLD) {
-						redisOperations.expire(key, timeout, timeUnit);
-					}
+				Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+				if (ttl != null && ttl.longValue() < TTL_RESET_THRESHOLD) {
+					redisTemplate.expire(key, timeout, timeUnit);
 				}
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
+			}
+		}
 
+	}
+
+	private class KeyValueKeepingTask extends ClockTask {
+
+		private final String key;
+		private final Object value;
+		private final long timeout;
+		private final TimeUnit timeUnit;
+
+		KeyValueKeepingTask(String key, Object value, long timeout, TimeUnit timeUnit) {
+			this.key = key;
+			this.value = value;
+			this.timeout = timeout;
+			this.timeUnit = timeUnit;
+		}
+
+		@Override
+		protected void runTask() {
+			try {
+				Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+				if (ttl != null && ttl.longValue() < TTL_RESET_THRESHOLD) {
+					redisMessageSender.sendEphemeralMessage(key, value, timeout, timeUnit);
+				}
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
 			}
 		}
 

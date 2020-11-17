@@ -3,6 +3,7 @@ package com.github.paganini2008.springworld.cluster.http;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.web.client.RestClientException;
@@ -25,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class LeaderHeartbeater implements ApplicationListener<ApplicationClusterFollowerEvent>, Executable {
+public class LeaderHeartbeater implements ApplicationListener<ApplicationClusterFollowerEvent>, Executable,DisposableBean {
 
 	public static final int DEFAULT_CHECKED_INTERVAL = 3;
 
@@ -76,5 +77,12 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 		}
 		timer = null;
 	}
+
+	@Override
+	public void destroy() throws Exception {
+		cancel();
+	}
+	
+	
 
 }

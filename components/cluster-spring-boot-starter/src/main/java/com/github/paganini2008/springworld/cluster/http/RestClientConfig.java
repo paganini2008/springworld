@@ -1,5 +1,7 @@
 package com.github.paganini2008.springworld.cluster.http;
 
+import java.util.concurrent.ThreadPoolExecutor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -8,7 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
@@ -64,6 +68,18 @@ public class RestClientConfig {
 	@Bean
 	public LoggingRetryListener loggingRetryListener() {
 		return new LoggingRetryListener();
+	}
+
+	@ConditionalOnMissingBean
+	@Bean
+	public ThreadPoolTaskExecutor restClientThreadPool() {
+		final int nThreads = Runtime.getRuntime().availableProcessors();
+		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+		taskExecutor.setCorePoolSize(nThreads);
+		taskExecutor.setMaxPoolSize(nThreads * 2);
+		taskExecutor.setThreadFactory(new PooledThreadFactory("rest-client-threads-"));
+		taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+		return taskExecutor;
 	}
 
 	/**

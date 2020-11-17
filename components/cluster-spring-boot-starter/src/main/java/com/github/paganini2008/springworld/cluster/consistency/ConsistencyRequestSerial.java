@@ -2,7 +2,6 @@ package com.github.paganini2008.springworld.cluster.consistency;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +45,7 @@ public class ConsistencyRequestSerial {
 		try {
 			RedisAtomicLong counter = MapUtils.get(serials, name, () -> {
 				RedisAtomicLong l = new RedisAtomicLong(redisCounterName, connectionFactory);
-				ttlKeeper.keep(l.getKey(), 5, TimeUnit.SECONDS);
+				ttlKeeper.keepAlive(l.getKey(), 5);
 				return l;
 			});
 			return instanceId.getWeight() > 1 ? counter.incrementAndGet() + instanceId.getWeight() : counter.incrementAndGet();
@@ -62,7 +61,7 @@ public class ConsistencyRequestSerial {
 		try {
 			return MapUtils.get(serials, name, () -> {
 				RedisAtomicLong l = new RedisAtomicLong(redisCounterName, connectionFactory);
-				ttlKeeper.keep(l.getKey(), 5, TimeUnit.SECONDS);
+				ttlKeeper.keepAlive(l.getKey(), 5);
 				return l;
 			}).get();
 		} catch (Exception e) {

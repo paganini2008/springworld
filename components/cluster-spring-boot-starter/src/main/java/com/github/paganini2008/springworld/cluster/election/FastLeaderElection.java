@@ -88,7 +88,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		}
 
 		if (instanceId.isLeader()) {
-			ttlKeeper.keep(key, leaderLease, TimeUnit.SECONDS);
+			ttlKeeper.keepAlive(key, leaderLease, 1, TimeUnit.SECONDS);
 		}
 
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leaderInfo));

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Conditional;
 
-import com.github.paganini2008.springworld.jobsoup.OnServerModeCondition.ServerMode;
+import com.github.paganini2008.springworld.jobsoup.server.ServerMode;
 
 /**
  * 

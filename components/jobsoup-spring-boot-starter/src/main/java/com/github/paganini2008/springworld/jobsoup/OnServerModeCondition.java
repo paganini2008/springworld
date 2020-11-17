@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
+import com.github.paganini2008.springworld.jobsoup.server.ServerMode;
+
 /**
  * 
  * OnServerModeCondition
@@ -24,35 +26,11 @@ public class OnServerModeCondition extends SpringBootCondition {
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(ConditionalOnServerMode.class.getName());
 		ServerMode serverSide = (ServerMode) annotationAttributes.get("value");
-		final String side = context.getEnvironment().getProperty("jobsoup.deploy.mode.side", "consumer");
+		final String side = context.getEnvironment().getProperty("jobsoup.server.mode.side", "consumer");
 		if (serverSide.getValue().equals(side)) {
 			return ConditionOutcome.match(EMPYT_MESSAGE);
 		}
 		return ConditionOutcome.noMatch(EMPYT_MESSAGE);
-	}
-
-	/**
-	 * 
-	 * ServerSide
-	 * 
-	 * @author Fred Feng
-	 *
-	 * @since 1.0
-	 */
-	public static enum ServerMode {
-
-		CONSUMER("consumer"), PRODUCER("producer");
-
-		private final String value;
-
-		private ServerMode(String value) {
-			this.value = value;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
 	}
 
 }

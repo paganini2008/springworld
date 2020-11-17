@@ -35,8 +35,8 @@ public class RedisCounter {
 		longValue.expireAt(date);
 	}
 
-	public void keep(TtlKeeper keeper, long timeout, TimeUnit timeUnit) {
-		keeper.keep(longValue.getKey(), timeout, timeUnit);
+	public void keepAlive(TtlKeeper keeper, int timeout, TimeUnit timeUnit) {
+		keeper.keepAlive(longValue.getKey(), timeout, 1, timeUnit);
 	}
 
 	public void set(long newValue) {
