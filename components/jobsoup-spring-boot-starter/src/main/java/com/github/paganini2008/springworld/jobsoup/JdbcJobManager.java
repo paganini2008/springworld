@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
@@ -44,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class JdbcJobManager implements JobManager {
+public class JdbcJobManager implements JobManager, BeanPostProcessor {
 
 	@Autowired
 	private ConnectionFactory connectionFactory;
@@ -652,6 +655,19 @@ public class JdbcJobManager implements JobManager {
 
 	public ConnectionFactory getConnectionFactory() {
 		return connectionFactory;
+	}
+
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		if (bean instanceof Job) {
+			Job job = (Job) bean;
+			try {
+				persistJob(job, null);
+			} catch (Exception e) {
+				throw new BeanInitializationException(e.getMessage(), e);
+			}
+		}
+		return bean;
 	}
 
 }

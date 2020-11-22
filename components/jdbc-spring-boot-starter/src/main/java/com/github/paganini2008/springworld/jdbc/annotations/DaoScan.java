@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 import com.github.paganini2008.springworld.jdbc.ApplicationContextUtils;
-import com.github.paganini2008.springworld.jdbc.DaoConfig;
 import com.github.paganini2008.springworld.jdbc.DaoScannerRegistrar;
 
 /**
@@ -17,12 +16,12 @@ import com.github.paganini2008.springworld.jdbc.DaoScannerRegistrar;
  * DaoScan
  *
  * @author Fred Feng
- * @version 1.0
+ * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ DaoScannerRegistrar.class, DaoConfig.class, ApplicationContextUtils.class })
+@Import({ DaoScannerRegistrar.class, ApplicationContextUtils.class })
 public @interface DaoScan {
 
 	String[] basePackages();

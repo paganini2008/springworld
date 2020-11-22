@@ -4,14 +4,13 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.PooledConnectionFactory;
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class JobManagerConnectionFactory extends PooledConnectionFactory implements LifeCycle {
+public class JobManagerConnectionFactory extends PooledConnectionFactory implements BeanLifeCycle {
 
 	private static final Map<String, String> ddls = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
@@ -48,7 +47,6 @@ public class JobManagerConnectionFactory extends PooledConnectionFactory impleme
 	@Value("${jobsoup.jdbc.createTable:true}")
 	private boolean createTable;
 
-	@PostConstruct
 	@Override
 	public void configure() throws Exception {
 		if (createTable) {
@@ -67,9 +65,8 @@ public class JobManagerConnectionFactory extends PooledConnectionFactory impleme
 		}
 	}
 
-	@PreDestroy
 	@Override
-	public void close() {
+	public void destroy() {
 		super.close();
 	}
 

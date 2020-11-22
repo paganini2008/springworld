@@ -18,7 +18,7 @@ import com.github.paganini2008.springworld.jobsoup.model.PageQuery;
  * @author Fred Feng
  * @since 1.0
  */
-public interface JobManager extends JobPersistence, LifeCycle {
+public interface JobManager extends JobPersistence {
 
 	String[] selectClusterNames() throws Exception;
 

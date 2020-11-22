@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.fastjdbc;
+package com.github.paganini2008.springworld.db4j;
 
 import java.lang.reflect.Proxy;
 
@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
- * DaoSupportProxyBeanFactory
+ * Db4jDaoProxyBeanFactory
  *
  * @author Fred Feng
- * @version 1.0
+ * @since 1.0
  */
-public class DaoSupportProxyBeanFactory<T> implements FactoryBean<T> {
+public class Db4jDaoProxyBeanFactory<T> implements FactoryBean<T> {
 
 	private final Class<T> interfaceClass;
 
-	public DaoSupportProxyBeanFactory(Class<T> interfaceClass) {
+	public Db4jDaoProxyBeanFactory(Class<T> interfaceClass) {
 		this.interfaceClass = interfaceClass;
 	}
 
@@ -29,7 +29,7 @@ public class DaoSupportProxyBeanFactory<T> implements FactoryBean<T> {
 	@Override
 	public T getObject() throws Exception {
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] { interfaceClass },
-				new DaoSupportProxyBean<T>(interfaceClass, dataSource));
+				new Db4jDaoProxyBean<T>(dataSource, interfaceClass));
 	}
 
 	@Override

@@ -166,11 +166,6 @@ public class EmbeddedModeConfiguration {
 	}
 
 	@Bean
-	public DeclaredJobBeanPostProcessor declaredJobBeanPostProcessor() {
-		return new DeclaredJobBeanPostProcessor();
-	}
-
-	@Bean
 	public DeclaredJobListenerBeanPostProcessor declaredJobListenerBeanPostProcessor() {
 		return new DeclaredJobListenerBeanPostProcessor();
 	}
@@ -195,7 +190,7 @@ public class EmbeddedModeConfiguration {
 		return new JobManagerConnectionFactory(dataSource);
 	}
 
-	@Bean(initMethod = "configure", destroyMethod = "close")
+	@Bean
 	@ConditionalOnMissingBean(JobManager.class)
 	public JobManager jobManager() {
 		return new JdbcJobManager();
@@ -212,7 +207,7 @@ public class EmbeddedModeConfiguration {
 		return new JobFutureHolder();
 	}
 
-	@Bean(initMethod = "configure", destroyMethod = "close")
+	@Bean
 	@ConditionalOnMissingBean(ScheduleManager.class)
 	public ScheduleManager scheduleManager() {
 		return new DefaultScheduleManager();

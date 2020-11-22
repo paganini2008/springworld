@@ -9,9 +9,6 @@ import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.collection.Tuple;
@@ -19,6 +16,7 @@ import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class JobDeadlineNotification implements JobRuntimeListener, Executable, LifeCycle {
+public class JobDeadlineNotification implements JobRuntimeListener, Executable, BeanLifeCycle {
 
 	private final Map<JobKey, Date> deadlines = new ConcurrentHashMap<JobKey, Date>();
 	private Timer timer;
@@ -39,7 +37,6 @@ public class JobDeadlineNotification implements JobRuntimeListener, Executable, 
 	@Autowired
 	private ConnectionFactory connectionFactory;
 
-	@PostConstruct
 	@Override
 	public void configure() throws Exception {
 		refresh();
@@ -80,9 +77,8 @@ public class JobDeadlineNotification implements JobRuntimeListener, Executable, 
 		}
 	}
 
-	@PreDestroy
 	@Override
-	public void close() {
+	public void destroy() {
 		if (timer != null) {
 			timer.cancel();
 		}

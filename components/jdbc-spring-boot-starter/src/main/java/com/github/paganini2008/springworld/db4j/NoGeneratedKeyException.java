@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.jdbc;
+package com.github.paganini2008.springworld.db4j;
 
 /**
  * 

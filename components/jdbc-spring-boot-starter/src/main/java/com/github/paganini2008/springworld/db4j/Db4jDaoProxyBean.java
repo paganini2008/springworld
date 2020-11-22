@@ -1,8 +1,9 @@
-package com.github.paganini2008.springworld.fastjdbc;
+package com.github.paganini2008.springworld.db4j;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,57 +12,55 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.ColumnMapRowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.NotImplementedException;
 import com.github.paganini2008.devtools.beans.PropertyUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.converter.ConvertUtils;
+import com.github.paganini2008.devtools.db4j.GeneratedKey;
+import com.github.paganini2008.devtools.db4j.MapSqlParameter;
+import com.github.paganini2008.devtools.db4j.SqlParameter;
+import com.github.paganini2008.devtools.db4j.SqlPlus;
+import com.github.paganini2008.devtools.db4j.mapper.BeanPropertyRowMapper;
+import com.github.paganini2008.devtools.db4j.mapper.ColumnIndexRowMapper;
+import com.github.paganini2008.devtools.db4j.mapper.MapRowMapper;
+import com.github.paganini2008.devtools.db4j.mapper.TupleRowMapper;
 import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
-import com.github.paganini2008.springworld.fastjdbc.annotations.Arg;
-import com.github.paganini2008.springworld.fastjdbc.annotations.Example;
-import com.github.paganini2008.springworld.fastjdbc.annotations.Get;
-import com.github.paganini2008.springworld.fastjdbc.annotations.Insert;
-import com.github.paganini2008.springworld.fastjdbc.annotations.Select;
-import com.github.paganini2008.springworld.fastjdbc.annotations.Slice;
-import com.github.paganini2008.springworld.fastjdbc.annotations.Update;
+import com.github.paganini2008.springworld.jdbc.ApplicationContextUtils;
+import com.github.paganini2008.springworld.jdbc.annotations.Arg;
+import com.github.paganini2008.springworld.jdbc.annotations.Example;
+import com.github.paganini2008.springworld.jdbc.annotations.Get;
+import com.github.paganini2008.springworld.jdbc.annotations.Insert;
+import com.github.paganini2008.springworld.jdbc.annotations.Select;
+import com.github.paganini2008.springworld.jdbc.annotations.Slice;
+import com.github.paganini2008.springworld.jdbc.annotations.Update;
 
 /**
  * 
- * DaoSupportProxyBean
+ * Db4jDaoProxyBean
  *
  * @author Fred Feng
  * @version 1.0
  */
 @SuppressWarnings("all")
-public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements InvocationHandler {
+public class Db4jDaoProxyBean<T> extends SqlPlus implements InvocationHandler {
 
 	private final Class<T> interfaceClass;
 	protected final Logger log;
 
-	public DaoSupportProxyBean(Class<T> interfaceClass, DataSource dataSource) {
-		Assert.isNull(dataSource, "DataSource must be required.");
+	public Db4jDaoProxyBean(DataSource dataSource, Class<T> interfaceClass) {
+		super(dataSource);
 		this.interfaceClass = interfaceClass;
 		this.log = LoggerFactory.getLogger(interfaceClass);
-		this.setDataSource(dataSource);
 	}
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (!acceptedMethod(method)) {
-			throw new IllegalArgumentException("All calling is only based in Dao operations.");
-		}
 		if (method.isAnnotationPresent(Insert.class)) {
 			return doInsert(method, args);
 		} else if (method.isAnnotationPresent(Update.class)) {
@@ -73,10 +72,10 @@ public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements In
 		} else if (method.isAnnotationPresent(Slice.class)) {
 			return doSlice(method, args);
 		}
-		throw new NotImplementedException("Unkown operation in interface: " + interfaceClass.getName());
+		throw new NotImplementedException("Unknown target method: " + interfaceClass.getName() + "." + method.getName());
 	}
 
-	private Object doSelect(Method method, Object[] args) {
+	private Object doSelect(Method method, Object[] args) throws SQLException {
 		Select select = method.getAnnotation(Select.class);
 		String sql = select.value();
 		if (log.isTraceEnabled()) {
@@ -87,20 +86,22 @@ public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements In
 		if (!List.class.isAssignableFrom(returnType)) {
 			throw new IllegalArgumentException("Only for List Type");
 		}
-		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
+		SqlParameter sqlParameter = getSqlParameter(method, args);
 		Class<?> elementType = select.elementType();
 		if (select.javaType()) {
-			return getNamedParameterJdbcTemplate().queryForList(sql, sqlParameterSource, elementType);
+			return queryForList(sql, sqlParameter, new ColumnIndexRowMapper<>(elementType));
 		} else {
-			if (Map.class.isAssignableFrom(elementType)) {
-				return getNamedParameterJdbcTemplate().queryForList(sql, sqlParameterSource);
+			if (Tuple.class.isAssignableFrom(elementType)) {
+				return queryForList(sql, sqlParameter);
+			} else if (Map.class.isAssignableFrom(elementType)) {
+				return queryForList(sql, sqlParameter, new MapRowMapper());
 			} else {
-				return getNamedParameterJdbcTemplate().query(sql, sqlParameterSource, new BeanPropertyRowMapper<>(elementType));
+				return queryForList(sql, sqlParameter, new BeanPropertyRowMapper<>(elementType));
 			}
 		}
 	}
 
-	private Object doSlice(Method method, Object[] args) {
+	private Object doSlice(Method method, Object[] args) throws SQLException {
 		final Slice slice = method.getAnnotation(Slice.class);
 		PageableSql pageableSql;
 		if (slice.pageableSql() != null && slice.pageableSql() != Void.class) {
@@ -118,20 +119,22 @@ public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements In
 		if (!ResultSetSlice.class.isAssignableFrom(resultType)) {
 			throw new IllegalArgumentException("Only for ResultSetSlice Type");
 		}
-		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
+		SqlParameter sqlParameter = getSqlParameter(method, args);
 		Class<?> elementType = slice.elementType();
 		if (slice.javaType()) {
-			return getNamedParameterJdbcTemplate().slice(pageableSql, sqlParameterSource, elementType);
+			return queryForPage(pageableSql, sqlParameter, new ColumnIndexRowMapper<>(elementType));
 		} else {
-			if (Map.class.isAssignableFrom(elementType)) {
-				return getNamedParameterJdbcTemplate().slice(pageableSql, sqlParameterSource);
+			if (Tuple.class.isAssignableFrom(elementType)) {
+				return queryForPage(pageableSql, sqlParameter);
+			} else if (Map.class.isAssignableFrom(elementType)) {
+				return queryForPage(pageableSql, sqlParameter, new MapRowMapper());
 			} else {
-				return getNamedParameterJdbcTemplate().slice(pageableSql, sqlParameterSource, new BeanPropertyRowMapper<>(elementType));
+				return queryForPage(pageableSql, sqlParameter, new BeanPropertyRowMapper<>(elementType));
 			}
 		}
 	}
 
-	private Object doGet(Method method, Object[] args) {
+	private Object doGet(Method method, Object[] args) throws SQLException {
 		Get getter = method.getAnnotation(Get.class);
 		String sql = getter.value();
 		if (log.isTraceEnabled()) {
@@ -141,36 +144,41 @@ public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements In
 		if (returnType == void.class || returnType == Void.class) {
 			return null;
 		}
-		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
+		SqlParameter sqlParameter = getSqlParameter(method, args);
 		if (getter.javaType()) {
-			return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource, returnType);
+			return queryForObject(sql, sqlParameter, new ColumnIndexRowMapper<>(returnType));
 		} else {
-			if (Map.class.isAssignableFrom(returnType)) {
-				return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource, new ColumnMapRowMapper());
+			if (Tuple.class.isAssignableFrom(returnType)) {
+				return queryForObject(sql, sqlParameter, new TupleRowMapper());
+			} else if (Map.class.isAssignableFrom(returnType)) {
+				return queryForObject(sql, sqlParameter, new MapRowMapper());
 			} else {
-				return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource, new BeanPropertyRowMapper<>(returnType));
+				return queryForObject(sql, sqlParameter, new BeanPropertyRowMapper<>(returnType));
 			}
 		}
 	}
 
-	private Object doInsert(Method method, Object[] args) {
+	private Object doInsert(Method method, Object[] args) throws SQLException {
 		Insert insert = method.getAnnotation(Insert.class);
 		String sql = insert.value();
 		if (log.isTraceEnabled()) {
 			log.trace("Execute sql: " + sql);
 		}
 
-		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
-		KeyHolder keyHolder = new GeneratedKeyHolder();
-		int effected = getNamedParameterJdbcTemplate().update(sql, sqlParameterSource, keyHolder);
+		SqlParameter sqlParameter = getSqlParameter(method, args);
+		GeneratedKey generatedKey = GeneratedKey.autoGenerated();
+		int effected = update(sql, sqlParameter, generatedKey);
 		if (effected == 0) {
-			throw new InvalidDataAccessResourceUsageException("Failed to insert a new record by sql: " + sql);
+			throw new IllegalStateException("Failed to insert a new record by sql: " + sql);
 		}
 		Class<?> returnType = method.getReturnType();
 		if (returnType == void.class || returnType == Void.class) {
 			return null;
 		}
-		Map<String, Object> keys = keyHolder.getKeys();
+		Map<String, Object> keys = generatedKey.getKeys();
+		if (keys.isEmpty()) {
+			throw new NoGeneratedKeyException();
+		}
 		Object value = CollectionUtils.getFirst(keys.values());
 		try {
 			return returnType.cast(value);
@@ -179,15 +187,15 @@ public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements In
 		}
 	}
 
-	private Object doUpdate(Method method, Object[] args) {
+	private Object doUpdate(Method method, Object[] args) throws SQLException {
 		Update update = method.getAnnotation(Update.class);
 		String sql = update.value();
 		if (log.isTraceEnabled()) {
 			log.trace("Execute sql: " + sql);
 		}
 
-		SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args);
-		int effectedRows = getNamedParameterJdbcTemplate().update(sql, sqlParameterSource);
+		SqlParameter sqlParameter = getSqlParameter(method, args);
+		int effectedRows = update(sql, sqlParameter);
 		Class<?> returnType = method.getReturnType();
 		if (returnType == void.class || returnType == Void.class) {
 			return null;
@@ -199,25 +207,7 @@ public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements In
 		}
 	}
 
-	private boolean acceptedMethod(Method method) {
-		Annotation[] annotations = method.getAnnotations();
-		if (annotations != null) {
-			for (Annotation annotation : annotations) {
-				if (acceptedAnnotation(annotation)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	protected boolean acceptedAnnotation(Annotation annotation) {
-		Class<?> annotationClass = annotation.annotationType();
-		return annotationClass == Insert.class || annotationClass == Update.class || annotationClass == Get.class
-				|| annotationClass == Select.class || annotationClass == Slice.class;
-	}
-
-	private SqlParameterSource getSqlParameterSource(Method method, Object[] args) {
+	private SqlParameter getSqlParameter(Method method, Object[] args) {
 		Annotation[][] annotations = method.getParameterAnnotations();
 		Annotation[] requiredAnnotations = new Annotation[annotations.length];
 		int i = 0;
@@ -260,7 +250,7 @@ public class DaoSupportProxyBean<T> extends EnhancedJdbcDaoSupport implements In
 				}
 			}
 		}
-		return new MapSqlParameterSource(parameters);
+		return new MapSqlParameter(parameters);
 	}
 
 	public Class<T> getInterfaceClass() {

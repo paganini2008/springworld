@@ -28,6 +28,4 @@ public @interface EnableJobSoupApi {
 
 	ServerMode serverMode() default ServerMode.CONSUMER;
 
-	String producer() default "http://localhost:19010";
-
 }

@@ -9,8 +9,6 @@ import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PreDestroy;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 
@@ -22,7 +20,8 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.multithreads.AtomicIntegerSequence;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderEvent;
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springworld.jobsoup.model.JobDetail;
 import com.github.paganini2008.springworld.jobsoup.model.JobRuntime;
 
@@ -37,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class JobTimeoutResolver implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable, LifeCycle {
+public class JobTimeoutResolver implements ApplicationListener<ApplicationClusterLeaderEvent>, Executable, BeanLifeCycle {
 
 	private final Map<JobKey, AtomicIntegerSequence> counters = new ConcurrentHashMap<JobKey, AtomicIntegerSequence>();
 
@@ -148,13 +147,12 @@ public class JobTimeoutResolver implements ApplicationListener<ApplicationCluste
 	}
 
 	@Override
-	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
+	public void onApplicationEvent(ApplicationClusterLeaderEvent event) {
 		this.timer = ThreadUtils.scheduleWithFixedDelay(this, 1, TimeUnit.MINUTES);
 	}
 
-	@PreDestroy
 	@Override
-	public void close() {
+	public void destroy() {
 		if (timer != null) {
 			timer.cancel();
 			timer = null;

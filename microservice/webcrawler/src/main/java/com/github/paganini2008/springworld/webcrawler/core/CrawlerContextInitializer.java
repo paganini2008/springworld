@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 
-import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderEvent;
 import com.github.paganini2008.springworld.webcrawler.utils.RedisIdentifier;
 
 /**
@@ -16,13 +16,13 @@ import com.github.paganini2008.springworld.webcrawler.utils.RedisIdentifier;
  * 
  * @version 1.0
  */
-public class CrawlerContextInitializer implements ApplicationListener<ApplicationClusterNewLeaderEvent> {
+public class CrawlerContextInitializer implements ApplicationListener<ApplicationClusterLeaderEvent> {
 
 	@Autowired
 	private RedisIdentifier redisIdentifier;
 
 	@Override
-	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
+	public void onApplicationEvent(ApplicationClusterLeaderEvent event) {
 		configure(event.getApplicationContext());
 	}
 

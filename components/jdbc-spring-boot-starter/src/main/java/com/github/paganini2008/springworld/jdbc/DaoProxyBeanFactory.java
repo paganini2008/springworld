@@ -2,17 +2,17 @@ package com.github.paganini2008.springworld.jdbc;
 
 import java.lang.reflect.Proxy;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.github.paganini2008.springworld.tx.SessionManager;
 
 /**
  * 
  * DaoProxyBeanFactory
  *
  * @author Fred Feng
- * @version 1.0
+ * @since 1.0
  */
 public class DaoProxyBeanFactory<T> implements FactoryBean<T> {
 
@@ -23,13 +23,13 @@ public class DaoProxyBeanFactory<T> implements FactoryBean<T> {
 	}
 
 	@Autowired
-	private SessionManager sessionManager;
+	private DataSource dataSource;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject() throws Exception {
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] { interfaceClass },
-				new DaoProxyBean<T>(interfaceClass, sessionManager));
+				new DaoProxyBean<T>(dataSource, interfaceClass));
 	}
 
 	@Override

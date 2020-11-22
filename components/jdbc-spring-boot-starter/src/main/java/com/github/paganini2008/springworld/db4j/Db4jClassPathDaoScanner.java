@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.fastjdbc;
+package com.github.paganini2008.springworld.db4j;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -10,18 +10,18 @@ import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import com.github.paganini2008.springworld.fastjdbc.annotations.Dao;
+import com.github.paganini2008.springworld.jdbc.annotations.Dao;
 
 /**
  * 
- * ClassPathDaoScanner
+ * Db4jClassPathDaoScanner
  *
  * @author Fred Feng
- * @version 1.0
+ * @since 1.0
  */
-public class ClassPathDaoScanner extends ClassPathBeanDefinitionScanner {
+public class Db4jClassPathDaoScanner extends ClassPathBeanDefinitionScanner {
 
-	public ClassPathDaoScanner(BeanDefinitionRegistry registry) {
+	public Db4jClassPathDaoScanner(BeanDefinitionRegistry registry) {
 		super(registry, false);
 	}
 
@@ -47,7 +47,7 @@ public class ClassPathDaoScanner extends ClassPathBeanDefinitionScanner {
 		for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
 			beanDefinition = ((GenericBeanDefinition) beanDefinitionHolder.getBeanDefinition());
 			beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-			beanDefinition.setBeanClass(DaoSupportProxyBeanFactory.class);
+			beanDefinition.setBeanClass(Db4jDaoProxyBeanFactory.class);
 			beanDefinition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
 		}
 	}

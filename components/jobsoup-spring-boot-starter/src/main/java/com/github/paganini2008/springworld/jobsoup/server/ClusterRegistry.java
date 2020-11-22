@@ -15,8 +15,8 @@ import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.Contact;
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springworld.jobsoup.JobException;
-import com.github.paganini2008.springworld.jobsoup.LifeCycle;
 import com.github.paganini2008.springworld.jobsoup.SqlScripts;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +30,12 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ClusterRegistry implements LifeCycle {
+public class ClusterRegistry implements BeanLifeCycle {
 
 	@Autowired
 	private ConnectionFactory connectionFactory;
 
-	@PostConstruct
+	@Override
 	public void configure() throws Exception {
 		Connection connection = null;
 		try {

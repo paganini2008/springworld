@@ -9,10 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springworld.jobsoup.model.JobPeerResult;
 
 /**
@@ -23,7 +23,7 @@ import com.github.paganini2008.springworld.jobsoup.model.JobPeerResult;
  *
  * @since 1.0
  */
-public abstract class JobTemplate implements JobExecutor, DisposableBean {
+public abstract class JobTemplate implements JobExecutor, BeanLifeCycle {
 
 	protected final Logger log = LoggerFactory.getLogger(JobExecutor.class);
 
@@ -195,6 +195,7 @@ public abstract class JobTemplate implements JobExecutor, DisposableBean {
 			Throwable reason) {
 	}
 
+	@Override
 	public void destroy() {
 		if (threadPool != null) {
 			ExecutorUtils.gracefulShutdown(threadPool, 60000);

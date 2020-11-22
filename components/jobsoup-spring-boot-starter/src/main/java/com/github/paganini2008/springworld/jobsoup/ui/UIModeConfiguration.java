@@ -11,8 +11,6 @@ import com.github.paganini2008.springworld.jobsoup.server.ClusterRestTemplate;
 import com.github.paganini2008.springworld.jobsoup.server.RestJobManager;
 import com.github.paganini2008.springworld.jobsoup.server.ServerModeJobAdmin;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 
  * UIModeConfiguration
@@ -21,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @since 1.0
  */
-@Slf4j
 @ConditionalOnWebApplication
 @Configuration
 public class UIModeConfiguration {
@@ -31,7 +28,7 @@ public class UIModeConfiguration {
 		return new UIModeClusterRestTemplate();
 	}
 
-	@Bean(initMethod = "configure", destroyMethod = "close")
+	@Bean
 	@ConditionalOnMissingBean(JobManager.class)
 	public JobManager jobManager() {
 		return new RestJobManager();

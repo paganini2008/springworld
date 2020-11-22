@@ -172,7 +172,7 @@ public class ServerModeConfiguration {
 			return new JobManagerConnectionFactory(dataSource);
 		}
 
-		@Bean(initMethod = "configure", destroyMethod = "close")
+		@Bean
 		@ConditionalOnMissingBean(JobManager.class)
 		public JobManager jobManager() {
 			return new JdbcJobManager();
@@ -204,7 +204,7 @@ public class ServerModeConfiguration {
 			return new SerialDependencyListener();
 		}
 
-		@Bean(initMethod = "configure", destroyMethod = "close")
+		@Bean
 		@ConditionalOnMissingBean(ScheduleManager.class)
 		public ScheduleManager scheduleManager() {
 			return new ServerModeScheduleManager();
@@ -293,7 +293,7 @@ public class ServerModeConfiguration {
 			return new ConsumerModeSchedulerStarterListener();
 		}
 
-		@Bean(initMethod = "configure", destroyMethod = "close")
+		@Bean
 		public JobManager jobManager() {
 			return new RestJobManager();
 		}

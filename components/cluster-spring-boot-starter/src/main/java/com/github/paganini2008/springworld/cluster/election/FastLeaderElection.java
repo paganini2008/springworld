@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
@@ -60,9 +60,9 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 		redisTemplate.opsForList().leftPush(key, selfInfo);
 		ApplicationInfo leaderInfo;
 		if (selfInfo.equals(leaderInfo = (ApplicationInfo) redisTemplate.opsForList().index(key, -1))) {
-			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
+			applicationContext.publishEvent(new ApplicationClusterLeaderEvent(applicationContext));
 			log.info("This is the leader of application cluster '{}'. Current application event type is '{}'", clusterName,
-					ApplicationClusterNewLeaderEvent.class.getName());
+					ApplicationClusterLeaderEvent.class.getName());
 		} else {
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
 			log.info("This is the follower of application cluster '{}'. Current application event type is '{}'", clusterName,

@@ -188,9 +188,4 @@ public class ServerModeScheduleManager implements ScheduleManager {
 		}
 		return jobFutureHolder.get(jobKey);
 	}
-
-	@Override
-	public void close() {
-		jobFutureHolder.clear();
-	}
 }

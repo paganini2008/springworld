@@ -43,6 +43,8 @@ public class FastLeaderElectionListener implements ApplicationListener<RedisKeyE
 		if (key.equals(expiredKey)) {
 			log.info("The leader of application cluster '{}' is expired.", clusterName);
 			ApplicationInfo leaderInfo = instanceId.getLeaderInfo();
+			
+			
 			instanceId.setLeaderInfo(null);
 
 			recoveryCallback.recover(leaderInfo);

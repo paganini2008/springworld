@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PreDestroy;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -17,7 +15,8 @@ import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderEvent;
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springworld.jobsoup.model.JobKeyQuery;
 import com.github.paganini2008.springworld.jobsoup.model.JobTriggerDetail;
 import com.github.paganini2008.springworld.jobsoup.model.TriggerDescription.Dependency;
@@ -33,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class JobDependencyFutureListener implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable, LifeCycle {
+public class JobDependencyFutureListener implements ApplicationListener<ApplicationClusterLeaderEvent>, Executable, BeanLifeCycle {
 
 	private Timer timer;
 
@@ -168,13 +167,12 @@ public class JobDependencyFutureListener implements ApplicationListener<Applicat
 	}
 
 	@Override
-	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
+	public void onApplicationEvent(ApplicationClusterLeaderEvent event) {
 		this.timer = ThreadUtils.scheduleWithFixedDelay(this, 1, TimeUnit.MINUTES);
 	}
 
-	@PreDestroy
 	@Override
-	public void close() {
+	public void destroy() {
 		if (timer != null) {
 			timer.cancel();
 			timer = null;

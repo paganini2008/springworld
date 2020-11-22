@@ -180,9 +180,4 @@ public class DefaultScheduleManager implements ScheduleManager {
 		return jobFutureHolder.get(jobKey);
 	}
 
-	@Override
-	public void close() {
-		jobFutureHolder.clear();
-	}
-
 }

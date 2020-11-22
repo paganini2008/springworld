@@ -3,6 +3,8 @@ package com.github.paganini2008.springworld.jobsoup;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
+
 /**
  * 
  * JobFutureHolder
@@ -11,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 1.0
  */
-public class JobFutureHolder {
+public class JobFutureHolder implements BeanLifeCycle {
 
 	private final Map<JobKey, JobFuture> cache = new ConcurrentHashMap<JobKey, JobFuture>();
 
@@ -34,6 +36,10 @@ public class JobFutureHolder {
 		}
 	}
 
+	public int size() {
+		return cache.size();
+	}
+
 	public void clear() {
 		for (Map.Entry<JobKey, JobFuture> entry : cache.entrySet()) {
 			entry.getValue().cancel();
@@ -41,8 +47,9 @@ public class JobFutureHolder {
 		cache.clear();
 	}
 
-	public int size() {
-		return cache.size();
+	@Override
+	public void destroy() {
+		clear();
 	}
 
 }

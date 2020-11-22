@@ -8,7 +8,7 @@ package com.github.paganini2008.springworld.jobsoup;
  *
  * @since 1.0
  */
-public interface ScheduleManager extends LifeCycle {
+public interface ScheduleManager {
 
 	JobState schedule(Job job) throws Exception;
 

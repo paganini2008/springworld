@@ -5,12 +5,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ResourceLoaderAware;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
+import com.github.paganini2008.devtools.ClassUtils;
+import com.github.paganini2008.springworld.db4j.Db4jClassPathDaoScanner;
 import com.github.paganini2008.springworld.jdbc.annotations.DaoScan;
 
 /**
@@ -18,9 +21,15 @@ import com.github.paganini2008.springworld.jdbc.annotations.DaoScan;
  * DaoScannerRegistrar
  *
  * @author Fred Feng
- * @version 1.0
+ * @since 1.0
  */
 public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+
+	private static final boolean db4jPresent;
+
+	static {
+		db4jPresent = ClassUtils.isPresent("com.github.paganini2008.devtools.db4j.SqlRunner");
+	}
 
 	private ResourceLoader resourceLoader;
 
@@ -41,7 +50,7 @@ public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar, Resou
 				}
 			}
 		}
-		ClassPathDaoScanner scanner = new ClassPathDaoScanner(registry);
+		ClassPathBeanDefinitionScanner scanner = db4jPresent ? new Db4jClassPathDaoScanner(registry) : new ClassPathDaoScanner(registry);
 		if (resourceLoader != null) {
 			scanner.setResourceLoader(resourceLoader);
 		}

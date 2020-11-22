@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
@@ -68,9 +68,9 @@ public class ConsistencyLeaderElection implements LeaderElection, ApplicationCon
 		final ConsistencyRequestConfirmationEvent event = (ConsistencyRequestConfirmationEvent) applicationEvent;
 		ApplicationInfo leaderInfo = (ApplicationInfo) event.getRequest().getValue();
 		if (instanceId.getApplicationInfo().equals(leaderInfo)) {
-			applicationContext.publishEvent(new ApplicationClusterNewLeaderEvent(applicationContext));
+			applicationContext.publishEvent(new ApplicationClusterLeaderEvent(applicationContext));
 			log.info("This is the leader of application cluster '{}'. Current application event type is '{}'", clusterName,
-					ApplicationClusterNewLeaderEvent.class.getName());
+					ApplicationClusterLeaderEvent.class.getName());
 		} else {
 			applicationContext.publishEvent(new ApplicationClusterFollowerEvent(applicationContext, leaderInfo));
 			log.info("This is the follower of application cluster '{}'. Current application event type is '{}'", clusterName,

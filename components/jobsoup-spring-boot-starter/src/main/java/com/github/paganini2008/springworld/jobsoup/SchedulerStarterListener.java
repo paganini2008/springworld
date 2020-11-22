@@ -1,6 +1,6 @@
 package com.github.paganini2008.springworld.jobsoup;
 
-import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderEvent;
 
 /**
  * 
@@ -12,5 +12,5 @@ import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEv
  */
 public interface SchedulerStarterListener {
 
-	void onApplicationEvent(ApplicationClusterNewLeaderEvent event);
+	void onApplicationEvent(ApplicationClusterLeaderEvent event);
 }

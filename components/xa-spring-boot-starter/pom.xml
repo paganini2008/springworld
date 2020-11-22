@@ -8,16 +8,17 @@
 		<version>2.0-RC5</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>fastjdbc-spring-boot-starter</artifactId>
+	<artifactId>xa-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 
-	<name>fastjdbc-spring-boot-starter</name>
+	<name>xa-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jdbc</artifactId>
+			<groupId>com.github.paganini2008.springworld</groupId>
+			<artifactId>cluster-spring-boot-starter</artifactId>
+			<version>2.0-RC5</version>
 		</dependency>
 	</dependencies>
 

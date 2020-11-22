@@ -3,15 +3,14 @@ package com.github.paganini2008.springworld.jobsoup.server;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PreDestroy;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterNewLeaderEvent;
+import com.github.paganini2008.springworld.cluster.ApplicationClusterLeaderEvent;
+import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springworld.jobsoup.JobBeanInitializer;
 import com.github.paganini2008.springworld.jobsoup.SchedulerStarterListener;
 
@@ -27,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ConsumerModeSchedulerStarterListener
-		implements ApplicationListener<ApplicationClusterNewLeaderEvent>, Executable, SchedulerStarterListener {
+		implements ApplicationListener<ApplicationClusterLeaderEvent>, Executable, SchedulerStarterListener, BeanLifeCycle {
 
 	@Autowired(required = false)
 	private JobBeanInitializer jobBeanInitializer;
@@ -41,7 +40,7 @@ public class ConsumerModeSchedulerStarterListener
 	private Timer timer;
 
 	@Override
-	public void onApplicationEvent(ApplicationClusterNewLeaderEvent event) {
+	public void onApplicationEvent(ApplicationClusterLeaderEvent event) {
 		timer = ThreadUtils.scheduleWithFixedDelay(this, inititalDelay, checkInterval, TimeUnit.SECONDS);
 	}
 
@@ -57,8 +56,8 @@ public class ConsumerModeSchedulerStarterListener
 		return jobBeanInitializer != null;
 	}
 
-	@PreDestroy
-	public void stop() {
+	@Override
+	public void destroy() {
 		if (timer != null) {
 			timer.cancel();
 		}

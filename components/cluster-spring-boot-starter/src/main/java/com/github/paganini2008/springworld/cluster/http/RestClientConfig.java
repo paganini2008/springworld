@@ -16,7 +16,6 @@ import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.LeaderRecoveryCallback;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
-import com.github.paganini2008.springworld.cluster.utils.RetryTemplateFactory;
 
 /**
  * 
