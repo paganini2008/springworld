@@ -43,7 +43,6 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 
 	public void countdown(int permits, Object attachment) {
 		for (int i = 0; i < permits; i++) {
-			ThreadUtils.randomSleep(100, 1000);
 			redisMessageSender.sendMessage(latchName, attachment);
 		}
 	}
@@ -55,8 +54,8 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 		locked.set(true);
 		final String beanName = UUID.randomUUID().toString();
 		latch = new Latch(permits);
-		Referee referee = new Referee(latchName, latch);
-		redisMessageSender.subscribeChannel(beanName, referee);
+		LatchFuture lf = new LatchFuture(latchName, latch);
+		redisMessageSender.subscribeChannel(beanName, lf);
 		log.trace("Wait for lock releasing of name: {}", latchName);
 		try {
 			latch.doWait();
@@ -68,7 +67,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 			locked.set(false);
 		}
 		redisMessageSender.unsubscribeChannel(beanName);
-		return referee.getMessages();
+		return lf.getMessages();
 	}
 
 	public Object[] await(int permits, long timeout, TimeUnit timeUnit, InterruptibleHandler handler) {
@@ -78,8 +77,8 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 		locked.set(true);
 		final String beanName = UUID.randomUUID().toString();
 		latch = new Latch(permits);
-		Referee referee = new Referee(latchName, latch);
-		redisMessageSender.subscribeChannel(beanName, referee);
+		LatchFuture lf = new LatchFuture(latchName, latch);
+		redisMessageSender.subscribeChannel(beanName, lf);
 		log.trace("Wait for lock releasing of name: {}", latchName);
 		try {
 			latch.doWait(timeout, timeUnit);
@@ -95,7 +94,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 			locked.set(false);
 		}
 		redisMessageSender.unsubscribeChannel(beanName);
-		return referee.getMessages();
+		return lf.getMessages();
 	}
 
 	public void cancel() {
@@ -147,19 +146,19 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 
 	/**
 	 * 
-	 * Referee
+	 * LatchFuture
 	 * 
 	 * @author Fred Feng
 	 *
 	 * @since 1.0
 	 */
-	static class Referee implements RedisMessageHandler {
+	static class LatchFuture implements RedisMessageHandler {
 
 		private final Latch latch;
 		private final String latchName;
 		private final List<Object> messages = new CopyOnWriteArrayList<Object>();
 
-		Referee(String latchName, Latch latch) {
+		LatchFuture(String latchName, Latch latch) {
 			this.latchName = latchName;
 			this.latch = latch;
 		}

@@ -23,7 +23,7 @@
 		<module>xa-spring-boot-starter</module>
 		<module>jdbc-spring-boot-starter</module>
 		<module>xmemcached-spring-boot-starter</module>
-		<module>restful-spring-boot-starter</module>
+		<module>webcrawler-spring-boot-starter</module>
     </modules>
 	
     <packaging>pom</packaging>

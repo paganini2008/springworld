@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +26,7 @@ import com.github.paganini2008.devtools.db4j.mapper.BeanPropertyRowMapper;
 import com.github.paganini2008.devtools.db4j.mapper.ColumnIndexRowMapper;
 import com.github.paganini2008.devtools.db4j.mapper.MapRowMapper;
 import com.github.paganini2008.devtools.db4j.mapper.TupleRowMapper;
+import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
@@ -53,8 +52,8 @@ public class Db4jDaoProxyBean<T> extends SqlPlus implements InvocationHandler {
 	private final Class<T> interfaceClass;
 	protected final Logger log;
 
-	public Db4jDaoProxyBean(DataSource dataSource, Class<T> interfaceClass) {
-		super(dataSource);
+	public Db4jDaoProxyBean(ConnectionFactory connectionFactory, Class<T> interfaceClass) {
+		super(connectionFactory);
 		this.interfaceClass = interfaceClass;
 		this.log = LoggerFactory.getLogger(interfaceClass);
 	}
@@ -255,6 +254,10 @@ public class Db4jDaoProxyBean<T> extends SqlPlus implements InvocationHandler {
 
 	public Class<T> getInterfaceClass() {
 		return interfaceClass;
+	}
+
+	public String toString() {
+		return interfaceClass.getName() + "$ProxyByJDK";
 	}
 
 }

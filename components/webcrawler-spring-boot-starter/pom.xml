@@ -9,10 +9,10 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>restful-spring-boot-starter</artifactId>
+	<artifactId>webcrawler-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 
-	<name>restful-spring-boot-starter</name>
+	<name>webcrawler-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<properties>
