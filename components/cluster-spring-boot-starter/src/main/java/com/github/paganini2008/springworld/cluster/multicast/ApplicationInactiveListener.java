@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import com.github.paganini2008.springdessert.reditools.BeanNames;
+import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.reditools.BeanNames;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
 /**
  * 

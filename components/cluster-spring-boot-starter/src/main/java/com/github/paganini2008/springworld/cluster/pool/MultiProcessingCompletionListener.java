@@ -2,9 +2,9 @@ package com.github.paganini2008.springworld.cluster.pool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 /**
  * 

@@ -17,7 +17,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
-import com.github.paganini2008.springworld.reditools.serializer.FstRedisSerializer;
+import com.github.paganini2008.springdessert.reditools.serializer.FstRedisSerializer;
 import com.github.paganini2008.springworld.transport.buffer.BufferZone;
 import com.github.paganini2008.springworld.transport.buffer.KafkaBufferZone;
 import com.github.paganini2008.springworld.transport.buffer.MemcachedBufferZone;

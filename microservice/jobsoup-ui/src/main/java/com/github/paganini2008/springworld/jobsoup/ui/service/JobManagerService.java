@@ -4,16 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.springworld.jobsoup.JobKey;
-import com.github.paganini2008.springworld.jobsoup.JobManager;
-import com.github.paganini2008.springworld.jobsoup.model.JobDetail;
-import com.github.paganini2008.springworld.jobsoup.model.JobLog;
-import com.github.paganini2008.springworld.jobsoup.model.JobPersistParam;
-import com.github.paganini2008.springworld.jobsoup.model.JobStackTrace;
-import com.github.paganini2008.springworld.jobsoup.model.JobTrace;
-import com.github.paganini2008.springworld.jobsoup.model.JobTracePageQuery;
-import com.github.paganini2008.springworld.jobsoup.model.JobTraceQuery;
-import com.github.paganini2008.springworld.jobsoup.model.PageQuery;
+import com.github.paganini2008.springdessert.jobsoup.JobKey;
+import com.github.paganini2008.springdessert.jobsoup.JobManager;
+import com.github.paganini2008.springdessert.jobsoup.model.JobDetail;
+import com.github.paganini2008.springdessert.jobsoup.model.JobLog;
+import com.github.paganini2008.springdessert.jobsoup.model.JobPersistParam;
+import com.github.paganini2008.springdessert.jobsoup.model.JobStackTrace;
+import com.github.paganini2008.springdessert.jobsoup.model.JobTrace;
+import com.github.paganini2008.springdessert.jobsoup.model.JobTracePageQuery;
+import com.github.paganini2008.springdessert.jobsoup.model.JobTraceQuery;
+import com.github.paganini2008.springdessert.jobsoup.model.PageQuery;
 import com.github.paganini2008.springworld.jobsoup.ui.JobLogForm;
 import com.github.paganini2008.springworld.jobsoup.ui.JobTraceForm;
 

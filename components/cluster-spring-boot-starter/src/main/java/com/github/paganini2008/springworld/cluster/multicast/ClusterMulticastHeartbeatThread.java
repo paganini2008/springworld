@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.InstanceId;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

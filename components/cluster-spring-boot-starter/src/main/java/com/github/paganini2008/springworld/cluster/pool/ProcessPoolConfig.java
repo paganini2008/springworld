@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
+import com.github.paganini2008.springdessert.reditools.common.RedisSharedLatch;
+import com.github.paganini2008.springdessert.reditools.common.SharedLatch;
+import com.github.paganini2008.springdessert.reditools.common.TtlKeeper;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastConfig;
-import com.github.paganini2008.springworld.reditools.common.RedisCounter;
-import com.github.paganini2008.springworld.reditools.common.RedisSharedLatch;
-import com.github.paganini2008.springworld.reditools.common.SharedLatch;
-import com.github.paganini2008.springworld.reditools.common.TtlKeeper;
 
 /**
  * 

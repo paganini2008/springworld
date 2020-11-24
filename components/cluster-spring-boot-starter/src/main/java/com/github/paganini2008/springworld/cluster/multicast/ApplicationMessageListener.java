@@ -3,10 +3,10 @@ package com.github.paganini2008.springworld.cluster.multicast;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup.ClusterMulticastMessage;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
 import lombok.extern.slf4j.Slf4j;
 

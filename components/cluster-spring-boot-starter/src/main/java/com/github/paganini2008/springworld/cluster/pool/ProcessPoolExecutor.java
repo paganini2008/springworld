@@ -6,9 +6,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springdessert.reditools.common.SharedLatch;
+import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
-import com.github.paganini2008.springworld.reditools.common.SharedLatch;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.extern.slf4j.Slf4j;
 

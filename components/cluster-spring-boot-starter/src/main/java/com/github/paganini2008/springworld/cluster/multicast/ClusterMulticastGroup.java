@@ -23,10 +23,10 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.utils.LoadBalancer;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageSender;
 
 import lombok.Getter;
 import lombok.Setter;

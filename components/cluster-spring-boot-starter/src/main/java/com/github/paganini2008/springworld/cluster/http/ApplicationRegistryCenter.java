@@ -12,10 +12,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springdessert.reditools.BeanNames;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.multicast.MulticastGroupListener;
-import com.github.paganini2008.springworld.reditools.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
 

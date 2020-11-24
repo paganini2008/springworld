@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springdessert.reditools.BeanNames;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springworld.reditools.BeanNames;
 
 /**
  * 

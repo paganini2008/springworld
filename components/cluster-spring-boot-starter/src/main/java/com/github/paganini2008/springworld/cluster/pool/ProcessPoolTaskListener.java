@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
+import com.github.paganini2008.springdessert.reditools.common.SharedLatch;
 import com.github.paganini2008.springworld.cluster.ApplicationInfo;
 import com.github.paganini2008.springworld.cluster.InstanceId;
 import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
-import com.github.paganini2008.springworld.reditools.common.SharedLatch;
 
 import lombok.extern.slf4j.Slf4j;
 

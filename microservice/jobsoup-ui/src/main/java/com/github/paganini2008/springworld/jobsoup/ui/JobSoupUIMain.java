@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.github.paganini2008.devtools.io.FileUtils;
-import com.github.paganini2008.springworld.jobsoup.DeployMode;
-import com.github.paganini2008.springworld.jobsoup.EnableJobSoupApi;
+import com.github.paganini2008.springdessert.jobsoup.DeployMode;
+import com.github.paganini2008.springdessert.jobsoup.EnableJobSoupApi;
 
 /**
  * 

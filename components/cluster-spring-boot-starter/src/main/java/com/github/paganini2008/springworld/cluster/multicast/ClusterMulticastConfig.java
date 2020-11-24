@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
 import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springworld.cluster.utils.LoadBalancer;
-import com.github.paganini2008.springworld.reditools.messager.RedisMessageHandler;
 
 /**
  * 
