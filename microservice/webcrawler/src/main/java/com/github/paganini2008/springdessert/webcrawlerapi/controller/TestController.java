@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webcrawler.controller;
+package com.github.paganini2008.springdessert.webcrawlerapi.controller;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webcrawler.config;
+package com.github.paganini2008.springdessert.webcrawlerapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

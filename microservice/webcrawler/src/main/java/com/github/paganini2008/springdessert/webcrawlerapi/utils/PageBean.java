@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webcrawler.utils;
+package com.github.paganini2008.springdessert.webcrawlerapi.utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;

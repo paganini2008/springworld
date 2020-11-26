@@ -1,29 +1,25 @@
-package com.github.paganini2008.springdessert.webcrawler;
+package com.github.paganini2008.springdessert.webcrawlerapi;
 
 import java.io.File;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.github.paganini2008.devtools.io.FileUtils;
+import com.github.paganini2008.springdessert.jdbc.annotations.DaoScan;
 
 /**
  * 
- * Application
+ * WebCrawlerApplication
  *
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ * @since 1.0
  */
-@EnableScheduling
-@EnableAsync
+@DaoScan(basePackages = "com.github.paganini2008.springdessert.webcrawler.jdbc")
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.github.paganini2008.springworld.webcrawler" })
-public class Application {
+@ComponentScan(basePackages = { "com.github.paganini2008.springdessert.webcrawlerapi" })
+public class WebCrawlerApplication {
 
 	static {
 		System.setProperty("spring.devtools.restart.enabled", "false");
@@ -35,11 +31,13 @@ public class Application {
 	}
 
 	public static void main(String[] args) {
-		//final int port = NetUtils.getRandomPort(Constants.MICROSERVICE_RANDOM_PORT_START, Constants.MICROSERVICE_BIZ_RANDOM_PORT_END);
+		// final int port =
+		// NetUtils.getRandomPort(Constants.MICROSERVICE_RANDOM_PORT_START,
+		// Constants.MICROSERVICE_BIZ_RANDOM_PORT_END);
 		int port = 8021;
 		System.out.println("Server Port: " + port);
 		System.setProperty("server.port", String.valueOf(port));
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(WebCrawlerApplication.class, args);
 		System.out.println(Env.getPid());
 	}
 }

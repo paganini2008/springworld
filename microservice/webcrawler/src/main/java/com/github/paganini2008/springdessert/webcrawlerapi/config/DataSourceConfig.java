@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webcrawler.config;
+package com.github.paganini2008.springdessert.webcrawlerapi.config;
 
 import javax.sql.DataSource;
 

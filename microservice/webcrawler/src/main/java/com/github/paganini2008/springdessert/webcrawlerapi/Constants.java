@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webcrawler;
+package com.github.paganini2008.springdessert.webcrawlerapi;
 
 /**
  * 

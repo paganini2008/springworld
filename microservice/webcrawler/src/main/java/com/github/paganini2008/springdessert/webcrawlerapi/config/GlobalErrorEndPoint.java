@@ -1,6 +1,6 @@
-package com.github.paganini2008.springdessert.webcrawler.config;
+package com.github.paganini2008.springdessert.webcrawlerapi.config;
 
-import static com.github.paganini2008.springdessert.webcrawler.Constants.REQUEST_ATTRIBUTE_START_TIME;
+import static com.github.paganini2008.springdessert.webcrawlerapi.Constants.REQUEST_ATTRIBUTE_START_TIME;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.paganini2008.springdessert.webcrawler.utils.Response;
+import com.github.paganini2008.springdessert.webcrawlerapi.utils.Response;
 
 import lombok.extern.slf4j.Slf4j;
 

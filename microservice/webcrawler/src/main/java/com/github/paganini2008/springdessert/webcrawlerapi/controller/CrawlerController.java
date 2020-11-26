@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webcrawler.controller;
+package com.github.paganini2008.springdessert.webcrawlerapi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -15,17 +15,15 @@ import com.github.paganini2008.springdessert.webcrawler.CrawlerLauncher;
 import com.github.paganini2008.springdessert.webcrawler.PageExtractor;
 import com.github.paganini2008.springdessert.webcrawler.ResourceManager;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
-import com.github.paganini2008.springdessert.webcrawler.utils.PageBean;
-import com.github.paganini2008.springdessert.webcrawler.utils.Response;
+import com.github.paganini2008.springdessert.webcrawlerapi.utils.PageBean;
+import com.github.paganini2008.springdessert.webcrawlerapi.utils.Response;
 
 /**
  * 
  * CrawlerController
- * 
+ *
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ * @since 1.0
  */
 @RequestMapping("/crawler")
 @RestController
