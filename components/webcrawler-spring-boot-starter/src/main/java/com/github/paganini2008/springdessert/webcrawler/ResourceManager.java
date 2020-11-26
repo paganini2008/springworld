@@ -14,7 +14,7 @@ import com.github.paganini2008.springdessert.webcrawler.model.Resource;
  */
 public interface ResourceManager {
 
-	int saveCatalog(Catalog catalog);
+	long saveCatalog(Catalog catalog);
 
 	int deleteCatalog(long id);
 
@@ -24,7 +24,7 @@ public interface ResourceManager {
 
 	int updateCatalogIndex(CatalogIndex catalogIndex);
 
-	int saveCatalogIndex(CatalogIndex catalogIndex);
+	int maximumVersionOfCatalogIndex();
 
 	CatalogIndex getCatalogIndex(long catalogId);
 
@@ -35,5 +35,7 @@ public interface ResourceManager {
 	PageResponse<Resource> queryForResourceForIndex(long catalogId, int page, int size);
 
 	int updateResourceVersion(long catalogId, int version);
+
+	int incrementCatalogIndexVersion(long catalogId);
 
 }

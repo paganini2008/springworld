@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
@@ -26,22 +25,23 @@ import com.github.paganini2008.transport.Tuple;
  */
 public class DefaultPathAcceptor implements PathAcceptor {
 
-	@Qualifier("crawlerPathMatcher")
-	@Autowired
-	private PathMatcher pathMather;
+	private final PathMatcher pathMather = new AntPathMatcher();
 
 	@Autowired
-	private ResourceManager resourceService;
+	private ResourceManager resourceManager;
 
-	private final Map<Long, List<String>> includedPathPatternCache = new ConcurrentHashMap<Long, List<String>>();
+	private final Map<Long, List<String>> pathPatternCache = new ConcurrentHashMap<Long, List<String>>();
 	private final Map<Long, List<String>> excludedPathPatternCache = new ConcurrentHashMap<Long, List<String>>();
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean accept(String refer, String path, Tuple tuple) {
+		if (!path.startsWith(refer)) {
+			return false;
+		}
 		long catalogId = (Long) tuple.getField("catalogId");
 		List<String> pathPatterns = MapUtils.get(excludedPathPatternCache, catalogId, () -> {
-			Catalog catalog = resourceService.getCatalog(catalogId);
+			Catalog catalog = resourceManager.getCatalog(catalogId);
 			if (StringUtils.isBlank(catalog.getExcludedPathPattern())) {
 				return Collections.EMPTY_LIST;
 			}
@@ -53,15 +53,15 @@ public class DefaultPathAcceptor implements PathAcceptor {
 			}
 		}
 
-		pathPatterns = MapUtils.get(includedPathPatternCache, catalogId, () -> {
-			Catalog catalog = resourceService.getCatalog(catalogId);
+		pathPatterns = MapUtils.get(pathPatternCache, catalogId, () -> {
+			Catalog catalog = resourceManager.getCatalog(catalogId);
 			if (StringUtils.isBlank(catalog.getPathPattern())) {
 				return Collections.EMPTY_LIST;
 			}
 			return Arrays.asList(catalog.getPathPattern().split(","));
 		});
 		if (CollectionUtils.isEmpty(pathPatterns)) {
-			return path.startsWith(refer);
+			return true;
 		}
 		for (String pathPattern : pathPatterns) {
 			if (pathMather.match(pathPattern, path)) {

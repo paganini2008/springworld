@@ -59,6 +59,7 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -84,6 +85,21 @@
 			<groupId>com.github.paganini2008.springworld</groupId>
 			<artifactId>jdbc-spring-boot-starter</artifactId>
 			<version>2.0-RC5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-elasticsearch</artifactId>
 		</dependency>
 	</dependencies>
 

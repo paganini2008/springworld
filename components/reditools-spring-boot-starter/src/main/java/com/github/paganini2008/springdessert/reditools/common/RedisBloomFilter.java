@@ -10,11 +10,9 @@ import com.google.common.hash.Hashing;
 /**
  * 
  * RedisBloomFilter
- * 
+ *
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ * @since 1.0
  */
 public class RedisBloomFilter {
 

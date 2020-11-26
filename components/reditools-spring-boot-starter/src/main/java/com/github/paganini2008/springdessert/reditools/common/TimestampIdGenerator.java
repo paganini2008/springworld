@@ -6,11 +6,9 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
+import com.github.paganini2008.devtools.collection.LruMap;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.date.DateUtils;
-import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.googlecode.concurrentlinkedhashmap.EvictionListener;
-import com.googlecode.concurrentlinkedhashmap.Weighers;
 
 /**
  * 
@@ -19,33 +17,33 @@ import com.googlecode.concurrentlinkedhashmap.Weighers;
  * @author Fred Feng
  * @since 1.0
  */
-public class TimestampIdGenerator implements IdGenerator, EvictionListener<String, RedisAtomicLong> {
+public class TimestampIdGenerator implements IdGenerator {
 
 	private static final String defaultDatePattern = "yyyyMMddHHmmss";
 	private static final int maxConcurrency = 100000;
-	private final Map<String, RedisAtomicLong> cache;
+	private final String keyPrefix;
 	private final RedisConnectionFactory connectionFactory;
+	private final Map<String, RedisAtomicLong> cache;
 
 	public TimestampIdGenerator(RedisConnectionFactory connectionFactory) {
+		this("id:", connectionFactory);
+	}
+
+	public TimestampIdGenerator(String keyPrefix, RedisConnectionFactory connectionFactory) {
+		this.keyPrefix = keyPrefix;
 		this.connectionFactory = connectionFactory;
-		this.cache = new ConcurrentLinkedHashMap.Builder<String, RedisAtomicLong>().maximumWeightedCapacity(16)
-				.weigher(Weighers.singleton()).listener(this).build();
+		this.cache = new LruMap<String, RedisAtomicLong>(60);
 	}
 
 	@Override
 	public long generateId() {
-		final String key = DateUtils.format(System.currentTimeMillis(), defaultDatePattern);
-		RedisAtomicLong counter = MapUtils.get(cache, key, () -> {
-			RedisAtomicLong l = new RedisAtomicLong("traceId:" + key, connectionFactory);
+		final String timestamp = DateUtils.format(System.currentTimeMillis(), defaultDatePattern);
+		RedisAtomicLong counter = MapUtils.get(cache, timestamp, () -> {
+			RedisAtomicLong l = new RedisAtomicLong(keyPrefix + timestamp, connectionFactory);
 			l.expire(60, TimeUnit.SECONDS);
 			return l;
 		});
-		return Long.parseLong(key) * maxConcurrency + counter.getAndIncrement();
-	}
-
-	@Override
-	public void onEviction(String key, RedisAtomicLong value) {
-		value.expire(1, TimeUnit.SECONDS);
+		return Long.parseLong(timestamp) * maxConcurrency + counter.getAndIncrement();
 	}
 
 }

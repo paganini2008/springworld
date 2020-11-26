@@ -23,12 +23,12 @@ public class Resource implements Serializable {
 	private String html;
 	private String url;
 	private String type;
-	private Date lastModified;
+	private Date createTime;
 	private Integer version;
 	private Long catalogId;
 
 	public String toString() {
-		return "[Resource] id: " + id + ", title: " + title + ", url: " + url;
+		return "[Resource] id: " + id + ", title: " + title + ", url: " + url + ", version: " + version;
 	}
 
 }

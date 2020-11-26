@@ -22,6 +22,6 @@ public @interface Get {
 
 	String value();
 
-	boolean javaType() default true;
+	boolean javaType() default false;
 
 }

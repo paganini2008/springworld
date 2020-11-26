@@ -1,10 +1,14 @@
 package com.github.paganini2008.springdessert.webcrawler.jdbc;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.paganini2008.devtools.jdbc.PageRequest;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
+import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.webcrawler.ResourceManager;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
 import com.github.paganini2008.springdessert.webcrawler.model.CatalogIndex;
@@ -17,20 +21,23 @@ import com.github.paganini2008.springdessert.webcrawler.model.Resource;
  * @author Fred Feng
  * @since 1.0
  */
+@Transactional(rollbackFor = Exception.class, readOnly = false)
 public class JdbcResourceManger implements ResourceManager {
 
 	public static final String SQL_CATALOG_INSERT = "insert into crawler_catalog (id,name,url,path_pattern,excluded_path_pattern,type,last_modified) values (:id,:name,:url,:pathPattern,:excludedPathPattern,:type,:lastModified)";
 	public static final String SQL_CATALOG_UPDATE = "update crawler_catalog set name=:name,url=:url,path_pattern=:pathPattern,excluded_path_pattern=:excludedPathPattern,type:type,last_modified=:lastModified where id=:id";
 	public static final String SQL_CATALOG_INDEX_INSERT = "insert into crawler_catalog_index (id,catalog_id,version,last_indexed_date) values (:id,:catalogId,:version,:lastIndexedDate)";
 	public static final String SQL_CATALOG_INDEX_UPDATE = "update crawler_catalog_index set version=:version,last_modified=:lastModified where id=:id";
+	public static final String SQL_CATALOG_INDEX_VERSION_INCREMENT = "update crawler_catalog_index set version=version+1 where catalog_id=:catalogId";
 	public static final String SQL_CATALOG_SELECT_ONE = "select * from crawler_catalog where id=:id limit 1";
 	public static final String SQL_CATALOG_INDEX_SELECT_ONE = "select * from crawler_catalog_index where catalog_id=:catalogId";
 	public static final String SQL_CATALOG_DELETE = "delete from crawler_catalog where id=:id";
 	public static final String SQL_CATALOG_SELECT_ALL = "select * from crawler_catalog order by last_modified desc";
+	public static final String SQL_CATALOG_INDEX_MAX_VERSION = "select max(version) from crawler_catalog_index";
 	public static final String SQL_RESOURCE_INSERT = "insert into crawler_resource (id,title,html,url,type,last_modified,version,catalog_id) values (:id,:title,:html,:url,:type,:lastModified,:version,:catalogId)";
 	public static final String SQL_RESOURCE_SELECT_FOR_INDEX = "select * from crawler_resource where catalog_id=:catalogId and version<(select version from crawler_catalog_index where catalog_id=:catalogId)";
 	public static final String SQL_RESOURCE_SELECT_ONE = "select * from crawler_resource where id=:id limit 1";
-	public static final String SQL_RESOURCE_VERSION_UPDATE = "update crawler_resource set version=:version where catalog_id=:catalogId and version!=:version";
+	public static final String SQL_RESOURCE_VERSION_UPDATE = "update crawler_resource set version=:version where catalog_id=:catalogId and version<:version";
 
 	@Autowired
 	private CatalogDao catalogDao;
@@ -41,9 +48,22 @@ public class JdbcResourceManger implements ResourceManager {
 	@Autowired
 	private ResourceDao resourceDao;
 
+	@Autowired
+	private IdGenerator idGenerator;
+
 	@Override
-	public int saveCatalog(Catalog catalog) {
-		return catalogDao.saveCatalog(catalog);
+	public long saveCatalog(Catalog catalog) {
+		Date now = new Date();
+		catalog.setId(idGenerator.generateId());
+		catalog.setLastModified(now);
+		catalogDao.saveCatalog(catalog);
+		CatalogIndex catalogIndex = new CatalogIndex();
+		catalogIndex.setId(idGenerator.generateId());
+		catalogIndex.setCatalogId(catalog.getId());
+		catalogIndex.setLastModified(now);
+		catalogIndex.setVersion(1);
+		catalogIndexDao.saveCatalogIndex(catalogIndex);
+		return catalog.getId();
 	}
 
 	@Override
@@ -64,12 +84,8 @@ public class JdbcResourceManger implements ResourceManager {
 
 	@Override
 	public int updateCatalogIndex(CatalogIndex catalogIndex) {
+		catalogIndex.setLastModified(new Date());
 		return catalogIndexDao.updateCatalogIndex(catalogIndex);
-	}
-
-	@Override
-	public int saveCatalogIndex(CatalogIndex catalogIndex) {
-		return catalogIndexDao.saveCatalogIndex(catalogIndex);
 	}
 
 	@Override
@@ -78,7 +94,13 @@ public class JdbcResourceManger implements ResourceManager {
 	}
 
 	@Override
+	public int maximumVersionOfCatalogIndex() {
+		return catalogIndexDao.maximunVersionOfCatalogIndex();
+	}
+
+	@Override
 	public int saveResource(Resource resource) {
+		resource.setId(idGenerator.generateId());
 		return resourceDao.saveResource(resource);
 	}
 
@@ -95,8 +117,12 @@ public class JdbcResourceManger implements ResourceManager {
 
 	@Override
 	public int updateResourceVersion(long catalogId, int version) {
-		// TODO Auto-generated method stub
-		return 0;
+		return resourceDao.updateResourceVersion(catalogId, version);
+	}
+
+	@Override
+	public int incrementCatalogIndexVersion(long catalogId) {
+		return catalogIndexDao.incrementCatalogIndexVersion(catalogId);
 	}
 
 }

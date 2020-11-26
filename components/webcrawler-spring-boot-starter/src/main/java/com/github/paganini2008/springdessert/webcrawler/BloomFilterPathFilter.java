@@ -18,8 +18,12 @@ public class BloomFilterPathFilter implements PathFilter {
 	}
 
 	@Override
-	public boolean mightExist(String path) {
-		return bloomFilter.mightContain(path);
+	public boolean mightExist(String content) {
+		boolean exists;
+		if (!(exists = bloomFilter.mightContain(content))) {
+			bloomFilter.put(content);
+		}
+		return exists;
 	}
 
 }

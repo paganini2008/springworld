@@ -2,13 +2,11 @@ package com.github.paganini2008.springdessert.webcrawler;
 
 /**
  * 
- * PathFilter
+ * IndexHandler
  *
  * @author Fred Feng
  * @since 1.0
  */
-public interface PathFilter {
-
-	boolean mightExist(String content);
+public class IndexHandler {
 
 }

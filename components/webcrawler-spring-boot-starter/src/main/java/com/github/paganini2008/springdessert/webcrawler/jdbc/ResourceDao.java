@@ -1,7 +1,9 @@
 package com.github.paganini2008.springdessert.webcrawler.jdbc;
 
 import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_INSERT;
-import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.*;
+import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_SELECT_FOR_INDEX;
+import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_SELECT_ONE;
+import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_VERSION_UPDATE;
 
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springdessert.jdbc.annotations.Arg;
@@ -30,7 +32,8 @@ public interface ResourceDao {
 
 	@Query(SQL_RESOURCE_SELECT_FOR_INDEX)
 	ResultSetSlice<Resource> queryForResourceForIndex(@Arg long catalogId);
-	
-	
+
+	@Update(SQL_RESOURCE_VERSION_UPDATE)
+	int updateResourceVersion(@Arg long catalogId, @Arg int version);
 
 }
