@@ -6,9 +6,9 @@ import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springdessert.jobsoup.model.JobLifeCycleParam;
-import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 
 /**
  * 

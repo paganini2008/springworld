@@ -4,7 +4,7 @@
 
 	<parent>
 		<artifactId>components</artifactId>
-		<groupId>com.github.paganini2008.springworld</groupId>
+		<groupId>com.github.paganini2008.springdessert</groupId>
 		<version>2.0-RC5</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
@@ -76,13 +76,13 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.paganini2008.springworld</groupId>
+			<groupId>com.github.paganini2008.springdessert</groupId>
 			<artifactId>transport-spring-boot-starter</artifactId>
 			<version>2.0-RC5</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.paganini2008.springworld</groupId>
+			<groupId>com.github.paganini2008.springdessert</groupId>
 			<artifactId>jdbc-spring-boot-starter</artifactId>
 			<version>2.0-RC5</version>
 		</dependency>

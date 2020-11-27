@@ -11,6 +11,7 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.transport.Tuple;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +24,16 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class DeadlineCondition implements FinishCondition {
+public class DeadlineCondition implements FinishableCondition {
 
 	private final String keyPrefix;
 	private final Date deadline;
 	private final RedisConnectionFactory redisConnectionFactory;
 	private final Map<Long, RedisTemplate<String, Long>> timestampMap;
+
+	public DeadlineCondition(String keyPrefix, RedisConnectionFactory redisConnectionFactory, long delay, TimeUnit timeUnit) {
+		this(keyPrefix, redisConnectionFactory, new Date(System.currentTimeMillis() + DateUtils.convertToMillis(delay, timeUnit)));
+	}
 
 	public DeadlineCondition(String keyPrefix, RedisConnectionFactory redisConnectionFactory, Date deadline) {
 		this.keyPrefix = keyPrefix;
@@ -49,7 +54,7 @@ public class DeadlineCondition implements FinishCondition {
 		if (finish = redisTemplate.opsForValue().get(key) > deadline.getTime()) {
 			long timestamp = redisTemplate.opsForValue().get(key);
 			log.info("Finish crawling work on deadline: {}", new Date(timestamp));
-			redisTemplate.expire(key, 1, TimeUnit.SECONDS);
+			redisTemplate.expire(key, 60, TimeUnit.SECONDS);
 			timestampMap.remove(catalogId);
 		}
 		return finish;

@@ -63,7 +63,7 @@ public class WebCrawlerAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public FinishCondition countLimitedCondition(RedisConnectionFactory connectionFactory,
+	public FinishableCondition countLimitedCondition(RedisConnectionFactory connectionFactory,
 			@Value("${webcrawler.crawler.maxFetchSize:10000}") int maxFetchSize) {
 		final String keyPrefix = "counter:webcrawler:" + applicationName + ":";
 		return new CountLimitedCondition(keyPrefix, connectionFactory, maxFetchSize);

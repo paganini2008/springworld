@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springdessert.jobsoup.BeanNames;
 import com.github.paganini2008.springdessert.jobsoup.Job;
 import com.github.paganini2008.springdessert.jobsoup.JobAdmin;
@@ -15,7 +16,6 @@ import com.github.paganini2008.springdessert.jobsoup.JobManager;
 import com.github.paganini2008.springdessert.jobsoup.JobState;
 import com.github.paganini2008.springdessert.jobsoup.LifeCycleListenerContainer;
 import com.github.paganini2008.springdessert.jobsoup.model.JobLifeCycleParam;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 /**
  * 

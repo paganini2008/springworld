@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
 import com.github.paganini2008.devtools.jdbc.PooledConnectionFactory;
-import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,14 +60,9 @@ public class JobManagerConnectionFactory extends PooledConnectionFactory impleme
 					}
 				}
 			} finally {
-				JdbcUtils.closeQuietly(connection);
+				close(connection);
 			}
 		}
-	}
-
-	@Override
-	public void destroy() {
-		super.close();
 	}
 
 }

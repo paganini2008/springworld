@@ -2,8 +2,8 @@ package com.github.paganini2008.springdessert.jobsoup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.jobsoup.model.JobTriggerDetail;
-import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 /**
  * 

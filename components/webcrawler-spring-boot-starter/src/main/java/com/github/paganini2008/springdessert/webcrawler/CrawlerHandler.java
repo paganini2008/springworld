@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springdessert.transport.Handler;
 import com.github.paganini2008.springdessert.webcrawler.index.IndexedResourceService;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
 import com.github.paganini2008.springdessert.webcrawler.model.Resource;
-import com.github.paganini2008.springworld.transport.Handler;
 import com.github.paganini2008.transport.NioClient;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.Tuple;
@@ -29,11 +29,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 
  * CrawlerHandler
- * 
+ *
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ * @since 1.0
  */
 @Slf4j
 @Component
@@ -61,7 +59,7 @@ public class CrawlerHandler implements Handler {
 	private PathAcceptor pathAcceptor;
 
 	@Autowired
-	private FinishCondition finishCondition;
+	private FinishableCondition finishCondition;
 
 	@Autowired
 	private PathFilterFactory pathFilterFactory;

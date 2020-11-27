@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.multicast.MulticastMessageListener;
 
 /**
  * 

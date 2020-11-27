@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>components</artifactId>
-		<groupId>com.github.paganini2008.springworld</groupId>
+		<groupId>com.github.paganini2008.springdessert</groupId>
 		<version>2.0-RC5</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>

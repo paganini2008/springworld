@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class CountLimitedCondition implements FinishCondition {
+public class CountLimitedCondition implements FinishableCondition {
 
 	private final String keyPrefix;
 	private final int maxFetchSize;
@@ -44,7 +44,7 @@ public class CountLimitedCondition implements FinishCondition {
 		boolean finish;
 		if (finish = counter.incrementAndGet() > maxFetchSize) {
 			log.info("Finish crawling work. Crawl {} records this time", counter.get());
-			counter.expire(1, TimeUnit.SECONDS);
+			counter.expire(60, TimeUnit.SECONDS);
 			counterMap.remove(catalogId);
 		}
 		return finish;

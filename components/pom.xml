@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 	
     <parent>
-		<artifactId>springworld</artifactId>
+		<artifactId>springdessert</artifactId>
 		<groupId>com.github.paganini2008</groupId>
 		<version>2.0-RC5</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	
     <artifactId>components</artifactId>
-	<groupId>com.github.paganini2008.springworld</groupId>
+	<groupId>com.github.paganini2008.springdessert</groupId>
 	
     <modules>
 		<module>fastjpa-spring-boot-starter</module>
@@ -20,7 +20,6 @@
 		<module>cluster-spring-boot-starter</module>
 		<module>cached-spring-boot-starter</module>
 		<module>transport-spring-boot-starter</module>
-		<module>xa-spring-boot-starter</module>
 		<module>jdbc-spring-boot-starter</module>
 		<module>xmemcached-spring-boot-starter</module>
 		<module>webcrawler-spring-boot-starter</module>

@@ -3,10 +3,10 @@ package com.github.paganini2008.springdessert.jobsoup;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.jobsoup.model.JobDetail;
 import com.github.paganini2008.springdessert.jobsoup.model.JobRuntime;
 import com.github.paganini2008.springdessert.jobsoup.model.JobTriggerDetail;
-import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 

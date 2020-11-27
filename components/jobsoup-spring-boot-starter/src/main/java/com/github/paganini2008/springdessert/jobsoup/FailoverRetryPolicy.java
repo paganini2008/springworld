@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 /**
  * 

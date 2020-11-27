@@ -9,7 +9,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
 
 /**
  * 

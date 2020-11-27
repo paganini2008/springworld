@@ -3,8 +3,8 @@ package com.github.paganini2008.springdessert.jobsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
 import com.github.paganini2008.springdessert.jobsoup.model.JobLifeCycleParam;
-import com.github.paganini2008.springworld.cluster.multicast.ClusterMulticastGroup;
 
 /**
  * 

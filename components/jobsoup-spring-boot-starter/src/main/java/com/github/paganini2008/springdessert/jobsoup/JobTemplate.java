@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.multithreads.ExecutorUtils;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springdessert.jobsoup.model.JobPeerResult;
-import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
 
 /**
  * 

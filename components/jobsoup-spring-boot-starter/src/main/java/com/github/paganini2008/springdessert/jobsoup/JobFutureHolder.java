@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.jobsoup;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.paganini2008.springworld.cluster.utils.BeanLifeCycle;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
 
 /**
  * 

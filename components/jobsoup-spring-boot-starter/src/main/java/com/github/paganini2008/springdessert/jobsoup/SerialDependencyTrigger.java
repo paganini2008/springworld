@@ -3,9 +3,9 @@ package com.github.paganini2008.springdessert.jobsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
-import com.github.paganini2008.springworld.cluster.ApplicationClusterAware;
 
 import lombok.extern.slf4j.Slf4j;
 

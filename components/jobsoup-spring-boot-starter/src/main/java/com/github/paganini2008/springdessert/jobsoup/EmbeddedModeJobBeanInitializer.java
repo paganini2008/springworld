@@ -13,8 +13,8 @@ import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.Tuple;
 import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
 import com.github.paganini2008.devtools.jdbc.JdbcUtils;
+import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.jobsoup.model.JobKeyQuery;
-import com.github.paganini2008.springworld.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 

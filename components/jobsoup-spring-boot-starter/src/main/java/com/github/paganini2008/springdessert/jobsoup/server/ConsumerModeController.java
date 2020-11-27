@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.jobsoup.JobAdmin;
 import com.github.paganini2008.springdessert.jobsoup.JobState;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 import com.github.paganini2008.springdessert.jobsoup.model.JobResult;
-import com.github.paganini2008.springworld.cluster.ApplicationInfo;
-import com.github.paganini2008.springworld.cluster.InstanceId;
 
 /**
  * 

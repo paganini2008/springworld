@@ -26,7 +26,7 @@ public class JdbcResourceManger implements ResourceManager {
 
 	public static final String SQL_CATALOG_INSERT = "insert into crawler_catalog (id,name,url,path_pattern,excluded_path_pattern,type,last_modified) values (:id,:name,:url,:pathPattern,:excludedPathPattern,:type,:lastModified)";
 	public static final String SQL_CATALOG_UPDATE = "update crawler_catalog set name=:name,url=:url,path_pattern=:pathPattern,excluded_path_pattern=:excludedPathPattern,type:type,last_modified=:lastModified where id=:id";
-	public static final String SQL_CATALOG_INDEX_INSERT = "insert into crawler_catalog_index (id,catalog_id,version,last_indexed_date) values (:id,:catalogId,:version,:lastIndexedDate)";
+	public static final String SQL_CATALOG_INDEX_INSERT = "insert into crawler_catalog_index (id,catalog_id,version,last_modified) values (:id,:catalogId,:version,:lastModified)";
 	public static final String SQL_CATALOG_INDEX_UPDATE = "update crawler_catalog_index set version=:version,last_modified=:lastModified where id=:id";
 	public static final String SQL_CATALOG_INDEX_VERSION_INCREMENT = "update crawler_catalog_index set version=version+1 where catalog_id=:catalogId";
 	public static final String SQL_CATALOG_SELECT_ONE = "select * from crawler_catalog where id=:id limit 1";
@@ -57,6 +57,7 @@ public class JdbcResourceManger implements ResourceManager {
 		catalog.setId(idGenerator.generateId());
 		catalog.setLastModified(now);
 		catalogDao.saveCatalog(catalog);
+
 		CatalogIndex catalogIndex = new CatalogIndex();
 		catalogIndex.setId(idGenerator.generateId());
 		catalogIndex.setCatalogId(catalog.getId());
