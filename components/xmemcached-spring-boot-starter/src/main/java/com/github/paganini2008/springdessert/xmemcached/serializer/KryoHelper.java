@@ -1,4 +1,4 @@
-package com.github.paganini2008.springworld.xmemcached.serializer;
+package com.github.paganini2008.springdessert.xmemcached.serializer;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
 

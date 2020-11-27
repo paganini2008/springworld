@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springworld.xmemcached.MemcachedTemplate;
+import com.github.paganini2008.springdessert.xmemcached.MemcachedTemplate;
 import com.github.paganini2008.transport.Tuple;
 import com.github.paganini2008.transport.TupleImpl;
 

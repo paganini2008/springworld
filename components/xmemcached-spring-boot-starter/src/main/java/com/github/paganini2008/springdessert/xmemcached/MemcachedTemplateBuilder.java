@@ -1,7 +1,7 @@
-package com.github.paganini2008.springworld.xmemcached;
+package com.github.paganini2008.springdessert.xmemcached;
 
-import com.github.paganini2008.springworld.xmemcached.serializer.KryoMemcachedSerializer;
-import com.github.paganini2008.springworld.xmemcached.serializer.MemcachedSerializer;
+import com.github.paganini2008.springdessert.xmemcached.serializer.KryoMemcachedSerializer;
+import com.github.paganini2008.springdessert.xmemcached.serializer.MemcachedSerializer;
 import com.google.code.yanf4j.core.impl.StandardSocketOption;
 
 import net.rubyeye.xmemcached.XMemcachedClientBuilder;
