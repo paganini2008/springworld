@@ -19,7 +19,7 @@ public class RoundRobinPartitioner implements Partitioner {
 
 	public <T> T selectChannel(Object data, List<T> channels) {
 		try {
-			int index = (int) (sequence.getAndIncrement() % channels.size());
+			int index = (int) (sequence.incrementAndGet() % channels.size());
 			return channels.get(index);
 		} catch (RuntimeException e) {
 			return null;

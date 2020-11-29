@@ -1,6 +1,7 @@
 package com.github.paganini2008.springdessert.transport.buffer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,15 +66,21 @@ public class RedisBufferZone implements BufferZone, BeanLifeCycle {
 		redisTemplate.opsForList().leftPush(keyFor(collectionName), tuple);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Tuple> get(String collectionName, int pullSize) {
-		List<Tuple> list = new ArrayList<Tuple>();
 		Tuple tuple;
-		int i = 0;
-		while (null != (tuple = (Tuple) redisTemplate.opsForList().leftPop(keyFor(collectionName))) && i++ < pullSize) {
-			list.add(tuple);
+		if (pullSize > 1) {
+			List<Tuple> list = new ArrayList<Tuple>();
+			int i = 0;
+			while (null != (tuple = (Tuple) redisTemplate.opsForList().leftPop(keyFor(collectionName))) && i++ < pullSize) {
+				list.add(tuple);
+			}
+			return list;
+		} else {
+			tuple = (Tuple) redisTemplate.opsForList().leftPop(keyFor(collectionName));
+			return tuple != null ? Collections.singletonList(tuple) : Collections.EMPTY_LIST;
 		}
-		return list;
 	}
 
 	@Override

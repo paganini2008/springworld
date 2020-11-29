@@ -1,6 +1,7 @@
 package com.github.paganini2008.springdessert.transport.buffer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,18 +42,24 @@ public class MemoryBufferZone implements BufferZone {
 		q.offer(tuple);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Tuple> get(String collectionName, int pullSize) {
-		List<Tuple> list = new ArrayList<Tuple>();
 		Queue<Tuple> q = cache.get(collectionName);
-		if (CollectionUtils.isNotEmpty(q)) {
-			Tuple tuple;
-			int i = 0;
-			while (null != (tuple = q.poll()) && i++ < pullSize) {
-				list.add(tuple);
+		Tuple tuple;
+		if (pullSize > 1) {
+			List<Tuple> list = new ArrayList<Tuple>();
+			if (CollectionUtils.isNotEmpty(q)) {
+				int i = 0;
+				while (null != (tuple = q.poll()) && i++ < pullSize) {
+					list.add(tuple);
+				}
 			}
+			return list;
+		} else {
+			tuple = q.poll();
+			return tuple != null ? Collections.singletonList(tuple) : Collections.EMPTY_LIST;
 		}
-		return list;
 	}
 
 	@Override

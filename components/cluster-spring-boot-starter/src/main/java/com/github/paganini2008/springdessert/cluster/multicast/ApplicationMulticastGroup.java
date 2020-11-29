@@ -78,8 +78,7 @@ public class ApplicationMulticastGroup {
 			candidates.add(applicationInfo);
 		}
 		Collections.sort(candidates);
-		log.info("Registered candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(),
-				allCandidates.size());
+		log.info("Registered candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(), allCandidates.size());
 	}
 
 	public boolean hasRegistered(ApplicationInfo applicationInfo) {
@@ -98,8 +97,7 @@ public class ApplicationMulticastGroup {
 			while (candidates.contains(applicationInfo)) {
 				candidates.remove(applicationInfo);
 			}
-			log.info("Removed candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(),
-					allCandidates.size());
+			log.info("Removed candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(), allCandidates.size());
 		}
 
 	}
@@ -130,6 +128,7 @@ public class ApplicationMulticastGroup {
 	public void unicast(String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
 		ApplicationInfo applicationInfo = loadBalancer.select(message, allCandidates);
+		System.out.println("选中   " + applicationInfo.getId());
 		if (applicationInfo != null) {
 			doSendMessage(applicationInfo.getId(), topic, message, timeout);
 		}
@@ -143,6 +142,7 @@ public class ApplicationMulticastGroup {
 		Assert.hasNoText(topic, "Topic must be required");
 		if (groupCandidates.containsKey(group)) {
 			ApplicationInfo applicationInfo = loadBalancer.select(message, groupCandidates.get(group));
+			System.out.println("选中   " + applicationInfo.getId());
 			if (applicationInfo != null) {
 				doSendMessage(applicationInfo.getId(), topic, message, timeout);
 			}
@@ -166,8 +166,7 @@ public class ApplicationMulticastGroup {
 
 	public void multicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		Set<ApplicationInfo> copy = groupCandidates.containsKey(group)
-				? new HashSet<ApplicationInfo>(groupCandidates.get(group))
+		Set<ApplicationInfo> copy = groupCandidates.containsKey(group) ? new HashSet<ApplicationInfo>(groupCandidates.get(group))
 				: new HashSet<ApplicationInfo>();
 		for (ApplicationInfo applicationInfo : copy) {
 			doSendMessage(applicationInfo.getId(), topic, message, timeout);
