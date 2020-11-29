@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.jobsoup.model.JobLifeCycleParam;
 
 /**
@@ -36,7 +36,7 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 	private JobManager jobManager;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Override
 	public JobState triggerJob(JobKey jobKey, Object attachment) throws Exception {
@@ -50,7 +50,7 @@ public class EmbeddedModeJobAdmin implements JobAdmin {
 
 	@Override
 	public void publicLifeCycleEvent(JobKey jobKey, JobLifeCycle lifeCycle) {
-		clusterMulticastGroup.multicast(applicationName, LifeCycleListenerContainer.class.getName(),
+		multicastGroup.multicast(applicationName, LifeCycleListenerContainer.class.getName(),
 				new JobLifeCycleParam(jobKey, lifeCycle));
 	}
 

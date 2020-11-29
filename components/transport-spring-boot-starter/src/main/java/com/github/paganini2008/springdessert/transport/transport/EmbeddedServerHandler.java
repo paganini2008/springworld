@@ -33,7 +33,7 @@ public class EmbeddedServerHandler implements ChannelHandler {
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.application.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
@@ -63,7 +63,7 @@ public class EmbeddedServerHandler implements ChannelHandler {
 			}
 		} else {
 			for (Object message : packet.getMessages()) {
-				counter.increment();
+				counter.incrementCount();
 				store.set(collectionName, (Tuple) message);
 			}
 		}

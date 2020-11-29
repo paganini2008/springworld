@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 
 /**

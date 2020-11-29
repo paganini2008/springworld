@@ -37,7 +37,7 @@ public class GrizzlyServerHandler extends BaseFilter {
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.application.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Autowired(required = false)
@@ -55,7 +55,7 @@ public class GrizzlyServerHandler extends BaseFilter {
 			}
 			return ctx.getStopAction();
 		} else {
-			counter.increment();
+			counter.incrementCount();
 			try {
 				bufferZone.set(collectionName, message);
 			} catch (Exception e) {

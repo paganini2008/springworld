@@ -67,6 +67,7 @@
 			<groupId>com.esotericsoftware</groupId>
 			<artifactId>kryo</artifactId>
 			<version>5.0.0-RC1</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -103,7 +104,6 @@
 			<groupId>de.ruedigermoeller</groupId>
 			<artifactId>fst</artifactId>
 			<version>2.57</version>
-			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

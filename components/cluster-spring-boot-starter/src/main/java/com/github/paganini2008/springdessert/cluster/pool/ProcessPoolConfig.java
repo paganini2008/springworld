@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastConfig;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
 import com.github.paganini2008.springdessert.reditools.common.RedisSharedLatch;
 import com.github.paganini2008.springdessert.reditools.common.SharedLatch;
@@ -27,7 +27,7 @@ import com.github.paganini2008.springdessert.reditools.common.TtlKeeper;
  * @version 1.0
  */
 @Configuration
-@ConditionalOnBean(ClusterMulticastConfig.class)
+@ConditionalOnBean(ApplicationMulticastConfig.class)
 @ConditionalOnProperty(value = "spring.application.cluster.pool.enabled", havingValue = "true")
 public class ProcessPoolConfig {
 

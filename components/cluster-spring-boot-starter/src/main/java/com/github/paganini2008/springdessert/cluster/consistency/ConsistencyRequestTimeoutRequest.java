@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class ConsistencyRequestTimeoutRequest implements MulticastMessageListene
 	private ConsistencyRequestRound requestRound;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
@@ -43,7 +43,7 @@ public class ConsistencyRequestTimeoutRequest implements MulticastMessageListene
 			log.trace(getTopic() + " " + anotherInstanceId + ", " + request);
 		}
 		applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, applicationInfo, false));
-		clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.TIMEOUT_OPERATION_RESPONSE, request);
+		multicastGroup.send(anotherInstanceId, ConsistencyRequest.TIMEOUT_OPERATION_RESPONSE, request);
 	}
 
 	@Override

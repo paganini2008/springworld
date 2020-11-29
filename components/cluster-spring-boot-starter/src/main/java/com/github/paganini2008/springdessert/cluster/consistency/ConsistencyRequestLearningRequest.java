@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class ConsistencyRequestLearningRequest implements MulticastMessageListen
 	private ConsistencyRequestSerialCache requestSerialCache;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private Court court;
@@ -57,7 +57,7 @@ public class ConsistencyRequestLearningRequest implements MulticastMessageListen
 		court.completeProposal(name);
 
 		applicationContext.publishEvent(new ConsistencyRequestConfirmationEvent(request, applicationInfo, true));
-		clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_RESPONSE, request);
+		multicastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_RESPONSE, request);
 
 	}
 

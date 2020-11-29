@@ -7,7 +7,8 @@ import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
  * MulticastGroupListener
  * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 public interface MulticastGroupListener extends MulticastListener {
 

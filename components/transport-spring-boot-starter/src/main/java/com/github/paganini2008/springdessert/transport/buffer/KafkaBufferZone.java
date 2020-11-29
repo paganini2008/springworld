@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -18,10 +17,17 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
+import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
+import com.github.paganini2008.springdessert.transport.utils.FstKafkaSerializer;
 import com.github.paganini2008.transport.Tuple;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -31,7 +37,11 @@ import com.github.paganini2008.transport.Tuple;
  *
  * @since 1.0
  */
-public class KafkaBufferZone implements BufferZone {
+@Slf4j
+public class KafkaBufferZone implements BufferZone, BeanLifeCycle {
+
+	@Autowired
+	private RedisConnectionFactory redisConnectionFactory;
 
 	@Value("${spring.application.transport.bufferzone.kafka.bootstrapServers}")
 	private String bootstrapServers;
@@ -42,10 +52,12 @@ public class KafkaBufferZone implements BufferZone {
 	@Value("${spring.application.transport.bufferzone.pullSize:100}")
 	private int pullSize;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	private final Map<String, AtomicInteger> counter = new ConcurrentHashMap<String, AtomicInteger>();
+	private final Map<String, String> keyMapper = new ConcurrentHashMap<String, String>();
+	private final Map<String, RedisCounter> counter = new ConcurrentHashMap<String, RedisCounter>();
+
 	private KafkaProducer<String, Tuple> kafkaProducer;
 	private KafkaConsumer<String, Tuple> kafkaConsumer;
 
@@ -67,7 +79,9 @@ public class KafkaBufferZone implements BufferZone {
 		p.put(ConsumerConfig.GROUP_ID_CONFIG, "spring.application.transport." + clusterName);
 
 		kafkaConsumer = new KafkaConsumer<String, Tuple>(p);
-		kafkaConsumer.subscribe(Arrays.asList(topicName.split(",")));
+		kafkaConsumer.subscribe(Arrays.asList(topicName));
+
+		log.info("KafkaBufferZone configure successfully.");
 	}
 
 	@Override
@@ -75,7 +89,7 @@ public class KafkaBufferZone implements BufferZone {
 		ProducerRecord<String, Tuple> record = new ProducerRecord<String, Tuple>(topic, tuple);
 		kafkaProducer.send(record);
 		MapUtils.get(counter, topic, () -> {
-			return new AtomicInteger();
+			return new RedisCounter(keyFor(topic), redisConnectionFactory);
 		}).incrementAndGet();
 	}
 
@@ -86,15 +100,30 @@ public class KafkaBufferZone implements BufferZone {
 		for (ConsumerRecord<String, Tuple> record : consumerRecords) {
 			list.add(record.value());
 			MapUtils.get(counter, record.topic(), () -> {
-				return new AtomicInteger();
+				return new RedisCounter(keyFor(topic), redisConnectionFactory);
 			}).decrementAndGet();
 		}
 		return list;
 	}
 
 	@Override
-	public int size(String topic) throws Exception {
-		return counter.containsKey(topic) ? counter.get(topic).get() : 0;
+	public long size(String topic) throws Exception {
+		String key = keyFor(topic);
+		return counter.containsKey(key) ? counter.get(key).get() : 0;
+	}
+
+	protected String keyFor(String topic) {
+		return MapUtils.get(keyMapper, topic, () -> {
+			return String.format(DEFAULT_KEY_FORMAT, clusterName, topic, "");
+		});
+	}
+
+	@Override
+	public void destroy() {
+		for (Map.Entry<String, RedisCounter> entry : counter.entrySet()) {
+			entry.getValue().destroy();
+		}
+		log.info("KafkaBufferZone destroy successfully.");
 	}
 
 }

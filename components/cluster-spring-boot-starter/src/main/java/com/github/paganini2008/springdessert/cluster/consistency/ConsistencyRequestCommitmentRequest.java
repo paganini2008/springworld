@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class ConsistencyRequestCommitmentRequest implements MulticastMessageList
 	private InstanceId instanceId;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Override
 	public void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
@@ -51,10 +51,10 @@ public class ConsistencyRequestCommitmentRequest implements MulticastMessageList
 		long maxSerial = requestSerialCache.getSerial(name, round);
 		if (serial >= maxSerial) {
 			requestSerialCache.setValue(name, round, serial, request.getValue());
-			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE,
+			multicastGroup.send(anotherInstanceId, ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE,
 					request.ack(instanceId.getApplicationInfo(), true));
 		} else {
-			clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE,
+			multicastGroup.send(anotherInstanceId, ConsistencyRequest.COMMITMENT_OPERATION_RESPONSE,
 					request.ack(instanceId.getApplicationInfo(), false));
 		}
 	}

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.ClassUtils;
 import com.github.paganini2008.devtools.ExceptionUtils;
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.cluster.utils.BeanExpressionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class MultiProcessingInterpreter {
 	private InvocationBarrier invocationBarrier;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Pointcut("execution(public * *(..))")
 	public void signature() {
@@ -60,7 +60,7 @@ public class MultiProcessingInterpreter {
 				if (ExceptionUtils.ignoreException(e, multiProcessing.ignoredFor())) {
 					Signature signature = methodDetector.getSignature(multiProcessing.value());
 					if (StringUtils.isNotBlank(signature.getFailureMethodName())) {
-						clusterMulticastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
+						multicastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
 								new FailureCallback(new MethodInvocation(signature, pjp.getArgs()), e));
 					}
 					if (StringUtils.isNotBlank(multiProcessing.defaultValue())) {

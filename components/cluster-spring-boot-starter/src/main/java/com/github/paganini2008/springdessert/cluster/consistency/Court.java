@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.Observable;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 
 /**
  * 
@@ -21,7 +21,7 @@ import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastG
 public class Court {
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	private final Observable watcher = Observable.unrepeatable();
 	private final Map<String, Proposal> juege = new ConcurrentHashMap<String, Proposal>();
@@ -60,7 +60,7 @@ public class Court {
 		if (juege.containsKey(name)) {
 			List<ConsistencyResponse> list = juege.get(name).getCommitments();
 			list.add(response);
-			if (list.size() == clusterMulticastGroup.countOfChannel()) {
+			if (list.size() == multicastGroup.countOfCandidate()) {
 				watcher.notifyObservers(Formulation.COMMITMENT_PERIOD + name, name);
 			}
 		}
@@ -72,7 +72,7 @@ public class Court {
 		if (juege.containsKey(name)) {
 			List<ConsistencyResponse> list = juege.get(name).getPreparations();
 			list.add(response);
-			if (list.size() == clusterMulticastGroup.countOfChannel()) {
+			if (list.size() == multicastGroup.countOfCandidate()) {
 				watcher.notifyObservers(Formulation.PREPARATION_PERIOD + name, name);
 			}
 		}

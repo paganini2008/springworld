@@ -2,6 +2,8 @@ package com.github.paganini2008.springdessert.cluster.utils;
 
 import java.util.List;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+
 /**
  * 
  * LoadBalancer
@@ -10,8 +12,8 @@ import java.util.List;
  *
  * @since 1.0
  */
-public interface LoadBalancer<T> {
+public interface LoadBalancer {
 
-	T select(Object message, List<T> candidates);
+	ApplicationInfo select(Object message, List<ApplicationInfo> candidates);
 
 }

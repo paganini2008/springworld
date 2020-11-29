@@ -14,8 +14,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.LeaderRecoveryCallback;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastConfig;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 
 /**
  * 
@@ -26,7 +27,7 @@ import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastC
  * @since 1.0
  */
 @Configuration
-@ConditionalOnBean(ClusterMulticastConfig.class)
+@ConditionalOnBean(ApplicationMulticastConfig.class)
 public class RestClientConfig {
 
 	@Value("${spring.application.cluster.name}")

@@ -30,7 +30,7 @@ public class MinaServerHandler extends IoHandlerAdapter {
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.application.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Autowired(required = false)
@@ -54,7 +54,7 @@ public class MinaServerHandler extends IoHandlerAdapter {
 
 	@Override
 	public void messageReceived(IoSession session, Object message) throws Exception {
-		counter.increment();
+		counter.incrementCount();
 		bufferZone.set(collectionName, (Tuple) message);
 	}
 

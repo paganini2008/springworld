@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
-import com.github.paganini2008.transport.NodeFinder;
+import com.github.paganini2008.transport.TransportNodeCentre;
 import com.github.paganini2008.transport.grizzly.IdleTimeoutFilter;
 import com.github.paganini2008.transport.grizzly.IdleTimeoutPolicies;
 import com.github.paganini2008.transport.grizzly.TupleCodecFactory;
@@ -58,7 +58,7 @@ public class GrizzlyServer implements NioServer {
 	private TupleCodecFactory codecFactory;
 
 	@Autowired
-	private NodeFinder nodeFinder;
+	private TransportNodeCentre transportNodeCentre;
 
 	@Override
 	public int start() {
@@ -91,7 +91,7 @@ public class GrizzlyServer implements NioServer {
 			transport.bind(localAddress);
 			transport.start();
 			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			nodeFinder.registerNode(location);
+			transportNodeCentre.registerNode(location);
 			started.set(true);
 			log.info("GrizzlyServer is started on: " + localAddress);
 		} catch (Exception e) {

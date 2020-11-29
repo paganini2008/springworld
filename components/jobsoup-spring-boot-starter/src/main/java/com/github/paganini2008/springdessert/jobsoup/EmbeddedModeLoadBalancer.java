@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 
 /**
@@ -22,7 +22,7 @@ import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor {
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private JobManager jobManager;
@@ -58,9 +58,9 @@ public class EmbeddedModeLoadBalancer extends JobTemplate implements JobExecutor
 
 	@Override
 	protected final Object[] doRun(long traceId, JobKey jobKey, Job job, Object attachment, int retries, Logger log) {
-		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
+		if (multicastGroup.countOfCandidate(jobKey.getGroupName()) > 0) {
 			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));
+			multicastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));
 		} else {
 			try {
 				jobManager.setJobState(jobKey, JobState.SCHEDULING);

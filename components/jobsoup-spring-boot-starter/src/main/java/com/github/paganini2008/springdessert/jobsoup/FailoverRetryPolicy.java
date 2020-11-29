@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 
 /**
@@ -19,7 +19,7 @@ import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 public class FailoverRetryPolicy implements RetryPolicy {
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private JobManager jobManager;
@@ -29,9 +29,9 @@ public class FailoverRetryPolicy implements RetryPolicy {
 
 	@Override
 	public Object retryIfNecessary(JobKey jobKey, Job job, Object attachment, Throwable reason, int retries, Logger log) throws Throwable {
-		if (clusterMulticastGroup.countOfChannel(jobKey.getGroupName()) > 0) {
+		if (multicastGroup.countOfCandidate(jobKey.getGroupName()) > 0) {
 			final String topic = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
-			clusterMulticastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));
+			multicastGroup.unicast(jobKey.getGroupName(), topic, new JobParam(jobKey, attachment, retries));
 		} else {
 			try {
 				jobManager.setJobState(jobKey, JobState.SCHEDULING);

@@ -6,7 +6,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup.ClusterMulticastMessage;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup.MulticastMessage;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,24 +23,24 @@ public class MulticastMessageAcker implements MulticastMessageListener {
 
 	static final String TOPIC_NAME = "<MULTICAST-MESSAGE-ACKER>";
 
-	private final Map<String, ClusterMulticastMessage> ackQueue = new ConcurrentHashMap<String, ClusterMulticastMessage>();
+	private final Map<String, MulticastMessage> ackQueue = new ConcurrentHashMap<String, MulticastMessage>();
 
-	public void waitForAck(ClusterMulticastMessage message) {
+	public void waitForAck(MulticastMessage message) {
 		ackQueue.put(message.getId(), message);
 	}
 
-	public void retrySendMessage(ClusterMulticastGroup clusterMulticastGroup) {
+	public void retrySendMessage(ApplicationMulticastGroup multicastGroup) {
 		if (ackQueue.isEmpty()) {
 			return;
 		}
-		final Queue<ClusterMulticastMessage> q = new ArrayDeque<ClusterMulticastMessage>(ackQueue.values());
+		final Queue<MulticastMessage> q = new ArrayDeque<MulticastMessage>(ackQueue.values());
 		while (!q.isEmpty()) {
-			ClusterMulticastMessage message = q.poll();
+			MulticastMessage message = q.poll();
 			if (System.currentTimeMillis() - message.getTimestamp() > message.getTimeout() * 1000) {
 				ackQueue.remove(message.getId());
-				clusterMulticastGroup.doSendMessage(message.getChannel(), message, message.getTimeout());
+				multicastGroup.doSendMessage(message.getChannel(), message, message.getTimeout());
 				if (log.isTraceEnabled()) {
-					log.trace("Resend clusterMulticastMessage '{}'", message.getId());
+					log.trace("Resend MulticastMessage '{}'", message.getId());
 				}
 			}
 		}

@@ -12,7 +12,7 @@ import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.devtools.multithreads.ClockTask;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.cluster.consistency.Court.Proposal;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,7 @@ public final class ConsistencyRequestContext {
 	private Clock clock;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private ConsistencyRequestRound requestRound;
@@ -73,7 +73,7 @@ public final class ConsistencyRequestContext {
 		final long serial = requestSerial.nextSerial(name);
 		ConsistencyRequest request = ConsistencyRequest.of(instanceId.getApplicationInfo()).setName(name).setRound(round).setSerial(serial)
 				.setTimeout(timeout);
-		clusterMulticastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
+		multicastGroup.multicast(ConsistencyRequest.PREPARATION_OPERATION_REQUEST, request);
 
 		ConsistencyRequestPreparationFuture preparationFuture = new ConsistencyRequestPreparationFuture(request);
 		clock.schedule(preparationFuture, responseWaitingTime, TimeUnit.SECONDS);
@@ -86,7 +86,7 @@ public final class ConsistencyRequestContext {
 		final long serial = requestSerial.nextSerial(name);
 		ConsistencyRequest request = ConsistencyRequest.of(instanceId.getApplicationInfo()).setName(name).setValue(value).setRound(round)
 				.setSerial(serial).setTimeout(0);
-		clusterMulticastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
+		multicastGroup.send(anotherInstanceId, ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
 	}
 
 	/**
@@ -134,7 +134,7 @@ public final class ConsistencyRequestContext {
 						long newRound = requestRound.nextRound(name);
 						request.setRound(newRound);
 						if (request.getRound() == requestRound.currentRound(name)) {
-							clusterMulticastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
+							multicastGroup.multicast(ConsistencyRequest.LEARNING_OPERATION_REQUEST, request);
 						}
 					}
 				}
@@ -146,7 +146,7 @@ public final class ConsistencyRequestContext {
 					expected.clear();
 				}
 				if (request.hasExpired()) {
-					clusterMulticastGroup.multicast(ConsistencyRequest.TIMEOUT_OPERATION_REQUEST, request);
+					multicastGroup.multicast(ConsistencyRequest.TIMEOUT_OPERATION_REQUEST, request);
 				} else {
 					if (request.getRound() == requestRound.currentRound(name)) {
 						propose(name, proposal.getValue(), request.getTimeout());
@@ -192,7 +192,7 @@ public final class ConsistencyRequestContext {
 			final String name = request.getName();
 			final Proposal proposal = court.getProposal(name);
 			List<ConsistencyResponse> responses = court.getProposal(name) != null ? court.getProposal(name).getPreparations() : null;
-			int n = clusterMulticastGroup.countOfChannel();
+			int n = multicastGroup.countOfCandidate();
 			if (responses != null && responses.size() > n / 2) {
 				if (request.getRound() == requestRound.currentRound(name)) {
 					Collections.sort(responses);
@@ -201,7 +201,7 @@ public final class ConsistencyRequestContext {
 					for (ConsistencyResponse response : responses) {
 						ConsistencyRequest request = response.getRequest();
 						request.setValue(firstRequest.getValue() != null ? firstRequest.getValue() : proposal.getValue());
-						clusterMulticastGroup.send(response.getApplicationInfo().getId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST,
+						multicastGroup.send(response.getApplicationInfo().getId(), ConsistencyRequest.COMMITMENT_OPERATION_REQUEST,
 								request);
 					}
 
@@ -214,7 +214,7 @@ public final class ConsistencyRequestContext {
 					responses.clear();
 				}
 				if (request.hasExpired()) {
-					clusterMulticastGroup.multicast(ConsistencyRequest.TIMEOUT_OPERATION_REQUEST, request);
+					multicastGroup.multicast(ConsistencyRequest.TIMEOUT_OPERATION_REQUEST, request);
 				} else {
 					if (request.getRound() == requestRound.currentRound(name)) {
 						propose(name, request.getValue(), request.getTimeout());

@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.multithreads.AtomicIntegerSequence;
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 
 /**
  * 
@@ -23,15 +24,15 @@ public abstract class LoadBalancerUtils {
 	 *
 	 * @since 1.0
 	 */
-	public static class RoundRobinLoadBalancer implements LoadBalancer<String> {
+	public static class RoundRobinLoadBalancer implements LoadBalancer {
 
 		private final AtomicIntegerSequence counter = new AtomicIntegerSequence();
 
-		public String select(Object message, List<String> channels) {
-			if (CollectionUtils.isEmpty(channels)) {
+		public ApplicationInfo select(Object message, List<ApplicationInfo> candidates) {
+			if (CollectionUtils.isEmpty(candidates)) {
 				return null;
 			}
-			return channels.get(counter.getAndIncrement() % channels.size());
+			return candidates.get(counter.getAndIncrement() % candidates.size());
 		}
 
 	}
@@ -44,13 +45,13 @@ public abstract class LoadBalancerUtils {
 	 *
 	 * @since 1.0
 	 */
-	public static class RandomLoadBalancer implements LoadBalancer<String> {
+	public static class RandomLoadBalancer implements LoadBalancer {
 
-		public String select(Object message, List<String> channels) {
-			if (CollectionUtils.isEmpty(channels)) {
+		public ApplicationInfo select(Object message, List<ApplicationInfo> candidates) {
+			if (CollectionUtils.isEmpty(candidates)) {
 				return null;
 			}
-			return channels.get(ThreadLocalRandom.current().nextInt(0, channels.size()));
+			return candidates.get(ThreadLocalRandom.current().nextInt(0, candidates.size()));
 		}
 
 	}
@@ -63,15 +64,15 @@ public abstract class LoadBalancerUtils {
 	 *
 	 * @since 1.0
 	 */
-	public static class HashLoadBalancer implements LoadBalancer<String> {
+	public static class HashLoadBalancer implements LoadBalancer {
 
-		public String select(Object message, List<String> channels) {
-			if (CollectionUtils.isEmpty(channels)) {
+		public ApplicationInfo select(Object message, List<ApplicationInfo> candidates) {
+			if (CollectionUtils.isEmpty(candidates)) {
 				return null;
 			}
 			int hash = message != null ? message.hashCode() : 0;
 			hash &= 0x7FFFFFFF;
-			return channels.get(hash % channels.size());
+			return candidates.get(hash % candidates.size());
 		}
 
 	}

@@ -4,16 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
+import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.devtools.multithreads.Executable;
-import com.github.paganini2008.devtools.multithreads.ThreadPool;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springdessert.transport.buffer.BufferZone;
 import com.github.paganini2008.transport.Tuple;
@@ -25,62 +28,75 @@ import lombok.extern.slf4j.Slf4j;
  * TupleLoopProcessor
  * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Slf4j
-public class TupleLoopProcessor implements Runnable {
+public class TupleLoopProcessor implements Runnable, ApplicationListener<ContextRefreshedEvent>, BeanPostProcessor {
 
 	@Autowired
 	private BufferZone bufferZone;
 
-	@Autowired
-	private Counter counter;
-
 	@Autowired(required = false)
-	private ThreadPool threadPool;
+	private Executor threadPool;
 
-	@Value("${spring.application.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Value("${spring.application.transport.bufferzone.pullSize:100}")
 	private int pullSize;
 
-	private final Map<String, List<Handler>> topicAndHandlers = new ConcurrentHashMap<String, List<Handler>>();
+	private final List<BatchHandler> batchHandlers = new CopyOnWriteArrayList<BatchHandler>();
+	private final Map<String, List<Handler>> topicHandlers = new ConcurrentHashMap<String, List<Handler>>();
 	private final AtomicBoolean running = new AtomicBoolean(false);
 	private Thread runner;
-	private LoggingThread loggingThread = new LoggingThread();
 
 	public void addHandler(Handler handler) {
-		if (handler != null) {
-			List<Handler> handlers = MapUtils.get(topicAndHandlers, handler.getTopic(), () -> {
-				return new CopyOnWriteArrayList<Handler>();
-			});
-			if (!handlers.contains(handler)) {
-				handlers.add(handler);
-			}
-		}
+		Assert.isNull(handler, "Nullable handler");
+		List<Handler> handlers = MapUtils.get(topicHandlers, handler.getTopic(), () -> {
+			return new CopyOnWriteArrayList<Handler>();
+		});
+		handlers.add(handler);
 	}
 
 	public void removeHandler(Handler handler) {
-		if (handler != null) {
-			List<Handler> handlers = topicAndHandlers.get(handler.getTopic());
-			if (handlers != null) {
-				while (handlers.contains(handler)) {
-					handlers.remove(handler);
-				}
+		Assert.isNull(handler, "Nullable handler");
+		List<Handler> handlers = topicHandlers.get(handler.getTopic());
+		if (handlers != null) {
+			while (handlers.contains(handler)) {
+				handlers.remove(handler);
 			}
 		}
 	}
 
+	public void addHandler(BatchHandler handler) {
+		Assert.isNull(handler, "Nullable handler");
+		batchHandlers.add(handler);
+	}
+
+	public void removeHandler(BatchHandler handler) {
+		Assert.isNull(handler, "Nullable handler");
+		batchHandlers.remove(handler);
+	}
+
 	public int countOfHandlers() {
-		return topicAndHandlers.size();
+		return topicHandlers.size();
+	}
+
+	public int countOfHanders(String topic) {
+		return topicHandlers.containsKey(topic) ? topicHandlers.get(topic).size() : 0;
 	}
 
 	public void startDaemon() {
-		running.set(true);
-		runner = ThreadUtils.runAsThread(this);
-		loggingThread.start();
-		log.info("TupleLoopProcessor is started.");
+		if (!isStarted()) {
+			running.set(true);
+			runner = ThreadUtils.runAsThread(this);
+			log.info("TupleLoopProcessor is started.");
+		}
+	}
+
+	public boolean isStarted() {
+		return running.get();
 	}
 
 	public void stop() {
@@ -96,6 +112,11 @@ public class TupleLoopProcessor implements Runnable {
 	}
 
 	@Override
+	public void onApplicationEvent(ContextRefreshedEvent event) {
+		startDaemon();
+	}
+
+	@Override
 	public void run() {
 		while (running.get()) {
 			List<Tuple> tuples = null;
@@ -107,13 +128,16 @@ public class TupleLoopProcessor implements Runnable {
 				}
 			}
 			if (CollectionUtils.isNotEmpty(tuples)) {
+				for (BatchHandler handler : batchHandlers) {
+					handler.onBatch(tuples);
+				}
 				for (Tuple tuple : tuples) {
-					List<Handler> handlers = topicAndHandlers.get(tuple.getTopic());
+					List<Handler> handlers = topicHandlers.get(tuple.getTopic());
 					if (CollectionUtils.isNotEmpty(handlers)) {
 						for (Handler handler : handlers) {
 							Tuple copy = tuple.copy();
 							if (threadPool != null) {
-								threadPool.apply(() -> {
+								threadPool.execute(() -> {
 									handler.onData(copy);
 								});
 							} else {
@@ -122,7 +146,6 @@ public class TupleLoopProcessor implements Runnable {
 						}
 					}
 				}
-				tuples.clear();
 				tuples = null;
 			} else {
 				ThreadUtils.randomSleep(1000L);
@@ -131,24 +154,14 @@ public class TupleLoopProcessor implements Runnable {
 		log.info("Ending Loop!");
 	}
 
-	class LoggingThread implements Executable {
-
-		public void start() {
-			ThreadUtils.scheduleAtFixedRate(this, 3, TimeUnit.SECONDS);
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		if (bean instanceof Handler) {
+			addHandler((Handler) bean);
+		} else if (bean instanceof BatchHandler) {
+			addHandler((BatchHandler) bean);
 		}
-
-		@Override
-		public boolean execute() {
-			if (log.isTraceEnabled()) {
-				try {
-					log.trace("[Snapshot] count=" + counter.local() + "/" + counter.global() + ", tps=" + counter.localTps() + "/"
-							+ counter.globalTps() + ", buffer=" + bufferZone.size(collectionName));
-				} catch (Exception ignored) {
-				}
-			}
-			return running.get();
-		}
-
+		return bean;
 	}
 
 }

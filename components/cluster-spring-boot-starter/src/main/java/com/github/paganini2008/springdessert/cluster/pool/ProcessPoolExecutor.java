@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.reditools.common.SharedLatch;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 
@@ -33,7 +33,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 	private SharedLatch sharedLatch;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
@@ -51,7 +51,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 			if (log.isTraceEnabled()) {
 				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
 			}
-			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
+			multicastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
 		} else {
 			delayQueue.offer(invocation);
 			log.info("Invocation: {} go into the pending queue.", invocation);
@@ -67,7 +67,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 			if (log.isTraceEnabled()) {
 				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
 			}
-			clusterMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
+			multicastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
 		} else {
 			delayQueue.offer(invocation);
 			log.info("Invocation: {} go into the pending queue.", invocation);

@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.github.paganini2008.devtools.Assert;
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
@@ -34,83 +33,94 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * ClusterMulticastGroup
+ * ApplicationMulticastGroup
  *
  * @author Fred Feng
  * @version 1.0
  */
 @Slf4j
-public class ClusterMulticastGroup {
+public class ApplicationMulticastGroup {
 
-	private final List<String> allChannels = new CopyOnWriteArrayList<String>();
-	private final Map<String, List<String>> groupChannels = new ConcurrentHashMap<String, List<String>>();
+	private final List<ApplicationInfo> allCandidates = new CopyOnWriteArrayList<ApplicationInfo>();
+	private final Map<String, List<ApplicationInfo>> groupCandidates = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
 
 	@Qualifier("multicastLoadBalancer")
 	@Autowired
-	private LoadBalancer<String> loadBalancer;
+	private LoadBalancer loadBalancer;
 
 	@Autowired
 	private InstanceId instanceId;
 
 	@Autowired
-	private MulticastMessageAcker clusterMulticastMessageAcker;
+	private MulticastMessageAcker multicastMessageAcker;
 
-	private ClusterMulticastMessageAckerChecker clusterMulticastMessageAckerChecker;
+	private MulticastMessageAckerChecker multicastMessageAckerChecker;
 
 	@PostConstruct
 	public void configure() {
-		clusterMulticastMessageAckerChecker = new ClusterMulticastMessageAckerChecker();
-		clusterMulticastMessageAckerChecker.start();
+		multicastMessageAckerChecker = new MulticastMessageAckerChecker();
+		multicastMessageAckerChecker.start();
 	}
 
-	public void registerChannel(String group, String channel, int weight) {
-		Assert.hasNoText(channel, "Channel must be required.");
-		Assert.lt(weight, 0, "Weight must be > 0");
-
-		for (int i = 0; i < weight; i++) {
-			allChannels.add(channel);
+	public void registerCandidate(ApplicationInfo applicationInfo) {
+		for (int i = 0; i < applicationInfo.getWeight(); i++) {
+			allCandidates.add(applicationInfo);
 		}
-		Collections.sort(allChannels);
+		Collections.sort(allCandidates);
 
-		List<String> channels = MapUtils.get(groupChannels, group, () -> {
-			return new CopyOnWriteArrayList<String>();
+		List<ApplicationInfo> candidates = MapUtils.get(groupCandidates, applicationInfo.getApplicationName(), () -> {
+			return new CopyOnWriteArrayList<ApplicationInfo>();
 		});
-		for (int i = 0; i < weight; i++) {
-			channels.add(channel);
+		for (int i = 0; i < applicationInfo.getWeight(); i++) {
+			candidates.add(applicationInfo);
 		}
-		Collections.sort(channels);
-		log.info("Registered channel: {}.{}, Proportion: {}/{}", group, channel, channels.size(), allChannels.size());
+		Collections.sort(candidates);
+		log.info("Registered candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(),
+				allCandidates.size());
 	}
 
-	public boolean hasRegistered(String group, String channel) {
-		return groupChannels.containsKey(group) ? groupChannels.get(group).contains(channel) : false;
+	public boolean hasRegistered(ApplicationInfo applicationInfo) {
+		return groupCandidates.containsKey(applicationInfo.getApplicationName())
+				? groupCandidates.get(applicationInfo.getApplicationName()).contains(applicationInfo)
+				: false;
 	}
 
-	public void removeChannel(String group, String channel) {
-		Assert.hasNoText(channel, "Channel is required.");
-		while (allChannels.contains(channel)) {
-			allChannels.remove(channel);
+	public void removeCandidate(ApplicationInfo applicationInfo) {
+		while (allCandidates.contains(applicationInfo)) {
+			allCandidates.remove(applicationInfo);
 		}
 
-		if (groupChannels.containsKey(group)) {
-			List<String> channels = groupChannels.get(group);
-			while (channels.contains(channel)) {
-				channels.remove(channel);
+		if (groupCandidates.containsKey(applicationInfo.getApplicationName())) {
+			List<ApplicationInfo> candidates = groupCandidates.get(applicationInfo.getApplicationName());
+			while (candidates.contains(applicationInfo)) {
+				candidates.remove(applicationInfo);
 			}
-			log.info("Removed channel: {}.{}, Proportion: {}/{}", group, channel, channels.size(), allChannels.size());
+			log.info("Removed candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(),
+					allCandidates.size());
 		}
 
 	}
 
-	public int countOfChannel() {
-		return new HashSet<String>(allChannels).size();
+	public int countOfCandidate() {
+		return new HashSet<ApplicationInfo>(allCandidates).size();
 	}
 
-	public int countOfChannel(String group) {
-		return groupChannels.containsKey(group) ? new HashSet<String>(groupChannels.get(group)).size() : 0;
+	public int countOfCandidate(String group) {
+		return groupCandidates.containsKey(group) ? new HashSet<ApplicationInfo>(groupCandidates.get(group)).size() : 0;
+	}
+
+	public ApplicationInfo[] getCandidates() {
+		return new HashSet<ApplicationInfo>(allCandidates).toArray(new ApplicationInfo[0]);
+	}
+
+	public ApplicationInfo[] getCandidates(String group) {
+		if (groupCandidates.containsKey(group)) {
+			return new HashSet<ApplicationInfo>(groupCandidates.get(group)).toArray(new ApplicationInfo[0]);
+		}
+		return new ApplicationInfo[0];
 	}
 
 	public void unicast(String topic, Object message) {
@@ -119,9 +129,9 @@ public class ClusterMulticastGroup {
 
 	public void unicast(String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		String channel = loadBalancer.select(message, allChannels);
-		if (StringUtils.isNotBlank(channel)) {
-			doSendMessage(channel, topic, message, timeout);
+		ApplicationInfo applicationInfo = loadBalancer.select(message, allCandidates);
+		if (applicationInfo != null) {
+			doSendMessage(applicationInfo.getId(), topic, message, timeout);
 		}
 	}
 
@@ -131,10 +141,10 @@ public class ClusterMulticastGroup {
 
 	public void unicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		if (groupChannels.containsKey(group)) {
-			String channel = loadBalancer.select(message, groupChannels.get(group));
-			if (StringUtils.isNotBlank(channel)) {
-				doSendMessage(channel, topic, message, timeout);
+		if (groupCandidates.containsKey(group)) {
+			ApplicationInfo applicationInfo = loadBalancer.select(message, groupCandidates.get(group));
+			if (applicationInfo != null) {
+				doSendMessage(applicationInfo.getId(), topic, message, timeout);
 			}
 		}
 	}
@@ -145,8 +155,8 @@ public class ClusterMulticastGroup {
 
 	public void multicast(String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		for (String channel : new HashSet<String>(allChannels)) {
-			doSendMessage(channel, topic, message, timeout);
+		for (ApplicationInfo applicationInfo : new HashSet<ApplicationInfo>(allCandidates)) {
+			doSendMessage(applicationInfo.getId(), topic, message, timeout);
 		}
 	}
 
@@ -156,9 +166,11 @@ public class ClusterMulticastGroup {
 
 	public void multicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		Set<String> copy = groupChannels.containsKey(group) ? new HashSet<String>(groupChannels.get(group)) : new HashSet<String>();
-		for (String channel : copy) {
-			doSendMessage(channel, topic, message, timeout);
+		Set<ApplicationInfo> copy = groupCandidates.containsKey(group)
+				? new HashSet<ApplicationInfo>(groupCandidates.get(group))
+				: new HashSet<ApplicationInfo>();
+		for (ApplicationInfo applicationInfo : copy) {
+			doSendMessage(applicationInfo.getId(), topic, message, timeout);
 		}
 	}
 
@@ -172,25 +184,25 @@ public class ClusterMulticastGroup {
 		doSendMessage(channel, topic, message, timeout);
 	}
 
-	public void ack(String channel, ClusterMulticastMessage messageObject) {
+	public void ack(String channel, MulticastMessage messageObject) {
 		messageObject.setTopic(MulticastMessageAcker.TOPIC_NAME);
 		doSendMessage(channel, messageObject, -1);
 	}
 
 	private void doSendMessage(String channel, String topic, Object message, int timeout) {
-		ClusterMulticastMessage messageObject = createMessageObject(channel, topic, message, timeout);
+		MulticastMessage messageObject = createMessageObject(channel, topic, message, timeout);
 		doSendMessage(channel, messageObject, timeout);
 	}
 
-	void doSendMessage(String channel, ClusterMulticastMessage messageObject, int timeout) {
+	void doSendMessage(String channel, MulticastMessage messageObject, int timeout) {
 		redisMessageSender.sendMessage(channel, messageObject);
 		if (timeout > 0) {
-			clusterMulticastMessageAcker.waitForAck(messageObject);
+			multicastMessageAcker.waitForAck(messageObject);
 		}
 	}
 
-	protected ClusterMulticastMessage createMessageObject(String channel, String topic, Object message, int timeout) {
-		ClusterMulticastMessage messageObject = new ClusterMulticastMessage();
+	protected MulticastMessage createMessageObject(String channel, String topic, Object message, int timeout) {
+		MulticastMessage messageObject = new MulticastMessage();
 		messageObject.setApplicationInfo(instanceId.getApplicationInfo());
 		messageObject.setChannel(channel);
 		messageObject.setTopic(topic);
@@ -199,7 +211,7 @@ public class ClusterMulticastGroup {
 		return messageObject;
 	}
 
-	private class ClusterMulticastMessageAckerChecker implements Executable {
+	private class MulticastMessageAckerChecker implements Executable {
 
 		private Timer timer;
 
@@ -209,7 +221,7 @@ public class ClusterMulticastGroup {
 
 		@Override
 		public boolean execute() {
-			clusterMulticastMessageAcker.retrySendMessage(ClusterMulticastGroup.this);
+			multicastMessageAcker.retrySendMessage(ApplicationMulticastGroup.this);
 			return true;
 		}
 
@@ -221,13 +233,21 @@ public class ClusterMulticastGroup {
 
 	}
 
+	/**
+	 * 
+	 * MulticastMessage
+	 * 
+	 * @author Fred Feng
+	 *
+	 * @since 1.0
+	 */
 	@Getter
 	@Setter
-	public static class ClusterMulticastMessage implements Serializable {
+	public static class MulticastMessage implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		public ClusterMulticastMessage() {
+		public MulticastMessage() {
 			this.id = UUID.randomUUID().toString();
 			this.timestamp = System.currentTimeMillis();
 		}
@@ -251,8 +271,8 @@ public class ClusterMulticastGroup {
 			if (obj == this) {
 				return true;
 			}
-			if (obj instanceof ClusterMulticastMessage) {
-				ClusterMulticastMessage message = (ClusterMulticastMessage) obj;
+			if (obj instanceof MulticastMessage) {
+				MulticastMessage message = (MulticastMessage) obj;
 				return message.getId().equals(getId());
 			}
 			return false;
@@ -262,7 +282,7 @@ public class ClusterMulticastGroup {
 
 	@PreDestroy
 	public void close() {
-		clusterMulticastMessageAckerChecker.close();
+		multicastMessageAckerChecker.close();
 	}
 
 }

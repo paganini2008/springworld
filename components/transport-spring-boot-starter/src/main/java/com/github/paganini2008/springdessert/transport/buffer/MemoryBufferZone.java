@@ -56,7 +56,7 @@ public class MemoryBufferZone implements BufferZone {
 	}
 
 	@Override
-	public int size(String collectionName) {
+	public long size(String collectionName) {
 		LruQueue<Tuple> q = cache.get(collectionName);
 		return q != null ? q.size() : 0;
 	}

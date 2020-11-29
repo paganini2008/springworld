@@ -9,34 +9,35 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.multicast.MulticastGroupListener;
 import com.github.paganini2008.transport.NioClient;
-import com.github.paganini2008.transport.NodeFinder;
+import com.github.paganini2008.transport.TransportNodeCentre;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * NioServerPeerFinder
+ * ScaleoutClusterListener
  * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Slf4j
-public class NioServerPeerFinder implements MulticastGroupListener {
+public class ScaleoutClusterListener implements MulticastGroupListener {
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired
 	private NioClient nioClient;
 
 	@Autowired
-	private NodeFinder nodeFinder;
+	private TransportNodeCentre transportNodeCentre;
 
 	@Override
 	public void onActive(ApplicationInfo applicationInfo) {
 		String instanceId = applicationInfo.getId();
-		log.info("Node '{}' join the spring application cluster {}", instanceId, clusterName);
-		String location = (String) nodeFinder.findNode(instanceId);
+		log.info("New node '{}' join spring transport cluster '{}'", applicationInfo, clusterName);
+		String location = (String) transportNodeCentre.findNode(instanceId);
 		if (StringUtils.isNotBlank(location)) {
 			String[] args = location.split(":", 2);
 			String hostName;
@@ -55,7 +56,7 @@ public class NioServerPeerFinder implements MulticastGroupListener {
 
 	@Override
 	public void onInactive(ApplicationInfo applicationInfo) {
-		log.info("Node '{}' leave the spring application cluster {}", applicationInfo.getId(), clusterName);
+		log.info("Node '{}' leave spring transport cluster {}", applicationInfo, clusterName);
 	}
 
 }

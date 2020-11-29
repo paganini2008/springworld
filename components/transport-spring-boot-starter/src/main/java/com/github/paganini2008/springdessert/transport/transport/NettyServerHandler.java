@@ -36,7 +36,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 	@Autowired(required = false)
 	private ChannelEventListener<Channel> channelEventListener;
 
-	@Value("${spring.application.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Override
@@ -60,7 +60,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object message) throws Exception {
-		counter.increment();
+		counter.incrementCount();
 		bufferZone.set(collectionName, (Tuple) message);
 	}
 

@@ -4,10 +4,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.xmemcached.MemcachedTemplate;
 import com.github.paganini2008.transport.Tuple;
@@ -24,20 +26,22 @@ public class MemcachedBufferZone implements BufferZone {
 
 	private static final int DEFAULT_EXPIRATION = 60;
 
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@Value("${spring.application.transport.bufferzone.collectionName:default}")
+	@Value("${spring.application.transport.bufferzone.collectionName}")
 	private String collectionName;
 
-	@Value("${spring.application.transport.bufferzone.shared:true}")
-	private boolean shared;
+	@Value("${spring.application.transport.bufferzone.hashed:false}")
+	private boolean hashed;
 
 	@Autowired
 	private InstanceId instanceId;
 
 	@Autowired
 	private MemcachedTemplate memcachedOperations;
+	
+	private final Map<String, String> keyMapper = new ConcurrentHashMap<String, String>();
 
 	@Override
 	public void set(String collectionName, Tuple tuple) throws Exception {
@@ -55,12 +59,8 @@ public class MemcachedBufferZone implements BufferZone {
 		return list;
 	}
 
-	protected String keyFor(String collectionName) {
-		return "spring:application:transport:" + clusterName + ":bufferzone:" + collectionName + (shared ? "" : ":" + instanceId.get());
-	}
-
 	@Override
-	public int size(String collectionName) throws Exception {
+	public long size(String collectionName) throws Exception {
 		Map<InetSocketAddress, Map<String, String>> result = memcachedOperations.getClient().getStats();
 		int total = 0;
 		if (result != null) {
@@ -69,6 +69,12 @@ public class MemcachedBufferZone implements BufferZone {
 			}
 		}
 		return total;
+	}
+	
+	protected String keyFor(String collectionName) {
+		return MapUtils.get(keyMapper, collectionName, () -> {
+			return String.format(DEFAULT_KEY_FORMAT, clusterName, hashed ? ":" + instanceId.get() : "");
+		});
 	}
 
 }

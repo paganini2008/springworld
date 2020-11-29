@@ -3,21 +3,13 @@ package com.github.paganini2008.springdessert.transport;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.glassfish.grizzly.Connection;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
-import com.github.paganini2008.springdessert.reditools.serializer.FstRedisSerializer;
 import com.github.paganini2008.springdessert.transport.buffer.BufferZone;
 import com.github.paganini2008.springdessert.transport.buffer.KafkaBufferZone;
 import com.github.paganini2008.springdessert.transport.buffer.MemcachedBufferZone;
@@ -42,10 +34,9 @@ import com.github.paganini2008.springdessert.xmemcached.serializer.FstMemcachedS
 import com.github.paganini2008.springdessert.xmemcached.serializer.MemcachedSerializer;
 import com.github.paganini2008.transport.ChannelEventListener;
 import com.github.paganini2008.transport.NioClient;
-import com.github.paganini2008.transport.NodeFinder;
 import com.github.paganini2008.transport.Partitioner;
 import com.github.paganini2008.transport.RoundRobinPartitioner;
-import com.github.paganini2008.transport.Tuple;
+import com.github.paganini2008.transport.TransportNodeCentre;
 import com.github.paganini2008.transport.embeddedio.EmbeddedClient;
 import com.github.paganini2008.transport.embeddedio.EmbeddedSerializationFactory;
 import com.github.paganini2008.transport.embeddedio.SerializationFactory;
@@ -73,7 +64,10 @@ import io.netty.channel.Channel;
 @Configuration
 public class TransportServerConfiguration {
 
-	@ConditionalOnMissingBean(Serializer.class)
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
+
+	@ConditionalOnMissingBean
 	@Bean
 	public Serializer serializer() {
 		return new FstSerializer();
@@ -84,108 +78,42 @@ public class TransportServerConfiguration {
 		return new TupleLoopProcessor();
 	}
 
-	@ConditionalOnMissingBean(Partitioner.class)
 	@Bean
 	public Partitioner partitioner() {
 		return new RoundRobinPartitioner();
 	}
 
 	@Bean
-	public NioServerPeerFinder nioServerPeerFinder() {
-		return new NioServerPeerFinder();
-	}
-
-	@ConditionalOnMissingBean(NodeFinder.class)
-	@Bean(destroyMethod = "destroy")
-	public NodeFinder contextNodeFinder() {
-		return new ContextNodeFinder();
-	}
-
-	@Primary
-	@Bean
-	public ContextInitializer contextInitializer() {
-		return new ContextInitializer();
+	public ScaleoutClusterListener scaleoutClusterListener() {
+		return new ScaleoutClusterListener();
 	}
 
 	@Bean
-	public HandlerBeanPostProcessor handlerBeanPostProcessor() {
-		return new HandlerBeanPostProcessor();
+	public TransportNodeCentre transportNodeCentre() {
+		return new DefaultTransportNodeCentre();
 	}
 
-	@Bean("redis-template-bigint")
-	public RedisTemplate<String, Long> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-		RedisTemplate<String, Long> redisTemplate = new RedisTemplate<String, Long>();
-		redisTemplate.setKeySerializer(RedisSerializer.string());
-		redisTemplate.setValueSerializer(new GenericToStringSerializer<Long>(Long.class));
-		redisTemplate.setExposeConnection(true);
-		redisTemplate.setConnectionFactory(redisConnectionFactory);
-		redisTemplate.afterPropertiesSet();
-		return redisTemplate;
-	}
-
-	@Bean("redis-counter-bigint")
-	public RedisAtomicLong redisAtomicLong(@Qualifier("redis-template-bigint") RedisTemplate<String, Long> redisTemplate) {
-		return new RedisAtomicLong("transport:counter", redisTemplate);
+	@Bean
+	public ProcessLogging processLogging() {
+		return new ProcessLogging();
 	}
 
 	@Bean(initMethod = "start", destroyMethod = "stop")
-	public Counter counter(@Qualifier("redis-counter-bigint") RedisAtomicLong redisAtomicLong) {
-		return new Counter(redisAtomicLong);
+	public Counter counter(RedisConnectionFactory redisConnectionFactory) {
+		final String name = String.format("spring:application:cluster:%s:transport:counter", clusterName);
+		return new Counter(name, redisConnectionFactory);
 	}
 
-	/**
-	 * 
-	 * RedisBufferZoneConfiguration
-	 * 
-	 * @author Fred Feng
-	 *
-	 * @since 1.0
-	 */
-	@Configuration
 	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "redis", matchIfMissing = true)
-	public static class RedisBufferZoneConfiguration {
-
-		@Bean("bufferzone-redis-serializer")
-		public RedisSerializer<Tuple> redisSerializer() {
-			return new FstRedisSerializer<Tuple>(Tuple.class);
-		}
-
-		@Bean("bufferzone-redis-template")
-		public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
-				@Qualifier("bufferzone-redis-serializer") RedisSerializer<Tuple> redisSerializer) {
-			RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
-			redisTemplate.setConnectionFactory(redisConnectionFactory);
-			StringRedisSerializer stringSerializer = new StringRedisSerializer();
-			redisTemplate.setKeySerializer(stringSerializer);
-			redisTemplate.setValueSerializer(redisSerializer);
-			redisTemplate.setHashKeySerializer(stringSerializer);
-			redisTemplate.setHashValueSerializer(redisSerializer);
-			redisTemplate.afterPropertiesSet();
-			return redisTemplate;
-		}
-
-		@Bean(initMethod = "configure", destroyMethod = "destroy")
-		public BufferZone bufferZone() {
-			return new RedisBufferZone();
-		}
+	@Bean
+	public BufferZone redisBufferZone() {
+		return new RedisBufferZone();
 	}
 
-	/**
-	 * 
-	 * KafkaBufferZoneConfiguration
-	 * 
-	 * @author Fred Feng
-	 *
-	 * @since 1.0
-	 */
-	@Configuration
 	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "kafka")
-	public static class KafkaBufferZoneConfiguration {
-
-		@Bean(initMethod = "configure", destroyMethod = "destroy")
-		public BufferZone bufferZone() {
-			return new KafkaBufferZone();
-		}
+	@Bean
+	public BufferZone kafkaBufferZone() {
+		return new KafkaBufferZone();
 
 	}
 
@@ -204,22 +132,16 @@ public class TransportServerConfiguration {
 		@Value("${spring.memcached.address:localhost:11211}")
 		private String address;
 
-		@ConditionalOnMissingBean(MemcachedSerializer.class)
-		@Bean
-		public MemcachedSerializer memcachedSerializer() {
-			return new FstMemcachedSerializer();
-		}
-
 		@ConditionalOnMissingBean(MemcachedTemplate.class)
 		@Bean
 		public MemcachedTemplate memcachedTemplate(MemcachedSerializer memcachedSerializer) throws Exception {
 			MemcachedTemplateBuilder builder = new MemcachedTemplateBuilder();
 			builder.setAddress(address);
-			builder.setSerializer(memcachedSerializer);
+			builder.setSerializer(new FstMemcachedSerializer());
 			return builder.build();
 		}
 
-		@Bean(initMethod = "configure", destroyMethod = "destroy")
+		@Bean
 		public BufferZone bufferZone() {
 			return new MemcachedBufferZone();
 		}

@@ -10,32 +10,34 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 
- * ClusterMulticastController
+ * ApplicationMulticastController
  * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 @RequestMapping("/application/cluster")
 @RestController
-public class ClusterMulticastController {
+public class ApplicationMulticastController {
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Value("${spring.application.name}")
 	private String applicationName;
 
 	@GetMapping("/multicast")
-	public ResponseEntity<String> multicast(@RequestParam(name = "t", required = false, defaultValue = "*") String topic,
+	public ResponseEntity<String> multicast(
+			@RequestParam(name = "t", required = false, defaultValue = "*") String topic,
 			@RequestParam("c") String content) {
-		clusterMulticastGroup.multicast(topic, content);
+		multicastGroup.multicast(topic, content);
 		return ResponseEntity.ok("ok");
 	}
 
 	@GetMapping("/unicast")
 	public ResponseEntity<String> unicast(@RequestParam(name = "t", required = false, defaultValue = "*") String topic,
 			@RequestParam("c") String content) {
-		clusterMulticastGroup.unicast(topic, content);
+		multicastGroup.unicast(topic, content);
 		return ResponseEntity.ok("ok");
 	}
 

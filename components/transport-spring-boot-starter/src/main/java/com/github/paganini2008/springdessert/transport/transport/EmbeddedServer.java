@@ -23,7 +23,7 @@ import com.github.paganini2008.embeddedio.IoAcceptor;
 import com.github.paganini2008.embeddedio.NioAcceptor;
 import com.github.paganini2008.embeddedio.SerializationTransformer;
 import com.github.paganini2008.embeddedio.Transformer;
-import com.github.paganini2008.transport.NodeFinder;
+import com.github.paganini2008.transport.TransportNodeCentre;
 import com.github.paganini2008.transport.embeddedio.SerializationFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public class EmbeddedServer implements NioServer {
 	private SerializationFactory serializationFactory;
 
 	@Autowired
-	private NodeFinder nodeFinder;
+	private TransportNodeCentre transportNodeCentre;
 
 	@Override
 	public int start() throws Exception {
@@ -87,7 +87,7 @@ public class EmbeddedServer implements NioServer {
 		try {
 			acceptor.start();
 			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			nodeFinder.registerNode(location);
+			transportNodeCentre.registerNode(location);
 			started.set(true);
 			log.info("EmbeddedServer is started on: " + localAddress);
 		} catch (IOException e) {

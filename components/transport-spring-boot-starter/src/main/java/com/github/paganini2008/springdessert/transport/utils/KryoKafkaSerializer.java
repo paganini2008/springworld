@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.transport.buffer;
+package com.github.paganini2008.springdessert.transport.utils;
 
 import java.util.Map;
 

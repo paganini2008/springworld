@@ -1,11 +1,10 @@
-package com.github.paganini2008.springdessert.cluster.http;
+package com.github.paganini2008.springdessert.cluster;
 
 import java.util.List;
 
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.devtools.collection.CollectionUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 import com.github.paganini2008.springdessert.reditools.common.RedisAtomicLongSequence;
 
@@ -17,7 +16,7 @@ import com.github.paganini2008.springdessert.reditools.common.RedisAtomicLongSeq
  *
  * @since 1.0
  */
-public class ApplicationClusterLoadBalancer implements LoadBalancer<ApplicationInfo> {
+public class ApplicationClusterLoadBalancer implements LoadBalancer {
 
 	private final RedisAtomicLongSequence counter;
 

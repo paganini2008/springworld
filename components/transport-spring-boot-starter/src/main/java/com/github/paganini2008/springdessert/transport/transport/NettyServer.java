@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
-import com.github.paganini2008.transport.NodeFinder;
+import com.github.paganini2008.transport.TransportNodeCentre;
 import com.github.paganini2008.transport.netty.KeepAlivePolicy;
 import com.github.paganini2008.transport.netty.MessageCodecFactory;
 
@@ -58,7 +58,7 @@ public class NettyServer implements NioServer {
 	private int idleTimeout;
 
 	@Autowired
-	private NodeFinder nodeFinder;
+	private TransportNodeCentre transportNodeCentre;
 
 	@Autowired
 	private KeepAlivePolicy keepAlivePolicy;
@@ -90,7 +90,7 @@ public class NettyServer implements NioServer {
 					: new InetSocketAddress(port);
 			bootstrap.bind(socketAddress).sync();
 			String location = socketAddress.getHostName() + ":" + socketAddress.getPort();
-			nodeFinder.registerNode(location);
+			transportNodeCentre.registerNode(location);
 			started.set(true);
 			log.info("NettyServer is started on: " + socketAddress);
 		} catch (InterruptedException e) {

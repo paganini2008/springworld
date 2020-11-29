@@ -82,5 +82,9 @@ public class RedisCounter {
 	public String toString() {
 		return longValue.toString();
 	}
+	
+	public void destroy() {
+		longValue.expire(60, TimeUnit.SECONDS);
+	}
 
 }

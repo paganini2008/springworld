@@ -16,12 +16,13 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSend
 
 /**
  * 
- * ClusterMulticastAware
- *
+ * ApplicationMulticastAware
+ * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
-public class ClusterMulticastAware implements ApplicationListener<ApplicationClusterRefreshedEvent> {
+public class ApplicationMulticastAware implements ApplicationListener<ApplicationClusterRefreshedEvent> {
 
 	private static final int DEFAULT_MULTICAST_GROUP_MEMBER_TTL = 5;
 

@@ -27,7 +27,7 @@ import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.transport.ChannelEvent;
 import com.github.paganini2008.transport.ChannelEvent.EventType;
 import com.github.paganini2008.transport.ChannelEventListener;
-import com.github.paganini2008.transport.NodeFinder;
+import com.github.paganini2008.transport.TransportNodeCentre;
 import com.github.paganini2008.transport.Tuple;
 
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +73,7 @@ public class MinaServer implements NioServer {
 	private boolean keepaliveResposne;
 
 	@Autowired
-	private NodeFinder nodeFinder;
+	private TransportNodeCentre transportNodeCentre;
 
 	@Override
 	public int start() {
@@ -104,7 +104,7 @@ public class MinaServer implements NioServer {
 			localAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
 			ioAcceptor.bind(localAddress);
 			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			nodeFinder.registerNode(location);
+			transportNodeCentre.registerNode(location);
 			started.set(true);
 			log.info("MinaServer is started on: " + localAddress);
 		} catch (IOException e) {

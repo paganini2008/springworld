@@ -13,7 +13,7 @@ import com.github.paganini2008.springdessert.cluster.ApplicationClusterFollowerE
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.cluster.LeaderRecoveryCallback;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.cluster.multicast.MulticastGroupListener;
 import com.github.paganini2008.springdessert.reditools.BeanNames;
 
@@ -46,7 +46,7 @@ public class ConsistencyLeaderElectionListener implements MulticastGroupListener
 	private LeaderElection leaderElection;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private LeaderRecoveryCallback recoveryCallback;
@@ -76,7 +76,7 @@ public class ConsistencyLeaderElectionListener implements MulticastGroupListener
 			final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 			redisTemplate.opsForList().leftPush(key, instanceId.getApplicationInfo());
 		} else {
-			final int channelCount = clusterMulticastGroup.countOfChannel();
+			final int channelCount = multicastGroup.countOfCandidate();
 			if (channelCount >= minimumParticipants) {
 				leaderElection.launch();
 			}

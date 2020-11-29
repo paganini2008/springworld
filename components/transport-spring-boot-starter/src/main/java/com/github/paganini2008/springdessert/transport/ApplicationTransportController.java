@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.transport;
 
-import static com.github.paganini2008.transport.Constants.APPLICATION_KEY;
+import static com.github.paganini2008.transport.Constants.SPRING_TRANSPORT_CLUSTER_NAMESPACE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,10 +44,7 @@ public class ApplicationTransportController {
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Autowired
-	private StringRedisTemplate stringRedisTemplate;
-
-	@Value("${spring.application.cluster.name:default}")
+	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Autowired
@@ -76,7 +72,8 @@ public class ApplicationTransportController {
 		String location;
 		for (Object data : dataList) {
 			applicationInfo = (ApplicationInfo) data;
-			location = StringUtils.isNotBlank(hostUrl) ? hostUrl + PATH_API : applicationInfo.getApplicationContextPath() + PATH_API;
+			location = StringUtils.isNotBlank(hostUrl) ? hostUrl + PATH_API
+					: applicationInfo.getApplicationContextPath() + PATH_API;
 			locations.add(location);
 		}
 		return ResponseEntity.ok(locations.toArray(new String[0]));
@@ -90,8 +87,8 @@ public class ApplicationTransportController {
 		for (Object data : dataList) {
 			appKeys.add(((ApplicationInfo) data).getId());
 		}
-		key = APPLICATION_KEY + clusterName;
-		List<Object> values = stringRedisTemplate.opsForHash().multiGet(key, appKeys);
+		key = String.format(SPRING_TRANSPORT_CLUSTER_NAMESPACE, clusterName);
+		List<Object> values = redisTemplate.opsForHash().multiGet(key, appKeys);
 		String[] addresses = new String[values != null ? values.size() : 0];
 		int i = 0;
 		for (Object value : values) {

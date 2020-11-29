@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.jobsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.jobsoup.model.JobLifeCycleParam;
 
 /**
@@ -20,11 +20,11 @@ public class EmbeddedModeLifeCycleListenerContainer extends LifeCycleListenerCon
 	private String applicationName;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Override
 	public void onChange(JobKey jobKey, JobLifeCycle lifeCycle) {
-		clusterMulticastGroup.multicast(applicationName, LifeCycleListenerContainer.class.getName(),
+		multicastGroup.multicast(applicationName, LifeCycleListenerContainer.class.getName(),
 				new JobLifeCycleParam(jobKey, lifeCycle));
 	}
 

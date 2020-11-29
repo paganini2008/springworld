@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Import;
 
 import com.github.paganini2008.springdessert.cluster.consistency.ConsistencyRequestConfig;
 import com.github.paganini2008.springdessert.cluster.http.RestClientConfig;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastConfig;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 import com.github.paganini2008.springdessert.cluster.pool.ProcessPoolConfig;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.cluster.utils.BeanExpressionUtils;
@@ -23,7 +23,7 @@ import com.github.paganini2008.springdessert.cluster.utils.LazilyAutowiredBeanIn
 @Import({ ApplicationContextUtils.class, 
 		BeanExpressionUtils.class, 
 		ApplicationClusterConfig.class, 
-		ClusterMulticastConfig.class,
+		ApplicationMulticastConfig.class,
 		ProcessPoolConfig.class, 
 		ConsistencyRequestConfig.class,
 		RestClientConfig.class })

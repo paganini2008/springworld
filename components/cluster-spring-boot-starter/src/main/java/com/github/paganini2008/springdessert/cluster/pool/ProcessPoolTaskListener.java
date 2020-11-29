@@ -8,7 +8,7 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springdessert.cluster.multicast.ClusterMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.reditools.common.SharedLatch;
@@ -41,7 +41,7 @@ public class ProcessPoolTaskListener implements MulticastMessageListener {
 	private InvocationBarrier invocationBarrier;
 
 	@Autowired
-	private ClusterMulticastGroup clusterMulticastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private InstanceId instanceId;
@@ -59,11 +59,11 @@ public class ProcessPoolTaskListener implements MulticastMessageListener {
 				invocationBarrier.setCompleted();
 				result = MethodUtils.invokeMethod(bean, signature.getMethodName(), invocation.getArguments());
 				if (StringUtils.isNotBlank(signature.getSuccessMethodName())) {
-					clusterMulticastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
+					multicastGroup.unicast(applicationName, MultiProcessingCallbackListener.class.getName(),
 							new SuccessCallback(invocation, result));
 				}
 			} finally {
-				clusterMulticastGroup.unicast(applicationName, MultiProcessingCompletionListener.class.getName(),
+				multicastGroup.unicast(applicationName, MultiProcessingCompletionListener.class.getName(),
 						new Return(invocation, result));
 
 				sharedLatch.release();

@@ -20,7 +20,7 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHand
 public class ApplicationInactiveListener implements RedisMessageHandler {
 
 	@Autowired
-	private ClusterMulticastGroup multicastGroup;
+	private ApplicationMulticastGroup multicastGroup;
 
 	@Autowired
 	private MulticastListenerContainer multicastListenerContainer;
@@ -38,7 +38,7 @@ public class ApplicationInactiveListener implements RedisMessageHandler {
 		final String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		redisTemplate.opsForList().remove(key, 1, applicationInfo);
 
-		multicastGroup.removeChannel(applicationInfo.getApplicationName(), applicationInfo.getId());
+		multicastGroup.removeCandidate(applicationInfo);
 		multicastListenerContainer.fireOnInactive(applicationInfo);
 	}
 

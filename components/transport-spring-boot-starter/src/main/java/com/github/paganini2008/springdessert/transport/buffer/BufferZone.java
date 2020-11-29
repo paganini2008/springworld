@@ -9,20 +9,17 @@ import com.github.paganini2008.transport.Tuple;
  * BufferZone
  * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 public interface BufferZone {
-
-	default void configure() throws Exception {
-	}
-
-	default void destroy() {
-	}
+	
+	static String DEFAULT_KEY_FORMAT = "spring:application:cluster:%s:transport:bufferzone:%s:%s";
 
 	void set(String collectionName, Tuple tuple) throws Exception;
 
 	List<Tuple> get(String collectionName, int pullSize) throws Exception;
 
-	int size(String collectionName) throws Exception;
+	long size(String collectionName) throws Exception;
 
 }

@@ -8,27 +8,29 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
 
 /**
  * 
- * ClusterMulticastConfig
- *
+ * ApplicationMulticastConfig
+ * 
  * @author Fred Feng
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Configuration
 @ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true", matchIfMissing = true)
-@Import({ ClusterMulticastController.class })
-public class ClusterMulticastConfig {
+@Import({ ApplicationMulticastController.class })
+public class ApplicationMulticastConfig {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Bean
-	public ClusterMulticastAware clusterMulticastAware() {
-		return new ClusterMulticastAware();
+	public ApplicationMulticastAware applicationMulticastAware() {
+		return new ApplicationMulticastAware();
 	}
 
 	@Bean
@@ -47,14 +49,14 @@ public class ClusterMulticastConfig {
 	}
 
 	@Bean
-	public ClusterMulticastGroup clusterMulticastGroup() {
-		return new ClusterMulticastGroup();
+	public ApplicationMulticastGroup applicationMulticastGroup() {
+		return new ApplicationMulticastGroup();
 	}
 
 	@Bean
-	public LoadBalancer<String> multicastLoadBalancer(RedisConnectionFactory connectionFactory) {
+	public LoadBalancer multicastLoadBalancer(RedisConnectionFactory connectionFactory) {
 		final String name = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter:multicast";
-		return new ClusterMulticastLoadBalancer(name, connectionFactory);
+		return new ApplicationClusterLoadBalancer(name, connectionFactory);
 	}
 
 	@Bean
