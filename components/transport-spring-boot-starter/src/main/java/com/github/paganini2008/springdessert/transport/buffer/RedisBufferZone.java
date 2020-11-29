@@ -83,7 +83,7 @@ public class RedisBufferZone implements BufferZone, BeanLifeCycle {
 
 	protected String keyFor(String collectionName) {
 		return MapUtils.get(keyMapper, collectionName, () -> {
-			return String.format(DEFAULT_KEY_FORMAT, clusterName, hashed ? ":" + instanceId.get() : "");
+			return String.format(DEFAULT_KEY_FORMAT, clusterName, collectionName, (hashed ? ":" + instanceId.get() : ""));
 		});
 	}
 

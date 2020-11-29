@@ -3,9 +3,10 @@ package com.github.paganini2008.springdessert.cluster.http;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 
 /**
  * 
@@ -20,8 +21,9 @@ public class LoadBalanceRoutingPolicy implements RoutingPolicy {
 	@Autowired
 	private RegistryCenter registryCenter;
 
+	@Qualifier("applicationClusterLoadBalancer")
 	@Autowired
-	private ApplicationClusterLoadBalancer loadBalancer;
+	private LoadBalancer loadBalancer;
 
 	@Override
 	public String extractUrl(String provider, String path) {

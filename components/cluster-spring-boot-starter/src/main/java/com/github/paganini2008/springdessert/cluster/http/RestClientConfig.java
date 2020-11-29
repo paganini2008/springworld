@@ -17,6 +17,7 @@ import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.LeaderRecoveryCallback;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
+import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 
 /**
  * 
@@ -39,7 +40,7 @@ public class RestClientConfig {
 	}
 
 	@Bean
-	public ApplicationClusterLoadBalancer applicationClusterLoadBalancer(RedisConnectionFactory connectionFactory) {
+	public LoadBalancer applicationClusterLoadBalancer(RedisConnectionFactory connectionFactory) {
 		final String name = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter";
 		return new ApplicationClusterLoadBalancer(name, connectionFactory);
 	}

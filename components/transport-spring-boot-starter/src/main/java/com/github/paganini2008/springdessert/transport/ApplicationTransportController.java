@@ -11,9 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.StringUtils;
@@ -56,8 +55,8 @@ public class ApplicationTransportController {
 	@Value("${spring.application.transport.httpserver.hostUrl:}")
 	private String hostUrl;
 
-	@PostMapping("/send")
-	public ResponseEntity<String> send(@RequestBody String message) {
+	@GetMapping("/send")
+	public ResponseEntity<String> send(@RequestParam("message") String message) {
 		Tuple data = Tuple.byString(message);
 		nioClient.send(data, partitioner);
 		return ResponseEntity.ok("ok");
@@ -72,8 +71,7 @@ public class ApplicationTransportController {
 		String location;
 		for (Object data : dataList) {
 			applicationInfo = (ApplicationInfo) data;
-			location = StringUtils.isNotBlank(hostUrl) ? hostUrl + PATH_API
-					: applicationInfo.getApplicationContextPath() + PATH_API;
+			location = StringUtils.isNotBlank(hostUrl) ? hostUrl + PATH_API : applicationInfo.getApplicationContextPath() + PATH_API;
 			locations.add(location);
 		}
 		return ResponseEntity.ok(locations.toArray(new String[0]));

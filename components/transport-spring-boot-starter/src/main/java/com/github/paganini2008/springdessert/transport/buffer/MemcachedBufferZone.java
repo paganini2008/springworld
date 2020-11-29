@@ -40,7 +40,7 @@ public class MemcachedBufferZone implements BufferZone {
 
 	@Autowired
 	private MemcachedTemplate memcachedOperations;
-	
+
 	private final Map<String, String> keyMapper = new ConcurrentHashMap<String, String>();
 
 	@Override
@@ -70,10 +70,10 @@ public class MemcachedBufferZone implements BufferZone {
 		}
 		return total;
 	}
-	
+
 	protected String keyFor(String collectionName) {
 		return MapUtils.get(keyMapper, collectionName, () -> {
-			return String.format(DEFAULT_KEY_FORMAT, clusterName, hashed ? ":" + instanceId.get() : "");
+			return String.format(DEFAULT_KEY_FORMAT, clusterName, collectionName, (hashed ? ":" + instanceId.get() : ""));
 		});
 	}
 
