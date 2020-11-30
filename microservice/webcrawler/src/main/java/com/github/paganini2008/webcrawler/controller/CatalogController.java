@@ -40,10 +40,16 @@ public class CatalogController {
 		return Response.success("Delete OK.");
 	}
 
-	@GetMapping("/{id}/crawl")
+	@PostMapping("/{id}/crawl")
 	public Response crawl(@PathVariable("id") Long catalogId) {
 		crawlerLauncher.submit(catalogId);
-		return Response.success("Job will be triggered soon.");
+		return Response.success("Crawling Job will be triggered soon.");
+	}
+
+	@PostMapping("/{id}/update")
+	public Response update(@PathVariable("id") Long catalogId) {
+		crawlerLauncher.update(catalogId);
+		return Response.success("Crawling Job will be triggered soon.");
 	}
 
 	@PostMapping("/save")

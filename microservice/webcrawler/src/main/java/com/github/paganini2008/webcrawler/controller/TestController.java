@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.paganini2008.springdessert.webcrawler.PathFilter;
+import com.github.paganini2008.springdessert.webcrawler.PathFilterFactory;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
 import com.github.paganini2008.xtransport.NioClient;
 import com.github.paganini2008.xtransport.Partitioner;
@@ -18,11 +20,10 @@ import com.github.paganini2008.xtransport.Tuple;
 /**
  * 
  * TestController
- * 
+ *
  * @author Fred Feng
  * 
- * 
- * @version 1.0
+ * @since 1.0
  */
 @RestController
 public class TestController {
@@ -32,6 +33,17 @@ public class TestController {
 
 	@Autowired
 	private Partitioner partitioner;
+	
+	@Autowired
+	private PathFilterFactory pathFilterFactory;
+	
+	@GetMapping("/testExists")
+	public Map<String, Object> testExists(@RequestParam("q") String q){
+		PathFilter pathFilter = pathFilterFactory.getPathFilter("test");
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("exists", pathFilter.mightExist(q));
+		return data;
+	}
 
 	@GetMapping("/index")
 	public Map<String, Object> echo() {

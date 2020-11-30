@@ -36,7 +36,7 @@ public final class CrawlerLauncher {
 	@Autowired
 	private PathFilterFactory pathFilterFactory;
 
-	@Value("${webcrawler.indexer.enabled:true}")
+	@Value("${webcrawler.indexer.enabled:false}")
 	private boolean indexEnabled;
 
 	public void rebuild(long catalogId) {
@@ -49,6 +49,18 @@ public final class CrawlerLauncher {
 		Catalog catalog = resourceManager.getCatalog(catalogId);
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("action", "crawl");
+		data.put("catalogId", catalog.getId());
+		data.put("refer", catalog.getUrl());
+		data.put("path", catalog.getUrl());
+		data.put("type", catalog.getType());
+		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
+		nioClient.send(Tuple.wrap(data), partitioner);
+	}
+	
+	public void update(long catalogId) {
+		Catalog catalog = resourceManager.getCatalog(catalogId);
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("action", "update");
 		data.put("catalogId", catalog.getId());
 		data.put("refer", catalog.getUrl());
 		data.put("path", catalog.getUrl());

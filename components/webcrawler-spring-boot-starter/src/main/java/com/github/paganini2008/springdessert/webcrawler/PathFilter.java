@@ -8,6 +8,8 @@ package com.github.paganini2008.springdessert.webcrawler;
  * @since 1.0
  */
 public interface PathFilter {
+	
+	void update(String content);
 
 	boolean mightExist(String content);
 

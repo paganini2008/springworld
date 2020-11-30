@@ -11,7 +11,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
@@ -36,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CrawlerHandler implements Handler {
 
-	private static final String UNIQUE_PATH_IDENTIFIER = "%s$%s$%s$%s";
+	private static final String UNIQUE_PATH_IDENTIFIER = "%s|%s|%s|%s";
 
 	@Autowired
 	private PageExtractor pageExtractor;
@@ -92,6 +91,9 @@ public class CrawlerHandler implements Handler {
 			case "crawl":
 				doCrawl(tuple);
 				break;
+			case "update":
+				doUpdate(tuple);
+				break;
 			case "index":
 				doIndex(tuple);
 				break;
@@ -103,6 +105,8 @@ public class CrawlerHandler implements Handler {
 		if (finishCondition.couldFinish(tuple)) {
 			return;
 		}
+
+		final String action = (String) tuple.getField("action");
 		final long catalogId = (Long) tuple.getField("catalogId");
 		final String refer = (String) tuple.getField("refer");
 		final String path = (String) tuple.getField("path");
@@ -114,6 +118,11 @@ public class CrawlerHandler implements Handler {
 		if (pathFilter.mightExist(pathIdentifier)) {
 			return;
 		}
+		pathFilter.update(pathIdentifier);
+		if (log.isTraceEnabled()) {
+			log.trace("Handle refer: {}, path: {}", refer, path);
+		}
+
 		String html = null;
 		try {
 			html = pageExtractor.extractHtml(path);
@@ -121,10 +130,15 @@ public class CrawlerHandler implements Handler {
 			log.error(e.getMessage(), e);
 		}
 		if (StringUtils.isBlank(html)) {
+			if (refer.equals(path)) {
+				log.warn("Blank Html! Refer: {}", refer);
+			}
 			return;
 		}
-		Document document = Jsoup.parse(html);
-		if (document == null) {
+		Document document;
+		try {
+			document = Jsoup.parse(html);
+		} catch (Exception ignored) {
 			return;
 		}
 
@@ -156,7 +170,82 @@ public class CrawlerHandler implements Handler {
 					href = refer + href;
 				}
 				if (StringUtils.isNotBlank(href) && acceptedPath(refer, href, tuple)) {
-					sendRecursively(catalogId, refer, href, type, version, pathFilter);
+					sendRecursively(action, catalogId, refer, href, type, version, pathFilter);
+				}
+			}
+		}
+	}
+
+	private void doUpdate(Tuple tuple) {
+		if (finishCondition.couldFinish(tuple)) {
+			return;
+		}
+		final String action = (String) tuple.getField("action");
+		final long catalogId = (Long) tuple.getField("catalogId");
+		final String refer = (String) tuple.getField("refer");
+		final String path = (String) tuple.getField("path");
+		final String type = (String) tuple.getField("type");
+		final int version = (Integer) tuple.getField("version");
+		if (log.isTraceEnabled()) {
+			log.trace("Handle refer: {}, path: {}", refer, path);
+		}
+
+		String html = null;
+		try {
+			html = pageExtractor.extractHtml(path);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		if (StringUtils.isBlank(html)) {
+			if (refer.equals(path)) {
+				log.warn("Blank Html! Refer: {}", refer);
+			}
+			return;
+		}
+
+		Document document;
+		try {
+			document = Jsoup.parse(html);
+		} catch (Exception ignored) {
+			return;
+		}
+
+		PathFilter pathFilter = getPathFilter(catalogId);
+		String pathIdentifier = String.format(UNIQUE_PATH_IDENTIFIER, catalogId, refer, path, version);
+		if (!pathFilter.mightExist(pathIdentifier)) {
+			pathFilter.update(pathIdentifier);
+			
+			Resource resource = new Resource();
+			resource.setTitle(document.title());
+			resource.setHtml(document.html());
+			resource.setUrl(path);
+			resource.setType(type);
+			resource.setCreateTime(new Date());
+			resource.setVersion(version);
+			resource.setCatalogId(catalogId);
+			resourceManager.saveResource(resource);
+			if (log.isTraceEnabled()) {
+				log.trace("Save resource: " + resource);
+			}
+			if (indexEnabled) {
+				sendIndex(catalogId, resource.getId(), version);
+			}
+		}
+
+		Elements elements = document.body().select("a");
+		if (CollectionUtils.isNotEmpty(elements)) {
+			String href;
+			for (Element element : elements) {
+				href = element.absUrl("href");
+				if (StringUtils.isBlank(href)) {
+					href = element.attr("href");
+					if (!href.startsWith("/")) {
+						href = "/" + href;
+					}
+					href = refer + href;
+				}
+				if (StringUtils.isNotBlank(href) && acceptedPath(refer, href, tuple)) {
+					sendRecursively(action, catalogId, refer, href, type, version, pathFilter);
 				}
 			}
 		}
@@ -171,9 +260,6 @@ public class CrawlerHandler implements Handler {
 		int version = (Integer) tuple.getField("version");
 		Resource resource = resourceManager.getResource(resourceId);
 		indexService.index(catalog, resource, false, version);
-		if (log.isTraceEnabled()) {
-			log.trace("Index resource: " + resource.toString());
-		}
 	}
 
 	private boolean acceptedPath(String refer, String path, Tuple tuple) {
@@ -203,11 +289,12 @@ public class CrawlerHandler implements Handler {
 		return n <= depth;
 	}
 
-	private void sendRecursively(long catalogId, String refer, String path, String type, int version, PathFilter pathFilter) {
+	private void sendRecursively(String action, long catalogId, String refer, String path, String type, int version,
+			PathFilter pathFilter) {
 		String pathIdentifier = String.format(UNIQUE_PATH_IDENTIFIER, catalogId, refer, path, version);
 		if (!pathFilter.mightExist(pathIdentifier)) {
 			Tuple tuple = Tuple.newOne();
-			tuple.setField("action", "crawl");
+			tuple.setField("action", action);
 			tuple.setField("catalogId", catalogId);
 			tuple.setField("refer", refer);
 			tuple.setField("path", path);
