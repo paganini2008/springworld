@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springdessert.webcrawler.index.IndexedResourceService;
-import com.github.paganini2008.springdessert.webcrawler.index.SearchResult;
+import com.github.paganini2008.springdessert.webcrawler.es.IndexedResourceService;
+import com.github.paganini2008.springdessert.webcrawler.es.SearchResult;
 import com.github.paganini2008.webcrawler.utils.PageBean;
 import com.github.paganini2008.webcrawler.utils.Response;
 

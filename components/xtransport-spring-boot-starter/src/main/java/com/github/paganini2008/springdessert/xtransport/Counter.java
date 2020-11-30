@@ -48,7 +48,7 @@ public final class Counter extends RedisCounter implements Executable {
 
 	public void stop() {
 		running.set(false);
-		destroy();
+		super.destroy();
 	}
 
 	public long tps(boolean total) {

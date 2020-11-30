@@ -22,20 +22,20 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * GlobalErrorEndPoint
+ * ErrorPageController
  * 
  * @author Fred Feng
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Slf4j
 @RestController
-public class GlobalErrorEndPoint extends AbstractErrorController {
+public class ErrorPageController extends AbstractErrorController {
 
 	private static final String ERROR_PATH = "/error";
 
 	@Autowired
-	public GlobalErrorEndPoint(ErrorAttributes errorAttributes) {
+	public ErrorPageController(ErrorAttributes errorAttributes) {
 		super(errorAttributes);
 	}
 

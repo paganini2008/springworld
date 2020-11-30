@@ -2,6 +2,7 @@ package com.github.paganini2008.webcrawler.config;
 
 import java.time.Duration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +13,7 @@ import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -28,16 +27,15 @@ import redis.clients.jedis.JedisPoolConfig;
 /**
  * 
  * RedisConfig
- *
+ * 
  * @author Fred Feng
- * 
- * 
- * @version 1.0
+ *
+ * @since 1.0
  */
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "webanchor.redis")
+@ConfigurationProperties(prefix = "webcrawler.redis")
 public class RedisConfig {
 
 	private String host;
@@ -52,16 +50,19 @@ public class RedisConfig {
 		redisStandaloneConfiguration.setPort(port);
 		redisStandaloneConfiguration.setDatabase(dbIndex);
 		redisStandaloneConfiguration.setPassword(RedisPassword.of(password));
-		JedisClientConfiguration.JedisClientConfigurationBuilder jedisClientConfiguration = JedisClientConfiguration.builder();
-		jedisClientConfiguration.connectTimeout(Duration.ofMillis(60000)).readTimeout(Duration.ofMillis(60000)).usePooling()
-				.poolConfig(jedisPoolConfig());
-		JedisConnectionFactory factory = new JedisConnectionFactory(redisStandaloneConfiguration, jedisClientConfiguration.build());
+		JedisClientConfiguration.JedisClientConfigurationBuilder jedisClientConfiguration = JedisClientConfiguration
+				.builder();
+		jedisClientConfiguration.connectTimeout(Duration.ofMillis(60000)).readTimeout(Duration.ofMillis(60000))
+				.usePooling().poolConfig(jedisPoolConfig());
+		JedisConnectionFactory factory = new JedisConnectionFactory(redisStandaloneConfiguration,
+				jedisClientConfiguration.build());
 		return factory;
 	}
 
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
+		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(
+				Object.class);
 		ObjectMapper om = new ObjectMapper();
 		om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
 		om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
@@ -77,6 +78,7 @@ public class RedisConfig {
 		return redisTemplate;
 	}
 
+	@ConditionalOnMissingBean
 	@Bean
 	public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		return new StringRedisTemplate(redisConnectionFactory);
@@ -91,16 +93,5 @@ public class RedisConfig {
 		jedisPoolConfig.setMaxWaitMillis(-1);
 		jedisPoolConfig.setTestWhileIdle(true);
 		return jedisPoolConfig;
-	}
-
-	@Bean("bigint")
-	public RedisTemplate<String, Long> bigintRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-		RedisTemplate<String, Long> redisTemplate = new RedisTemplate<String, Long>();
-		redisTemplate.setKeySerializer(RedisSerializer.string());
-		redisTemplate.setValueSerializer(new GenericToStringSerializer<Long>(Long.class));
-		redisTemplate.setExposeConnection(true);
-		redisTemplate.setConnectionFactory(redisConnectionFactory);
-		redisTemplate.afterPropertiesSet();
-		return redisTemplate;
 	}
 }

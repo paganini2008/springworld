@@ -15,7 +15,6 @@ import com.github.paganini2008.springdessert.xmemcached.MemcachedTemplateBuilder
 import com.github.paganini2008.springdessert.xmemcached.serializer.FstMemcachedSerializer;
 import com.github.paganini2008.springdessert.xmemcached.serializer.MemcachedSerializer;
 import com.github.paganini2008.springdessert.xtransport.buffer.BufferZone;
-import com.github.paganini2008.springdessert.xtransport.buffer.KafkaBufferZone;
 import com.github.paganini2008.springdessert.xtransport.buffer.MemcachedBufferZone;
 import com.github.paganini2008.springdessert.xtransport.buffer.RedisBufferZone;
 import com.github.paganini2008.springdessert.xtransport.transport.EmbeddedChannelEventListener;
@@ -73,11 +72,12 @@ public class TransportServerConfiguration {
 		return new FstSerializer();
 	}
 
-	@Bean(destroyMethod = "stop")
+	@Bean
 	public TupleLoopProcessor tupleLoopProcessor() {
 		return new TupleLoopProcessor();
 	}
 
+	@ConditionalOnMissingBean
 	@Bean
 	public Partitioner partitioner() {
 		return new RoundRobinPartitioner();
@@ -104,17 +104,10 @@ public class TransportServerConfiguration {
 		return new Counter(name, redisConnectionFactory);
 	}
 
-	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "redis", matchIfMissing = true)
+	@ConditionalOnMissingBean
 	@Bean
 	public BufferZone redisBufferZone() {
 		return new RedisBufferZone();
-	}
-
-	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "kafka")
-	@Bean
-	public BufferZone kafkaBufferZone() {
-		return new KafkaBufferZone();
-
 	}
 
 	/**

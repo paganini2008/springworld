@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webcrawler.index;
+package com.github.paganini2008.springdessert.webcrawler.es;
 
 import java.io.Serializable;
 

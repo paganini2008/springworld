@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "webanchor.datasource")
+@ConfigurationProperties(prefix = "webcrawler.datasource")
 public class DataSourceConfig {
 
 	private String jdbcUrl;
@@ -49,7 +49,7 @@ public class DataSourceConfig {
 		config.setIdleTimeout(60 * 1000);
 		config.setValidationTimeout(3000);
 		config.setReadOnly(false);
-		config.setConnectionInitSql("SELECT UUID()");
+		config.setConnectionInitSql("SELECT 1");
 		config.setConnectionTestQuery("SELECT 1");
 		config.setConnectionTimeout(60 * 1000);
 		config.setTransactionIsolation("TRANSACTION_READ_COMMITTED");

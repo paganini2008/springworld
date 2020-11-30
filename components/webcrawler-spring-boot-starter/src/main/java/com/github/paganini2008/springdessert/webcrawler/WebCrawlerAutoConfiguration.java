@@ -5,10 +5,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
+import com.github.paganini2008.springdessert.webcrawler.es.IndexedResourceService;
 import com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger;
 import com.github.paganini2008.xtransport.HashPartitioner;
 import com.github.paganini2008.xtransport.Partitioner;
@@ -21,6 +24,7 @@ import com.github.paganini2008.xtransport.RoundRobinPartitioner;
  * @author Fred Feng
  * @since 1.0
  */
+@EnableElasticsearchRepositories("com.github.paganini2008.springdessert.webcrawler.es")
 @Configuration
 public class WebCrawlerAutoConfiguration {
 
@@ -30,6 +34,11 @@ public class WebCrawlerAutoConfiguration {
 	@Bean
 	public CrawlerLauncher crawlerLauncher() {
 		return new CrawlerLauncher();
+	}
+
+	@Bean
+	public PathFilterFactory pathFilterFactory(StringRedisTemplate redisTemplate) {
+		return new BloomFilterPathFilterFactory(redisTemplate);
 	}
 
 	@Primary
@@ -50,13 +59,14 @@ public class WebCrawlerAutoConfiguration {
 	}
 
 	@ConditionalOnMissingBean
+	@Bean
 	public PageExtractor pageExtractor() {
 		return new HtmlUnitPageExtractor();
 	}
 
 	@ConditionalOnMissingBean
 	@Bean
-	public IdGenerator globalIdGenerator(RedisConnectionFactory connectionFactory) {
+	public IdGenerator timestampIdGenerator(RedisConnectionFactory connectionFactory) {
 		final String keyPrefix = "id:webcrawler:" + applicationName + ":";
 		return new TimestampIdGenerator(keyPrefix, connectionFactory);
 	}
@@ -73,6 +83,11 @@ public class WebCrawlerAutoConfiguration {
 	@Bean
 	public PathAcceptor pathAcceptor() {
 		return new DefaultPathAcceptor();
+	}
+
+	@Bean
+	public IndexedResourceService indexedResourceService() {
+		return new IndexedResourceService();
 	}
 
 }

@@ -1,7 +1,7 @@
-package com.github.paganini2008.springdessert.webcrawler.index;
+package com.github.paganini2008.springdessert.webcrawler.es;
 
-import static com.github.paganini2008.springdessert.webcrawler.index.SearchResult.SEARCH_FIELD_SOURCE;
-import static com.github.paganini2008.springdessert.webcrawler.index.SearchResult.SEARCH_FIELD_VERSION;
+import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_SOURCE;
+import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_VERSION;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -10,7 +10,6 @@ import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.DeleteQuery;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
 import com.github.paganini2008.devtools.date.Duration;
@@ -33,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-@Component
 public class IndexedResourceService {
 
 	@Autowired

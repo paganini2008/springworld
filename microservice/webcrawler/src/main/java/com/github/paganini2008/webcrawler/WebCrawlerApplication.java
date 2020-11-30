@@ -18,7 +18,7 @@ import com.github.paganini2008.springdessert.jdbc.annotations.DaoScan;
  */
 @DaoScan(basePackages = "com.github.paganini2008.springdessert.webcrawler.jdbc")
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.github.paganini2008.webcrawler" })
+@ComponentScan(basePackages = { "com.github.paganini2008.webcrawler"})
 public class WebCrawlerApplication {
 
 	static {

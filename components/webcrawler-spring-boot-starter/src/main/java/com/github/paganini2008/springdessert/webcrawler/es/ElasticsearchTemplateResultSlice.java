@@ -1,8 +1,8 @@
-package com.github.paganini2008.springdessert.webcrawler.index;
+package com.github.paganini2008.springdessert.webcrawler.es;
 
-import static com.github.paganini2008.springdessert.webcrawler.index.SearchResult.SEARCH_FIELD_CONTENT;
-import static com.github.paganini2008.springdessert.webcrawler.index.SearchResult.SEARCH_FIELD_TITLE;
-import static com.github.paganini2008.springdessert.webcrawler.index.SearchResult.SEARCH_FIELD_VERSION;
+import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_CONTENT;
+import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_TITLE;
+import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_VERSION;
 
 import java.util.ArrayList;
 import java.util.List;

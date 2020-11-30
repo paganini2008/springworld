@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.springdessert.webcrawler.index.IndexedResourceService;
+import com.github.paganini2008.springdessert.webcrawler.es.IndexedResourceService;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
 import com.github.paganini2008.springdessert.webcrawler.model.Resource;
 import com.github.paganini2008.springdessert.xtransport.Handler;

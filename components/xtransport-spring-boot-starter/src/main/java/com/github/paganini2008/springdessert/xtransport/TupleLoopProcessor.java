@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -32,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class TupleLoopProcessor implements Runnable, ApplicationListener<ContextRefreshedEvent>, BeanPostProcessor {
+public class TupleLoopProcessor implements Runnable, ApplicationListener<ContextRefreshedEvent>, BeanPostProcessor, DisposableBean {
 
 	@Autowired
 	private BufferZone bufferZone;
@@ -114,6 +115,11 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		startDaemon();
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		stop();
 	}
 
 	@Override
