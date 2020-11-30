@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
 import com.github.paganini2008.springdessert.webcrawler.model.CatalogIndex;
-import com.github.paganini2008.transport.NioClient;
-import com.github.paganini2008.transport.Partitioner;
-import com.github.paganini2008.transport.Tuple;
+import com.github.paganini2008.xtransport.NioClient;
+import com.github.paganini2008.xtransport.Partitioner;
+import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 

@@ -19,7 +19,7 @@
 		<module>reditools-spring-boot-starter</module>
 		<module>cluster-spring-boot-starter</module>
 		<module>cached-spring-boot-starter</module>
-		<module>transport-spring-boot-starter</module>
+		<module>xtransport-spring-boot-starter</module>
 		<module>jdbc-spring-boot-starter</module>
 		<module>xmemcached-spring-boot-starter</module>
 		<module>webcrawler-spring-boot-starter</module>

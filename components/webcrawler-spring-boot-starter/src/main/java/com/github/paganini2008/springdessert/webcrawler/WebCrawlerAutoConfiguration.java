@@ -10,9 +10,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 import com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger;
-import com.github.paganini2008.transport.HashPartitioner;
-import com.github.paganini2008.transport.Partitioner;
-import com.github.paganini2008.transport.RoundRobinPartitioner;
+import com.github.paganini2008.xtransport.HashPartitioner;
+import com.github.paganini2008.xtransport.Partitioner;
+import com.github.paganini2008.xtransport.RoundRobinPartitioner;
 
 /**
  * 

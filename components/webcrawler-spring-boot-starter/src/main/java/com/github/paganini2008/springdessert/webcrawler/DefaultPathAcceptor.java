@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
-import com.github.paganini2008.transport.Tuple;
+import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 

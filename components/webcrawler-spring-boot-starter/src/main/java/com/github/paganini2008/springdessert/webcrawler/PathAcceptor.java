@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
-import com.github.paganini2008.transport.Tuple;
+import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 

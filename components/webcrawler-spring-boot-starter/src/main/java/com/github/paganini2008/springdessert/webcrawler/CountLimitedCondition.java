@@ -8,7 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.support.atomic.RedisAtomicInteger;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.transport.Tuple;
+import com.github.paganini2008.xtransport.Tuple;
 
 import lombok.extern.slf4j.Slf4j;
 

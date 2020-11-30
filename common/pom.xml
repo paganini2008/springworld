@@ -12,7 +12,7 @@
     <artifactId>common</artifactId>
 	
     <modules>
-		<module>transport-client</module>
+		<module>transport-common</module>
 		<module>embedded-io</module>
     </modules>
 	
