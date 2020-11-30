@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webanchor.config;
+package com.github.paganini2008.webcrawler.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webanchor.utils;
+package com.github.paganini2008.webcrawler.utils;
 
 import java.util.HashMap;
 

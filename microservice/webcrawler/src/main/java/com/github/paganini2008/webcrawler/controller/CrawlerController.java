@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webanchor.controller;
+package com.github.paganini2008.webcrawler.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.jdbc.PageResponse;
-import com.github.paganini2008.springdessert.webanchor.utils.PageBean;
-import com.github.paganini2008.springdessert.webanchor.utils.Response;
 import com.github.paganini2008.springdessert.webcrawler.CrawlerLauncher;
 import com.github.paganini2008.springdessert.webcrawler.PageExtractor;
 import com.github.paganini2008.springdessert.webcrawler.ResourceManager;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
+import com.github.paganini2008.webcrawler.utils.PageBean;
+import com.github.paganini2008.webcrawler.utils.Response;
 
 /**
  * 

@@ -15,7 +15,7 @@
     <modules>
 		<module>jobsoup-ui</module>
 		<module>jobsoup-remote</module>
-		<module>webanchor</module>
+		<module>webcrawler</module>
     </modules>
 
 	

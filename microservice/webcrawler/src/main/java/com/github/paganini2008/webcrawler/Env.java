@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webanchor;
+package com.github.paganini2008.webcrawler;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;

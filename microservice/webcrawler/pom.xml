@@ -9,10 +9,10 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>webanchor</artifactId>
+	<artifactId>webcrawler</artifactId>
 	<packaging>jar</packaging>
 
-	<name>webanchor</name>
+	<name>webcrawler</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>

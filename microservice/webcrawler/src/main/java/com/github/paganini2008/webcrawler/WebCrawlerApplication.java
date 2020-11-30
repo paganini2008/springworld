@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.webanchor;
+package com.github.paganini2008.webcrawler;
 
 import java.io.File;
 
@@ -11,15 +11,15 @@ import com.github.paganini2008.springdessert.jdbc.annotations.DaoScan;
 
 /**
  * 
- * WebAnchorApplication
+ * WebCrawlerApplication
  *
  * @author Fred Feng
  * @since 1.0
  */
 @DaoScan(basePackages = "com.github.paganini2008.springdessert.webcrawler.jdbc")
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.github.paganini2008.springdessert.webanchor" })
-public class WebAnchorApplication {
+@ComponentScan(basePackages = { "com.github.paganini2008.webcrawler" })
+public class WebCrawlerApplication {
 
 	static {
 		System.setProperty("spring.devtools.restart.enabled", "false");
@@ -37,7 +37,7 @@ public class WebAnchorApplication {
 		int port = 8021;
 		System.out.println("Server Port: " + port);
 		System.setProperty("server.port", String.valueOf(port));
-		SpringApplication.run(WebAnchorApplication.class, args);
+		SpringApplication.run(WebCrawlerApplication.class, args);
 		System.out.println(Env.getPid());
 	}
 }

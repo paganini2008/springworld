@@ -1,6 +1,6 @@
-package com.github.paganini2008.springdessert.webanchor.config;
+package com.github.paganini2008.webcrawler.config;
 
-import static com.github.paganini2008.springdessert.webanchor.Constants.REQUEST_ATTRIBUTE_START_TIME;
+import static com.github.paganini2008.webcrawler.Constants.REQUEST_ATTRIBUTE_START_TIME;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import com.github.paganini2008.springdessert.webanchor.utils.Response;
+import com.github.paganini2008.webcrawler.utils.Response;
 
 import lombok.extern.slf4j.Slf4j;
 
