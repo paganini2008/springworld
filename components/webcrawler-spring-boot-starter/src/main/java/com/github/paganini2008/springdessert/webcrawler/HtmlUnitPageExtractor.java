@@ -83,7 +83,7 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 		HtmlUnitPageExtractor pageSource = new HtmlUnitPageExtractor();
 		pageSource.configure();
 		// System.out.println(pageSource.getHtml("https://blog.csdn.net/u010814849/article/details/52526705"));
-		System.out.println(pageSource.extractHtml("http://www.ttmeishi.com/CaiXi/tese/"));
+		System.out.println(pageSource.extractHtml("https://gny.ly.com/line/t3j1p1137406c321.html?dk=EE9B7E7003DCE18A36C92D38C527C10AA9E1D53C8764A23A"));
 		System.in.read();
 		pageSource.destroy();
 	}

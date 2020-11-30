@@ -98,9 +98,15 @@ public class TransportServerConfiguration {
 		return new ProcessLogging();
 	}
 
-	@Bean(initMethod = "start", destroyMethod = "stop")
-	public Counter counter(RedisConnectionFactory redisConnectionFactory) {
-		final String name = String.format("spring:application:cluster:%s:transport:counter", clusterName);
+	@Bean(name = "consumer", initMethod = "start", destroyMethod = "stop")
+	public Counter consumer(RedisConnectionFactory redisConnectionFactory) {
+		final String name = String.format("spring:application:cluster:%s:transport:counter:consumer", clusterName);
+		return new Counter(name, redisConnectionFactory);
+	}
+
+	@Bean(name = "producer", initMethod = "start", destroyMethod = "stop")
+	public Counter producer(RedisConnectionFactory redisConnectionFactory) {
+		final String name = String.format("spring:application:cluster:%s:transport:counter:producer", clusterName);
 		return new Counter(name, redisConnectionFactory);
 	}
 

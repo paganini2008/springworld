@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-@Component
 public class CrawlerHandler implements Handler {
 
 	private static final String UNIQUE_PATH_IDENTIFIER = "%s$%s$%s$%s";
@@ -139,7 +138,7 @@ public class CrawlerHandler implements Handler {
 		resource.setCatalogId(catalogId);
 		resourceManager.saveResource(resource);
 		if (log.isTraceEnabled()) {
-			log.trace("Save: " + resource);
+			log.trace("Save resource: " + resource);
 		}
 		if (indexEnabled) {
 			sendIndex(catalogId, resource.getId(), version);
@@ -172,7 +171,9 @@ public class CrawlerHandler implements Handler {
 		int version = (Integer) tuple.getField("version");
 		Resource resource = resourceManager.getResource(resourceId);
 		indexService.index(catalog, resource, false, version);
-		log.info("Index: " + resource.toString());
+		if (log.isTraceEnabled()) {
+			log.trace("Index resource: " + resource.toString());
+		}
 	}
 
 	private boolean acceptedPath(String refer, String path, Tuple tuple) {

@@ -3,6 +3,7 @@ package com.github.paganini2008.springdessert.xtransport.transport;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springdessert.xtransport.Counter;
@@ -27,6 +28,7 @@ public class MinaServerHandler extends IoHandlerAdapter {
 	@Autowired
 	private BufferZone bufferZone;
 	
+	@Qualifier("producer")
 	@Autowired
 	private Counter counter;
 

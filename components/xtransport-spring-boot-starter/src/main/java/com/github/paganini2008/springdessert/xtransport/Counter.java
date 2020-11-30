@@ -36,6 +36,11 @@ public final class Counter extends RedisCounter implements Executable {
 		super.incrementAndGet();
 	}
 
+	public void incrementCount(int value) {
+		counter.addAndGet(value);
+		super.addAndGet(value);
+	}
+
 	public long get(boolean total) {
 		return total ? super.get() : counter.get();
 	}
@@ -71,6 +76,13 @@ public final class Counter extends RedisCounter implements Executable {
 			increment = current;
 		}
 		return running.get();
+	}
+
+	public String toString() {
+		StringBuilder str = new StringBuilder("<Counter>");
+		str.append(" count: ").append(get(false) + "/" + get(true));
+		str.append(", tps: ").append(tps(false) + "/" + tps(true));
+		return str.toString();
 	}
 
 }

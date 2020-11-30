@@ -3,6 +3,7 @@ package com.github.paganini2008.springdessert.xtransport.transport;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.embeddedio.Channel;
@@ -11,9 +12,9 @@ import com.github.paganini2008.embeddedio.MessagePacket;
 import com.github.paganini2008.springdessert.xtransport.Counter;
 import com.github.paganini2008.springdessert.xtransport.buffer.BufferZone;
 import com.github.paganini2008.xtransport.ChannelEvent;
+import com.github.paganini2008.xtransport.ChannelEvent.EventType;
 import com.github.paganini2008.xtransport.ChannelEventListener;
 import com.github.paganini2008.xtransport.Tuple;
-import com.github.paganini2008.xtransport.ChannelEvent.EventType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +31,7 @@ public class EmbeddedServerHandler implements ChannelHandler {
 	@Autowired
 	private BufferZone store;
 
+	@Qualifier("producer")
 	@Autowired
 	private Counter counter;
 

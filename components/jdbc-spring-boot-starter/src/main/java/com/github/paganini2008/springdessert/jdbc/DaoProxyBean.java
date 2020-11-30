@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -31,7 +32,6 @@ import com.github.paganini2008.devtools.beans.PropertyUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.converter.ConvertUtils;
-import com.github.paganini2008.devtools.jdbc.DefaultPageableSql;
 import com.github.paganini2008.devtools.jdbc.PageableSql;
 import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
 import com.github.paganini2008.springdessert.jdbc.annotations.Arg;
@@ -52,6 +52,7 @@ import com.github.paganini2008.springdessert.jdbc.annotations.Update;
 @SuppressWarnings("all")
 public class DaoProxyBean<T> extends EnhancedJdbcDaoSupport implements InvocationHandler {
 
+	private final LocalVariableTableParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 	private final Class<T> interfaceClass;
 	protected final Logger log;
 
@@ -198,6 +199,7 @@ public class DaoProxyBean<T> extends EnhancedJdbcDaoSupport implements Invocatio
 	}
 
 	private SqlParameterSource getSqlParameterSource(Method method, Object[] args) {
+
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		Parameter[] methodParameters = method.getParameters();
 		Parameter methodParameter;

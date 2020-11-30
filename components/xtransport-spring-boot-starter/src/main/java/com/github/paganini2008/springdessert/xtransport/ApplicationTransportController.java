@@ -3,7 +3,9 @@ package com.github.paganini2008.springdessert.xtransport;
 import static com.github.paganini2008.xtransport.Constants.SPRING_TRANSPORT_CLUSTER_NAMESPACE;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,23 +45,39 @@ public class ApplicationTransportController {
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
-
 	@Autowired
 	private NioClient nioClient;
 
 	@Autowired
 	private Partitioner partitioner;
 
+	@Qualifier("producer")
+	@Autowired
+	private Counter producer;
+
+	@Qualifier("consumer")
+	@Autowired
+	private Counter consumer;
+
 	@Value("${spring.application.transport.httpserver.hostUrl:}")
 	private String hostUrl;
+
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
 
 	@GetMapping("/send")
 	public ResponseEntity<String> send(@RequestParam("message") String message) {
 		Tuple data = Tuple.byString(message);
 		nioClient.send(data, partitioner);
-		return ResponseEntity.ok("ok");
+		return ResponseEntity.ok(message);
+	}
+
+	@GetMapping("/tps")
+	public ResponseEntity<Map<String, Object>> tps() {
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("producer", new Object[] { producer.tps(false), producer.tps(true) });
+		data.put("consumer", new Object[] { consumer.tps(false), consumer.tps(true) });
+		return ResponseEntity.ok(data);
 	}
 
 	@GetMapping("/http/services")

@@ -40,6 +40,11 @@ public class WebCrawlerAutoConfiguration {
 	public PathFilterFactory pathFilterFactory(StringRedisTemplate redisTemplate) {
 		return new BloomFilterPathFilterFactory(redisTemplate);
 	}
+	
+	@Bean
+	public CrawlerHandler crawlerHandler() {
+		return new CrawlerHandler();
+	}
 
 	@Primary
 	@Bean

@@ -30,10 +30,10 @@ public interface CatalogIndexDao {
 	int updateCatalogIndex(@Example CatalogIndex catalogIndex);
 
 	@Get(SQL_CATALOG_INDEX_SELECT_ONE)
-	CatalogIndex getCatalogIndex(@Arg long catalogId);
+	CatalogIndex getCatalogIndex(@Arg("catalogId") long catalogId);
 
 	@Update(SQL_CATALOG_INDEX_VERSION_INCREMENT)
-	int incrementCatalogIndexVersion(@Arg long catalogId);
+	int incrementCatalogIndexVersion(@Arg("catalogId") long catalogId);
 
 	@Get(value = SQL_CATALOG_INDEX_MAX_VERSION, javaType = true)
 	int maximunVersionOfCatalogIndex();

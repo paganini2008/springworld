@@ -28,12 +28,12 @@ public interface ResourceDao {
 	int saveResource(@Example Resource resource);
 
 	@Get(SQL_RESOURCE_SELECT_ONE)
-	Resource getResource(@Arg long id);
+	Resource getResource(@Arg("id") long id);
 
 	@Query(SQL_RESOURCE_SELECT_FOR_INDEX)
-	ResultSetSlice<Resource> queryForResourceForIndex(@Arg long catalogId);
+	ResultSetSlice<Resource> queryForResourceForIndex(@Arg("catalogId") long catalogId);
 
 	@Update(SQL_RESOURCE_VERSION_UPDATE)
-	int updateResourceVersion(@Arg long catalogId, @Arg int version);
+	int updateResourceVersion(@Arg("catalogId") long catalogId, @Arg("version") int version);
 
 }

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationListener;
@@ -40,6 +41,10 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 
 	@Autowired(required = false)
 	private Executor threadPool;
+	
+	@Qualifier("consumer")
+	@Autowired
+	private Counter counter;
 
 	@Value("${spring.application.transport.bufferzone.collectionName}")
 	private String collectionName;
@@ -152,6 +157,7 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 						}
 					}
 				}
+				counter.incrementCount(tuples.size());
 				tuples = null;
 			} else {
 				ThreadUtils.randomSleep(1000L);

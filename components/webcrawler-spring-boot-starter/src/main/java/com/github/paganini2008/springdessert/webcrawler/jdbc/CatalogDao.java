@@ -32,10 +32,10 @@ public interface CatalogDao {
 	int updateCatalog(@Example Catalog catalog);
 
 	@Update(SQL_CATALOG_DELETE)
-	int deleteCatalog(@Arg long id);
+	int deleteCatalog(@Arg("id") long id);
 
 	@Get(SQL_CATALOG_SELECT_ONE)
-	Catalog getCatalog(@Arg long id);
+	Catalog getCatalog(@Arg("id") long id);
 
 	@Query(SQL_CATALOG_SELECT_ALL)
 	ResultSetSlice<Catalog> queryForCatalog();

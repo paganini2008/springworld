@@ -34,7 +34,7 @@ public class JdbcResourceManger implements ResourceManager {
 	public static final String SQL_CATALOG_DELETE = "delete from crawler_catalog where id=:id";
 	public static final String SQL_CATALOG_SELECT_ALL = "select * from crawler_catalog order by last_modified desc";
 	public static final String SQL_CATALOG_INDEX_MAX_VERSION = "select max(version) from crawler_catalog_index";
-	public static final String SQL_RESOURCE_INSERT = "insert into crawler_resource (id,title,html,url,type,last_modified,version,catalog_id) values (:id,:title,:html,:url,:type,:lastModified,:version,:catalogId)";
+	public static final String SQL_RESOURCE_INSERT = "insert into crawler_resource (id,title,html,url,type,create_time,version,catalog_id) values (:id,:title,:html,:url,:type,:createTime,:version,:catalogId)";
 	public static final String SQL_RESOURCE_SELECT_FOR_INDEX = "select * from crawler_resource where catalog_id=:catalogId and version<(select version from crawler_catalog_index where catalog_id=:catalogId)";
 	public static final String SQL_RESOURCE_SELECT_ONE = "select * from crawler_resource where id=:id limit 1";
 	public static final String SQL_RESOURCE_VERSION_UPDATE = "update crawler_resource set version=:version where catalog_id=:catalogId and version<:version";
