@@ -43,7 +43,7 @@ public class TimestampIdGenerator implements IdGenerator {
 			l.expire(60, TimeUnit.SECONDS);
 			return l;
 		});
-		return Long.parseLong(timestamp) * maxConcurrency + counter.getAndIncrement();
+		return Long.parseLong(timestamp) * maxConcurrency + counter.incrementAndGet();
 	}
 
 }

@@ -11,6 +11,8 @@ import com.github.paganini2008.xtransport.Tuple;
  */
 public interface FinishableCondition {
 
-	boolean couldFinish(Tuple tuple);
+	boolean mightFinish(Tuple tuple);
+	
+	boolean isFinished();
 
 }

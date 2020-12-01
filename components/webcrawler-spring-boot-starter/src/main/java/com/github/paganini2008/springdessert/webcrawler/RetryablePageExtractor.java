@@ -3,7 +3,9 @@ package com.github.paganini2008.springdessert.webcrawler;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryListener;
+import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
@@ -48,7 +50,8 @@ public class RetryablePageExtractor implements PageExtractor, RetryListener {
 
 	protected RetryTemplate createRetryTemplate(int maxAttempts) {
 		RetryTemplate retryTemplate = new RetryTemplate();
-		retryTemplate.setRetryPolicy(new SimpleRetryPolicy(maxAttempts));
+		RetryPolicy retryPolicy = maxAttempts > 0 ? new SimpleRetryPolicy(maxAttempts) : new NeverRetryPolicy();
+		retryTemplate.setRetryPolicy(retryPolicy);
 		retryTemplate.setBackOffPolicy(new FixedBackOffPolicy());
 		retryTemplate.setListeners(new RetryListener[] { this });
 		return retryTemplate;

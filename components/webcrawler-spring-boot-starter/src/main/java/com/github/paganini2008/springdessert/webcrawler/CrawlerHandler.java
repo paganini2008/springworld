@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CrawlerHandler implements Handler {
 
-	private static final String UNIQUE_PATH_IDENTIFIER = "%s|%s|%s|%s";
+	private static final String UNIQUE_PATH_IDENTIFIER = "%s||%s||%s||%s";
 
 	@Autowired
 	private PageExtractor pageExtractor;
@@ -57,7 +57,7 @@ public class CrawlerHandler implements Handler {
 	private PathAcceptor pathAcceptor;
 
 	@Autowired
-	private FinishableCondition finishCondition;
+	private FinishableCondition condition;
 
 	@Autowired
 	private PathFilterFactory pathFilterFactory;
@@ -102,7 +102,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void doCrawl(Tuple tuple) {
-		if (finishCondition.couldFinish(tuple)) {
+		if (condition.isFinished()) {
 			return;
 		}
 
@@ -130,9 +130,6 @@ public class CrawlerHandler implements Handler {
 			log.error(e.getMessage(), e);
 		}
 		if (StringUtils.isBlank(html)) {
-			if (refer.equals(path)) {
-				log.warn("Blank Html! Refer: {}", refer);
-			}
 			return;
 		}
 		Document document;
@@ -157,6 +154,9 @@ public class CrawlerHandler implements Handler {
 		if (indexEnabled) {
 			sendIndex(catalogId, resource.getId(), version);
 		}
+		
+		condition.mightFinish(tuple);
+		
 		Elements elements = document.body().select("a");
 		if (CollectionUtils.isNotEmpty(elements)) {
 			String href;
@@ -177,7 +177,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void doUpdate(Tuple tuple) {
-		if (finishCondition.couldFinish(tuple)) {
+		if (condition.isFinished()) {
 			return;
 		}
 		final String action = (String) tuple.getField("action");
@@ -197,9 +197,6 @@ public class CrawlerHandler implements Handler {
 			log.error(e.getMessage(), e);
 		}
 		if (StringUtils.isBlank(html)) {
-			if (refer.equals(path)) {
-				log.warn("Blank Html! Refer: {}", refer);
-			}
 			return;
 		}
 
@@ -214,7 +211,7 @@ public class CrawlerHandler implements Handler {
 		String pathIdentifier = String.format(UNIQUE_PATH_IDENTIFIER, catalogId, refer, path, version);
 		if (!pathFilter.mightExist(pathIdentifier)) {
 			pathFilter.update(pathIdentifier);
-			
+
 			Resource resource = new Resource();
 			resource.setTitle(document.title());
 			resource.setHtml(document.html());
@@ -230,6 +227,7 @@ public class CrawlerHandler implements Handler {
 			if (indexEnabled) {
 				sendIndex(catalogId, resource.getId(), version);
 			}
+			condition.mightFinish(tuple);
 		}
 
 		Elements elements = document.body().select("a");
