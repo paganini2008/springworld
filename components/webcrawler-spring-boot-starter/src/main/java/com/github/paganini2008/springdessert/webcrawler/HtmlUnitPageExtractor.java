@@ -24,6 +24,10 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  * @since 1.0
  */
 public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> implements PageExtractor {
+	
+	static {
+		System.setProperty("logging.level.com.gargoylesoftware.htmlunit.WebClient", "WARN");
+	}
 
 	@Override
 	public WebClient createObject() throws Exception {

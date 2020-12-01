@@ -14,6 +14,7 @@ import com.github.paganini2008.springdessert.jdbc.annotations.DaoScan;
  * WebCrawlerApplication
  *
  * @author Fred Feng
+ * 
  * @since 1.0
  */
 @DaoScan(basePackages = "com.github.paganini2008.springdessert.webcrawler.jdbc")
@@ -34,7 +35,7 @@ public class WebCrawlerApplication {
 		// final int port =
 		// NetUtils.getRandomPort(Constants.MICROSERVICE_RANDOM_PORT_START,
 		// Constants.MICROSERVICE_BIZ_RANDOM_PORT_END);
-		int port = 8022;
+		int port = 8023;
 		System.out.println("Server Port: " + port);
 		System.setProperty("server.port", String.valueOf(port));
 		SpringApplication.run(WebCrawlerApplication.class, args);

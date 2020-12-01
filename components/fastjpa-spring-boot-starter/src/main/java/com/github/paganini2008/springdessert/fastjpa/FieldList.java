@@ -9,7 +9,7 @@ import java.util.Arrays;
  *
  * @author Fred Feng
  * 
- * 
+ * @since 1.0
  */
 public class FieldList extends ArrayList<Field<?>> {
 
