@@ -52,7 +52,7 @@ public final class CrawlerLauncher {
 		data.put("catalogId", catalog.getId());
 		data.put("refer", catalog.getUrl());
 		data.put("path", catalog.getUrl());
-		data.put("type", catalog.getType());
+		data.put("cat", catalog.getCat());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
@@ -64,7 +64,7 @@ public final class CrawlerLauncher {
 		data.put("catalogId", catalog.getId());
 		data.put("refer", catalog.getUrl());
 		data.put("path", catalog.getUrl());
-		data.put("type", catalog.getType());
+		data.put("cat", catalog.getCat());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}

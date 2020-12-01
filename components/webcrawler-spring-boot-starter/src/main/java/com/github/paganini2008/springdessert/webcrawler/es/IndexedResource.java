@@ -37,7 +37,7 @@ public class IndexedResource {
 	private String path;
 
 	@Field(type = FieldType.Keyword, store = true)
-	private String type;
+	private String cat;
 
 	@Field(type = FieldType.Keyword, store = true)
 	private String catalog;

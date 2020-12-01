@@ -22,7 +22,7 @@ public class Resource implements Serializable {
 	private String title;
 	private String html;
 	private String url;
-	private String type;
+	private String cat;
 	private Date createTime;
 	private Integer version;
 	private Long catalogId;

@@ -24,10 +24,6 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  * @since 1.0
  */
 public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> implements PageExtractor {
-	
-	static {
-		System.setProperty("logging.level.com.gargoylesoftware.htmlunit.WebClient", "WARN");
-	}
 
 	@Override
 	public WebClient createObject() throws Exception {
@@ -60,7 +56,7 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 	}
 
 	@Override
-	public String extractHtml(String url) throws Exception {
+	public String extractHtml(String refer, String url) throws Exception {
 		WebClient webClient = objectPool.borrowObject();
 		try {
 			Page page = webClient.getPage(url);
@@ -89,7 +85,7 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 		HtmlUnitPageExtractor pageSource = new HtmlUnitPageExtractor();
 		pageSource.configure();
 		// System.out.println(pageSource.getHtml("https://blog.csdn.net/u010814849/article/details/52526705"));
-		System.out.println(pageSource.extractHtml("https://www.tuniu.com//www.tuniu.com/g1621/tipnews-170353/"));
+		System.out.println(pageSource.extractHtml("https://www.tuniu.com", "https://www.tuniu.com/g1621/tipnews-170353/"));
 		System.in.read();
 		pageSource.destroy();
 	}

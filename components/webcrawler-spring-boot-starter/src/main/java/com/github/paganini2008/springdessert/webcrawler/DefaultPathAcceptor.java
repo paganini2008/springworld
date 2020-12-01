@@ -36,9 +36,6 @@ public class DefaultPathAcceptor implements PathAcceptor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean accept(String refer, String path, Tuple tuple) {
-		if (!path.startsWith(refer)) {
-			return false;
-		}
 		long catalogId = (Long) tuple.getField("catalogId");
 		List<String> pathPatterns = MapUtils.get(excludedPathPatternCache, catalogId, () -> {
 			Catalog catalog = resourceManager.getCatalog(catalogId);
@@ -61,7 +58,7 @@ public class DefaultPathAcceptor implements PathAcceptor {
 			return Arrays.asList(catalog.getPathPattern().split(","));
 		});
 		if (CollectionUtils.isEmpty(pathPatterns)) {
-			return true;
+			return path.startsWith(refer);
 		}
 		for (String pathPattern : pathPatterns) {
 			if (pathMather.match(pathPattern, path)) {
@@ -73,8 +70,8 @@ public class DefaultPathAcceptor implements PathAcceptor {
 
 	public static void main(String[] args) {
 		PathMatcher pathMather = new AntPathMatcher();
-		final String pattern = "http://www.baidu.com/a/";
-		System.out.println(pathMather.match(pattern, "http://www.baidu.com/a/b/c/"));
+		final String pattern = "https://**.tuniu.**/**";
+		System.out.println(pathMather.match(pattern, "https://sina.tuniu.com/a/b"));
 	}
 
 }

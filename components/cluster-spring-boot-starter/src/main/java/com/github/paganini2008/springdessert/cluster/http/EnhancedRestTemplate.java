@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * 
@@ -17,7 +17,11 @@ import org.springframework.web.client.RestTemplate;
  *
  * @since 1.0
  */
-public class EnhancedRestTemplate extends RestTemplate {
+public class EnhancedRestTemplate extends Utf8CharsetRestTemplate {
+
+	public EnhancedRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory) {
+		super(clientHttpRequestFactory);
+	}
 
 	public <T> ResponseEntity<T> perform(String url, HttpMethod method, Object requestBody, Type responseType, Object... uriVariables) {
 		RequestCallback requestCallback = super.httpEntityCallback(requestBody, responseType);

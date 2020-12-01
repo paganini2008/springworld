@@ -121,7 +121,7 @@ public class IndexedResourceService {
 		String html = resource.getHtml();
 		if (refresh) {
 			try {
-				html = pageExtractor.extractHtml(resource.getUrl());
+				html = pageExtractor.extractHtml(catalog.getUrl(), resource.getUrl());
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
@@ -131,7 +131,7 @@ public class IndexedResourceService {
 		indexedResource.setTitle(resource.getTitle());
 		indexedResource.setContent(document.body().text());
 		indexedResource.setPath(resource.getUrl());
-		indexedResource.setType(resource.getType());
+		indexedResource.setCat(resource.getCat());
 		indexedResource.setUrl(catalog.getUrl());
 		indexedResource.setCatalog(catalog.getName());
 		indexedResource.setCreateTime(resource.getCreateTime().getTime());

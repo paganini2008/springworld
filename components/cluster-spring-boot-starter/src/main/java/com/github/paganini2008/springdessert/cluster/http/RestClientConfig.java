@@ -2,6 +2,18 @@ package com.github.paganini2008.springdessert.cluster.http;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -10,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
@@ -52,8 +66,8 @@ public class RestClientConfig {
 	}
 
 	@Bean
-	public EnhancedRestTemplate enhancedRestTemplate() {
-		return new EnhancedRestTemplate();
+	public EnhancedRestTemplate enhancedRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory) {
+		return new EnhancedRestTemplate(clientHttpRequestFactory);
 	}
 
 	@Bean
@@ -107,6 +121,50 @@ public class RestClientConfig {
 			return new RetryableLeaderRecoveryCallback();
 		}
 
+	}
+
+	/**
+	 * 
+	 * HttpClientConfig
+	 *
+	 * @author Fred Feng
+	 * 
+	 * @since 1.0
+	 */
+	@ConditionalOnMissingBean(ClientHttpRequestFactory.class)
+	@Configuration
+	public static class HttpClientConfig {
+
+		@Value("${spring.application.cluster.httpclient.pool.maxTotal:200}")
+		private int maxTotal;
+
+		@Value("${spring.application.cluster.httpclient.retryCount:3}")
+		private int retryCount;
+
+		@Value("${spring.application.cluster.httpclient.connectionTimeout:60000}")
+		private int connectionTimeout;
+
+		@Bean
+		public ClientHttpRequestFactory clientHttpRequestFactory() {
+			return new HttpComponentsClientHttpRequestFactory(defaultHttpClient());
+		}
+
+		@Bean
+		public HttpClient defaultHttpClient() {
+			Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+					.register("http", PlainConnectionSocketFactory.getSocketFactory())
+					.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
+			PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
+			connectionManager.setMaxTotal(maxTotal);
+			connectionManager.setDefaultMaxPerRoute(20);
+			connectionManager.setValidateAfterInactivity(10000);
+			RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setCookieSpec(CookieSpecs.DEFAULT)
+					.setCircularRedirectsAllowed(false).setRedirectsEnabled(false).setSocketTimeout(connectionTimeout)
+					.setConnectTimeout(connectionTimeout).setConnectionRequestTimeout(connectionTimeout);
+			HttpClientBuilder builder = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(retryCount, true))
+					.setConnectionManager(connectionManager).setDefaultRequestConfig(requestConfigBuilder.build());
+			return builder.build();
+		}
 	}
 
 }

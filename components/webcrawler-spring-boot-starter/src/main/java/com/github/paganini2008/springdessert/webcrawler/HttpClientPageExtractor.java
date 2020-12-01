@@ -22,11 +22,15 @@ public class HttpClientPageExtractor implements PageExtractor {
 
 	private final RestTemplate restTemplate;
 
+	public HttpClientPageExtractor() {
+		this(new RestTemplate());
+	}
+
 	public HttpClientPageExtractor(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
 	}
 
-	public String extractHtml(String url) throws Exception {
+	public String extractHtml(String refer, String url) throws Exception {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("User-Agent", RandomUtils.randomChoice(userAgents));
 		MultiValueMap<String, String> defaultHeaders = getDefaultHeaders();
@@ -43,14 +47,6 @@ public class HttpClientPageExtractor implements PageExtractor {
 
 	protected MultiValueMap<String, String> getDefaultHeaders() {
 		return null;
-	}
-
-	public static void main(String[] args) throws Exception {
-		RestTemplate restTemplate = new RestTemplate();
-		HttpClientPageExtractor pageExtractor = new HttpClientPageExtractor(restTemplate);
-		// System.out.println(pageSource.getHtml("https://blog.csdn.net/u010814849/article/details/52526705"));
-		System.out.println(pageExtractor.extractHtml("http://www.ttmeishi.com/CaiXi/tese/"));
-		System.in.read();
 	}
 
 }

@@ -12,9 +12,10 @@ import org.springframework.http.HttpStatus;
 public class PageExtractorException extends RuntimeException {
 
 	private static final long serialVersionUID = 4816595505153970862L;
+	private static final String msgFormat = "%s [%s: %s]";
 
 	public PageExtractorException(String url, HttpStatus httpStatus) {
-		super(url);
+		super(String.format(msgFormat, url, httpStatus.value(), httpStatus.getReasonPhrase()));
 		this.httpStatus = httpStatus;
 	}
 

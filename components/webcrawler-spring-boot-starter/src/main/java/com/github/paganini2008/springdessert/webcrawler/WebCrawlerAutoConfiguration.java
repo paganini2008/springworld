@@ -31,9 +31,6 @@ public class WebCrawlerAutoConfiguration {
 	@Value("${spring.application.name}")
 	private String applicationName;
 
-	@Value("${webcrawler.crawler.retries:2}")
-	private int maxAttempts;
-
 	@Bean
 	public CrawlerLauncher crawlerLauncher() {
 		return new CrawlerLauncher();
@@ -68,13 +65,8 @@ public class WebCrawlerAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public PageExtractor defaultPageExtractor() {
-		return new HtmlUnitPageExtractor();
-	}
-
-	@Bean
 	public PageExtractor pageExtractor() {
-		return new RetryablePageExtractor(defaultPageExtractor(), maxAttempts);
+		return new HtmlUnitPageExtractor();
 	}
 
 	@ConditionalOnMissingBean

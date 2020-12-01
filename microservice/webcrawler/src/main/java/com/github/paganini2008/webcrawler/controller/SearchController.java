@@ -24,16 +24,16 @@ import com.github.paganini2008.webcrawler.utils.Response;
 @RequestMapping("/search")
 @RestController
 public class SearchController {
-	
+
 	@Autowired
 	private PageExtractor pageExtractor;
 
 	@Autowired
 	private IndexedResourceService indexedResourceService;
-	
+
 	@GetMapping("/fetch")
 	public String testRequest(@RequestParam("url") String url) throws Exception {
-		return pageExtractor.extractHtml(url);
+		return pageExtractor.extractHtml("", url);
 	}
 
 	@GetMapping("/search")

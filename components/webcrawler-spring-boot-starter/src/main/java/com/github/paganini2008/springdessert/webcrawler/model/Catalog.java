@@ -22,7 +22,7 @@ public class Catalog implements Serializable {
 	private static final long serialVersionUID = 1980884447290929341L;
 	private Long id;
 	private String name;
-	private String type;
+	private String cat;
 	private String url;
 	private String pathPattern;
 	private String excludedPathPattern;

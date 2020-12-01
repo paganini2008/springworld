@@ -110,7 +110,7 @@ public class CrawlerHandler implements Handler {
 		final long catalogId = (Long) tuple.getField("catalogId");
 		final String refer = (String) tuple.getField("refer");
 		final String path = (String) tuple.getField("path");
-		final String type = (String) tuple.getField("type");
+		final String cat = (String) tuple.getField("cat");
 		final int version = (Integer) tuple.getField("version");
 
 		PathFilter pathFilter = getPathFilter(catalogId);
@@ -120,14 +120,15 @@ public class CrawlerHandler implements Handler {
 		}
 		pathFilter.update(pathIdentifier);
 		if (log.isTraceEnabled()) {
-			log.trace("Handle refer: {}, path: {}", refer, path);
+			log.trace("Handle resource: [Resource] refer: {}, path: {}", refer, path);
 		}
 
 		String html = null;
 		try {
-			html = pageExtractor.extractHtml(path);
+			html = pageExtractor.extractHtml(refer, path);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
+			html = pageExtractor.defaultPage(refer, path, e);
 		}
 		if (StringUtils.isBlank(html)) {
 			return;
@@ -143,7 +144,7 @@ public class CrawlerHandler implements Handler {
 		resource.setTitle(document.title());
 		resource.setHtml(document.html());
 		resource.setUrl(path);
-		resource.setType(type);
+		resource.setCat(cat);
 		resource.setCreateTime(new Date());
 		resource.setVersion(version);
 		resource.setCatalogId(catalogId);
@@ -164,13 +165,9 @@ public class CrawlerHandler implements Handler {
 				href = element.absUrl("href");
 				if (StringUtils.isBlank(href)) {
 					href = element.attr("href");
-					if (!href.startsWith("/")) {
-						href = "/" + href;
-					}
-					href = refer + href;
 				}
 				if (StringUtils.isNotBlank(href) && acceptedPath(refer, href, tuple)) {
-					crawlRecursively(action, catalogId, refer, href, type, version, pathFilter);
+					crawlRecursively(action, catalogId, refer, href, cat, version, pathFilter);
 				}
 			}
 		}
@@ -184,17 +181,18 @@ public class CrawlerHandler implements Handler {
 		final long catalogId = (Long) tuple.getField("catalogId");
 		final String refer = (String) tuple.getField("refer");
 		final String path = (String) tuple.getField("path");
-		final String type = (String) tuple.getField("type");
+		final String cat = (String) tuple.getField("cat");
 		final int version = (Integer) tuple.getField("version");
 		if (log.isTraceEnabled()) {
-			log.trace("Handle refer: {}, path: {}", refer, path);
+			log.trace("Handle resource: [Resource] refer: {}, path: {}", refer, path);
 		}
 
 		String html = null;
 		try {
-			html = pageExtractor.extractHtml(path);
+			html = pageExtractor.extractHtml(refer, path);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			log.error("Failed to extract html by url: {}", path, e);
+			html = pageExtractor.defaultPage(refer, path, e);
 		}
 		if (StringUtils.isBlank(html)) {
 			return;
@@ -216,7 +214,7 @@ public class CrawlerHandler implements Handler {
 			resource.setTitle(document.title());
 			resource.setHtml(document.html());
 			resource.setUrl(path);
-			resource.setType(type);
+			resource.setCat(cat);
 			resource.setCreateTime(new Date());
 			resource.setVersion(version);
 			resource.setCatalogId(catalogId);
@@ -237,13 +235,9 @@ public class CrawlerHandler implements Handler {
 				href = element.absUrl("href");
 				if (StringUtils.isBlank(href)) {
 					href = element.attr("href");
-					if (!href.startsWith("/")) {
-						href = "/" + href;
-					}
-					href = refer + href;
 				}
 				if (StringUtils.isNotBlank(href) && acceptedPath(refer, href, tuple)) {
-					updateRecursively(action, catalogId, refer, href, type, version);
+					updateRecursively(action, catalogId, refer, href, cat, version);
 				}
 			}
 		}
@@ -287,18 +281,18 @@ public class CrawlerHandler implements Handler {
 		return n <= depth;
 	}
 
-	private void updateRecursively(String action, long catalogId, String refer, String path, String type, int version) {
+	private void updateRecursively(String action, long catalogId, String refer, String path, String cat, int version) {
 		Tuple tuple = Tuple.newOne();
 		tuple.setField("action", action);
 		tuple.setField("catalogId", catalogId);
 		tuple.setField("refer", refer);
 		tuple.setField("path", path);
-		tuple.setField("type", type);
+		tuple.setField("cat", cat);
 		tuple.setField("version", version);
 		nioClient.send(tuple, partitioner);
 	}
 
-	private void crawlRecursively(String action, long catalogId, String refer, String path, String type, int version,
+	private void crawlRecursively(String action, long catalogId, String refer, String path, String cat, int version,
 			PathFilter pathFilter) {
 		String pathIdentifier = String.format(UNIQUE_PATH_IDENTIFIER, catalogId, refer, path, version);
 		if (!pathFilter.mightExist(pathIdentifier)) {
@@ -307,7 +301,7 @@ public class CrawlerHandler implements Handler {
 			tuple.setField("catalogId", catalogId);
 			tuple.setField("refer", refer);
 			tuple.setField("path", path);
-			tuple.setField("type", type);
+			tuple.setField("cat", cat);
 			tuple.setField("version", version);
 			nioClient.send(tuple, partitioner);
 		}
