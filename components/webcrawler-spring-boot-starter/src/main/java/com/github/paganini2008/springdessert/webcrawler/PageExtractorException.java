@@ -1,5 +1,7 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
+import org.springframework.http.HttpStatus;
+
 /**
  * 
  * PageExtractorException
@@ -11,11 +13,15 @@ public class PageExtractorException extends RuntimeException {
 
 	private static final long serialVersionUID = 4816595505153970862L;
 
-	public PageExtractorException() {
+	public PageExtractorException(String url, HttpStatus httpStatus) {
+		super(url);
+		this.httpStatus = httpStatus;
 	}
 
-	public PageExtractorException(String msg) {
-		super(msg);
+	private final HttpStatus httpStatus;
+
+	public HttpStatus getHttpStatus() {
+		return httpStatus;
 	}
 
 }

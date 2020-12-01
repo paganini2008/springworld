@@ -38,7 +38,7 @@ public class HttpClientPageExtractor implements PageExtractor {
 		if (responseEntity.getStatusCode() == HttpStatus.OK) {
 			return responseEntity.getBody();
 		}
-		throw new PageExtractorException(url);
+		throw new PageExtractorException(url, responseEntity.getStatusCode());
 	}
 
 	protected MultiValueMap<String, String> getDefaultHeaders() {

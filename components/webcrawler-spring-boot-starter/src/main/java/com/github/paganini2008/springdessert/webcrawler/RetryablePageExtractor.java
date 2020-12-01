@@ -36,6 +36,12 @@ public class RetryablePageExtractor implements PageExtractor, RetryListener {
 		return retryTemplate.execute(context -> {
 			return pageExtractor.extractHtml(url);
 		}, context -> {
+			Throwable e = context.getLastThrowable();
+			if (e != null) {
+				if (log.isErrorEnabled()) {
+					log.error(e.getMessage(), e);
+				}
+			}
 			return "";
 		});
 	}
@@ -44,13 +50,14 @@ public class RetryablePageExtractor implements PageExtractor, RetryListener {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		retryTemplate.setRetryPolicy(new SimpleRetryPolicy(maxAttempts));
 		retryTemplate.setBackOffPolicy(new FixedBackOffPolicy());
+		retryTemplate.setListeners(new RetryListener[] { this });
 		return retryTemplate;
 	}
 
 	@Override
 	public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
 		if (log.isTraceEnabled()) {
-			log.trace("Start to extract page html.");
+			log.trace("Start to extract page html with retry.");
 		}
 		return true;
 	}
@@ -58,15 +65,12 @@ public class RetryablePageExtractor implements PageExtractor, RetryListener {
 	@Override
 	public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
 		if (log.isTraceEnabled()) {
-			log.trace("Complete to extract page html. Retry: {}", context.getRetryCount());
+			log.trace("Complete to extract page html. Retry count: {}", context.getRetryCount());
 		}
 	}
 
 	@Override
 	public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable e) {
-		if (log.isErrorEnabled()) {
-			log.error(e.getMessage(), e);
-		}
 	}
 
 }

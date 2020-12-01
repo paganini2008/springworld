@@ -79,7 +79,8 @@ public class SeleniumPageExtractor extends PageExtractorSupport<WebDriver> imple
 		SeleniumPageExtractor pageExtractor = new SeleniumPageExtractor(webdriverExecutionPath);
 		pageExtractor.configure();
 		RetryablePageExtractor retryablePageExtractor = new RetryablePageExtractor(pageExtractor);
-		System.out.println(retryablePageExtractor.extractHtml("http://www.ttmeishi.com/CaiXi/tese/"));
+		retryablePageExtractor.extractHtml("http://www.ttmeishi.com/CaiXi/tese/");
+		System.out.println();
 		System.in.read();
 		pageExtractor.destroy();
 	}

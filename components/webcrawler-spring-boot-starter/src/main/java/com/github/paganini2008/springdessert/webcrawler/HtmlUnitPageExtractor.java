@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.pool2.PooledObject;
+import org.springframework.http.HttpStatus;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.CookieManager;
@@ -59,14 +60,15 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 		WebClient webClient = objectPool.borrowObject();
 		try {
 			Page page = webClient.getPage(url);
-			if (page.getWebResponse().getStatusCode() == 200) {
+			int responseStatusCode = page.getWebResponse().getStatusCode();
+			if (responseStatusCode == 200) {
 				if (page instanceof HtmlPage) {
 					return ((HtmlPage) page).asXml();
 				} else if (page instanceof TextPage) {
 					return ((TextPage) page).getContent();
 				}
 			}
-			throw new PageExtractorException(url);
+			throw new PageExtractorException(url, HttpStatus.valueOf(responseStatusCode));
 		} finally {
 			if (webClient != null) {
 				objectPool.returnObject(webClient);
@@ -83,7 +85,7 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 		HtmlUnitPageExtractor pageSource = new HtmlUnitPageExtractor();
 		pageSource.configure();
 		// System.out.println(pageSource.getHtml("https://blog.csdn.net/u010814849/article/details/52526705"));
-		System.out.println(pageSource.extractHtml("https://gny.ly.com/line/t3j1p1137406c321.html?dk=EE9B7E7003DCE18A36C92D38C527C10AA9E1D53C8764A23A"));
+		System.out.println(pageSource.extractHtml("https://www.tuniu.com//www.tuniu.com/g1621/tipnews-170353/"));
 		System.in.read();
 		pageSource.destroy();
 	}

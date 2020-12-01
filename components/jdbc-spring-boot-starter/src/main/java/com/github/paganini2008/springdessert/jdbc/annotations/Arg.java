@@ -12,8 +12,7 @@ import java.lang.annotation.Target;
  *
  * @author Fred Feng
  * 
- * 
- * @version 1.0
+ * @since 1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -21,5 +20,5 @@ import java.lang.annotation.Target;
 public @interface Arg {
 
 	String value() default "";
-	
+
 }

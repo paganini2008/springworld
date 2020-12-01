@@ -31,6 +31,9 @@ public class WebCrawlerAutoConfiguration {
 	@Value("${spring.application.name}")
 	private String applicationName;
 
+	@Value("${webcrawler.crawler.retries:0}")
+	private int maxAttempts;
+
 	@Bean
 	public CrawlerLauncher crawlerLauncher() {
 		return new CrawlerLauncher();
@@ -40,7 +43,7 @@ public class WebCrawlerAutoConfiguration {
 	public PathFilterFactory pathFilterFactory(StringRedisTemplate redisTemplate) {
 		return new BloomFilterPathFilterFactory(redisTemplate);
 	}
-	
+
 	@Bean
 	public CrawlerHandler crawlerHandler() {
 		return new CrawlerHandler();
@@ -66,7 +69,7 @@ public class WebCrawlerAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public PageExtractor pageExtractor() {
-		return new HtmlUnitPageExtractor();
+		return maxAttempts > 0 ? new RetryablePageExtractor(new HtmlUnitPageExtractor()) : new HtmlUnitPageExtractor();
 	}
 
 	@ConditionalOnMissingBean
