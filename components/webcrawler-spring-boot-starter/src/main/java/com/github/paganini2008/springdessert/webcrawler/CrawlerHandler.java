@@ -71,7 +71,7 @@ public class CrawlerHandler implements Handler {
 	@Value("${webcrawler.crawler.fetch.depth:-1}")
 	private int depth;
 
-	@Value("${webcrawler.indexer.enabled:false}")
+	@Value("${webcrawler.indexer.enabled:true}")
 	private boolean indexEnabled;
 
 	private final Map<Long, Catalog> catalogCache = new ConcurrentHashMap<Long, Catalog>();
@@ -102,7 +102,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void doCrawl(Tuple tuple) {
-		if (condition.isFinished()) {
+		if (condition.isFinished(tuple)) {
 			return;
 		}
 
@@ -174,7 +174,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void doUpdate(Tuple tuple) {
-		if (condition.isFinished()) {
+		if (condition.isFinished(tuple)) {
 			return;
 		}
 		final String action = (String) tuple.getField("action");
@@ -183,9 +183,6 @@ public class CrawlerHandler implements Handler {
 		final String path = (String) tuple.getField("path");
 		final String cat = (String) tuple.getField("cat");
 		final int version = (Integer) tuple.getField("version");
-		if (log.isTraceEnabled()) {
-			log.trace("Handle resource: [Resource] refer: {}, path: {}", refer, path);
-		}
 
 		String html = null;
 		try {
@@ -205,6 +202,9 @@ public class CrawlerHandler implements Handler {
 			return;
 		}
 
+		if (log.isTraceEnabled()) {
+			log.trace("Handle resource: [Resource] refer: {}, path: {}", refer, path);
+		}
 		PathFilter pathFilter = getPathFilter(catalogId);
 		String pathIdentifier = String.format(UNIQUE_PATH_IDENTIFIER, catalogId, refer, path, version);
 		if (!pathFilter.mightExist(pathIdentifier)) {
@@ -225,8 +225,9 @@ public class CrawlerHandler implements Handler {
 			if (indexEnabled) {
 				sendIndex(catalogId, resource.getId(), version);
 			}
-			condition.mightFinish(tuple);
 		}
+		
+		condition.mightFinish(tuple);
 
 		Elements elements = document.body().select("a");
 		if (CollectionUtils.isNotEmpty(elements)) {

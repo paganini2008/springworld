@@ -35,8 +35,11 @@ public final class CrawlerLauncher {
 
 	@Autowired
 	private PathFilterFactory pathFilterFactory;
+	
+	@Autowired
+	private FinishableCondition finishableCondition;
 
-	@Value("${webcrawler.indexer.enabled:false}")
+	@Value("${webcrawler.indexer.enabled:true}")
 	private boolean indexEnabled;
 
 	public void rebuild(long catalogId) {
@@ -46,6 +49,8 @@ public final class CrawlerLauncher {
 	}
 
 	public void submit(long catalogId) {
+		finishableCondition.reset(catalogId);
+		
 		Catalog catalog = resourceManager.getCatalog(catalogId);
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("action", "crawl");
@@ -58,6 +63,8 @@ public final class CrawlerLauncher {
 	}
 	
 	public void update(long catalogId) {
+		finishableCondition.reset(catalogId);
+		
 		Catalog catalog = resourceManager.getCatalog(catalogId);
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("action", "update");

@@ -10,9 +10,11 @@ import com.github.paganini2008.xtransport.Tuple;
  * @since 1.0
  */
 public interface FinishableCondition {
+	
+	void reset(Long catalogId);
 
 	boolean mightFinish(Tuple tuple);
 	
-	boolean isFinished();
+	boolean isFinished(Tuple tuple);
 
 }

@@ -22,43 +22,45 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class CountLimitedCondition implements FinishableCondition {
+public class CountLimitedCondition extends AbstractFinishableCondition {
 
 	private final String keyPrefix;
 	private final int maxFetchSize;
 	private final RedisConnectionFactory redisConnectionFactory;
-	private final Map<Long, RedisAtomicInteger> counterMap;
-	private final AtomicBoolean finished;
+	private final Map<Long, RedisAtomicInteger> countableMap;
 
 	public CountLimitedCondition(String keyPrefix, RedisConnectionFactory redisConnectionFactory, int maxFetchSize) {
 		Assert.lt(maxFetchSize, 100, "Minimun maxFetchSize is 100");
 		this.keyPrefix = keyPrefix;
 		this.maxFetchSize = maxFetchSize;
 		this.redisConnectionFactory = redisConnectionFactory;
-		this.counterMap = new ConcurrentHashMap<Long, RedisAtomicInteger>();
-		this.finished = new AtomicBoolean(false);
+		this.countableMap = new ConcurrentHashMap<Long, RedisAtomicInteger>();
 	}
 
 	@Override
 	public boolean mightFinish(Tuple tuple) {
-		Long catalogId = (Long) tuple.getField("catalogId");
+		if (isFinished(tuple)) {
+			return true;
+		}
+		final Long catalogId = (Long) tuple.getField("catalogId");
 		String redisCounter = keyPrefix + catalogId;
-		RedisAtomicInteger counter = MapUtils.get(counterMap, catalogId, () -> {
+		RedisAtomicInteger counter = MapUtils.get(countableMap, catalogId, () -> {
 			return new RedisAtomicInteger(redisCounter, redisConnectionFactory);
 		});
-		if (finished.getAndSet(counter.incrementAndGet() > maxFetchSize)) {
-			if (counterMap.containsKey(catalogId)) {
+
+		boolean finished = counter.incrementAndGet() > maxFetchSize;
+		MapUtils.get(finishableMap, catalogId, () -> {
+			return new AtomicBoolean(false);
+		}).set(finished);
+
+		if (finished) {
+			counter = countableMap.remove(catalogId);
+			if (counter != null) {
 				log.info("Finish crawling work. Crawl {} records this time", counter.get());
-				counter.expire(60, TimeUnit.SECONDS);
-				counterMap.remove(catalogId);
+				counter.expire(1, TimeUnit.SECONDS);
 			}
 		}
-		return isFinished();
-	}
-
-	@Override
-	public boolean isFinished() {
-		return finished.get();
+		return isFinished(tuple);
 	}
 
 }

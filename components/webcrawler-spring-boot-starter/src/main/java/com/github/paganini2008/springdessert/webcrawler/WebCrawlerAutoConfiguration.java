@@ -85,7 +85,7 @@ public class WebCrawlerAutoConfiguration {
 	@Bean
 	public FinishableCondition finishableCondition(RedisConnectionFactory redisConnectionFactory) {
 		final String keyPrefix = String.format(DEADLINE, clusterName);
-		return new DeadlineCondition(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
+		return new TimeLimitedCondition(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
 	}
 
 	@ConditionalOnMissingBean

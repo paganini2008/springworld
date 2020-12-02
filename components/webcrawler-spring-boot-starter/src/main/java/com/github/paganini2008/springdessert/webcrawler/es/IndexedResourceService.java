@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.webcrawler.es;
 
-import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_SOURCE;
+import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.*;
 import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_VERSION;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -57,13 +57,13 @@ public class IndexedResourceService {
 	public void deleteResource(long catalogId, int version) {
 		Catalog catalog = resourceManager.getCatalog(catalogId);
 		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
-				.should(QueryBuilders.termQuery(SEARCH_FIELD_SOURCE, catalog.getName()));
+				.must(QueryBuilders.matchQuery(SEARCH_FIELD_CATALOG, catalog.getName()));
 		if (version > 0) {
-			boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.termQuery(SEARCH_FIELD_VERSION, version));
+			boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(SEARCH_FIELD_VERSION, version));
 		}
 		DeleteQuery deleteQuery = new DeleteQuery();
 		deleteQuery.setQuery(boolQueryBuilder);
-		elasticsearchTemplate.delete(deleteQuery);
+		elasticsearchTemplate.delete(deleteQuery, IndexedResource.class);
 	}
 
 	public void saveResource(IndexedResource indexedResource) {

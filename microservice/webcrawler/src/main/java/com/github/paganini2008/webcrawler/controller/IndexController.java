@@ -25,12 +25,18 @@ public class IndexController {
 	@Autowired
 	private IndexedResourceService indexedResourceService;
 
-	@GetMapping("/catalog/{id}/index")
+	@GetMapping("/catalog/{id}/delete")
+	public Response deleteResource(@PathVariable("id") Long catalogId) {
+		indexedResourceService.deleteResource(catalogId, 0);
+		return Response.success("Submit OK.");
+	}
+
+	@GetMapping("/catalog/{id}")
 	public Response indexAll(@PathVariable("id") Long catalogId) {
 		ThreadUtils.runAsThread(() -> {
 			indexedResourceService.indexAll(catalogId, false);
 		});
 		return Response.success("Submit OK.");
 	}
-	
+
 }

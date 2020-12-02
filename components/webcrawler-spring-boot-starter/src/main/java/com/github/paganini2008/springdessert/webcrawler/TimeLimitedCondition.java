@@ -19,57 +19,55 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * DeadlineCondition
+ * TimeLimitedCondition
  *
  * @author Fred Feng
  * @since 1.0
  */
 @Slf4j
-public class DeadlineCondition implements FinishableCondition {
+public class TimeLimitedCondition extends AbstractFinishableCondition {
 
 	private final String keyPrefix;
-	private final Date deadline;
+	private final long remaining;
 	private final RedisConnectionFactory redisConnectionFactory;
 	private final Map<Long, RedisTemplate<String, Long>> timestampMap;
-	private final AtomicBoolean finished;
 
-	public DeadlineCondition(String keyPrefix, RedisConnectionFactory redisConnectionFactory, long delay, TimeUnit timeUnit) {
-		this(keyPrefix, redisConnectionFactory, new Date(System.currentTimeMillis() + DateUtils.convertToMillis(delay, timeUnit)));
-	}
-
-	public DeadlineCondition(String keyPrefix, RedisConnectionFactory redisConnectionFactory, Date deadline) {
-		if (deadline != null && deadline.before(new Date())) {
-			throw new IllegalArgumentException("Invalid deadine date: " + deadline);
-		}
+	public TimeLimitedCondition(String keyPrefix, RedisConnectionFactory redisConnectionFactory, long delay, TimeUnit timeUnit) {
 		this.keyPrefix = keyPrefix;
 		this.redisConnectionFactory = redisConnectionFactory;
-		this.deadline = deadline;
+		this.remaining = DateUtils.convertToMillis(delay, timeUnit);
 		this.timestampMap = new ConcurrentHashMap<Long, RedisTemplate<String, Long>>();
-		this.finished = new AtomicBoolean(false);
 	}
 
 	@Override
 	public boolean mightFinish(Tuple tuple) {
-		Long catalogId = (Long) tuple.getField("catalogId");
+		if (isFinished(tuple)) {
+			return true;
+		}
+		final Long catalogId = (Long) tuple.getField("catalogId");
 		String key = keyPrefix + catalogId;
 		RedisTemplate<String, Long> redisTemplate = MapUtils.get(timestampMap, catalogId, () -> {
-			return getLong();
+			RedisTemplate<String, Long> l = getLong();
+			l.opsForValue().set(key, System.currentTimeMillis() + remaining);
+			return l;
 		});
-		redisTemplate.opsForValue().set(key, System.currentTimeMillis());
-		if (finished.getAndSet(redisTemplate.opsForValue().get(key) > deadline.getTime())) {
-			if (timestampMap.containsKey(catalogId)) {
+
+		boolean finished = System.currentTimeMillis() > redisTemplate.opsForValue().get(key);
+		MapUtils.get(finishableMap, catalogId, () -> {
+			return new AtomicBoolean(false);
+		}).set(finished);
+
+		if (finished) {
+			redisTemplate = timestampMap.remove(catalogId);
+			if (redisTemplate != null) {
 				long timestamp = redisTemplate.opsForValue().get(key);
 				log.info("Finish crawling work on deadline: {}", new Date(timestamp));
-				redisTemplate.expire(key, 60, TimeUnit.SECONDS);
-				timestampMap.remove(catalogId);
+				if (redisTemplate.hasKey(key)) {
+					redisTemplate.delete(key);
+				}
 			}
 		}
-		return isFinished();
-	}
-
-	@Override
-	public boolean isFinished() {
-		return finished.get();
+		return isFinished(tuple);
 	}
 
 	protected RedisTemplate<String, Long> getLong() {
