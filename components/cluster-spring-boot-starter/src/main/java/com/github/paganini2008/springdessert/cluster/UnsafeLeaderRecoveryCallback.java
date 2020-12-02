@@ -31,13 +31,13 @@ public class UnsafeLeaderRecoveryCallback implements ApplicationListener<Applica
 	@Override
 	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {
 		electionObservable.addObserver((ob, arg) -> {
+			log.info("Launch new round leader election soon");
 			leaderElection.launch();
 		});
 	}
 
 	@Override
 	public void recover(ApplicationInfo leaderInfo) {
-		log.warn("Recovery cluster leader election soon");
 		leaderContext.setClusterState(ClusterState.PROTECTED);
 		electionObservable.notifyObservers(leaderInfo);
 	}

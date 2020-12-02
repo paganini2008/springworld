@@ -10,7 +10,6 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -138,9 +137,6 @@ public class RestClientConfig {
 		@Value("${spring.application.cluster.httpclient.pool.maxTotal:200}")
 		private int maxTotal;
 
-		@Value("${spring.application.cluster.httpclient.retryCount:3}")
-		private int retryCount;
-
 		@Value("${spring.application.cluster.httpclient.connectionTimeout:60000}")
 		private int connectionTimeout;
 
@@ -161,8 +157,8 @@ public class RestClientConfig {
 			RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setCookieSpec(CookieSpecs.DEFAULT)
 					.setCircularRedirectsAllowed(false).setRedirectsEnabled(false).setSocketTimeout(connectionTimeout)
 					.setConnectTimeout(connectionTimeout).setConnectionRequestTimeout(connectionTimeout);
-			HttpClientBuilder builder = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(retryCount, true))
-					.setConnectionManager(connectionManager).setDefaultRequestConfig(requestConfigBuilder.build());
+			HttpClientBuilder builder = HttpClients.custom().disableAutomaticRetries().setConnectionManager(connectionManager)
+					.setDefaultRequestConfig(requestConfigBuilder.build());
 			return builder.build();
 		}
 	}
