@@ -35,7 +35,7 @@ public class FastLeaderElection implements LeaderElection, ApplicationContextAwa
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@Value("${spring.application.cluster.leader.lease:5}")
+	@Value("${spring.application.cluster.leader.lease:10}")
 	private int leaderLease;
 
 	@Autowired

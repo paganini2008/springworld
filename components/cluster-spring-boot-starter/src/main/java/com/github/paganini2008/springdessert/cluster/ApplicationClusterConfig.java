@@ -58,7 +58,7 @@ public class ApplicationClusterConfig {
 
 	@Bean
 	public LeaderRecoveryCallback leaderRecoveryCallback() {
-		return new DefaultLeaderRecoveryCallback();
+		return new UnsafeLeaderRecoveryCallback();
 	}
 
 	@Bean

@@ -107,7 +107,7 @@ public class RestClientConfig {
 	 */
 	@EnableRestClient(include = { LeaderService.class })
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.cluster.leader.heartbeat.enabled", havingValue = "true")
+	@ConditionalOnProperty(name = "spring.application.cluster.leader.heartbeat.enabled", havingValue = "true", matchIfMissing = true)
 	public static class LeaderHeartbeaterConfig {
 
 		@Bean

@@ -10,13 +10,13 @@ import com.github.paganini2008.springdessert.cluster.election.LeaderElection;
 
 /**
  * 
- * DefaultLeaderRecoveryCallback
+ * UnsafeLeaderRecoveryCallback
  * 
  * @author Fred Feng
  *
  * @since 1.0
  */
-public class DefaultLeaderRecoveryCallback implements ApplicationListener<ApplicationClusterFollowerEvent>, LeaderRecoveryCallback {
+public class UnsafeLeaderRecoveryCallback implements ApplicationListener<ApplicationClusterFollowerEvent>, LeaderRecoveryCallback {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 

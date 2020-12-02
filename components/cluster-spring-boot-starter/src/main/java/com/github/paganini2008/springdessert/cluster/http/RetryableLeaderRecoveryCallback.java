@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.ClusterState;
-import com.github.paganini2008.springdessert.cluster.DefaultLeaderRecoveryCallback;
+import com.github.paganini2008.springdessert.cluster.UnsafeLeaderRecoveryCallback;
 import com.github.paganini2008.springdessert.cluster.utils.ApiRetryListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class RetryableLeaderRecoveryCallback extends DefaultLeaderRecoveryCallback implements ApiRetryListener {
+public class RetryableLeaderRecoveryCallback extends UnsafeLeaderRecoveryCallback implements ApiRetryListener {
 
 	private static final String LEADER_PING_PATH = "/application/cluster/ping";
 

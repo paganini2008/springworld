@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import com.github.paganini2008.devtools.RandomUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.xtransport.Tuple;
@@ -48,7 +49,8 @@ public class TimeLimitedCondition extends AbstractFinishableCondition {
 		String key = keyPrefix + catalogId;
 		RedisTemplate<String, Long> redisTemplate = MapUtils.get(timestampMap, catalogId, () -> {
 			RedisTemplate<String, Long> l = getLong();
-			l.opsForValue().set(key, System.currentTimeMillis() + remaining);
+			l.opsForValue().set(key, System.currentTimeMillis() + remaining, remaining + RandomUtils.randomLong(100, 1000),
+					TimeUnit.MILLISECONDS);
 			return l;
 		});
 

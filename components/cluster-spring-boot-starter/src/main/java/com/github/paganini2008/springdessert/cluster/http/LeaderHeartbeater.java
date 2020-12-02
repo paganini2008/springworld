@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class LeaderHeartbeater implements ApplicationListener<ApplicationClusterFollowerEvent>, Executable,DisposableBean {
+public class LeaderHeartbeater implements ApplicationListener<ApplicationClusterFollowerEvent>, Executable, DisposableBean {
 
 	public static final int DEFAULT_CHECKED_INTERVAL = 3;
 
@@ -82,7 +82,5 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 	public void destroy() throws Exception {
 		cancel();
 	}
-	
-	
 
 }

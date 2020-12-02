@@ -56,7 +56,7 @@ public class ScaleoutClusterListener implements MulticastGroupListener {
 
 	@Override
 	public void onInactive(ApplicationInfo applicationInfo) {
-		log.info("Node '{}' leave spring transport cluster {}", applicationInfo, clusterName);
+		log.info("Node '{}' has left spring transport cluster '{}'", applicationInfo, clusterName);
 	}
 
 }

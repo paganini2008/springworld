@@ -24,7 +24,7 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSend
  */
 public class ApplicationMulticastAware implements ApplicationListener<ApplicationClusterRefreshedEvent> {
 
-	private static final int DEFAULT_MULTICAST_GROUP_MEMBER_TTL = 5;
+	public static final int DEFAULT_MULTICAST_GROUP_MEMBER_TTL = 5;
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
