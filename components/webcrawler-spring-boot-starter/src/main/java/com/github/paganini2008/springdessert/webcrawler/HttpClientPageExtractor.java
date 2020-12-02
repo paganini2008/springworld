@@ -33,6 +33,7 @@ public class HttpClientPageExtractor implements PageExtractor {
 	public String extractHtml(String refer, String url) throws Exception {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("User-Agent", RandomUtils.randomChoice(userAgents));
+		headers.add("X-Forwarded-For", RandomIpUtils.randomIp());
 		MultiValueMap<String, String> defaultHeaders = getDefaultHeaders();
 		if (MapUtils.isNotEmpty(defaultHeaders)) {
 			headers.addAll(defaultHeaders);

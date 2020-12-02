@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.springdessert.xmemcached.MemcachedTemplate;
@@ -55,13 +56,14 @@ import io.netty.channel.Channel;
 
 /**
  * 
- * TransportServerConfiguration
+ * XtransportAutoConfiguration
  * 
  * @author Fred Feng
  * @version 1.0
  */
+@Import({ ApplicationTransportController.class, BenchmarkController.class })
 @Configuration
-public class TransportServerConfiguration {
+public class XtransportAutoConfiguration {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;

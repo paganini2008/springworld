@@ -19,13 +19,12 @@ import io.netty.util.internal.ThreadLocalRandom;
 /**
  * 
  * BenchmarkController
- * 
+ *
  * @author Fred Feng
  * 
- * 
- * @version 1.0
+ * @since 1.0
  */
-@RequestMapping("/transport")
+@RequestMapping("/application/cluster/transport")
 @RestController
 public class BenchmarkController {
 
@@ -45,8 +44,8 @@ public class BenchmarkController {
 		return result;
 	}
 
-	@GetMapping("/test")
-	public Map<String, Object> test(@RequestParam(name = "n", defaultValue = "10000", required = false) int N) {
+	@GetMapping("/benchmark")
+	public Map<String, Object> benchmark(@RequestParam(name = "n", defaultValue = "10000", required = false) int N) {
 		for (int i = 0; i < N; i++) {
 			StringBuilder str = new StringBuilder();
 			for (int j = 0, l = ThreadLocalRandom.current().nextInt(10, 100); j < l; j++) {

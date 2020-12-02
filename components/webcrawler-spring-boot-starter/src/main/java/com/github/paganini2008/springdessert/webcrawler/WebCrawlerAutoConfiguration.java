@@ -1,5 +1,10 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
+import static com.github.paganini2008.springdessert.webcrawler.RedisKeyPrefixes.DEADLINE;
+import static com.github.paganini2008.springdessert.webcrawler.RedisKeyPrefixes.ID;
+
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +33,8 @@ import com.github.paganini2008.xtransport.RoundRobinPartitioner;
 @Configuration
 public class WebCrawlerAutoConfiguration {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
 
 	@Bean
 	public CrawlerLauncher crawlerLauncher() {
@@ -52,7 +57,7 @@ public class WebCrawlerAutoConfiguration {
 		return new HashPartitioner("catalogId,refer,path,version".split(","));
 	}
 
-	@Bean("secondaryPartitioner")
+	@Bean
 	public Partitioner secondaryPartitioner() {
 		return new RoundRobinPartitioner();
 	}
@@ -71,17 +76,16 @@ public class WebCrawlerAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public IdGenerator timestampIdGenerator(RedisConnectionFactory connectionFactory) {
-		final String keyPrefix = "id:webcrawler:" + applicationName + ":";
-		return new TimestampIdGenerator(keyPrefix, connectionFactory);
+	public IdGenerator timestampIdGenerator(RedisConnectionFactory redisConnectionFactory) {
+		final String keyPrefix = String.format(ID, clusterName);
+		return new TimestampIdGenerator(keyPrefix, redisConnectionFactory);
 	}
 
 	@ConditionalOnMissingBean
 	@Bean
-	public FinishableCondition countLimitedCondition(RedisConnectionFactory connectionFactory,
-			@Value("${webcrawler.crawler.maxFetchSize:10000}") int maxFetchSize) {
-		final String keyPrefix = "counter:webcrawler:" + applicationName + ":";
-		return new CountLimitedCondition(keyPrefix, connectionFactory, maxFetchSize);
+	public FinishableCondition finishableCondition(RedisConnectionFactory redisConnectionFactory) {
+		final String keyPrefix = String.format(DEADLINE, clusterName);
+		return new DeadlineCondition(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
 	}
 
 	@ConditionalOnMissingBean

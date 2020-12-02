@@ -44,7 +44,8 @@ public class SeleniumPageExtractor extends PageExtractorSupport<WebDriver> imple
 	public WebDriver createObject() throws Exception {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("lang=zh_CN.UTF-8");
-		options.addArguments("user-agent=" + RandomUtils.randomChoice(userAgents));
+		options.addArguments("User-Agent=" + RandomUtils.randomChoice(userAgents));
+		options.addArguments("X-Forwarded-For=" + RandomIpUtils.randomIp());
 		options.addArguments("--test-type", "--ignore-certificate-errors", "--start-maximized", "no-default-browser-check");
 		options.addArguments("--silent", "--headless", "--disable-gpu");
 		setDefaultHeaders(options);

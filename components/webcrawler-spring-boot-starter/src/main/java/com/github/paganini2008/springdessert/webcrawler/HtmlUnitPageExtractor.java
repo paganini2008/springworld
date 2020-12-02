@@ -29,6 +29,7 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 	public WebClient createObject() throws Exception {
 		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED);
 		webClient.addRequestHeader("User-Agent", RandomUtils.randomChoice(userAgents));
+		webClient.addRequestHeader("X-Forwarded-For", RandomIpUtils.randomIp());
 		Map<String, String> defaultHeaders = getDefaultHeaders();
 		if (MapUtils.isNotEmpty(defaultHeaders)) {
 			for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {

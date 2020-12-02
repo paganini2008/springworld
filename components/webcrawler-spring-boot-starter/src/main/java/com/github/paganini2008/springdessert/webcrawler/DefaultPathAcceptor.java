@@ -57,6 +57,7 @@ public class DefaultPathAcceptor implements PathAcceptor {
 			}
 			return Arrays.asList(catalog.getPathPattern().split(","));
 		});
+		
 		if (CollectionUtils.isEmpty(pathPatterns)) {
 			return path.startsWith(refer);
 		}
