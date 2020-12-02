@@ -1,7 +1,7 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
-import static com.github.paganini2008.springdessert.webcrawler.RedisKeyPrefixes.DEADLINE;
 import static com.github.paganini2008.springdessert.webcrawler.RedisKeyPrefixes.ID;
+import static com.github.paganini2008.springdessert.webcrawler.RedisKeyPrefixes.TIMING;
 
 import java.util.concurrent.TimeUnit;
 
@@ -83,9 +83,9 @@ public class WebCrawlerAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public FinishableCondition finishableCondition(RedisConnectionFactory redisConnectionFactory) {
-		final String keyPrefix = String.format(DEADLINE, clusterName);
-		return new TimeLimitedCondition(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
+	public ConditionalCompletion conditionalCompletion(RedisConnectionFactory redisConnectionFactory) {
+		final String keyPrefix = String.format(TIMING, clusterName);
+		return new TimingConditionalCompletion(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
 	}
 
 	@ConditionalOnMissingBean

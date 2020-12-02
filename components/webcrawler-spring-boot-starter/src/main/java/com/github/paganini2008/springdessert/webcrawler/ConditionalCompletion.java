@@ -4,17 +4,18 @@ import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 
- * FinishableCondition
+ * ConditionalCompletion
  *
  * @author Fred Feng
+ * 
  * @since 1.0
  */
-public interface FinishableCondition {
-	
+public interface ConditionalCompletion {
+
 	void reset(Long catalogId);
 
-	boolean mightFinish(Tuple tuple);
-	
-	boolean isFinished(Tuple tuple);
+	boolean mightComplete(Tuple tuple);
+
+	boolean isCompleted(Tuple tuple);
 
 }

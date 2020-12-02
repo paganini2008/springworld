@@ -12,8 +12,8 @@ public abstract class RedisKeyPrefixes {
 
 	public final static String ID = "spring:application:cluster:%s:id:";
 
-	public final static String COUNT = "spring:application:cluster:%s:counter:";
+	public final static String COUNTING = "spring:application:cluster:%s:counting:";
 
-	public final static String DEADLINE = "spring:application:cluster:%s:deadline:";
+	public final static String TIMING = "spring:application:cluster:%s:timing:";
 
 }

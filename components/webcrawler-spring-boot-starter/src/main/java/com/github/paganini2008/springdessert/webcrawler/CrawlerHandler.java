@@ -57,7 +57,7 @@ public class CrawlerHandler implements Handler {
 	private PathAcceptor pathAcceptor;
 
 	@Autowired
-	private FinishableCondition condition;
+	private ConditionalCompletion condition;
 
 	@Autowired
 	private PathFilterFactory pathFilterFactory;
@@ -102,7 +102,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void doCrawl(Tuple tuple) {
-		if (condition.isFinished(tuple)) {
+		if (condition.isCompleted(tuple)) {
 			return;
 		}
 
@@ -156,7 +156,7 @@ public class CrawlerHandler implements Handler {
 			sendIndex(catalogId, resource.getId(), version);
 		}
 
-		condition.mightFinish(tuple);
+		condition.mightComplete(tuple);
 
 		Elements elements = document.body().select("a");
 		if (CollectionUtils.isNotEmpty(elements)) {
@@ -174,7 +174,7 @@ public class CrawlerHandler implements Handler {
 	}
 
 	private void doUpdate(Tuple tuple) {
-		if (condition.isFinished(tuple)) {
+		if (condition.isCompleted(tuple)) {
 			return;
 		}
 		final String action = (String) tuple.getField("action");
@@ -226,8 +226,8 @@ public class CrawlerHandler implements Handler {
 				sendIndex(catalogId, resource.getId(), version);
 			}
 		}
-		
-		condition.mightFinish(tuple);
+
+		condition.mightComplete(tuple);
 
 		Elements elements = document.body().select("a");
 		if (CollectionUtils.isNotEmpty(elements)) {

@@ -37,7 +37,7 @@ public final class CrawlerLauncher {
 	private PathFilterFactory pathFilterFactory;
 	
 	@Autowired
-	private FinishableCondition finishableCondition;
+	private ConditionalCompletion finishableCondition;
 
 	@Value("${webcrawler.indexer.enabled:true}")
 	private boolean indexEnabled;
