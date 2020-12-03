@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
  * 
  * RequestProcessor
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

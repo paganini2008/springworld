@@ -4,7 +4,7 @@ package com.github.paganini2008.springworld.amber.config;
  * 
  * JobProcessorException
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class JobProcessorException extends RuntimeException {

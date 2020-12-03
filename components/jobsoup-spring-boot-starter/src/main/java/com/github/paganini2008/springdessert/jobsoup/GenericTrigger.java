@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * 
  * GenericTrigger
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

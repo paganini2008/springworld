@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
  * 
  * RedisCommonConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

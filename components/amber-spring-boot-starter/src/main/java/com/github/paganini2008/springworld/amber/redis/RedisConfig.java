@@ -20,7 +20,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  * 
  * RedisConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 @Configuration

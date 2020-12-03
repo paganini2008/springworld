@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 
  * OnFailure
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

@@ -27,7 +27,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * EmbeddedClient
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class EmbeddedClient implements NioClient {
@@ -172,7 +172,7 @@ public class EmbeddedClient implements NioClient {
 	 * 
 	 * PingIdleTimeoutListener
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	private static class PingIdleTimeoutListener implements IdleTimeoutListener {

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * 
  * JobBeanFactory
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 @Component

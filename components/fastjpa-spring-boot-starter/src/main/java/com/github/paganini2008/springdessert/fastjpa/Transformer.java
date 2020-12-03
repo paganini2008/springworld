@@ -9,7 +9,7 @@ import javax.persistence.criteria.Selection;
  * 
  * Transformer
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

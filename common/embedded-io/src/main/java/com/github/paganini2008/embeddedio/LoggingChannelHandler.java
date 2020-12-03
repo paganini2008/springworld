@@ -10,7 +10,7 @@ import com.github.paganini2008.devtools.logging.LogFactory;
  * 
  * LoggingChannelHandler
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class LoggingChannelHandler implements ChannelHandler {

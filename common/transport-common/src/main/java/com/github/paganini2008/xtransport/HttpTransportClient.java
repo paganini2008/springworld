@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.net.UrlUtils;
  * 
  * HttpTransportClient
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

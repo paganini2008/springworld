@@ -13,7 +13,7 @@ import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageL
  * 
  * ConsistencyRequestConfig
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @Configuration

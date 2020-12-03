@@ -16,7 +16,7 @@ import com.github.paganini2008.springworld.amber.config.JobParameter;
  * 
  * RabbitmqJobProcessor
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public class RabbitmqJobProcessor {

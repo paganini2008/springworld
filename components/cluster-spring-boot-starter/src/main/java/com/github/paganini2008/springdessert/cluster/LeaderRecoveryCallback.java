@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.cluster;
  * 
  * LeaderRecoveryCallback
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

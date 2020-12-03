@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  * 
  * JacksonUtils
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

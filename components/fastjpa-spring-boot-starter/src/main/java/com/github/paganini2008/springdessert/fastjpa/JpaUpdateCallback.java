@@ -7,7 +7,7 @@ import javax.persistence.criteria.CriteriaUpdate;
  * 
  * JpaUpdateCallback
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface JpaUpdateCallback<T> {

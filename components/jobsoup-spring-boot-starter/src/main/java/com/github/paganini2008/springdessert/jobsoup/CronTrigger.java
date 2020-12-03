@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  * 
  * CronTrigger
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

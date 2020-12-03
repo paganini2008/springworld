@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * GlobalErrorEndPoint
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

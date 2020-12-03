@@ -10,7 +10,7 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSend
  * 
  * MultiProcessingCompletionListener
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

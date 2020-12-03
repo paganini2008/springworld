@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.fastjpa;
  * 
  * PathMismatchedException
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class PathMismatchedException extends IllegalArgumentException {

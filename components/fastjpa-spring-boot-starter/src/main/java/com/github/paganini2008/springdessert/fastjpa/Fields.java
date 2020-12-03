@@ -11,7 +11,7 @@ import javax.persistence.criteria.Expression;
  * 
  * Fields
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

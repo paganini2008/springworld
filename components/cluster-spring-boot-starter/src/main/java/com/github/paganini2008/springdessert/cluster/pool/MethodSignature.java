@@ -16,7 +16,7 @@ import lombok.Setter;
  * 
  * MethodSignature
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

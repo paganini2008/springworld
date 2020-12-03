@@ -15,7 +15,7 @@ import com.github.paganini2008.springdessert.cluster.election.LeaderElectionList
  * 
  * ApplicationClusterConfig
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Configuration

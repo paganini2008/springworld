@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.cluster.election;
  * 
  * LeaderElectionListener
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

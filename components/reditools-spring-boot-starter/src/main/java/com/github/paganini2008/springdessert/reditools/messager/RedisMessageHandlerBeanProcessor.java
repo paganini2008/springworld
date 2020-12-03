@@ -10,7 +10,7 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
  * 
  * RedisMessageHandlerBeanProcessor
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
@@ -35,7 +35,7 @@ public class RedisMessageHandlerBeanProcessor implements BeanPostProcessor {
 	 * 
 	 * ReflectiveRedisMessageHandler
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @version 1.0
 	 */
 	private static class ReflectiveRedisMessageHandler implements RedisMessageHandler {

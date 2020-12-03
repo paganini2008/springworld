@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  * 
  * BugFixedRedisTokenStore
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

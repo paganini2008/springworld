@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * AccessTokenHolder
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

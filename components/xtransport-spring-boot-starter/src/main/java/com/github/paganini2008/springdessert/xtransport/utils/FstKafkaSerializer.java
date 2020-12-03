@@ -8,7 +8,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * FstKafkaSerializer
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

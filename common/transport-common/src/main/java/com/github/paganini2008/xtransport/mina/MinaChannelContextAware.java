@@ -15,7 +15,7 @@ import com.github.paganini2008.xtransport.ChannelEvent.EventType;
  * 
  * MinaChannelContextAware
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public abstract class MinaChannelContextAware extends IoHandlerAdapter implements ChannelContext<IoSession> {

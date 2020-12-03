@@ -7,7 +7,7 @@ import java.util.Arrays;
  * 
  * FieldList
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @since 1.0
  */

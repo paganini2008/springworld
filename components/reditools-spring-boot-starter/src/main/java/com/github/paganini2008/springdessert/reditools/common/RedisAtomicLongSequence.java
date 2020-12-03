@@ -9,7 +9,7 @@ import com.github.paganini2008.devtools.multithreads.AtomicLongSequence;
  * 
  * RedisAtomicLongSequence
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

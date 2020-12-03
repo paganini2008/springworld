@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.jobsoup;
  * 
  * JobBeanLoader
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  */
 public interface JobBeanLoader {
 

@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 
  * RemovalNotification
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class RemovalNotification implements Serializable {

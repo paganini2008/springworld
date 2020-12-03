@@ -6,7 +6,7 @@ import java.net.SocketAddress;
  * 
  * HandshakeCallback
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

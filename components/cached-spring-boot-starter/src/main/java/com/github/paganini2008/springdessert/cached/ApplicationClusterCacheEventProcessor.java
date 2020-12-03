@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * ApplicationClusterCacheEventProcessor
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @SuppressWarnings("unchecked")

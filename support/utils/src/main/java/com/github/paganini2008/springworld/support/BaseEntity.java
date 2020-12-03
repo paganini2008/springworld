@@ -13,7 +13,7 @@ import javax.persistence.TemporalType;
  * 
  * BaseEntity
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 @MappedSuperclass

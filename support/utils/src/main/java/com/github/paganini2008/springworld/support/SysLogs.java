@@ -9,7 +9,7 @@ import org.slf4j.MarkerFactory;
  * 
  * SysLogs
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public final class SysLogs {

@@ -15,7 +15,7 @@ import com.github.paganini2008.springdessert.jdbc.DaoScannerRegistrar;
  * 
  * DaoScan
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)

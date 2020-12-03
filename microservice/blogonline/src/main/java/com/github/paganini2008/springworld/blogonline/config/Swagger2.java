@@ -39,7 +39,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * 
  * Swagger2
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  */
 @Configuration
@@ -100,7 +100,7 @@ public class Swagger2 {
 	 * 
 	 * Swagger2RequestMatcher
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * @version 1.0
 	 */

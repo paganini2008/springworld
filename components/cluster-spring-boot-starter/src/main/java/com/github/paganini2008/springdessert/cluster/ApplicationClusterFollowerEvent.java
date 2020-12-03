@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
  * 
  * ApplicationClusterFollowerEvent
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class ApplicationClusterFollowerEvent extends ApplicationClusterEvent {

@@ -7,7 +7,7 @@ import javax.persistence.criteria.Selection;
  * 
  * Column
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

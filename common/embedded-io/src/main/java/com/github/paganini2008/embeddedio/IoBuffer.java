@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
  * 
  * IoBuffer
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public interface IoBuffer {

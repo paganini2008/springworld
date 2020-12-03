@@ -16,7 +16,7 @@ import com.github.paganini2008.devtools.jdbc.ConnectionFactory;
  * 
  * Db4jDaoProxyBeanFactory
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class Db4jDaoProxyBeanFactory<T> implements FactoryBean<T> {
@@ -46,7 +46,7 @@ public class Db4jDaoProxyBeanFactory<T> implements FactoryBean<T> {
 	 * 
 	 * TransactionSynchronizationConnectionFactory
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	private static class TransactionSynchronizationConnectionFactory implements ConnectionFactory {

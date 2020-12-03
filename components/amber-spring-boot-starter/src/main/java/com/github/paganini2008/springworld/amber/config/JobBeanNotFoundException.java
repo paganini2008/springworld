@@ -6,7 +6,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
  * 
  * JobBeanNotFoundException
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public class JobBeanNotFoundException extends NoSuchBeanDefinitionException {

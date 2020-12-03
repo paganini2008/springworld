@@ -10,7 +10,7 @@ import lombok.Setter;
  * 
  * JobDependencyParam
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

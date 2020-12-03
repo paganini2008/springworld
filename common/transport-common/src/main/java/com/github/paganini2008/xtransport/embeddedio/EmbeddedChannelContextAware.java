@@ -17,7 +17,7 @@ import com.github.paganini2008.xtransport.ChannelEvent.EventType;
  * 
  * EmbeddedChannelContextAware
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public abstract class EmbeddedChannelContextAware implements ChannelHandler, ChannelContext<Channel> {

@@ -6,7 +6,7 @@ import com.github.paganini2008.devtools.collection.MultiMappedMap;
  * 
  * ConsistencyRequestSerialCache
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class ConsistencyRequestSerialCache {

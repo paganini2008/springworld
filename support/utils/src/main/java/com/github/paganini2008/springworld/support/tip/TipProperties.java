@@ -15,7 +15,7 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
  * 
  * TipProperties
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2019-03
  */
 public class TipProperties extends RefreshingProperties {

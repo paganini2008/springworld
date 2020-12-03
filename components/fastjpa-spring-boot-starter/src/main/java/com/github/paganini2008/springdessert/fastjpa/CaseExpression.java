@@ -11,7 +11,7 @@ import javax.persistence.criteria.Expression;
  * 
  * CaseExpression
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

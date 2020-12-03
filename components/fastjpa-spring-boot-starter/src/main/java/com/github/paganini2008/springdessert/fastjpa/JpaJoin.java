@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.fastjpa;
  * 
  * JpaJoin
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

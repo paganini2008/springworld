@@ -26,7 +26,7 @@ import com.github.paganini2008.springdessert.jobsoup.utils.JavaMailService;
  * 
  * ConsumerModeJobExecutor
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

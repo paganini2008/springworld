@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationEvent;
  * 
  * JobServerEvent
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class JobServerEvent extends ApplicationEvent {

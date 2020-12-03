@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  * 
  * PeriodicTrigger
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

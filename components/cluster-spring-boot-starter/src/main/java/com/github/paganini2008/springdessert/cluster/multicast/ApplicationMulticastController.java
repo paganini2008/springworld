@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 
  * ApplicationMulticastController
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

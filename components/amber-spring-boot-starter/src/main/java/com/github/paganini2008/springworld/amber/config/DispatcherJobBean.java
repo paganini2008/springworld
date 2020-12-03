@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  * DispatcherJobBean
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public class DispatcherJobBean implements Job {

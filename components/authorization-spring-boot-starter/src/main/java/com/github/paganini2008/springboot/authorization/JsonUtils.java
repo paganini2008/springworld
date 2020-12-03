@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
  * 
  * JsonUtils
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class JsonUtils {
@@ -42,7 +42,7 @@ public class JsonUtils {
 	 * 
 	 * ParameterizedTypeImpl
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * @version 1.0
 	 */

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 
  * RestClient
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

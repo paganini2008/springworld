@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.StringUtils;
 /**
  * 
  * WebUtils
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

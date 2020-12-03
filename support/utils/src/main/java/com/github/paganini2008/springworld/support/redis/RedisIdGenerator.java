@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * RedisIdGenerator
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 2.0.0
  */

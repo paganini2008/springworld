@@ -13,7 +13,7 @@ import org.springframework.web.client.ResponseExtractor;
  * 
  * EnhancedRestTemplate
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

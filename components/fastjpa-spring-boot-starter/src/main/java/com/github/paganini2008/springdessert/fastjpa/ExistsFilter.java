@@ -7,7 +7,7 @@ import javax.persistence.criteria.Predicate;
  * 
  * ExistsFilter
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

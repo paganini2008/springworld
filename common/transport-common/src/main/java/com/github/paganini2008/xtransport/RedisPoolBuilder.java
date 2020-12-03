@@ -4,7 +4,7 @@ package com.github.paganini2008.xtransport;
  * 
  * RedisPoolBuilder
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @FunctionalInterface

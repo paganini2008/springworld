@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.cluster.election;
  * 
  * LeaderNotFoundException
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class LeaderNotFoundException extends IllegalStateException {

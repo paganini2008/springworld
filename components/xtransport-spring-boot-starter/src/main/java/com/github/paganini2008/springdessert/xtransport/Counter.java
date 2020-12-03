@@ -14,7 +14,7 @@ import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
  * 
  * Counter
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public final class Counter extends RedisCounter implements Executable {

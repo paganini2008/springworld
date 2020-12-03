@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * 
  * BasicEntityListener
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * 
  * DelayedJob
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 @Target(ElementType.TYPE)

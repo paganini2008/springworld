@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.reditools.common;
 /**
  * 
  * ConnectionFailureHandler
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

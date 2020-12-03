@@ -6,7 +6,7 @@ import javax.persistence.criteria.Path;
  * 
  * PathUtils
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

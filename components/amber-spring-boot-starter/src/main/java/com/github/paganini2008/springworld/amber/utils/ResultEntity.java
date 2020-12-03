@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 
  * MessageEntity
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class ResultEntity<T> implements Serializable {

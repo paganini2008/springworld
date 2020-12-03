@@ -20,7 +20,7 @@ import com.github.paganini2008.devtools.io.IOUtils;
  * 
  * GitRepoProperties
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

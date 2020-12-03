@@ -17,7 +17,7 @@ import lombok.Setter;
  * 
  * Blogger
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

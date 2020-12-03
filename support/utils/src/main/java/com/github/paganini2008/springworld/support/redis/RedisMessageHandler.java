@@ -3,7 +3,7 @@ package com.github.paganini2008.springworld.support.redis;
 /**
  * 
  * RedisMessageHandler
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

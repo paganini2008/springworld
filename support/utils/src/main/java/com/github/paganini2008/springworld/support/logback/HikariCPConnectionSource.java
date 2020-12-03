@@ -12,7 +12,7 @@ import ch.qos.logback.core.db.DataSourceConnectionSource;
  * 
  * HikariCPConnectionSource
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2019-03
  */
 public class HikariCPConnectionSource extends DataSourceConnectionSource {

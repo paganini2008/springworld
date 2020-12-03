@@ -7,7 +7,7 @@ import java.util.Arrays;
  * 
  * ColumnList
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

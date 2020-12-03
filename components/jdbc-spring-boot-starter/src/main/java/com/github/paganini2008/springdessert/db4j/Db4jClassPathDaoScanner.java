@@ -16,7 +16,7 @@ import com.github.paganini2008.springdessert.jdbc.annotations.Dao;
  * 
  * Db4jClassPathDaoScanner
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class Db4jClassPathDaoScanner extends ClassPathBeanDefinitionScanner {

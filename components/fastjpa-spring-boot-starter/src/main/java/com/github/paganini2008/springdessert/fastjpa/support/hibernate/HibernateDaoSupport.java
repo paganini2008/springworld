@@ -11,7 +11,7 @@ import com.github.paganini2008.springdessert.fastjpa.support.RowMapper;
  * 
  * HibernateDaoSupport
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class HibernateDaoSupport<E, ID> extends EntityDaoSupport<E, ID> implements EntityDao<E, ID> {

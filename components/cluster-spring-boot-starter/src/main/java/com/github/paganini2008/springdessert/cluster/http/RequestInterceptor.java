@@ -7,7 +7,7 @@ import org.springframework.lang.Nullable;
  * 
  * RequestInterceptor
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

@@ -9,7 +9,7 @@ import java.util.Set;
  * 
  * Cache
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public interface Cache {
@@ -18,7 +18,7 @@ public interface Cache {
 	 * 
 	 * Signature
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	interface Signature {
@@ -31,7 +31,7 @@ public interface Cache {
 	 * 
 	 * Operation of map
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	interface HashOperations extends Signature {
@@ -62,7 +62,7 @@ public interface Cache {
 	 * 
 	 * Opeation of set
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	interface SetOperations extends Signature {
@@ -97,7 +97,7 @@ public interface Cache {
 	 * 
 	 * Operation of list
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	interface ListOperations extends Signature {
@@ -135,7 +135,7 @@ public interface Cache {
 	 * 
 	 * Operation of value
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	interface ValueOperations extends Signature {

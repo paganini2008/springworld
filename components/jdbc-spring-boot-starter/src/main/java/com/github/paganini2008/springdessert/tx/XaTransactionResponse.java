@@ -12,7 +12,7 @@ import lombok.Setter;
  * 
  * XaTransactionResponse
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Getter

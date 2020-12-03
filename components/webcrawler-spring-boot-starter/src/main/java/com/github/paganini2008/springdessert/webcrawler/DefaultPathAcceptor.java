@@ -20,7 +20,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * DefaultPathAcceptor
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class DefaultPathAcceptor implements PathAcceptor {

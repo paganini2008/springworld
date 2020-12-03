@@ -6,7 +6,7 @@ import com.github.paganini2008.devtools.collection.LruList;
  * 
  * LruCache
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class LruCache extends BasicCache {
@@ -19,7 +19,7 @@ public class LruCache extends BasicCache {
 	 * 
 	 * LruKeyExpirationPolicy
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	private static class LruKeyExpirationPolicy implements KeyExpirationPolicy {

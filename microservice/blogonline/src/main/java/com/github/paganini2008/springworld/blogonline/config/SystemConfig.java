@@ -14,7 +14,7 @@ import com.github.paganini2008.springworld.support.tip.TipInfoService;
  * 
  * SystemConfig
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

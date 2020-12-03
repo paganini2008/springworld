@@ -10,7 +10,7 @@ import com.github.paganini2008.springdessert.jobsoup.model.PageQuery;
  * 
  * PageBean
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

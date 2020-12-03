@@ -6,7 +6,7 @@ import com.github.paganini2008.springdessert.cluster.ApplicationClusterLeaderEve
  * 
  * SchedulerStarterListener
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

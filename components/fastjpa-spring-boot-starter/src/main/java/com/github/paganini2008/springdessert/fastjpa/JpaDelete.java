@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.fastjpa;
  * 
  * JpaDelete
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface JpaDelete<E> extends Executable{

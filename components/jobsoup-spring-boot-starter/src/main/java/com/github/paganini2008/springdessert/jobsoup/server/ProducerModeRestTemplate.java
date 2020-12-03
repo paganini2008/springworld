@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  * ProducerModeRestTemplate
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

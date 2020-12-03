@@ -6,7 +6,7 @@ import java.util.EventListener;
  * 
  * TransactionEventListener
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public interface TransactionEventListener extends EventListener {

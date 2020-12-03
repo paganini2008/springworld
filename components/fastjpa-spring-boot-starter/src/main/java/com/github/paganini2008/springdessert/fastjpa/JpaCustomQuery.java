@@ -6,7 +6,7 @@ import java.util.List;
  * 
  * JpaCustomQuery
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

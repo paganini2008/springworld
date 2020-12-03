@@ -6,7 +6,7 @@ import java.util.List;
  * 
  * Transformer
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public interface Transformer {

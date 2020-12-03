@@ -27,7 +27,7 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
  * 
  * BasicCache
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public abstract class BasicCache implements Cache {
@@ -78,7 +78,7 @@ public abstract class BasicCache implements Cache {
 	 * 
 	 * HashOperaionsImpl
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	public class HashOperaionsImpl implements HashOperations, InvocationHandler {
@@ -147,7 +147,7 @@ public abstract class BasicCache implements Cache {
 	 * 
 	 * SetOperationsImpl
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	public class SetOperationsImpl implements SetOperations, InvocationHandler {
@@ -220,7 +220,7 @@ public abstract class BasicCache implements Cache {
 	 * 
 	 * ListOperationsImpl
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	public class ListOperationsImpl implements ListOperations, InvocationHandler {

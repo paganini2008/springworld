@@ -6,7 +6,7 @@ import javax.persistence.Tuple;
  * 
  * TransformerPostHandler
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

@@ -14,7 +14,7 @@ import lombok.Setter;
  * 
  * ArticleType
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

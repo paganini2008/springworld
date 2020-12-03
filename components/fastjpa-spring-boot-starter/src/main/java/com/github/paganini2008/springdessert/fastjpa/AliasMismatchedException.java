@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.fastjpa;
  * 
  * AliasMismatchedException
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

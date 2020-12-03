@@ -21,7 +21,7 @@ import com.github.paganini2008.webcrawler.utils.Response;
  * 
  * CrawlerController
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @RequestMapping("/catalog")

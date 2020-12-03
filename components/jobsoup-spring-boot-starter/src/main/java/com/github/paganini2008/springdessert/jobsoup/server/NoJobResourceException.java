@@ -6,7 +6,7 @@ import com.github.paganini2008.springdessert.jobsoup.JobException;
  * 
  * NoJobResourceException
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

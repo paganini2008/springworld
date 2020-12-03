@@ -17,7 +17,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * 
  * RootModel
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class RootModel<X> implements Model<X> {

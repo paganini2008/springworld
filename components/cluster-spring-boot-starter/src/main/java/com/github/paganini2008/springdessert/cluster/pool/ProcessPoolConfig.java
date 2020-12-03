@@ -21,7 +21,7 @@ import com.github.paganini2008.springdessert.reditools.common.TtlKeeper;
  * 
  * ProcessPoolConfig
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

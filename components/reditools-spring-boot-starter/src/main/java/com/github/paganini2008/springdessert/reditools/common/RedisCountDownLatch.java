@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * RedisCountDownLatch
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */
@@ -148,7 +148,7 @@ public class RedisCountDownLatch implements DistributedCountDownLatch {
 	 * 
 	 * LatchFuture
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */

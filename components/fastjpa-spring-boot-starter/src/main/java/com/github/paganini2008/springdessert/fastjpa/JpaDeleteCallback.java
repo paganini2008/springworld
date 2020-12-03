@@ -7,7 +7,7 @@ import javax.persistence.criteria.CriteriaDelete;
  * 
  * JpaDeleteCallback
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface JpaDeleteCallback<T> {

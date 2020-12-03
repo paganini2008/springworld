@@ -18,7 +18,7 @@ import com.github.paganini2008.webcrawler.utils.Response;
  * 
  * SearchController
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @RequestMapping("/search")

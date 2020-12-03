@@ -15,7 +15,7 @@ import com.zaxxer.hikari.HikariDataSource;
  * 
  * DbPoolConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

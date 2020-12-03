@@ -16,7 +16,7 @@ import com.zaxxer.hikari.HikariDataSource;
  * 
  * DbConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 @Configuration

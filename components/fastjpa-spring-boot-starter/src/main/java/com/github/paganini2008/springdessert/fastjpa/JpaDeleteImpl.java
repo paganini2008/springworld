@@ -9,7 +9,7 @@ import javax.persistence.criteria.Subquery;
  * 
  * JpaDeleteImpl
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class JpaDeleteImpl<E> implements JpaDelete<E> {

@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationEvent;
  * 
  * OperationSynchronizationEvent
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class OperationSynchronizationEvent extends ApplicationEvent {

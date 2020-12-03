@@ -12,7 +12,7 @@ import com.github.paganini2008.springdessert.fastjpa.support.BeanTransformer;
  * 
  * Transformers
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */
@@ -43,7 +43,7 @@ public abstract class Transformers {
 	 * 
 	 * MapTransformer
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * 
 	 * @version 1.0
@@ -67,7 +67,7 @@ public abstract class Transformers {
 	 * 
 	 * TupleTransformer
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * 
 	 * @version 1.0
@@ -91,7 +91,7 @@ public abstract class Transformers {
 	 * 
 	 * ListTransformer
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * 
 	 * @version 1.0

@@ -14,7 +14,7 @@ import ch.qos.logback.core.spi.FilterReply;
  * 
  * MarkerThresholdFilter
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2019-03
  */
 public class MarkerThresholdFilter extends AbstractMatcherFilter<ILoggingEvent> {

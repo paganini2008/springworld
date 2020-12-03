@@ -11,7 +11,7 @@ import lombok.Setter;
  * 
  * JobTracePageQuery
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

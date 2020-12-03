@@ -17,7 +17,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * 
  * JoinModel
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

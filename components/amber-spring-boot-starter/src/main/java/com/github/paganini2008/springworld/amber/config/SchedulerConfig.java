@@ -22,7 +22,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * 
  * SchedulerConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 @Configuration

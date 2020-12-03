@@ -17,7 +17,7 @@ import com.github.paganini2008.devtools.converter.ConvertUtils;
  * 
  * BeanExpressionUtils
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

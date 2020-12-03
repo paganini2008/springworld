@@ -19,7 +19,7 @@ import com.github.paganini2008.springdessert.reditools.BeanNames;
  * 
  * ApplicationClusterController
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @RequestMapping("/application/cluster")

@@ -12,7 +12,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
  * 
  * JobIdCache
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

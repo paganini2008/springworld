@@ -9,7 +9,7 @@ import lombok.Setter;
  * 
  * SuccessCallback
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

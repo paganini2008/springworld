@@ -11,7 +11,7 @@ import javax.persistence.criteria.Subquery;
  * 
  * JpaSubQueryImpl
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

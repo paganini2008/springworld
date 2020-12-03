@@ -4,7 +4,7 @@ package com.github.paganini2008.springworld.amber.config;
  * 
  * SchedulerStateListener
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface SchedulerStateListener {

@@ -6,7 +6,7 @@ import java.util.Date;
  * 
  * StopWatch
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

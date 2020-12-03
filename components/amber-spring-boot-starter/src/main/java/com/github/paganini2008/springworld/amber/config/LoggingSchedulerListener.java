@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * 
  * LoggingSchedulerListener
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public class LoggingSchedulerListener implements SchedulerListener {

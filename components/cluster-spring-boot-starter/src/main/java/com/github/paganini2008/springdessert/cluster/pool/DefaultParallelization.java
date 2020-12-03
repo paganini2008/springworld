@@ -6,7 +6,7 @@ import java.util.Collection;
  * 
  * DefaultParallelization
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

@@ -4,7 +4,7 @@ package com.github.paganini2008.springworld.amber.config;
  * 
  * JobDispatcher
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public interface JobDispatcher {

@@ -17,7 +17,7 @@ import com.github.paganini2008.devtools.jdbc.JdbcUtils;
  * 
  * LogbackDbLoggingUtils
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2019-03
  */
 public class LogbackDbLoggingUtils {

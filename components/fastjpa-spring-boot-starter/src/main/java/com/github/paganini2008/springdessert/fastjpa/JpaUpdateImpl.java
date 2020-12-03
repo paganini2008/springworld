@@ -10,7 +10,7 @@ import javax.persistence.criteria.Subquery;
  * 
  * JpaUpdateImpl
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class JpaUpdateImpl<E> implements JpaUpdate<E> {

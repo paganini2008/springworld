@@ -20,7 +20,7 @@ import com.github.paganini2008.springworld.amber.utils.JsonUtils;
  * 
  * RedisJobProcessor
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public class RedisJobProcessor implements ApplicationListener<JobServerEvent> {

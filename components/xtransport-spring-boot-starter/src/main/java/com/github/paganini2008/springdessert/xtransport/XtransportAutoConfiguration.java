@@ -58,7 +58,7 @@ import io.netty.channel.Channel;
  * 
  * XtransportAutoConfiguration
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Import({ ApplicationTransportController.class, BenchmarkController.class })
@@ -122,7 +122,7 @@ public class XtransportAutoConfiguration {
 	 * 
 	 * MemcachedBufferZoneConfiguration
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */

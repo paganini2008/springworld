@@ -27,7 +27,7 @@ import com.github.paganini2008.springworld.amber.utils.JsonUtils;
  * 
  * RedisDispatcher
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public class RedisDispatcher implements JobDispatcher {

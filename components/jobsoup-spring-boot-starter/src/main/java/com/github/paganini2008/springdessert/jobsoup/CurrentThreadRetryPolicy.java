@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * 
  * CurrentThreadRetryPolicy
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

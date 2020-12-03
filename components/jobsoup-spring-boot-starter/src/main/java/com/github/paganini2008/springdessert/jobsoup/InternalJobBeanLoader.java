@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * InternalJobBeanLoader
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */
@@ -91,7 +91,7 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 	 * 
 	 * JobBeanAspect
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */

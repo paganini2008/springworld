@@ -11,7 +11,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * 
  * AcceptedRequestFilter
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */
@@ -21,7 +21,7 @@ public class AcceptedRequestFilter implements RequestMatcher {
 	 * 
 	 * RequestMatcher
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * @version 1.0
 	 */

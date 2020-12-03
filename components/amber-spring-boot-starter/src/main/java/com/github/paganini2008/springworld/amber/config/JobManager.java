@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
  * 
  * JobManager
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 @Component

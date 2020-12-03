@@ -7,7 +7,7 @@ import java.lang.management.RuntimeMXBean;
  * 
  * Env
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

@@ -36,7 +36,7 @@ import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
  * 
  * RestClientConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */
@@ -100,7 +100,7 @@ public class RestClientConfig {
 	 * 
 	 * LeaderHeartbeaterConfig
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */
@@ -126,7 +126,7 @@ public class RestClientConfig {
 	 * 
 	 * HttpClientConfig
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * @since 1.0
 	 */

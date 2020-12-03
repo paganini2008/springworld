@@ -15,7 +15,7 @@ import com.github.paganini2008.embeddedio.ChannelEvent.EventType;
  * 
  * NioConnector
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class NioConnector extends NioReactor implements IoConnector {

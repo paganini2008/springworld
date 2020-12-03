@@ -28,7 +28,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * 
  * RedisConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

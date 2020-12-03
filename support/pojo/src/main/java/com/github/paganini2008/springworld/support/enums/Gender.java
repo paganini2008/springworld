@@ -9,7 +9,7 @@ import com.github.paganini2008.devtools.enums.EnumUtils;
  * 
  * Gender
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 2.0.0
  */

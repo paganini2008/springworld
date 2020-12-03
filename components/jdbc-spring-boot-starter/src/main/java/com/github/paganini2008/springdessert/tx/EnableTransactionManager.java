@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
  * 
  * EnableTransactionManager
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Target(ElementType.TYPE)

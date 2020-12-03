@@ -34,7 +34,7 @@ import com.github.paganini2008.springdessert.jobsoup.ui.utils.PageBean;
  * 
  * JobController
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

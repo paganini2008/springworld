@@ -10,7 +10,7 @@ import com.github.paganini2008.devtools.db4j.SqlPlus;
  * 
  * JdbcTransactionConfig
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Configuration

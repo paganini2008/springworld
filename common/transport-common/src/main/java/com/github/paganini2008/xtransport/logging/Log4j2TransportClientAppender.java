@@ -37,7 +37,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * 
  * Log4j2TransportClientAppender
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Plugin(name = Log4j2TransportClientAppender.PLUGIN_NAME, category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
@@ -206,7 +206,7 @@ public class Log4j2TransportClientAppender extends AbstractAppender {
 	 * 
 	 * TransportClient
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * 
 	 * 
 	 * @version 1.0

@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.multithreads.ClockTask;
  * 
  * IdleChannelHandler
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class IdleChannelHandler implements ChannelHandler {

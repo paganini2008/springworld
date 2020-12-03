@@ -15,7 +15,7 @@ import com.github.paganini2008.springdessert.jobsoup.model.PageQuery;
  * 
  * JobManager
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public interface JobManager extends JobPersistence {

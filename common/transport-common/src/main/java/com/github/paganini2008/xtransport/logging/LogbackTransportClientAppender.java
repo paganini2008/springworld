@@ -21,7 +21,7 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
  * 
  * LogbackTransportClientAppender
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class LogbackTransportClientAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {

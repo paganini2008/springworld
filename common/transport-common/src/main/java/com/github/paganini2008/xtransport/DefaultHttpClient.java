@@ -31,7 +31,7 @@ import okhttp3.Response;
  * 
  * DefaultHttpClient
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

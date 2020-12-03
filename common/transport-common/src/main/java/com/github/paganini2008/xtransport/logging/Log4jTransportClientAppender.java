@@ -30,7 +30,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * 
  * Log4jTransportClientAppender
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class Log4jTransportClientAppender extends AppenderSkeleton {

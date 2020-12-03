@@ -8,7 +8,7 @@ import com.github.paganini2008.devtools.TableView;
  * 
  * Banner
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * ApplicationMessageListener
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Slf4j

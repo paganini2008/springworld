@@ -4,7 +4,7 @@ package com.github.paganini2008.springworld.amber.redis;
  * 
  * EventType
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public enum EventType {

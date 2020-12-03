@@ -6,7 +6,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * Serializer
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public interface Serializer {

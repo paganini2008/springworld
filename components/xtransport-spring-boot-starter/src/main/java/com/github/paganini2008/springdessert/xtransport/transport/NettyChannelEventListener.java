@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * NettyChannelEventListener
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

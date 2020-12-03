@@ -18,7 +18,7 @@ import com.github.paganini2008.springdessert.cluster.multicast.MulticastGroupEve
  * 
  * MulticastListenerContainer
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class MulticastListenerContainer implements ApplicationContextAware, BeanPostProcessor {

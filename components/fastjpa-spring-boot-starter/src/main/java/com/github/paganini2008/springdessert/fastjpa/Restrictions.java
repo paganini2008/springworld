@@ -9,7 +9,7 @@ import javax.persistence.criteria.Predicate;
  * 
  * Restrictions
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 
  * TestController
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

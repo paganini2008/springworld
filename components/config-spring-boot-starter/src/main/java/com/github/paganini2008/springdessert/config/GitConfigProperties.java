@@ -8,7 +8,7 @@ import java.util.Properties;
  * 
  * GitConfigProperties
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

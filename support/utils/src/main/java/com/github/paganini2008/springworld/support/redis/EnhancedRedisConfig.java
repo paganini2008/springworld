@@ -14,7 +14,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
  * 
  * EnhancedRedisConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

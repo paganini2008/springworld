@@ -16,7 +16,7 @@ import com.github.paganini2008.springdessert.reditools.common.TtlKeeper;
  * 
  * ConsistencyRequestRound
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class ConsistencyRequestRound {

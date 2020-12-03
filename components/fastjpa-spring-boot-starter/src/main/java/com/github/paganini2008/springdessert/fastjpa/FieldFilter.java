@@ -8,7 +8,7 @@ import javax.persistence.criteria.Predicate;
  * 
  * FieldFilter
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

@@ -11,7 +11,7 @@ import javax.persistence.criteria.Expression;
  * 
  * SimpleCaseExpression
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

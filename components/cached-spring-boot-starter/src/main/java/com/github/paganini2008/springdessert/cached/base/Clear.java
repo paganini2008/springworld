@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 
  * Clear
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @Target(ElementType.METHOD)

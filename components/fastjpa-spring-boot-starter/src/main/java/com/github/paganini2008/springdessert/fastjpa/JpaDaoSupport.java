@@ -18,7 +18,7 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
  * 
  * JpaDaoSupport
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class JpaDaoSupport<E, ID> extends SimpleJpaRepository<E, ID> implements JpaCustomUpdate<E>, JpaCustomQuery<E> {

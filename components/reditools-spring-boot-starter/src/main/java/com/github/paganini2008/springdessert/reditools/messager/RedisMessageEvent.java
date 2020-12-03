@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationEvent;
  * 
  * RedisMessageEvent
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class RedisMessageEvent extends ApplicationEvent {

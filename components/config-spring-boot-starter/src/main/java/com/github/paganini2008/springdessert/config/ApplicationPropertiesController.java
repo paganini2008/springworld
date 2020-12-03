@@ -14,7 +14,7 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  * 
  * ApplicationPropertiesController
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

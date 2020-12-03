@@ -9,7 +9,7 @@ import com.github.paganini2008.xtransport.serializer.Serializer;
  * 
  * GrizzlyTupleCodecFactory
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class GrizzlyTupleCodecFactory implements TupleCodecFactory {

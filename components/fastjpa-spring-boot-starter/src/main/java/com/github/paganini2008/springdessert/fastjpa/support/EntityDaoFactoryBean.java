@@ -16,7 +16,7 @@ import com.github.paganini2008.springdessert.fastjpa.support.hibernate.Hibernate
  * 
  * EntityDaoFactoryBean
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @SuppressWarnings("all")

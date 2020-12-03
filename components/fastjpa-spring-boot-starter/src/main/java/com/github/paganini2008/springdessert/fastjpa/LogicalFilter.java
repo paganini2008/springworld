@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.fastjpa;
  * 
  * LogicalFilter
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

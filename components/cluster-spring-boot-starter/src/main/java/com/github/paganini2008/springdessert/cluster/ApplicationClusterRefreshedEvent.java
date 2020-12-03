@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
  * 
  * ApplicationClusterRefreshedEvent
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationEvent;
  * 
  * TransactionEvent
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class TransactionEvent extends ApplicationEvent {

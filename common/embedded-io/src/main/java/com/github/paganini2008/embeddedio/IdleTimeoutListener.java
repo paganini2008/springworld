@@ -7,7 +7,7 @@ import com.github.paganini2008.devtools.logging.LogFactory;
  * 
  * IdleTimeoutListener
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @FunctionalInterface

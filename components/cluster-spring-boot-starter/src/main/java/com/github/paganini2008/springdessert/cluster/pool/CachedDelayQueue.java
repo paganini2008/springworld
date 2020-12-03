@@ -15,7 +15,7 @@ import com.github.paganini2008.springdessert.reditools.BeanNames;
  * 
  * CachedDelayQueue
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class CachedDelayQueue implements DelayQueue {

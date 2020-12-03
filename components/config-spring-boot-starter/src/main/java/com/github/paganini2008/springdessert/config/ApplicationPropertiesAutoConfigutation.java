@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
  * 
  * ApplicationPropertiesAutoConfigutation
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

@@ -8,7 +8,7 @@ import com.github.paganini2008.springdessert.fastjpa.ResultSetExtractor;
  * 
  * NativeSqlOperations
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface NativeSqlOperations<E> {

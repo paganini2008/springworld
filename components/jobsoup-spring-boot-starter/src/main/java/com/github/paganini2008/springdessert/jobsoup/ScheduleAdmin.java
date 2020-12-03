@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.jobsoup;
 /**
  * 
  * ScheduleAdmin
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

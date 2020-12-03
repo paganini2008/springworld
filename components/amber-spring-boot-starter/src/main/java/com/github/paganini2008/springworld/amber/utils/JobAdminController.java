@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.amber.test.OneJobBean;
  * 
  * JobAdminController
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 @RestController

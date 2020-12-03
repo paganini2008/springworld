@@ -20,7 +20,7 @@ import com.github.paganini2008.springworld.amber.config.JobManager;
  * 
  * JobAdminService
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 @Component

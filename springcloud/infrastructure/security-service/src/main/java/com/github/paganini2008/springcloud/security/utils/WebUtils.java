@@ -14,7 +14,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 /**
  * WebUtils
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @SuppressWarnings("all")

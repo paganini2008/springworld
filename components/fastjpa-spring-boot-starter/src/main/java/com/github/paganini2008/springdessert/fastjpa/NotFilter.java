@@ -7,7 +7,7 @@ import javax.persistence.criteria.Predicate;
  * 
  * NotFilter
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

@@ -8,7 +8,7 @@ import net.rubyeye.xmemcached.MemcachedClient;
  * 
  * MemcachedTemplate
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class MemcachedTemplate implements MemcachedOperations {

@@ -13,7 +13,7 @@ import io.undertow.UndertowOptions;
  * 
  * ServerConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2019-03
  */
 @Configuration

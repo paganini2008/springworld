@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * SerialDependencyTrigger
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

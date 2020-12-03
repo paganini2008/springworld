@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.cluster.pool;
  * 
  * CallParallelization
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

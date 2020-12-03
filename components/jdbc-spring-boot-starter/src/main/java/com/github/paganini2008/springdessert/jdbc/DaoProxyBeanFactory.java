@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  * DaoProxyBeanFactory
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class DaoProxyBeanFactory<T> implements FactoryBean<T> {

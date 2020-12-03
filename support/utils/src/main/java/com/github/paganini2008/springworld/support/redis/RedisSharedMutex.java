@@ -11,7 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  * 
  * RedisSharedMutex
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

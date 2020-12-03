@@ -14,7 +14,7 @@ import javax.persistence.metamodel.EntityType;
  * 
  * SiblingModel
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

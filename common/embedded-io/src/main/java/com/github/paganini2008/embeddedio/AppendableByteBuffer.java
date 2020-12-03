@@ -15,7 +15,7 @@ import com.github.paganini2008.embeddedio.examples.Item;
  * 
  * AppendableByteBuffer
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class AppendableByteBuffer implements IoBuffer {

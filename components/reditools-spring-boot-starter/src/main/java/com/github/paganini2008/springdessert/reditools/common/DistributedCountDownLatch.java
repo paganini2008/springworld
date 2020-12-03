@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * DistributedCountDownLatch
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */
@@ -26,7 +26,7 @@ public interface DistributedCountDownLatch {
 	 * 
 	 * InterruptibleHandler
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */

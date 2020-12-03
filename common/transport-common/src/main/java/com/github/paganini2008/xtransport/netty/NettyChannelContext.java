@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * NettyChannelContext
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

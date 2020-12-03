@@ -8,7 +8,7 @@ import javax.sql.DataSource;
  * 
  * TipInfoService
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2019-03
  */
 public class TipInfoService {

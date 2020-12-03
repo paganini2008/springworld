@@ -20,7 +20,7 @@ import com.github.paganini2008.springdessert.jdbc.annotations.DaoScan;
  * 
  * DaoScannerRegistrar
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {

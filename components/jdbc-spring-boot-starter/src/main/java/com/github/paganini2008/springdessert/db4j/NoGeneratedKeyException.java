@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.db4j;
  * 
  * NoGeneratedKeyException
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class NoGeneratedKeyException extends IllegalStateException {

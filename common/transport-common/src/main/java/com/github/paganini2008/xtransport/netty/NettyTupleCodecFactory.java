@@ -9,7 +9,7 @@ import io.netty.channel.ChannelHandler;
  * 
  * TupleCodecFactory
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class NettyTupleCodecFactory implements MessageCodecFactory {

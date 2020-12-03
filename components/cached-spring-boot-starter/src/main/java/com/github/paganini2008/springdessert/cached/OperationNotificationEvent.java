@@ -8,7 +8,7 @@ import com.github.paganini2008.springdessert.cached.base.Cache;
  * 
  * OperationNotificationEvent
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class OperationNotificationEvent extends ApplicationEvent {

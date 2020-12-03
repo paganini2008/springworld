@@ -13,7 +13,7 @@ import com.github.paganini2008.xtransport.Partitioner;
  * 
  * EmbeddedChannelContext
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class EmbeddedChannelContext extends EmbeddedChannelContextAware implements ChannelContext<Channel> {

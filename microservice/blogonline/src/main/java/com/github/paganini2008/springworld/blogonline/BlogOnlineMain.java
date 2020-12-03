@@ -17,7 +17,7 @@ import com.github.paganini2008.springworld.support.Env;
  * 
  * BlogOnlineMain
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

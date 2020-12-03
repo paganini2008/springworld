@@ -26,7 +26,7 @@ import com.github.paganini2008.springdessert.fastjpa.ResultSetExtractor;
  * 
  * EntityDaoSupport
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

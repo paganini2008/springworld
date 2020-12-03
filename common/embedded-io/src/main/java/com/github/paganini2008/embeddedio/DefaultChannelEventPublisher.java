@@ -10,7 +10,7 @@ import com.github.paganini2008.embeddedio.ChannelEvent.EventType;
  * 
  * DefaultChannelEventPublisher
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class DefaultChannelEventPublisher implements ChannelEventPublisher {
@@ -53,7 +53,7 @@ public class DefaultChannelEventPublisher implements ChannelEventPublisher {
 	 * 
 	 * ChannelEventListenerAdaptor
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	private class ChannelEventListenerAdaptor implements ChannelEventListener {

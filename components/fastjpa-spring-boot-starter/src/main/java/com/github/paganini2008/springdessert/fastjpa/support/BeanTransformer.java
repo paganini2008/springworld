@@ -24,7 +24,7 @@ import com.github.paganini2008.springdessert.fastjpa.TransformerPostHandler;
  * 
  * BeanTransformer
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

@@ -6,7 +6,7 @@ import com.google.gson.Gson;
  * 
  * GsonUtils
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class GsonUtils {

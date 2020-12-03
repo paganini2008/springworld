@@ -15,7 +15,7 @@ import com.github.paganini2008.xtransport.TupleImpl;
  * 
  * JsonObjectSerializer
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class JsonObjectSerializer implements Serializer {

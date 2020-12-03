@@ -19,7 +19,7 @@ import com.github.paganini2008.springworld.amber.utils.JsonUtils;
  * 
  * JobServerEventListener
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 @Configuration

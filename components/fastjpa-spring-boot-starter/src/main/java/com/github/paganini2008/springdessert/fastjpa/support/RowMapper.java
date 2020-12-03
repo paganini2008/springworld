@@ -6,7 +6,7 @@ import com.github.paganini2008.devtools.collection.Tuple;
  * 
  * RowMapper
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface RowMapper<T> {

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * Function
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

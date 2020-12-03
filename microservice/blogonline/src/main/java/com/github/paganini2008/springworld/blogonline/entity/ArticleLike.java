@@ -19,7 +19,7 @@ import lombok.Setter;
  * 
  * ArticleLike
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

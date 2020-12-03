@@ -4,7 +4,7 @@ package com.github.paganini2008.springdessert.fastjpa;
  * 
  * JpaCustomUpdate
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface JpaCustomUpdate<X> {

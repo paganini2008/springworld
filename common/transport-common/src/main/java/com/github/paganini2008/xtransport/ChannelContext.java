@@ -7,7 +7,7 @@ import java.util.Collection;
  * 
  * ChannelContext
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public interface ChannelContext<T> {

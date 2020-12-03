@@ -17,7 +17,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * 
  * NettyChannelContextAware
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public abstract class NettyChannelContextAware extends ChannelInboundHandlerAdapter implements ChannelContext<Channel> {

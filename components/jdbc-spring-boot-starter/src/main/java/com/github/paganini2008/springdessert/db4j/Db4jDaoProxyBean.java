@@ -47,7 +47,7 @@ import com.github.paganini2008.springdessert.jdbc.annotations.Update;
  * 
  * Db4jDaoProxyBean
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @SuppressWarnings("all")

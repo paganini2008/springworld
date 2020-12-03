@@ -6,7 +6,7 @@ import java.io.IOException;
  * 
  * ChannelHandler
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public interface ChannelHandler {

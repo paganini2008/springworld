@@ -23,7 +23,7 @@ import com.github.paganini2008.springdessert.cluster.LeaderContext;
  * 
  * RestClientBeanAspect
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

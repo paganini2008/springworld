@@ -13,7 +13,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
  * 
  * ValidationConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  */
 @Configuration

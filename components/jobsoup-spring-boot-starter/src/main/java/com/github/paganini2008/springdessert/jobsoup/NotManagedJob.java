@@ -6,7 +6,7 @@ import org.slf4j.Logger;
  * 
  * NotManagedJob
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

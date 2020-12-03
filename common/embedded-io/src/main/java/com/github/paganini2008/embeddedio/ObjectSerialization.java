@@ -6,7 +6,7 @@ import com.github.paganini2008.devtools.io.SerializationUtils;
  * 
  * ObjectSerialization
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class ObjectSerialization implements Serialization {

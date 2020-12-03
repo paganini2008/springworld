@@ -9,7 +9,7 @@ import com.github.paganini2008.springdessert.cluster.ClusterState;
  * 
  * LeaderService
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

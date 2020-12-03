@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
  * 
  * OAuth2ClientConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

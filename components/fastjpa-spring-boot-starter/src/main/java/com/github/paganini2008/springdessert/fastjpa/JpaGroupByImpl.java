@@ -17,7 +17,7 @@ import com.github.paganini2008.devtools.jdbc.ResultSetSlice;
  * 
  * JpaGroupByImpl
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

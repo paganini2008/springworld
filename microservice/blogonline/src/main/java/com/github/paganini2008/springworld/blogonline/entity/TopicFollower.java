@@ -15,7 +15,7 @@ import com.github.paganini2008.springworld.support.BaseEntity;
  * 
  * TopicFollower
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

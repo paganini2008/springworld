@@ -6,7 +6,7 @@ import java.nio.channels.SelectionKey;
  * 
  * NioReader
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class NioReader extends NioReactor {

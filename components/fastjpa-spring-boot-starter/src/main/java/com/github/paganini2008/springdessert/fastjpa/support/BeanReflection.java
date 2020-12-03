@@ -15,7 +15,7 @@ import com.github.paganini2008.devtools.reflection.FieldUtils;
  * 
  * BeanReflection
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

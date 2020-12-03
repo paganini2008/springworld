@@ -32,7 +32,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * 
  * RedisConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  */
 @Configuration
 public class RedisConfig {

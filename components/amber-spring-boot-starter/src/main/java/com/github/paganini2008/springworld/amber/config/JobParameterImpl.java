@@ -11,7 +11,7 @@ import com.github.paganini2008.devtools.collection.Tuple;
  * 
  * JobParameterImpl
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @create 2018-03
  */
 public class JobParameterImpl implements JobParameter, Serializable {

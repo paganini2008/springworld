@@ -7,7 +7,7 @@ import com.github.paganini2008.springworld.fastjpa.support.EntityDao;
  * 
  * BloggerDao
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

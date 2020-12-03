@@ -9,7 +9,7 @@ import com.github.paganini2008.xtransport.serializer.Serializer;
  * 
  * EmbeddedSerializationFactory
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class EmbeddedSerializationFactory implements SerializationFactory {

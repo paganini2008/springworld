@@ -11,7 +11,7 @@ import com.github.paganini2008.devtools.date.DateUtils;
  * 
  * TriggerInfo
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class TriggerInfo {

@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * OAuth2ResourceServerConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

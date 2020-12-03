@@ -12,7 +12,7 @@ import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
  * 
  * LoadBalanceRoutingPolicy
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

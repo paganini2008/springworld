@@ -10,7 +10,7 @@ import org.springframework.http.HttpMethod;
  * 
  * Request
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

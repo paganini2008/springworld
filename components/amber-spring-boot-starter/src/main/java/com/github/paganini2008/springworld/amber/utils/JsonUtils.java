@@ -20,7 +20,7 @@ import com.google.gson.JsonSerializer;
  * 
  * JsonUtils
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class JsonUtils {

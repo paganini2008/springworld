@@ -21,7 +21,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * TestController
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @since 1.0
  */

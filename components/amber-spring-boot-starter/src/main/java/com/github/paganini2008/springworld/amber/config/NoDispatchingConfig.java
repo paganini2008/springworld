@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Primary;
  * 
  * NoDispatchingConfig
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 @Configuration

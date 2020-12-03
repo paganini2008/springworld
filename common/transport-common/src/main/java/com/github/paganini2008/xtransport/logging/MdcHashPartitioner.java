@@ -9,7 +9,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * MdcHashPartitioner
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

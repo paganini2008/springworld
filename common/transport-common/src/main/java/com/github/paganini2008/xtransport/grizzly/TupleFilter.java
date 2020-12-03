@@ -11,7 +11,7 @@ import com.github.paganini2008.xtransport.serializer.Serializer;
  * 
  * TupleFilter
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class TupleFilter extends AbstractCodecFilter<Buffer, Tuple> {

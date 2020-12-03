@@ -6,7 +6,7 @@ import javax.persistence.Query;
  * 
  * ResultSetExtractor
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public interface ResultSetExtractor<T> {

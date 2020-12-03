@@ -12,7 +12,7 @@ import net.rubyeye.xmemcached.utils.AddrUtil;
  * 
  * MemcachedTemplateBuilder
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class MemcachedTemplateBuilder {

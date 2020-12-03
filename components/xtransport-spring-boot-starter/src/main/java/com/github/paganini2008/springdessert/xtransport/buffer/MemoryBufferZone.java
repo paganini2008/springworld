@@ -15,7 +15,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * MemoryBufferZone
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class MemoryBufferZone implements BufferZone {

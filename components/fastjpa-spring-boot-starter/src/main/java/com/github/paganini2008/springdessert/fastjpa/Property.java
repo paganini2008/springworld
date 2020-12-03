@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * Property
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  */

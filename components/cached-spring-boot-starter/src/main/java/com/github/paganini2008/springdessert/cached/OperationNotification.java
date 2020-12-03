@@ -11,7 +11,7 @@ import lombok.Setter;
  * 
  * OperationNotification
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 @Setter

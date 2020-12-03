@@ -17,7 +17,7 @@ import com.github.paganini2008.springdessert.jobsoup.model.JobTriggerDetail;
  * 
  * ServerModeJobBeanProxy
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  * @since 1.0
  */

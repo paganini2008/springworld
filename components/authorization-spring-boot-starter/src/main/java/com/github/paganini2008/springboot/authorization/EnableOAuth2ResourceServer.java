@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
  * 
  * EnableOAuth2ResourceServer
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * @version 1.0
  */

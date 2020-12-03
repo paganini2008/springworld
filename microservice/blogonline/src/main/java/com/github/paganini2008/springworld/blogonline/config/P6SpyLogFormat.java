@@ -9,7 +9,7 @@ import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
  * 
  * P6SpyLogFormat
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  *
  */
 public class P6SpyLogFormat implements MessageFormattingStrategy {

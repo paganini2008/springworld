@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * FeignConfig
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Slf4j
@@ -46,7 +46,7 @@ public class OpenFeignConfig {
 	 * 
 	 * XaRequestInterceptor
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @version 1.0
 	 */
 	public static class XaRequestInterceptor implements RequestInterceptor {

@@ -8,7 +8,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * 
  * JobInfo
  * 
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  */
 public class JobInfo {

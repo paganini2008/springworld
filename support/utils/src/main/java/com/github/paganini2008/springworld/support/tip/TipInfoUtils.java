@@ -8,7 +8,7 @@ import com.github.paganini2008.springworld.support.ApplicationContextUtils;
  * 
  * TipInfoUtils
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * 
  * 
  * @version 1.0

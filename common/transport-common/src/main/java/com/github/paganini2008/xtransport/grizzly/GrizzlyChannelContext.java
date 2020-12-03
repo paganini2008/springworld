@@ -14,7 +14,7 @@ import com.github.paganini2008.xtransport.Partitioner;
  * 
  * GrizzlyChannelContext
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public class GrizzlyChannelContext extends GrizzlyChannelContextAware implements ChannelContext<Connection<?>> {

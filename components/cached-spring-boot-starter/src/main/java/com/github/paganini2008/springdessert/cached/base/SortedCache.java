@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * 
  * SortedCache
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @since 1.0
  */
 public class SortedCache extends BasicCache {
@@ -27,7 +27,7 @@ public class SortedCache extends BasicCache {
 	 * 
 	 * SortedKeyExpirationPolicy
 	 *
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 * @since 1.0
 	 */
 	private static class SortedKeyExpirationPolicy implements KeyExpirationPolicy {

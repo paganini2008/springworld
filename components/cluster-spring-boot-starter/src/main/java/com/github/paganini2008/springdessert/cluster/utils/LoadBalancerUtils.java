@@ -11,7 +11,7 @@ import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
  * 
  * LoadBalancerUtils
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public abstract class LoadBalancerUtils {
@@ -20,7 +20,7 @@ public abstract class LoadBalancerUtils {
 	 * 
 	 * RoundRobinLoadBalancer
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */
@@ -41,7 +41,7 @@ public abstract class LoadBalancerUtils {
 	 * 
 	 * RandomLoadBalancer
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */
@@ -60,7 +60,7 @@ public abstract class LoadBalancerUtils {
 	 * 
 	 * HashLoadBalancer
 	 * 
-	 * @author Fred Feng
+	 * @author Jimmy Hoff
 	 *
 	 * @since 1.0
 	 */

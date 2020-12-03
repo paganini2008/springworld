@@ -6,7 +6,7 @@ import java.net.SocketAddress;
  * 
  * NioConnection
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 public interface NioConnection {

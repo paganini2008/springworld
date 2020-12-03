@@ -7,7 +7,7 @@ import com.github.paganini2008.springdessert.jobsoup.utils.GenericJobDefinition;
  * 
  * JobPersistence
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  */
 public interface JobPersistence {
 

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 
  * Select
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
  * @version 1.0
  */
 @Documented
