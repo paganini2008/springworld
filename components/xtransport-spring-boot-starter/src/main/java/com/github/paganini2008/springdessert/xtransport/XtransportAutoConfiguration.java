@@ -114,7 +114,7 @@ public class XtransportAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public BufferZone redisBufferZone() {
+	public BufferZone bufferZone() {
 		return new RedisBufferZone();
 	}
 

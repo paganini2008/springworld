@@ -1,5 +1,6 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
@@ -115,6 +117,7 @@ public class CrawlerHandler implements Handler {
 		final String refer = (String) tuple.getField("refer");
 		final String path = (String) tuple.getField("path");
 		final String cat = (String) tuple.getField("cat");
+		final String pageEncoding = (String) tuple.getField("pageEncoding");
 		final int version = (Integer) tuple.getField("version");
 		crawlerSummary.getSummary(catalogId).incrementUrlCount();
 
@@ -129,13 +132,14 @@ public class CrawlerHandler implements Handler {
 			log.trace("Handle resource: [Resource] refer: {}, path: {}", refer, path);
 		}
 
+		Charset charset = CharsetUtils.toCharset(pageEncoding);
 		String html = null;
 		try {
-			html = pageExtractor.extractHtml(refer, path);
+			html = pageExtractor.extractHtml(refer, path, charset);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			crawlerSummary.getSummary(catalogId).incrementInvalidUrlCount();
-			html = pageExtractor.defaultPage(refer, path, e);
+			html = pageExtractor.defaultPage(refer, path, charset, e);
 		}
 		if (StringUtils.isBlank(html)) {
 			return;
@@ -191,16 +195,18 @@ public class CrawlerHandler implements Handler {
 		final String refer = (String) tuple.getField("refer");
 		final String path = (String) tuple.getField("path");
 		final String cat = (String) tuple.getField("cat");
+		final String pageEncoding = (String) tuple.getField("pageEncoding");
 		final int version = (Integer) tuple.getField("version");
 		crawlerSummary.getSummary(catalogId).incrementUrlCount();
 
+		Charset charset = CharsetUtils.toCharset(pageEncoding);
 		String html = null;
 		try {
-			html = pageExtractor.extractHtml(refer, path);
+			html = pageExtractor.extractHtml(refer, path, charset);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			crawlerSummary.getSummary(catalogId).incrementInvalidUrlCount();
-			html = pageExtractor.defaultPage(refer, path, e);
+			html = pageExtractor.defaultPage(refer, path, charset, e);
 		}
 		if (StringUtils.isBlank(html)) {
 			return;

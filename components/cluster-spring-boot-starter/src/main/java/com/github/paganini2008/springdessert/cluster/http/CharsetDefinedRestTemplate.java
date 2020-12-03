@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -10,35 +10,35 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * 
- * Utf8CharsetRestTemplate
+ * CharsetDefinedRestTemplate
  *
  * @author Jimmy Hoff
  * 
  * @since 1.0
  */
-public class Utf8CharsetRestTemplate extends RestTemplate {
+public class CharsetDefinedRestTemplate extends RestTemplate {
 
-	public Utf8CharsetRestTemplate() {
+	public CharsetDefinedRestTemplate(Charset charset) {
 		super();
-		applySettings();
+		applySettings(charset);
 	}
 
-	public Utf8CharsetRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory) {
+	public CharsetDefinedRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory, Charset charset) {
 		super(clientHttpRequestFactory);
-		applySettings();
+		applySettings(charset);
 	}
 
-	public Utf8CharsetRestTemplate(List<HttpMessageConverter<?>> messageConverters) {
+	public CharsetDefinedRestTemplate(List<HttpMessageConverter<?>> messageConverters, Charset charset) {
 		super(messageConverters);
-		applySettings();
+		applySettings(charset);
 	}
 
-	private void applySettings() {
+	private void applySettings(Charset charset) {
 		final List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 		for (int i = 0; i < messageConverters.size(); i++) {
 			HttpMessageConverter<?> httpMessageConverter = messageConverters.get(i);
 			if (httpMessageConverter instanceof StringHttpMessageConverter) {
-				messageConverters.set(i, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+				messageConverters.set(i, new StringHttpMessageConverter(charset));
 			}
 		}
 	}

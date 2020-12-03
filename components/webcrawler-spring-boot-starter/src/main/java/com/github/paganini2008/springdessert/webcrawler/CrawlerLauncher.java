@@ -38,9 +38,6 @@ public final class CrawlerLauncher {
 	private PathFilterFactory pathFilterFactory;
 
 	@Autowired
-	private CrawlerSummary crawlerSummary;
-
-	@Autowired
 	private ConditionalTermination condition;
 
 	@Value("${webcrawler.indexer.enabled:true}")
@@ -54,7 +51,6 @@ public final class CrawlerLauncher {
 
 	public void submit(long catalogId) {
 
-		crawlerSummary.reset(catalogId);
 		condition.reset(catalogId);
 
 		Catalog catalog = resourceManager.getCatalog(catalogId);
@@ -64,13 +60,13 @@ public final class CrawlerLauncher {
 		data.put("refer", catalog.getUrl());
 		data.put("path", catalog.getUrl());
 		data.put("cat", catalog.getCat());
+		data.put("pageEncoding", catalog.getPageEncoding());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
 
 	public void update(long catalogId) {
 
-		crawlerSummary.reset(catalogId);
 		condition.reset(catalogId);
 
 		Catalog catalog = resourceManager.getCatalog(catalogId);
@@ -80,6 +76,7 @@ public final class CrawlerLauncher {
 		data.put("refer", catalog.getUrl());
 		data.put("path", catalog.getUrl());
 		data.put("cat", catalog.getCat());
+		data.put("pageEncoding", catalog.getPageEncoding());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}

@@ -25,6 +25,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
@@ -66,7 +67,7 @@ public class RestClientConfig {
 
 	@Bean
 	public EnhancedRestTemplate enhancedRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory) {
-		return new EnhancedRestTemplate(clientHttpRequestFactory);
+		return new EnhancedRestTemplate(clientHttpRequestFactory, CharsetUtils.UTF_8);
 	}
 
 	@Bean

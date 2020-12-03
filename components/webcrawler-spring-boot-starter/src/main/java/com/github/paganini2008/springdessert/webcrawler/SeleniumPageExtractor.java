@@ -1,5 +1,6 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class SeleniumPageExtractor extends PageExtractorSupport<WebDriver> imple
 		System.setProperty("webdriver.chrome.silentOutput", "true");
 	}
 
-	public String extractHtml(String refer, String url) throws Exception {
+	public String extractHtml(String refer, String url, Charset pageEncoding) throws Exception {
 		WebDriver webdriver = objectPool.borrowObject();
 		try {
 			webdriver.get(url);
@@ -81,7 +82,7 @@ public class SeleniumPageExtractor extends PageExtractorSupport<WebDriver> imple
 		SeleniumPageExtractor pageExtractor = new SeleniumPageExtractor(webdriverExecutionPath);
 		pageExtractor.configure();
 		RetryablePageExtractor retryablePageExtractor = new RetryablePageExtractor(pageExtractor);
-		retryablePageExtractor.extractHtml("http://www.ttmeishi.com", "http://www.ttmeishi.com/CaiXi/tese/");
+		retryablePageExtractor.extractHtml("http://www.ttmeishi.com", "http://www.ttmeishi.com/CaiXi/tese/", null);
 		System.out.println();
 		System.in.read();
 		pageExtractor.destroy();

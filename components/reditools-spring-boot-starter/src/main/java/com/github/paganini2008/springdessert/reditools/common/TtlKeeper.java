@@ -2,14 +2,12 @@ package com.github.paganini2008.springdessert.reditools.common;
 
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.TaskScheduler;
 
 import com.github.paganini2008.devtools.date.DateUtils;
-import com.github.paganini2008.devtools.multithreads.Clock;
-import com.github.paganini2008.devtools.multithreads.ClockTask;
 import com.github.paganini2008.springdessert.reditools.BeanNames;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 
@@ -24,11 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class TtlKeeper implements DisposableBean {
-
-	private static final int TTL_RESET_THRESHOLD = 10;
-
-	private final Clock clock = new Clock();
+public class TtlKeeper {
 
 	@Qualifier(BeanNames.REDIS_TEMPLATE)
 	@Autowired
@@ -36,7 +30,10 @@ public class TtlKeeper implements DisposableBean {
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
-	
+
+	@Autowired
+	private TaskScheduler taskScheduler;
+
 	public void keepAlive(String key, int timeout) {
 		keepAlive(key, timeout, 1);
 	}
@@ -51,11 +48,10 @@ public class TtlKeeper implements DisposableBean {
 		}
 		if (redisTemplate.hasKey(key)) {
 			redisTemplate.expire(key, timeout, timeUnit);
-			long checkIntervalInSec = DateUtils.converToSecond(checkInterval, timeUnit);
-			clock.scheduleAtFixedRate(new KeyKeepingTask(key, timeout, timeUnit), checkIntervalInSec, checkIntervalInSec, TimeUnit.SECONDS);
-
+			taskScheduler.scheduleAtFixedRate(new KeyKeepingTask(key, timeout, timeUnit),
+					DateUtils.convertToMillis(checkInterval, timeUnit));
 			if (log.isTraceEnabled()) {
-				log.trace("Keeping redis key {}, current count: {}", key, getKeepingCount());
+				log.trace("Keeping redis key: {}", key);
 			}
 		}
 	}
@@ -73,24 +69,14 @@ public class TtlKeeper implements DisposableBean {
 			throw new IllegalArgumentException("Don't accept the TimeUnit: " + timeUnit);
 		}
 		redisMessageSender.sendEphemeralMessage(key, value, timeout, timeUnit);
-		long checkIntervalInSec = DateUtils.converToSecond(checkInterval, timeUnit);
-		clock.scheduleAtFixedRate(new KeyValueKeepingTask(key, value, timeout, timeUnit), checkIntervalInSec, checkIntervalInSec,
-				TimeUnit.SECONDS);
+		taskScheduler.scheduleAtFixedRate(new KeyValueKeepingTask(key, value, timeout, timeUnit),
+				DateUtils.convertToMillis(checkInterval, timeUnit));
 		if (log.isTraceEnabled()) {
-			log.trace("Keeping redis key {}, current count: {}", key, getKeepingCount());
+			log.trace("Keeping redis key: {}", key);
 		}
 	}
 
-	public int getKeepingCount() {
-		return clock.getTaskCount();
-	}
-
-	@Override
-	public void destroy() throws Exception {
-		clock.stop();
-	}
-
-	private class KeyKeepingTask extends ClockTask {
+	private class KeyKeepingTask implements Runnable {
 
 		private final String key;
 		private final long timeout;
@@ -103,12 +89,9 @@ public class TtlKeeper implements DisposableBean {
 		}
 
 		@Override
-		protected void runTask() {
+		public void run() {
 			try {
-				Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
-				if (ttl != null && ttl.longValue() < TTL_RESET_THRESHOLD) {
-					redisTemplate.expire(key, timeout, timeUnit);
-				}
+				redisTemplate.expire(key, timeout, timeUnit);
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
 			}
@@ -116,7 +99,7 @@ public class TtlKeeper implements DisposableBean {
 
 	}
 
-	private class KeyValueKeepingTask extends ClockTask {
+	private class KeyValueKeepingTask implements Runnable {
 
 		private final String key;
 		private final Object value;
@@ -131,12 +114,9 @@ public class TtlKeeper implements DisposableBean {
 		}
 
 		@Override
-		protected void runTask() {
+		public void run() {
 			try {
-				Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
-				if (ttl != null && ttl.longValue() < TTL_RESET_THRESHOLD) {
-					redisMessageSender.sendEphemeralMessage(key, value, timeout, timeUnit);
-				}
+				redisMessageSender.sendEphemeralMessage(key, value, timeout, timeUnit);
 			} catch (Throwable e) {
 				log.error(e.getMessage(), e);
 			}

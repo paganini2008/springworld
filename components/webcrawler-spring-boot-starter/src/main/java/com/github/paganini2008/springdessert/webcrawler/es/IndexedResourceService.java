@@ -12,6 +12,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.DeleteQuery;
 import org.springframework.util.StopWatch;
 
+import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.devtools.date.Duration;
 import com.github.paganini2008.devtools.jdbc.PageRequest;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
@@ -122,7 +123,7 @@ public class IndexedResourceService {
 		String html = resource.getHtml();
 		if (refresh) {
 			try {
-				html = pageExtractor.extractHtml(catalog.getUrl(), resource.getUrl());
+				html = pageExtractor.extractHtml(catalog.getUrl(), resource.getUrl(), CharsetUtils.toCharset(catalog.getPageEncoding()));
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}

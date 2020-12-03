@@ -5,6 +5,7 @@ create table crawler_catalog(
 	path_pattern character varying(600),
 	excluded_path_pattern character varying(600),
 	cat character varying(45) not null,
+	page_encoding character varying(45),
 	last_modified timestamp without time zone
 )
 

@@ -25,6 +25,7 @@ public class Catalog implements Serializable {
 	private String name;
 	private String cat;
 	private String url;
+	private String pageEncoding;
 	private String pathPattern;
 	private String excludedPathPattern;
 	private Date lastModified;

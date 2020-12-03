@@ -11,8 +11,8 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
 
+import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 import com.github.paganini2008.springdessert.webcrawler.es.IndexedResourceService;
@@ -71,7 +71,7 @@ public class WebCrawlerAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public PageExtractor pageExtractor(ClientHttpRequestFactory clientHttpRequestFactory) {
-		return new HttpClientPageExtractor(new RestTemplate(clientHttpRequestFactory));
+		return new HttpClientPageExtractor(clientHttpRequestFactory, CharsetUtils.UTF_8);
 	}
 
 	@ConditionalOnMissingBean

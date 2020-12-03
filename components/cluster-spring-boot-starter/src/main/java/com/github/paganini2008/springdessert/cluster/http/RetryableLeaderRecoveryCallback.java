@@ -29,7 +29,6 @@ public class RetryableLeaderRecoveryCallback extends UnsafeLeaderRecoveryCallbac
 	@Override
 	public void recover(ApplicationInfo leader) {
 		leaderContext.setClusterState(ClusterState.PROTECTED);
-		leaderHeartbeater.cancel();
 	}
 
 	@Override
@@ -47,6 +46,7 @@ public class RetryableLeaderRecoveryCallback extends UnsafeLeaderRecoveryCallbac
 		ApplicationInfo leader = leaderContext.getLeader();
 		if (leaderContext.getClusterState() == ClusterState.PROTECTED) {
 			log.warn("Application cluster leader [{}] is exhausted", leader);
+			leaderHeartbeater.cancel();
 			super.recover(leader);
 		}
 	}

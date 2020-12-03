@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.github.paganini2008.springdessert.cluster.election.FastLeaderElection;
 import com.github.paganini2008.springdessert.cluster.election.FastLeaderElectionListener;
@@ -64,5 +66,16 @@ public class ApplicationClusterConfig {
 	@Bean
 	public RedisConnectionFailureHandler redisConnectionFailureHandler() {
 		return new RedisConnectionFailureHandler();
+	}
+
+	@ConditionalOnMissingBean
+	@Bean(destroyMethod = "shutdown")
+	public TaskScheduler taskScheduler() {
+		ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+		threadPoolTaskScheduler.setPoolSize(8);
+		threadPoolTaskScheduler.setThreadNamePrefix("spring-application-cluster-task-scheduler-");
+		threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
+		threadPoolTaskScheduler.setAwaitTerminationSeconds(60);
+		return threadPoolTaskScheduler;
 	}
 }

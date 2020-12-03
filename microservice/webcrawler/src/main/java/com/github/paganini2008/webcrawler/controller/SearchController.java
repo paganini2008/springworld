@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.springdessert.webcrawler.PageExtractor;
 import com.github.paganini2008.springdessert.webcrawler.es.IndexedResourceService;
@@ -33,7 +34,7 @@ public class SearchController {
 
 	@GetMapping("/fetch")
 	public String testRequest(@RequestParam("url") String url) throws Exception {
-		return pageExtractor.extractHtml("", url);
+		return pageExtractor.extractHtml("", url, CharsetUtils.UTF_8);
 	}
 
 	@GetMapping("/search")

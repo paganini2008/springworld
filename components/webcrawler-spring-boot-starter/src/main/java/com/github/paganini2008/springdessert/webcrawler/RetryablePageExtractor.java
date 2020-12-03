@@ -1,5 +1,7 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
+import java.nio.charset.Charset;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
@@ -36,9 +38,9 @@ public class RetryablePageExtractor implements PageExtractor, RetryListener {
 	}
 
 	@Override
-	public String extractHtml(final String refer, final String url) throws Exception {
+	public String extractHtml(final String refer, final String url, final Charset pageEncoding) throws Exception {
 		return retryTemplate.execute(context -> {
-			return pageExtractor.extractHtml(refer, url);
+			return pageExtractor.extractHtml(refer, url, pageEncoding);
 		}, context -> {
 			Throwable e = context.getLastThrowable();
 			if (e instanceof PageExtractorException) {
