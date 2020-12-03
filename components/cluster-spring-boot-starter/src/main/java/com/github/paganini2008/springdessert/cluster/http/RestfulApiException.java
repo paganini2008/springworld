@@ -22,4 +22,8 @@ public class RestfulApiException extends RestClientException {
 		super(msg, e);
 	}
 
+	public RestfulApiException(Throwable e) {
+		super("", e);
+	}
+
 }

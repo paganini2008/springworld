@@ -20,7 +20,7 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  */
 public class CrawlerSummary implements DisposableBean {
 
-	private static final String defaultRedisKeyPattern = "spring:application.cluster:%s:summary:%s";
+	private static final String defaultRedisKeyPattern = "spring:application:cluster:%s:summary:%s";
 
 	private final String crawlerName;
 	private final RedisConnectionFactory redisConnectionFactory;

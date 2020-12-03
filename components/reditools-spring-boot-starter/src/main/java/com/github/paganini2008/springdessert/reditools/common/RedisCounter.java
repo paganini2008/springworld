@@ -20,11 +20,11 @@ public class RedisCounter {
 	private final RedisAtomicLong longValue;
 
 	public RedisCounter(String name, RedisOperations<String, Long> redisOperations) {
-		this.longValue = new RedisAtomicLong(name, redisOperations);
+		this.longValue = new RedisAtomicLong(name, redisOperations, 0L);
 	}
 
 	public RedisCounter(String name, RedisConnectionFactory connectionFactory) {
-		this.longValue = new RedisAtomicLong(name, connectionFactory);
+		this.longValue = new RedisAtomicLong(name, connectionFactory, 0L);
 	}
 
 	public void expire(long timeout, TimeUnit timeUnit) {
@@ -82,7 +82,7 @@ public class RedisCounter {
 	public String toString() {
 		return longValue.toString();
 	}
-	
+
 	public void destroy() {
 		longValue.expire(60, TimeUnit.SECONDS);
 	}

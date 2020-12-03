@@ -17,6 +17,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.LruMap;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.collection.MultiMappedMap;
@@ -145,7 +146,15 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			if (real instanceof RestClientException) {
 				throw (RestClientException) real;
 			}
-			throw new RestfulApiException(real.getMessage(), real);
+			if (StringUtils.isNotBlank(real.getMessage())) {
+				throw new RestfulApiException(real.getMessage(), real);
+			}
+			throw new RestfulApiException(real);
+		} catch (Throwable e) {
+			if (StringUtils.isNotBlank(e.getMessage())) {
+				throw new RestfulApiException(e.getMessage(), e);
+			}
+			throw new RestfulApiException(e);
 		}
 	}
 
@@ -166,7 +175,15 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			if (real instanceof RestClientException) {
 				throw (RestClientException) real;
 			}
-			throw new RestfulApiException(real.getMessage(), real);
+			if (StringUtils.isNotBlank(real.getMessage())) {
+				throw new RestfulApiException(real.getMessage(), real);
+			}
+			throw new RestfulApiException(real);
+		} catch (Throwable e) {
+			if (StringUtils.isNotBlank(e.getMessage())) {
+				throw new RestfulApiException(e.getMessage(), e);
+			}
+			throw new RestfulApiException(e);
 		}
 	}
 
