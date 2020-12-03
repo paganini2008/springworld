@@ -12,7 +12,8 @@ import lombok.Setter;
  * 
  * IndexedResource
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 @Getter

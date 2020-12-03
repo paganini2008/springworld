@@ -10,7 +10,8 @@ import lombok.Setter;
  * 
  * Resource
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 @Getter

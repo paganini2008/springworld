@@ -3,6 +3,7 @@ package com.github.paganini2008.springdessert.webcrawler;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -19,7 +20,7 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  * 
  * @since 1.0
  */
-public class CrawlerSummary {
+public class CrawlerSummary implements DisposableBean {
 
 	private static final String defaultRedisKeyPattern = "spring:application.cluster:%s:summary:%s";
 
@@ -40,6 +41,14 @@ public class CrawlerSummary {
 		return MapUtils.get(cache, catalogId, () -> {
 			return new Summary(key, redisConnectionFactory);
 		});
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		cache.values().forEach(summary -> {
+			summary.reset();
+		});
+		cache.clear();
 	}
 
 	public static class Summary {

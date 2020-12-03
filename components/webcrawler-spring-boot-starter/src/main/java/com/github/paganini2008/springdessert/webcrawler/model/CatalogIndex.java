@@ -11,7 +11,8 @@ import lombok.ToString;
  * 
  * CatalogIndex
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 @Getter

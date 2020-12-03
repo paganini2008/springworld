@@ -18,7 +18,8 @@ import com.github.paganini2008.springdessert.webcrawler.model.Resource;
  * 
  * JdbcResourceManger
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 @Transactional(rollbackFor = Exception.class, readOnly = false)

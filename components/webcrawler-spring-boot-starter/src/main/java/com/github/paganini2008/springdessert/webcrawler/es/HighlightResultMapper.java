@@ -42,11 +42,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 /**
  * 
  * HighlightResultMapper
+ *
+ * @author Jimmy Hoff
  * 
- * @author Fred Feng
- * 
- * 
- * @version 1.0
+ * @since 1.0
  */
 public class HighlightResultMapper extends AbstractResultMapper {
 

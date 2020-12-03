@@ -23,7 +23,8 @@ import com.github.paganini2008.devtools.jdbc.PageableSlice;
  * 
  * ElasticsearchTemplateResultSlice
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public class ElasticsearchTemplateResultSlice extends PageableSlice<SearchResult> {

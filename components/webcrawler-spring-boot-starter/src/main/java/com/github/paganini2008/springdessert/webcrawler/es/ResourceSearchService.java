@@ -5,20 +5,10 @@ import org.springframework.stereotype.Component;
 /**
  * 
  * ResourceSearchService
+ *
+ * @author Jimmy Hoff
  * 
- * @author Fred Feng
- * 
- * 
- * @version 1.0
- */
-/**
- * 
- * ResourceSearchService
- * 
- * @author Fred Feng
- * 
- * 
- * @version 1.0
+ * @since 1.0
  */
 @Component
 public class ResourceSearchService {
