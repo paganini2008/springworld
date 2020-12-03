@@ -4,13 +4,13 @@ import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 
- * ConditionalMission
+ * ConditionalTermination
  *
  * @author Jimmy Hoff
  * 
  * @since 1.0
  */
-public interface ConditionalMission {
+public interface ConditionalTermination {
 
 	void reset(long catalogId);
 

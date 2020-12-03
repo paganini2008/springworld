@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.jdbc.PageResponse;
 import com.github.paganini2008.springdessert.webcrawler.CrawlerLauncher;
+import com.github.paganini2008.springdessert.webcrawler.CrawlerSummary;
+import com.github.paganini2008.springdessert.webcrawler.CrawlerSummary.Summary;
 import com.github.paganini2008.springdessert.webcrawler.ResourceManager;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
 import com.github.paganini2008.webcrawler.utils.PageBean;
@@ -34,6 +36,9 @@ public class CatalogController {
 	@Autowired
 	private ResourceManager resourceManager;
 
+	@Autowired
+	private CrawlerSummary crawlerSummary;
+
 	@GetMapping("/{id}/delete")
 	public Response deleteCatalog(@PathVariable("id") Long catalogId) {
 		resourceManager.deleteCatalog(catalogId);
@@ -53,9 +58,15 @@ public class CatalogController {
 	}
 
 	@PostMapping("/save")
-	public Response saveSource(@RequestBody Catalog catalog) {
+	public Response saveCatalog(@RequestBody Catalog catalog) {
 		resourceManager.saveCatalog(catalog);
 		return Response.success("Save OK.");
+	}
+
+	@GetMapping("/{id}/summary")
+	public Response summary(@PathVariable("id") Long catalogId) {
+		Summary summary = crawlerSummary.getSummary(catalogId);
+		return Response.success(summary);
 	}
 
 	@GetMapping("/query")

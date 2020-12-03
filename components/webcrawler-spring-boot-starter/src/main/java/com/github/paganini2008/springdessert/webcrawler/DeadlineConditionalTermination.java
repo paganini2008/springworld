@@ -15,21 +15,24 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * DeadlineConditionalMission
+ * DeadlineConditionalTermination
  *
  * @author Jimmy Hoff
  * 
  * @since 1.0
  */
 @Slf4j
-public class DeadlineConditionalMission extends AbstractConditionalMission {
+public class DeadlineConditionalTermination extends AbstractConditionalTermination {
 
+	private static final String defaultRedisKeyPrefix = "spring:application:cluster:%s:deadline:";
 	private final String keyPrefix;
 	private final long remaining;
 	private final RedisTemplate<String, Long> redisTemplate;
 
-	public DeadlineConditionalMission(String keyPrefix, RedisConnectionFactory redisConnectionFactory, long delay, TimeUnit timeUnit) {
-		this.keyPrefix = keyPrefix;
+	public DeadlineConditionalTermination(CrawlerSummary crawlerSummary, long delay, TimeUnit timeUnit,
+			RedisConnectionFactory redisConnectionFactory) {
+		super(crawlerSummary);
+		this.keyPrefix = String.format(defaultRedisKeyPrefix, crawlerSummary.getCrawlerName());
 		this.remaining = DateUtils.convertToMillis(delay, timeUnit);
 		this.redisTemplate = getLong(redisConnectionFactory);
 	}
@@ -54,10 +57,10 @@ public class DeadlineConditionalMission extends AbstractConditionalMission {
 
 		boolean completed = System.currentTimeMillis() > redisTemplate.opsForValue().get(key) || evaluate(catalogId, tuple);
 		set(catalogId, completed);
-
 		if (completed) {
 			long timestamp = redisTemplate.opsForValue().get(key);
 			log.info("Finish crawling work on deadline: {}", new Date(timestamp));
+			afterCompletion(catalogId, tuple);
 		}
 		return isCompleted(catalogId, tuple);
 	}
@@ -72,6 +75,9 @@ public class DeadlineConditionalMission extends AbstractConditionalMission {
 
 	protected boolean evaluate(long catalogId, Tuple tuple) {
 		return false;
+	}
+
+	protected void afterCompletion(long catalogId, Tuple tuple) {
 	}
 
 	private RedisTemplate<String, Long> getLong(RedisConnectionFactory redisConnectionFactory) {

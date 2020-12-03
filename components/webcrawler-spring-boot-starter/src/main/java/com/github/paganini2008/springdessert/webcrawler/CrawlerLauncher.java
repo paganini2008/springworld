@@ -41,7 +41,7 @@ public final class CrawlerLauncher {
 	private CrawlerSummary crawlerSummary;
 
 	@Autowired
-	private ConditionalMission condition;
+	private ConditionalTermination condition;
 
 	@Value("${webcrawler.indexer.enabled:true}")
 	private boolean indexEnabled;

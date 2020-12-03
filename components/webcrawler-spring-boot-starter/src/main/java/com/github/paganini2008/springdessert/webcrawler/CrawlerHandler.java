@@ -58,7 +58,7 @@ public class CrawlerHandler implements Handler {
 	private PathAcceptor pathAcceptor;
 
 	@Autowired
-	private ConditionalMission condition;
+	private ConditionalTermination condition;
 
 	@Autowired
 	private PathFilterFactory pathFilterFactory;

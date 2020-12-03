@@ -61,7 +61,7 @@ public abstract class PageExtractorSupport<T> extends BasePooledObjectFactory<T>
 		PageExtractorPoolConfig() {
 			setMinIdle(1);
 			setMaxIdle(5);
-			setMaxTotal(100);
+			setMaxTotal(20);
 		}
 	}
 

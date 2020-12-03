@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
@@ -68,8 +70,8 @@ public class WebCrawlerAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public PageExtractor pageExtractor() {
-		return new HtmlUnitPageExtractor();
+	public PageExtractor pageExtractor(ClientHttpRequestFactory clientHttpRequestFactory) {
+		return new HttpClientPageExtractor(new RestTemplate(clientHttpRequestFactory));
 	}
 
 	@ConditionalOnMissingBean
@@ -81,9 +83,8 @@ public class WebCrawlerAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public ConditionalMission conditionalCompletion(RedisConnectionFactory redisConnectionFactory) {
-		final String keyPrefix = String.format("spring:application:cluster:%s:deadline:", clusterName);
-		return new DeadlineConditionalMission(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
+	public ConditionalTermination conditionalTermination(CrawlerSummary crawlerSummary, RedisConnectionFactory redisConnectionFactory) {
+		return new CountingConditionalTermination(crawlerSummary, 20, TimeUnit.MINUTES, redisConnectionFactory, 100000);
 	}
 
 	@ConditionalOnMissingBean
@@ -98,8 +99,8 @@ public class WebCrawlerAutoConfiguration {
 	}
 
 	@Bean
-	public CrawlerSummary crawlerSummary() {
-		return new CrawlerSummary();
+	public CrawlerSummary crawlerSummary(RedisConnectionFactory redisConnectionFactory) {
+		return new CrawlerSummary(clusterName, redisConnectionFactory);
 	}
 
 }

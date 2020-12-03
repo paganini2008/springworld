@@ -9,24 +9,22 @@ import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 
- * CountingConditionalMission
+ * CountingConditionalTermination
  *
  * @author Jimmy Hoff
  * 
  * @since 1.0
  */
-public class CountingConditionalMission extends DeadlineConditionalMission {
+public class CountingConditionalTermination extends DeadlineConditionalTermination {
 
-	public CountingConditionalMission(String keyPrefix, RedisConnectionFactory redisConnectionFactory, long delay, TimeUnit timeUnit,
-			long maxFetchSize, CrawlerSummary crawlerSummary) {
-		super(keyPrefix, redisConnectionFactory, delay, timeUnit);
+	public CountingConditionalTermination(CrawlerSummary crawlerSummary, long delay, TimeUnit timeUnit,
+			RedisConnectionFactory redisConnectionFactory, long maxFetchSize) {
+		super(crawlerSummary, delay, timeUnit, redisConnectionFactory);
 		Assert.lt(maxFetchSize, 100L, "Minimun maxFetchSize is 100");
 		this.maxFetchSize = maxFetchSize;
-		this.crawlerSummary = crawlerSummary;
 	}
 
 	private final long maxFetchSize;
-	private final CrawlerSummary crawlerSummary;
 
 	private ConditionalCountingType countingType = ConditionalCountingType.URL_COUNT;
 
@@ -36,7 +34,7 @@ public class CountingConditionalMission extends DeadlineConditionalMission {
 
 	@Override
 	protected boolean evaluate(long catalogId, Tuple tuple) {
-		return countingType.evaluate(crawlerSummary.getSummary(catalogId), maxFetchSize);
+		return countingType.evaluate(getCrawlerSummary().getSummary(catalogId), maxFetchSize);
 	}
 
 }

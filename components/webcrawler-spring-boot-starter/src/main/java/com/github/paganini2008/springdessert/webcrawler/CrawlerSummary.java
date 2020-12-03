@@ -4,8 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
@@ -24,11 +22,13 @@ public class CrawlerSummary implements DisposableBean {
 
 	private static final String defaultRedisKeyPattern = "spring:application.cluster:%s:summary:%s";
 
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
+	private final String crawlerName;
+	private final RedisConnectionFactory redisConnectionFactory;
 
-	@Autowired
-	private RedisConnectionFactory redisConnectionFactory;
+	public CrawlerSummary(String crawlerName, RedisConnectionFactory redisConnectionFactory) {
+		this.crawlerName = crawlerName;
+		this.redisConnectionFactory = redisConnectionFactory;
+	}
 
 	private final Map<Long, Summary> cache = new ConcurrentHashMap<Long, Summary>();
 
@@ -37,10 +37,14 @@ public class CrawlerSummary implements DisposableBean {
 	}
 
 	public Summary getSummary(long catalogId) {
-		final String key = String.format(defaultRedisKeyPattern, clusterName, catalogId);
+		final String key = String.format(defaultRedisKeyPattern, crawlerName, catalogId);
 		return MapUtils.get(cache, catalogId, () -> {
 			return new Summary(key, redisConnectionFactory);
 		});
+	}
+
+	public String getCrawlerName() {
+		return crawlerName;
 	}
 
 	@Override
@@ -60,6 +64,7 @@ public class CrawlerSummary implements DisposableBean {
 		private final RedisAtomicLong saved;
 		private final RedisAtomicLong indexed;
 		private long startTime;
+		private boolean completed;
 
 		Summary(String keyPrefix, RedisConnectionFactory redisConnectionFactory) {
 			startTime = System.currentTimeMillis();
@@ -69,6 +74,7 @@ public class CrawlerSummary implements DisposableBean {
 			filteredUrls = new RedisAtomicLong(keyPrefix + ":filteredUrls", redisConnectionFactory);
 			saved = new RedisAtomicLong(keyPrefix + ":saved", redisConnectionFactory);
 			indexed = new RedisAtomicLong(keyPrefix + ":indexed", redisConnectionFactory);
+			completed = false;
 		}
 
 		public void reset() {
@@ -79,6 +85,14 @@ public class CrawlerSummary implements DisposableBean {
 			filteredUrls.set(0);
 			saved.set(0);
 			indexed.set(0);
+		}
+
+		public boolean isCompleted() {
+			return completed;
+		}
+
+		public void setCompleted(boolean completed) {
+			this.completed = completed;
 		}
 
 		public long incrementUrlCount() {
