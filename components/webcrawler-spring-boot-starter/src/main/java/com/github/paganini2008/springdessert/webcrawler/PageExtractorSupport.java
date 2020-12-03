@@ -15,7 +15,8 @@ import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
  * 
  * PageExtractorSupport
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public abstract class PageExtractorSupport<T> extends BasePooledObjectFactory<T> implements BeanLifeCycle {

@@ -4,8 +4,9 @@ package com.github.paganini2008.webcrawler;
  * 
  * Constants
  *
- * @author Fred Feng
- * @version 1.0
+ * @author Jimmy Hoff
+ * 
+ * @since 1.0
  */
 public abstract class Constants {
 

@@ -6,11 +6,12 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * PathAcceptor
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public interface PathAcceptor {
 
-	boolean accept(String refer, String path, Tuple tuple);
+	boolean accept(long catalogId, String refer, String path, Tuple tuple);
 
 }

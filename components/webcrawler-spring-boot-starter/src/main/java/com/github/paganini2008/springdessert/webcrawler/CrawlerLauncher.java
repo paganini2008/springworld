@@ -16,7 +16,8 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * CrawlerLauncher
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public final class CrawlerLauncher {
@@ -35,9 +36,12 @@ public final class CrawlerLauncher {
 
 	@Autowired
 	private PathFilterFactory pathFilterFactory;
-	
+
 	@Autowired
-	private ConditionalCompletion finishableCondition;
+	private CrawlerSummary crawlerSummary;
+
+	@Autowired
+	private ConditionalMission condition;
 
 	@Value("${webcrawler.indexer.enabled:true}")
 	private boolean indexEnabled;
@@ -49,8 +53,10 @@ public final class CrawlerLauncher {
 	}
 
 	public void submit(long catalogId) {
-		finishableCondition.reset(catalogId);
-		
+
+		crawlerSummary.reset(catalogId);
+		condition.reset(catalogId);
+
 		Catalog catalog = resourceManager.getCatalog(catalogId);
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("action", "crawl");
@@ -61,10 +67,12 @@ public final class CrawlerLauncher {
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
-	
+
 	public void update(long catalogId) {
-		finishableCondition.reset(catalogId);
-		
+
+		crawlerSummary.reset(catalogId);
+		condition.reset(catalogId);
+
 		Catalog catalog = resourceManager.getCatalog(catalogId);
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("action", "update");

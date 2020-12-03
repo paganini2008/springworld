@@ -8,7 +8,8 @@ import java.util.List;
  * 
  * PageExtractor
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public interface PageExtractor {

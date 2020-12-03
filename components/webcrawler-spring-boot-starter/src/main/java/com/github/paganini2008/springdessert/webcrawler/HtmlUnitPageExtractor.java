@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.pool2.PooledObject;
@@ -20,7 +20,8 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  * 
  * HtmlUnitPageExtractor
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> implements PageExtractor {
@@ -28,8 +29,6 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 	@Override
 	public WebClient createObject() throws Exception {
 		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED);
-		webClient.addRequestHeader("User-Agent", RandomUtils.randomChoice(userAgents));
-		webClient.addRequestHeader("X-Forwarded-For", RandomIpUtils.randomIp());
 		Map<String, String> defaultHeaders = getDefaultHeaders();
 		if (MapUtils.isNotEmpty(defaultHeaders)) {
 			for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {
@@ -77,9 +76,13 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected Map<String, String> getDefaultHeaders() {
-		return Collections.EMPTY_MAP;
+		Map<String, String> headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "*/*");
+		headerMap.put("Accept-Encoding", "gzip, deflate");
+		headerMap.put("X-Forwarded-For", RandomIpUtils.randomIp());
+		headerMap.put("User-Agent", RandomUtils.randomChoice(userAgents));
+		return headerMap;
 	}
 
 	public static void main(String[] args) throws Exception {

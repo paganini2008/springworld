@@ -18,7 +18,8 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  * 
  * SeleniumPageExtractor
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public class SeleniumPageExtractor extends PageExtractorSupport<WebDriver> implements PageExtractor {

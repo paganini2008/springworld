@@ -4,7 +4,8 @@ package com.github.paganini2008.springdessert.webcrawler;
  * 
  * PathFilter
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public interface PathFilter {

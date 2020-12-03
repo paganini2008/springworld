@@ -1,8 +1,5 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
-import static com.github.paganini2008.springdessert.webcrawler.RedisKeyPrefixes.ID;
-import static com.github.paganini2008.springdessert.webcrawler.RedisKeyPrefixes.TIMING;
-
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +23,8 @@ import com.github.paganini2008.xtransport.RoundRobinPartitioner;
  * 
  * WebCrawlerAutoConfiguration
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 @EnableElasticsearchRepositories("com.github.paganini2008.springdessert.webcrawler.es")
@@ -77,15 +75,15 @@ public class WebCrawlerAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public IdGenerator timestampIdGenerator(RedisConnectionFactory redisConnectionFactory) {
-		final String keyPrefix = String.format(ID, clusterName);
+		final String keyPrefix = String.format("spring:application:cluster:%s:id:", clusterName);
 		return new TimestampIdGenerator(keyPrefix, redisConnectionFactory);
 	}
 
 	@ConditionalOnMissingBean
 	@Bean
-	public ConditionalCompletion conditionalCompletion(RedisConnectionFactory redisConnectionFactory) {
-		final String keyPrefix = String.format(TIMING, clusterName);
-		return new TimingConditionalCompletion(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
+	public ConditionalMission conditionalCompletion(RedisConnectionFactory redisConnectionFactory) {
+		final String keyPrefix = String.format("spring:application:cluster:%s:deadline:", clusterName);
+		return new DeadlineConditionalMission(keyPrefix, redisConnectionFactory, 30, TimeUnit.MINUTES);
 	}
 
 	@ConditionalOnMissingBean
@@ -97,6 +95,11 @@ public class WebCrawlerAutoConfiguration {
 	@Bean
 	public IndexedResourceService indexedResourceService() {
 		return new IndexedResourceService();
+	}
+
+	@Bean
+	public CrawlerSummary crawlerSummary() {
+		return new CrawlerSummary();
 	}
 
 }

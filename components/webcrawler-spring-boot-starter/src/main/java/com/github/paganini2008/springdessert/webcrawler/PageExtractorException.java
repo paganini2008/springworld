@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
  * 
  * PageExtractorException
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public class PageExtractorException extends RuntimeException {

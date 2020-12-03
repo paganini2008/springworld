@@ -8,7 +8,8 @@ import com.github.paganini2008.springdessert.reditools.common.RedisBloomFilter;
  * 
  * BloomFilterPathFilterFactory
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public class BloomFilterPathFilterFactory implements PathFilterFactory {

@@ -35,8 +35,7 @@ public class DefaultPathAcceptor implements PathAcceptor {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean accept(String refer, String path, Tuple tuple) {
-		long catalogId = (Long) tuple.getField("catalogId");
+	public boolean accept(long catalogId, String refer, String path, Tuple tuple) {
 		List<String> pathPatterns = MapUtils.get(excludedPathPatternCache, catalogId, () -> {
 			Catalog catalog = resourceManager.getCatalog(catalogId);
 			if (StringUtils.isBlank(catalog.getExcludedPathPattern())) {
@@ -57,7 +56,7 @@ public class DefaultPathAcceptor implements PathAcceptor {
 			}
 			return Arrays.asList(catalog.getPathPattern().split(","));
 		});
-		
+
 		if (CollectionUtils.isEmpty(pathPatterns)) {
 			return path.startsWith(refer);
 		}

@@ -6,7 +6,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * 
  * RandomIpUtils
  *
- * @author Fred Feng
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
 public abstract class RandomIpUtils {
