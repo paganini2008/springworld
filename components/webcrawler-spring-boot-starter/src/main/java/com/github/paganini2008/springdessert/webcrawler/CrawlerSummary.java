@@ -1,16 +1,22 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.beans.ToStringBuilder;
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.devtools.date.DateUtils;
+import com.github.paganini2008.devtools.multithreads.Executable;
+import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springdessert.reditools.common.GenericRedisTemplate;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -20,9 +26,11 @@ import com.github.paganini2008.springdessert.reditools.common.GenericRedisTempla
  * 
  * @since 1.0
  */
-public class CrawlerSummary implements DisposableBean {
+@Slf4j
+public class CrawlerSummary implements BeanLifeCycle, Executable {
 
 	private static final String defaultRedisKeyPattern = "spring:webcrawler:cluster:%s:catalog:summary:%s";
+	private static final long DEFAULT_CRAWLER_IDLE_TIMEOUT = DateUtils.convertToMillis(5, TimeUnit.MINUTES);
 
 	private final String crawlerName;
 	private final RedisConnectionFactory redisConnectionFactory;
@@ -33,6 +41,7 @@ public class CrawlerSummary implements DisposableBean {
 	}
 
 	private final Map<Long, Summary> cache = new ConcurrentHashMap<Long, Summary>();
+	private Timer timer;
 
 	public void reset(long catalogId) {
 		getSummary(catalogId).reset();
@@ -54,13 +63,45 @@ public class CrawlerSummary implements DisposableBean {
 	}
 
 	@Override
-	public void destroy() throws Exception {
+	public void configure() throws Exception {
+		timer = ThreadUtils.scheduleWithFixedDelay(this, 5, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void destroy() {
+		if (timer != null) {
+			timer.cancel();
+		}
+
 		cache.values().forEach(summary -> {
 			summary.reset();
 		});
 		cache.clear();
 	}
 
+	@Override
+	public boolean execute() {
+		Summary summary;
+		for (Map.Entry<Long, Summary> entry : cache.entrySet()) {
+			summary = entry.getValue();
+			if (!summary.isCompleted()) {
+				if (System.currentTimeMillis() - summary.getTimestamp() > DEFAULT_CRAWLER_IDLE_TIMEOUT) {
+					summary.setCompleted(true);
+					log.info("Complete crawling due to idle timeout is too long. CatalogId: {}", entry.getKey());
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 
+	 * Summary
+	 *
+	 * @author Jimmy Hoff
+	 * 
+	 * @since 1.0
+	 */
 	public static class Summary {
 
 		private final GenericRedisTemplate<Long> startTime;
@@ -70,7 +111,8 @@ public class CrawlerSummary implements DisposableBean {
 		private final RedisAtomicLong filteredUrls;
 		private final RedisAtomicLong saved;
 		private final RedisAtomicLong indexed;
-		private final AtomicBoolean completed;
+		private final GenericRedisTemplate<Boolean> completed;
+		private long timestamp;
 
 		Summary(String keyPrefix, RedisConnectionFactory redisConnectionFactory) {
 			startTime = new GenericRedisTemplate<Long>(keyPrefix + ":startTime", Long.class, redisConnectionFactory,
@@ -81,7 +123,7 @@ public class CrawlerSummary implements DisposableBean {
 			filteredUrls = new RedisAtomicLong(keyPrefix + ":filteredUrlCount", redisConnectionFactory);
 			saved = new RedisAtomicLong(keyPrefix + ":savedCount", redisConnectionFactory);
 			indexed = new RedisAtomicLong(keyPrefix + ":indexedCount", redisConnectionFactory);
-			completed = new AtomicBoolean(false);
+			completed = new GenericRedisTemplate<Boolean>(keyPrefix + ":completed", Boolean.class, redisConnectionFactory, false);
 		}
 
 		public void reset() {
@@ -93,6 +135,7 @@ public class CrawlerSummary implements DisposableBean {
 			saved.set(0);
 			indexed.set(0);
 			completed.set(false);
+			timestamp = System.currentTimeMillis();
 		}
 
 		public boolean isCompleted() {
@@ -101,6 +144,7 @@ public class CrawlerSummary implements DisposableBean {
 
 		public void setCompleted(boolean completed) {
 			this.completed.set(completed);
+			this.timestamp = System.currentTimeMillis();
 		}
 
 		public long incrementUrlCount() {
@@ -181,6 +225,10 @@ public class CrawlerSummary implements DisposableBean {
 
 		public long getElapsedTime() {
 			return startTime.get() > 0 ? System.currentTimeMillis() - startTime.get() : 0;
+		}
+
+		public long getTimestamp() {
+			return timestamp;
 		}
 
 		public String toString() {

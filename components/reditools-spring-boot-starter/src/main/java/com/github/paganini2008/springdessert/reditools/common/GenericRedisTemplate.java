@@ -1,6 +1,7 @@
 package com.github.paganini2008.springdessert.reditools.common;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -69,8 +70,16 @@ public class GenericRedisTemplate<T> extends RedisTemplate<String, T> {
 		return opsForList().leftPush(key, value);
 	}
 
+	public Long leftPopList(Collection<T> c) {
+		return opsForList().leftPushAll(key, c);
+	}
+
 	public Long rightPushList(T value) {
 		return opsForList().rightPush(key, value);
+	}
+
+	public Long rightPushList(Collection<T> c) {
+		return opsForList().rightPushAll(key, c);
 	}
 
 	public T leftPopList(String key) {
@@ -89,7 +98,7 @@ public class GenericRedisTemplate<T> extends RedisTemplate<String, T> {
 		return opsForList().remove(key, count, value);
 	}
 
-	public List<T> get(long start, long end) {
+	public List<T> rangeList(long start, long end) {
 		return opsForList().range(key, start, end);
 	}
 
