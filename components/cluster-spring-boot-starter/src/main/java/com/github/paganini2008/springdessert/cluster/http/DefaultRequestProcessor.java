@@ -76,7 +76,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			if (e instanceof RestClientException) {
 				throw (RestClientException) e;
 			}
-			throw new RestfulApiException(e.getMessage(), e);
+			throw new RestfulApiException(request, e.getMessage(), e);
 		});
 
 	}
@@ -140,21 +140,21 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			}
 			return future.get();
 		} catch (InterruptedException | CancellationException | TimeoutException e) {
-			throw new RestfulApiException(e.getMessage(), e);
+			throw new RestfulApiException(request, e.getMessage(), e);
 		} catch (ExecutionException e) {
 			Throwable real = e.getCause();
 			if (real instanceof RestClientException) {
 				throw (RestClientException) real;
 			}
 			if (StringUtils.isNotBlank(real.getMessage())) {
-				throw new RestfulApiException(real.getMessage(), real);
+				throw new RestfulApiException(request, real.getMessage(), real);
 			}
-			throw new RestfulApiException(real);
+			throw new RestfulApiException(request, "Failed to send request by url '" + request.getPath() + "'", real);
 		} catch (Throwable e) {
 			if (StringUtils.isNotBlank(e.getMessage())) {
-				throw new RestfulApiException(e.getMessage(), e);
+				throw new RestfulApiException(request, e.getMessage(), e);
 			}
-			throw new RestfulApiException(e);
+			throw new RestfulApiException(request, "Failed to send request by url '" + request.getPath() + "'", e);
 		}
 	}
 
@@ -169,21 +169,21 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			}
 			return future.get();
 		} catch (InterruptedException | CancellationException | TimeoutException e) {
-			throw new RestfulApiException(e.getMessage(), e);
+			throw new RestfulApiException(request, e.getMessage(), e);
 		} catch (ExecutionException e) {
 			Throwable real = e.getCause();
 			if (real instanceof RestClientException) {
 				throw (RestClientException) real;
 			}
 			if (StringUtils.isNotBlank(real.getMessage())) {
-				throw new RestfulApiException(real.getMessage(), real);
+				throw new RestfulApiException(request, real.getMessage(), real);
 			}
-			throw new RestfulApiException(real);
+			throw new RestfulApiException(request, "Failed to send request by url '" + request.getPath() + "'", real);
 		} catch (Throwable e) {
 			if (StringUtils.isNotBlank(e.getMessage())) {
-				throw new RestfulApiException(e.getMessage(), e);
+				throw new RestfulApiException(request, e.getMessage(), e);
 			}
-			throw new RestfulApiException(e);
+			throw new RestfulApiException(request, "Failed to send request by url '" + request.getPath() + "'", e);
 		}
 	}
 

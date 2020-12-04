@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.webcrawler.es;
 
-import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.*;
+import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_CATALOG;
 import static com.github.paganini2008.springdessert.webcrawler.es.SearchResult.SEARCH_FIELD_VERSION;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -61,7 +61,7 @@ public class IndexedResourceService {
 		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
 				.must(QueryBuilders.matchQuery(SEARCH_FIELD_CATALOG, catalog.getName()));
 		if (version > 0) {
-			boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(SEARCH_FIELD_VERSION, version));
+			boolQueryBuilder = boolQueryBuilder.must(QueryBuilders.termQuery(SEARCH_FIELD_VERSION, version));
 		}
 		DeleteQuery deleteQuery = new DeleteQuery();
 		deleteQuery.setQuery(boolQueryBuilder);
@@ -146,12 +146,14 @@ public class IndexedResourceService {
 		}
 	}
 
-	public PageResponse<SearchResult> search(String keyword, int page, int size) {
-		return search(keyword).list(PageRequest.of(page, size));
+	public PageResponse<SearchResult> search(String keyword, int version, int page, int size) {
+		return search(keyword, version).list(PageRequest.of(page, size));
 	}
 
-	public ResultSetSlice<SearchResult> search(String keyword) {
-		int version = resourceManager.maximumVersionOfCatalogIndex();
+	public ResultSetSlice<SearchResult> search(String keyword, int version) {
+		if (version < 1) {
+			version = resourceManager.maximumVersionOfCatalogIndex();
+		}
 		return new ElasticsearchTemplateResultSlice(keyword, version, elasticsearchTemplate);
 	}
 

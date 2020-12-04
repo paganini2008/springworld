@@ -13,17 +13,22 @@ import org.springframework.web.client.RestClientException;
 public class RestfulApiException extends RestClientException {
 
 	private static final long serialVersionUID = -8762523199569525919L;
+	private static final String NEWLINE = System.getProperty("line.separator");
 
-	public RestfulApiException(String msg) {
-		super(msg);
+	public RestfulApiException(Request request, String msg) {
+		super(request.toString() + NEWLINE + msg);
+		this.request = request;
 	}
 
-	public RestfulApiException(String msg, Throwable e) {
-		super(msg, e);
+	public RestfulApiException(Request request, String msg, Throwable e) {
+		super(request.toString() + NEWLINE + msg, e);
+		this.request = request;
 	}
 
-	public RestfulApiException(Throwable e) {
-		super("", e);
+	private final Request request;
+
+	public Request getRequest() {
+		return request;
 	}
 
 }

@@ -29,8 +29,8 @@ public class SearchResult implements Serializable {
 	private String content;
 	private String url;
 	private String path;
-	private String type;
-	private String source;
-	private Integer order;
-	private Long createDate;
+	private String cat;
+	private String catalog;
+	private Integer version;
+	private Long createTime;
 }
