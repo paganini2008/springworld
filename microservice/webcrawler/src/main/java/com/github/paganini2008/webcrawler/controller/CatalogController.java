@@ -15,6 +15,7 @@ import com.github.paganini2008.springdessert.webcrawler.CrawlerLauncher;
 import com.github.paganini2008.springdessert.webcrawler.CrawlerSummary;
 import com.github.paganini2008.springdessert.webcrawler.CrawlerSummary.Summary;
 import com.github.paganini2008.springdessert.webcrawler.ResourceManager;
+import com.github.paganini2008.springdessert.webcrawler.es.IndexedResourceService;
 import com.github.paganini2008.springdessert.webcrawler.model.Catalog;
 import com.github.paganini2008.webcrawler.utils.PageBean;
 import com.github.paganini2008.webcrawler.utils.Response;
@@ -37,12 +38,33 @@ public class CatalogController {
 	private ResourceManager resourceManager;
 
 	@Autowired
+	private IndexedResourceService indexedResourceService;
+
+	@Autowired
 	private CrawlerSummary crawlerSummary;
 
 	@GetMapping("/{id}/delete")
-	public Response deleteCatalog(@PathVariable("id") Long catalogId) {
+	public Response deleteCatalog(@PathVariable("id") Long catalogId,
+			@RequestParam(name = "cascade", required = false, defaultValue = "false") boolean cascade) {
+		if (cascade) {
+			indexedResourceService.deleteResource(catalogId, 0);
+			resourceManager.deleteResourceByCatalogId(catalogId);
+		}
 		resourceManager.deleteCatalog(catalogId);
 		return Response.success("Delete OK.");
+	}
+
+	@PostMapping("/{id}/clean")
+	public Response cleanCatalog(@PathVariable("id") Long catalogId) {
+		indexedResourceService.deleteResource(catalogId, 0);
+		resourceManager.deleteResourceByCatalogId(catalogId);
+		return Response.success("Clean OK.");
+	}
+
+	@PostMapping("/{id}/rebuild")
+	public Response rebuild(@PathVariable("id") Long catalogId) {
+		crawlerLauncher.rebuild(catalogId);
+		return Response.success("Crawling Job will be triggered soon.");
 	}
 
 	@PostMapping("/{id}/crawl")

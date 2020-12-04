@@ -115,6 +115,7 @@ public class CrawlerHandler implements Handler {
 		final String cat = (String) tuple.getField("cat");
 		final String pageEncoding = (String) tuple.getField("pageEncoding");
 		final int version = (Integer) tuple.getField("version");
+		
 		crawlerSummary.getSummary(catalogId).incrementUrlCount();
 
 		PathFilter pathFilter = getPathFilter(catalogId);

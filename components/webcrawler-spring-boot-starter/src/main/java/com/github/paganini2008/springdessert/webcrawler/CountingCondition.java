@@ -12,12 +12,12 @@ import com.github.paganini2008.xtransport.Tuple;
  */
 public class CountingCondition extends DurationCondition {
 
-	public CountingCondition(CrawlerSummary crawlerSummary, long defaultDuration, long defaultMaxFetchSize) {
+	public CountingCondition(CrawlerSummary crawlerSummary, long defaultDuration, int defaultMaxFetchSize) {
 		super(crawlerSummary, defaultDuration);
 		this.defaultMaxFetchSize = defaultMaxFetchSize;
 	}
 
-	private final long defaultMaxFetchSize;
+	private final int defaultMaxFetchSize;
 
 	private ConditionalCountingType countingType = ConditionalCountingType.URL_COUNT;
 
@@ -27,7 +27,7 @@ public class CountingCondition extends DurationCondition {
 
 	@Override
 	protected boolean evaluate(long catalogId, Tuple tuple) {
-		long maxFetchSize = (Long) tuple.getField("maxFetchSize", defaultMaxFetchSize);
+		long maxFetchSize = (Integer) tuple.getField("maxFetchSize", defaultMaxFetchSize);
 		return countingType.evaluate(getCrawlerSummary().getSummary(catalogId), maxFetchSize);
 	}
 

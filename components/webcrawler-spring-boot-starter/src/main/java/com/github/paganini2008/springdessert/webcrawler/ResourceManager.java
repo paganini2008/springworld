@@ -33,6 +33,8 @@ public interface ResourceManager {
 
 	Resource getResource(long id);
 
+	int deleteResourceByCatalogId(long catalogId);
+
 	PageResponse<Resource> queryForResourceForIndex(long catalogId, int page, int size);
 
 	int updateResourceVersion(long catalogId, int version);

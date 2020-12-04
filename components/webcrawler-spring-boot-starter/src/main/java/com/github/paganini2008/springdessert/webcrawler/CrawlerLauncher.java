@@ -12,6 +12,8 @@ import com.github.paganini2008.xtransport.NioClient;
 import com.github.paganini2008.xtransport.Partitioner;
 import com.github.paganini2008.xtransport.Tuple;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * CrawlerLauncher
@@ -20,6 +22,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * 
  * @since 1.0
  */
+@Slf4j
 public final class CrawlerLauncher {
 
 	@Autowired
@@ -60,6 +63,8 @@ public final class CrawlerLauncher {
 		data.put("maxFetchSize", catalog.getMaxFetchSize());
 		data.put("duration", catalog.getDuration());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
+		log.info("Catalog Config: {}", data);
+		
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
 
@@ -78,6 +83,8 @@ public final class CrawlerLauncher {
 		data.put("maxFetchSize", catalog.getMaxFetchSize());
 		data.put("duration", catalog.getDuration());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
+		log.info("Catalog Config: {}", data);
+		
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
 

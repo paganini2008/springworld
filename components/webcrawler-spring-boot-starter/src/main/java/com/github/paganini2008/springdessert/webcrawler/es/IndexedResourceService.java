@@ -66,6 +66,7 @@ public class IndexedResourceService {
 		DeleteQuery deleteQuery = new DeleteQuery();
 		deleteQuery.setQuery(boolQueryBuilder);
 		elasticsearchTemplate.delete(deleteQuery, IndexedResource.class);
+		log.info("Delete indexed resource by catalogId '{}' successfully.", catalogId);
 	}
 
 	public void saveResource(IndexedResource indexedResource) {

@@ -38,6 +38,7 @@ public class JdbcResourceManger implements ResourceManager {
 	public static final String SQL_RESOURCE_INSERT = "insert into crawler_resource (id,title,html,url,cat,create_time,version,catalog_id) values (:id,:title,:html,:url,:cat,:createTime,:version,:catalogId)";
 	public static final String SQL_RESOURCE_SELECT_FOR_INDEX = "select * from crawler_resource where catalog_id=:catalogId and version<(select version from crawler_catalog_index where catalog_id=:catalogId)";
 	public static final String SQL_RESOURCE_SELECT_ONE = "select * from crawler_resource where id=:id limit 1";
+	public static final String SQL_RESOURCE_DELETE_ALL = "delete from crawler_resource where catalog_id=:catalogId";
 	public static final String SQL_RESOURCE_VERSION_UPDATE = "update crawler_resource set version=:version where catalog_id=:catalogId and version<:version";
 
 	@Autowired
@@ -109,6 +110,11 @@ public class JdbcResourceManger implements ResourceManager {
 	@Override
 	public Resource getResource(long id) {
 		return resourceDao.getResource(id);
+	}
+	
+	@Override
+	public int deleteResourceByCatalogId(long catalogId) {
+		return resourceDao.deleteResourceByCatalogId(catalogId);
 	}
 
 	@Override
