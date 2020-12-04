@@ -127,6 +127,7 @@ public class IndexedResourceService {
 				html = pageExtractor.extractHtml(catalog.getUrl(), resource.getUrl(), CharsetUtils.toCharset(catalog.getPageEncoding()));
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
+				html = pageExtractor.defaultPage(catalog.getUrl(), resource.getUrl(), CharsetUtils.toCharset(catalog.getPageEncoding()), e);
 			}
 		}
 		Document document = Jsoup.parse(html);

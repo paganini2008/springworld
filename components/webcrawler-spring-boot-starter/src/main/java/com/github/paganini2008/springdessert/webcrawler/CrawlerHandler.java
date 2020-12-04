@@ -129,7 +129,7 @@ public class CrawlerHandler implements Handler {
 			log.trace("Handle resource: [Resource] refer: {}, path: {}", refer, path);
 		}
 
-		Charset charset = CharsetUtils.toCharset(pageEncoding, CharsetUtils.UTF_8);
+		Charset charset = CharsetUtils.toCharset(pageEncoding);
 		String html = null;
 		try {
 			html = pageExtractor.extractHtml(refer, path, charset);
@@ -196,7 +196,7 @@ public class CrawlerHandler implements Handler {
 		final int version = (Integer) tuple.getField("version");
 		crawlerSummary.getSummary(catalogId).incrementUrlCount();
 
-		Charset charset = CharsetUtils.toCharset(pageEncoding, CharsetUtils.UTF_8);
+		Charset charset = CharsetUtils.toCharset(pageEncoding);
 		String html = null;
 		try {
 			html = pageExtractor.extractHtml(refer, path, charset);
