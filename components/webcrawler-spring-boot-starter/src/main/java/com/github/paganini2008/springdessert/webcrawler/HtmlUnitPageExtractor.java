@@ -80,7 +80,7 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 	protected Map<String, String> getDefaultHeaders() {
 		Map<String, String> headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8,en-US,en;q=0.2");
 		headerMap.put("X-Forwarded-For", RandomIpUtils.randomIp());
 		headerMap.put("User-Agent", RandomUtils.randomChoice(userAgents));
 		return headerMap;

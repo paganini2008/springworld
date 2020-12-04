@@ -10,8 +10,8 @@ package com.github.paganini2008.springdessert.webcrawler;
  */
 public interface PathFilterFactory {
 
-	void clean(String identifier);
+	void clean(long catalogId);
 
-	PathFilter getPathFilter(String identifier);
+	PathFilter getPathFilter(long catalogId);
 
 }

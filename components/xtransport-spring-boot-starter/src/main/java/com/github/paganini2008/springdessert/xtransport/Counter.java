@@ -19,8 +19,10 @@ import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
  */
 public final class Counter extends RedisCounter implements Executable {
 
-	public Counter(String name, RedisConnectionFactory connectionFactory) {
-		super(name, connectionFactory);
+	private static final String defaultRedisKeyPattern = "spring:transport:cluster:%s:counter:%s";
+
+	public Counter(String name, String roleName, RedisConnectionFactory connectionFactory) {
+		super(String.format(defaultRedisKeyPattern, name, roleName), connectionFactory);
 	}
 
 	private final AtomicLong counter = new AtomicLong();

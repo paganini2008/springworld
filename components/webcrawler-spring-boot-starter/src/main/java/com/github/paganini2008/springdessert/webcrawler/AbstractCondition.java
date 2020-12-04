@@ -4,17 +4,17 @@ import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 
- * AbstractConditionalTermination
+ * AbstractCondition
  *
  * @author Jimmy Hoff
  * 
  * @since 1.0
  */
-public abstract class AbstractConditionalTermination implements ConditionalTermination {
+public abstract class AbstractCondition implements Condition {
 
 	private final CrawlerSummary crawlerSummary;
 
-	protected AbstractConditionalTermination(CrawlerSummary crawlerSummary) {
+	protected AbstractCondition(CrawlerSummary crawlerSummary) {
 		this.crawlerSummary = crawlerSummary;
 	}
 

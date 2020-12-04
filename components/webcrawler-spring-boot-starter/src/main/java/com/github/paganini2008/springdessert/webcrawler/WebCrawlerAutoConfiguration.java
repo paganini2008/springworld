@@ -12,7 +12,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.client.ClientHttpRequestFactory;
 
-import com.github.paganini2008.devtools.CharsetUtils;
+import com.github.paganini2008.devtools.date.DateUtils;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 import com.github.paganini2008.springdessert.webcrawler.es.IndexedResourceService;
@@ -43,7 +43,7 @@ public class WebCrawlerAutoConfiguration {
 
 	@Bean
 	public PathFilterFactory pathFilterFactory(StringRedisTemplate redisTemplate) {
-		return new BloomFilterPathFilterFactory(redisTemplate);
+		return new BloomFilterPathFilterFactory(clusterName, redisTemplate);
 	}
 
 	@Bean
@@ -71,7 +71,7 @@ public class WebCrawlerAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public PageExtractor pageExtractor(ClientHttpRequestFactory clientHttpRequestFactory) {
-		return new HttpClientPageExtractor(clientHttpRequestFactory, CharsetUtils.UTF_8);
+		return new MultiCharsetHttpClientPageExtractor(clientHttpRequestFactory);
 	}
 
 	@ConditionalOnMissingBean
@@ -83,8 +83,8 @@ public class WebCrawlerAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public ConditionalTermination conditionalTermination(CrawlerSummary crawlerSummary, RedisConnectionFactory redisConnectionFactory) {
-		return new CountingConditionalTermination(crawlerSummary, 20, TimeUnit.MINUTES, redisConnectionFactory, 100000);
+	public Condition conditionalTermination(CrawlerSummary crawlerSummary) {
+		return new CountingCondition(crawlerSummary, DateUtils.convertToMillis(20, TimeUnit.MINUTES), 100000);
 	}
 
 	@ConditionalOnMissingBean

@@ -60,7 +60,7 @@ public class CrawlerHandler implements Handler {
 	private PathAcceptor pathAcceptor;
 
 	@Autowired
-	private ConditionalTermination condition;
+	private Condition condition;
 
 	@Autowired
 	private PathFilterFactory pathFilterFactory;
@@ -70,9 +70,6 @@ public class CrawlerHandler implements Handler {
 
 	@Autowired
 	private CrawlerSummary crawlerSummary;
-
-	@Value("${spring.application.name}")
-	private String applicationName;
 
 	@Value("${webcrawler.crawler.fetch.depth:-1}")
 	private int depth;
@@ -85,8 +82,7 @@ public class CrawlerHandler implements Handler {
 
 	private PathFilter getPathFilter(long catalogId) {
 		return MapUtils.get(pathFilters, catalogId, () -> {
-			String identifier = applicationName + ":" + catalogId;
-			return pathFilterFactory.getPathFilter(identifier);
+			return pathFilterFactory.getPathFilter(catalogId);
 		});
 	}
 
@@ -132,7 +128,7 @@ public class CrawlerHandler implements Handler {
 			log.trace("Handle resource: [Resource] refer: {}, path: {}", refer, path);
 		}
 
-		Charset charset = CharsetUtils.toCharset(pageEncoding);
+		Charset charset = CharsetUtils.toCharset(pageEncoding, CharsetUtils.UTF_8);
 		String html = null;
 		try {
 			html = pageExtractor.extractHtml(refer, path, charset);
@@ -156,9 +152,9 @@ public class CrawlerHandler implements Handler {
 		resource.setHtml(document.html());
 		resource.setUrl(path);
 		resource.setCat(cat);
-		resource.setCreateTime(new Date());
 		resource.setVersion(version);
 		resource.setCatalogId(catalogId);
+		resource.setCreateTime(new Date());
 		resourceManager.saveResource(resource);
 		crawlerSummary.getSummary(catalogId).incrementSavedCount();
 		if (log.isTraceEnabled()) {
@@ -179,7 +175,7 @@ public class CrawlerHandler implements Handler {
 					href = element.attr("href");
 				}
 				if (StringUtils.isNotBlank(href) && acceptedPath(catalogId, refer, href, tuple)) {
-					crawlRecursively(action, catalogId, refer, href, cat, version, pathFilter);
+					crawlRecursively(action, catalogId, refer, href, version, tuple, pathFilter);
 				}
 			}
 		}
@@ -199,7 +195,7 @@ public class CrawlerHandler implements Handler {
 		final int version = (Integer) tuple.getField("version");
 		crawlerSummary.getSummary(catalogId).incrementUrlCount();
 
-		Charset charset = CharsetUtils.toCharset(pageEncoding);
+		Charset charset = CharsetUtils.toCharset(pageEncoding, CharsetUtils.UTF_8);
 		String html = null;
 		try {
 			html = pageExtractor.extractHtml(refer, path, charset);
@@ -234,9 +230,9 @@ public class CrawlerHandler implements Handler {
 			resource.setHtml(document.html());
 			resource.setUrl(path);
 			resource.setCat(cat);
-			resource.setCreateTime(new Date());
 			resource.setVersion(version);
 			resource.setCatalogId(catalogId);
+			resource.setCreateTime(new Date());
 			resourceManager.saveResource(resource);
 			crawlerSummary.getSummary(catalogId).incrementSavedCount();
 			if (log.isTraceEnabled()) {
@@ -258,7 +254,7 @@ public class CrawlerHandler implements Handler {
 					href = element.attr("href");
 				}
 				if (StringUtils.isNotBlank(href) && acceptedPath(catalogId, refer, href, tuple)) {
-					updateRecursively(action, catalogId, refer, href, cat, version);
+					updateRecursively(action, catalogId, refer, href, version, tuple);
 				}
 			}
 		}
@@ -307,18 +303,21 @@ public class CrawlerHandler implements Handler {
 		return n <= depth;
 	}
 
-	private void updateRecursively(String action, long catalogId, String refer, String path, String cat, int version) {
+	private void updateRecursively(String action, long catalogId, String refer, String path, int version, Tuple current) {
 		Tuple tuple = Tuple.newOne();
 		tuple.setField("action", action);
 		tuple.setField("catalogId", catalogId);
 		tuple.setField("refer", refer);
 		tuple.setField("path", path);
-		tuple.setField("cat", cat);
 		tuple.setField("version", version);
+		tuple.setField("cat", current.getField("cat"));
+		tuple.setField("duration", current.getField("duration"));
+		tuple.setField("maxFetchSize", current.getField("maxFetchSize"));
+		tuple.setField("pageEncoding", current.getField("pageEncoding"));
 		nioClient.send(tuple, partitioner);
 	}
 
-	private void crawlRecursively(String action, long catalogId, String refer, String path, String cat, int version,
+	private void crawlRecursively(String action, long catalogId, String refer, String path, int version, Tuple current,
 			PathFilter pathFilter) {
 		String pathIdentifier = String.format(UNIQUE_PATH_IDENTIFIER, catalogId, refer, path, version);
 		if (pathFilter.mightExist(pathIdentifier)) {
@@ -330,8 +329,11 @@ public class CrawlerHandler implements Handler {
 		tuple.setField("catalogId", catalogId);
 		tuple.setField("refer", refer);
 		tuple.setField("path", path);
-		tuple.setField("cat", cat);
 		tuple.setField("version", version);
+		tuple.setField("cat", current.getField("cat"));
+		tuple.setField("duration", current.getField("duration"));
+		tuple.setField("maxFetchSize", current.getField("maxFetchSize"));
+		tuple.setField("pageEncoding", current.getField("pageEncoding"));
 		nioClient.send(tuple, partitioner);
 	}
 

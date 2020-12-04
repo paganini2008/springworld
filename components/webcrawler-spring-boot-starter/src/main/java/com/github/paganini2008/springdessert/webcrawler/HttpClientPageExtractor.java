@@ -1,13 +1,11 @@
 package com.github.paganini2008.springdessert.webcrawler;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.util.MultiValueMap;
@@ -58,14 +56,15 @@ public class HttpClientPageExtractor implements PageExtractor {
 
 	protected MultiValueMap<String, String> getDefaultHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Arrays.asList(MediaType.ALL));
+		headers.add("Accept", "*/*");
 		headers.add("User-Agent", RandomUtils.randomChoice(userAgents));
 		headers.add("X-Forwarded-For", RandomIpUtils.randomIp());
+		headers.add("Accept-Language", "zh-CN,zh;q=0.8,en-US,en;q=0.2");
 		return headers;
 	}
 
 	public static void main(String[] args) throws Exception {
-		HttpClientPageExtractor pageSource = new HttpClientPageExtractor(CharsetUtils.GB_2312);
+		HttpClientPageExtractor pageSource = new HttpClientPageExtractor();
 		// System.out.println(pageSource.getHtml("https://blog.csdn.net/u010814849/article/details/52526705"));
 		System.out.println(pageSource.extractHtml("https://www.tuniu.com",
 				"http://caipu.haochi123.com/Recipe/2015/9612659687.html?#Flag_Photo", null));

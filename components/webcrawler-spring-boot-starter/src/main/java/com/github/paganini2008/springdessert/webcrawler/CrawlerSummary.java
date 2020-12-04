@@ -2,6 +2,7 @@ package com.github.paganini2008.springdessert.webcrawler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -9,6 +10,7 @@ import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.beans.ToStringBuilder;
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springdessert.reditools.common.GenericRedisTemplate;
 
 /**
  * 
@@ -20,7 +22,7 @@ import com.github.paganini2008.devtools.collection.MapUtils;
  */
 public class CrawlerSummary implements DisposableBean {
 
-	private static final String defaultRedisKeyPattern = "spring:application:cluster:%s:summary:%s";
+	private static final String defaultRedisKeyPattern = "spring:webcrawler:cluster:%s:catalog:summary:%s";
 
 	private final String crawlerName;
 	private final RedisConnectionFactory redisConnectionFactory;
@@ -36,10 +38,14 @@ public class CrawlerSummary implements DisposableBean {
 		getSummary(catalogId).reset();
 	}
 
+	public void completeNow(long catalogId) {
+		getSummary(catalogId).setCompleted(true);
+	}
+
 	public Summary getSummary(long catalogId) {
-		final String key = String.format(defaultRedisKeyPattern, crawlerName, catalogId);
+		final String keyPrefix = String.format(defaultRedisKeyPattern, crawlerName, catalogId);
 		return MapUtils.get(cache, catalogId, () -> {
-			return new Summary(key, redisConnectionFactory);
+			return new Summary(keyPrefix, redisConnectionFactory);
 		});
 	}
 
@@ -57,42 +63,44 @@ public class CrawlerSummary implements DisposableBean {
 
 	public static class Summary {
 
+		private final GenericRedisTemplate<Long> startTime;
 		private final RedisAtomicLong urls;
 		private final RedisAtomicLong invalidUrls;
 		private final RedisAtomicLong existedUrls;
 		private final RedisAtomicLong filteredUrls;
 		private final RedisAtomicLong saved;
 		private final RedisAtomicLong indexed;
-		private long startTime;
-		private boolean completed;
+		private final AtomicBoolean completed;
 
 		Summary(String keyPrefix, RedisConnectionFactory redisConnectionFactory) {
-			startTime = System.currentTimeMillis();
-			urls = new RedisAtomicLong(keyPrefix + ":urls", redisConnectionFactory);
-			invalidUrls = new RedisAtomicLong(keyPrefix + ":invalidUrls", redisConnectionFactory);
-			existedUrls = new RedisAtomicLong(keyPrefix + ":existedUrls", redisConnectionFactory);
-			filteredUrls = new RedisAtomicLong(keyPrefix + ":filteredUrls", redisConnectionFactory);
-			saved = new RedisAtomicLong(keyPrefix + ":saved", redisConnectionFactory);
-			indexed = new RedisAtomicLong(keyPrefix + ":indexed", redisConnectionFactory);
-			completed = false;
+			startTime = new GenericRedisTemplate<Long>(keyPrefix + ":startTime", Long.class, redisConnectionFactory,
+					System.currentTimeMillis());
+			urls = new RedisAtomicLong(keyPrefix + ":urlCount", redisConnectionFactory);
+			invalidUrls = new RedisAtomicLong(keyPrefix + ":invalidUrlCount", redisConnectionFactory);
+			existedUrls = new RedisAtomicLong(keyPrefix + ":existedUrlCount", redisConnectionFactory);
+			filteredUrls = new RedisAtomicLong(keyPrefix + ":filteredUrlCount", redisConnectionFactory);
+			saved = new RedisAtomicLong(keyPrefix + ":savedCount", redisConnectionFactory);
+			indexed = new RedisAtomicLong(keyPrefix + ":indexedCount", redisConnectionFactory);
+			completed = new AtomicBoolean(false);
 		}
 
 		public void reset() {
-			startTime = System.currentTimeMillis();
+			startTime.set(System.currentTimeMillis());
 			urls.set(0);
 			invalidUrls.set(0);
 			existedUrls.set(0);
 			filteredUrls.set(0);
 			saved.set(0);
 			indexed.set(0);
+			completed.set(false);
 		}
 
 		public boolean isCompleted() {
-			return completed;
+			return completed.get();
 		}
 
 		public void setCompleted(boolean completed) {
-			this.completed = completed;
+			this.completed.set(completed);
 		}
 
 		public long incrementUrlCount() {
@@ -168,11 +176,11 @@ public class CrawlerSummary implements DisposableBean {
 		}
 
 		public long getStartTime() {
-			return startTime;
+			return startTime.get();
 		}
 
 		public long getElapsedTime() {
-			return System.currentTimeMillis() - startTime;
+			return startTime.get() > 0 ? System.currentTimeMillis() - startTime.get() : 0;
 		}
 
 		public String toString() {

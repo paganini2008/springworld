@@ -22,9 +22,6 @@ import com.github.paganini2008.xtransport.Tuple;
  */
 public final class CrawlerLauncher {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
-
 	@Autowired
 	private NioClient nioClient;
 
@@ -38,14 +35,13 @@ public final class CrawlerLauncher {
 	private PathFilterFactory pathFilterFactory;
 
 	@Autowired
-	private ConditionalTermination condition;
+	private Condition condition;
 
 	@Value("${webcrawler.indexer.enabled:true}")
 	private boolean indexEnabled;
 
 	public void rebuild(long catalogId) {
-		final String identifier = applicationName + ":" + catalogId;
-		pathFilterFactory.clean(identifier);
+		pathFilterFactory.clean(catalogId);
 		submit(catalogId);
 	}
 
@@ -61,6 +57,8 @@ public final class CrawlerLauncher {
 		data.put("path", catalog.getUrl());
 		data.put("cat", catalog.getCat());
 		data.put("pageEncoding", catalog.getPageEncoding());
+		data.put("maxFetchSize", catalog.getMaxFetchSize());
+		data.put("duration", catalog.getDuration());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
@@ -77,6 +75,8 @@ public final class CrawlerLauncher {
 		data.put("path", catalog.getUrl());
 		data.put("cat", catalog.getCat());
 		data.put("pageEncoding", catalog.getPageEncoding());
+		data.put("maxFetchSize", catalog.getMaxFetchSize());
+		data.put("duration", catalog.getDuration());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}

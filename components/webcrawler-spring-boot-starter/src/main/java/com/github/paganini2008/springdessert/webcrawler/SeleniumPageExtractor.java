@@ -46,8 +46,7 @@ public class SeleniumPageExtractor extends PageExtractorSupport<WebDriver> imple
 	public WebDriver createObject() throws Exception {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("lang=zh_CN.UTF-8");
-		options.addArguments("User-Agent=" + RandomUtils.randomChoice(userAgents));
-		options.addArguments("X-Forwarded-For=" + RandomIpUtils.randomIp());
+		options.addArguments("user-agent=" + RandomUtils.randomChoice(userAgents));
 		options.addArguments("--test-type", "--ignore-certificate-errors", "--start-maximized", "no-default-browser-check");
 		options.addArguments("--silent", "--headless", "--disable-gpu");
 		setDefaultHeaders(options);
@@ -82,8 +81,7 @@ public class SeleniumPageExtractor extends PageExtractorSupport<WebDriver> imple
 		SeleniumPageExtractor pageExtractor = new SeleniumPageExtractor(webdriverExecutionPath);
 		pageExtractor.configure();
 		RetryablePageExtractor retryablePageExtractor = new RetryablePageExtractor(pageExtractor);
-		retryablePageExtractor.extractHtml("http://www.ttmeishi.com", "http://www.ttmeishi.com/CaiXi/tese/", null);
-		System.out.println();
+		System.out.println(retryablePageExtractor.extractHtml("http://www.ttmeishi.com", "http://www.ttmeishi.com/CaiXi/tese/", null));
 		System.in.read();
 		pageExtractor.destroy();
 	}

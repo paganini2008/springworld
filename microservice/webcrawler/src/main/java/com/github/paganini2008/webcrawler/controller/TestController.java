@@ -33,13 +33,13 @@ public class TestController {
 
 	@Autowired
 	private Partitioner partitioner;
-	
+
 	@Autowired
 	private PathFilterFactory pathFilterFactory;
-	
+
 	@GetMapping("/testExists")
-	public Map<String, Object> testExists(@RequestParam("q") String q){
-		PathFilter pathFilter = pathFilterFactory.getPathFilter("test");
+	public Map<String, Object> testExists(@RequestParam("q") String q) {
+		PathFilter pathFilter = pathFilterFactory.getPathFilter(Long.MAX_VALUE);
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("exists", pathFilter.mightExist(q));
 		return data;
