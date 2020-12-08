@@ -10,10 +10,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
 import com.github.paganini2008.springdessert.cluster.LeaderContext;
-import com.github.paganini2008.springdessert.cluster.utils.LazilyAutowiredBeanInspector;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +37,7 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	private HttpHeaders defaultHttpHeaders;
 
 	@Autowired
-	private RoutingPolicy routingPolicy;
+	private RoutingAllocator routingAllocator;
 
 	@Autowired
 	private EnhancedRestTemplate restTemplate;
@@ -56,28 +54,18 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	@Autowired
 	private RequestInterceptorContainer requestInterceptorContainer;
 
-	@Autowired
-	private LazilyAutowiredBeanInspector lazilyAutowiredBeanInspector;
-
 	private ConfigurableBeanFactory beanFactory;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject() throws Exception {
 		final RestClient restClient = interfaceClass.getAnnotation(RestClient.class);
-		String provider = beanFactory.resolveEmbeddedValue(restClient.provider());
-		int retries = restClient.retries();
-		int timeout = restClient.timeout();
-		Class<?> fallbackClass = restClient.fallback();
-		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, defaultHttpHeaders, routingPolicy, restTemplate,
+		final String provider = beanFactory.resolveEmbeddedValue(restClient.provider());
+		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, defaultHttpHeaders, routingAllocator, restTemplate,
 				retryTemplateFactory, taskExecutor);
-		Object fallback = fallbackClass != Void.class && fallbackClass != void.class ? BeanUtils.instantiate(fallbackClass) : null;
-		if (fallback != null) {
-			lazilyAutowiredBeanInspector.autowireLazily(fallback);
-		}
-		log.info("Create rest client for provider: {}, retries:{}, timeout: {}", provider, retries, timeout);
-		return (T) ProxyFactory.getDefault().getProxy(fallback,
-				new RestClientBeanAspect(leaderContext, requestProcessor, retries, timeout, requestInterceptorContainer),
+		log.info("Create RestClient for provider: {}", provider);
+		return (T) ProxyFactory.getDefault().getProxy(null,
+				new RestClientBeanAspect(restClient, leaderContext, requestProcessor, requestInterceptorContainer),
 				new Class<?>[] { interfaceClass });
 	}
 

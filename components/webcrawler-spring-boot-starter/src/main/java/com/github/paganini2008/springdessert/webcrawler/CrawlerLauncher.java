@@ -64,7 +64,7 @@ public final class CrawlerLauncher {
 		data.put("duration", catalog.getDuration());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		log.info("Catalog Config: {}", data);
-		
+
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
 
@@ -77,19 +77,23 @@ public final class CrawlerLauncher {
 		data.put("action", "update");
 		data.put("catalogId", catalog.getId());
 		data.put("refer", catalog.getUrl());
-		data.put("path", catalog.getUrl());
+		data.put("path", getLatestPath(catalog.getId()));
 		data.put("cat", catalog.getCat());
 		data.put("pageEncoding", catalog.getPageEncoding());
 		data.put("maxFetchSize", catalog.getMaxFetchSize());
 		data.put("duration", catalog.getDuration());
 		data.put("version", indexEnabled ? getIndexVersion(catalogId) : 0);
 		log.info("Catalog Config: {}", data);
-		
+
 		nioClient.send(Tuple.wrap(data), partitioner);
 	}
 
 	private int getIndexVersion(long catalogId) {
 		CatalogIndex catalogIndex = resourceManager.getCatalogIndex(catalogId);
 		return catalogIndex.getVersion();
+	}
+
+	private String getLatestPath(long catalogId) {
+		return resourceManager.getLatestPath(catalogId);
 	}
 }

@@ -76,11 +76,11 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		return contextHolder.getEnvironment();
 	}
 
-	public static int countOfBeans() {
+	public static synchronized int countOfBeans() {
 		return getApplicationContext().getBeanDefinitionCount();
 	}
 
-	public static Map<String, Object> getAllBeans() {
+	public static synchronized Map<String, Object> getAllBeans() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		String[] beanNames = getApplicationContext().getBeanDefinitionNames();
 		for (String beanName : beanNames) {
@@ -89,7 +89,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		return map;
 	}
 
-	public static <T> List<T> getBeans(Class<T> requiredType, Function<T, Boolean> f) {
+	public static synchronized <T> List<T> getBeans(Class<T> requiredType, Function<T, Boolean> f) {
 		List<T> list = new ArrayList<T>();
 		for (T bean : getBeansOfType(requiredType).values()) {
 			if (f.apply(bean)) {
@@ -99,7 +99,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		return list;
 	}
 
-	public static <T> T getBean(Class<T> requiredType, Function<T, Boolean> f) {
+	public static synchronized <T> T getBean(Class<T> requiredType, Function<T, Boolean> f) {
 		for (T bean : getBeansOfType(requiredType).values()) {
 			if (f.apply(bean)) {
 				return bean;
@@ -108,7 +108,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		return null;
 	}
 
-	public static <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
+	public static synchronized <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
 		try {
 			return getApplicationContext().getBeansOfType(requiredType);
 		} catch (RuntimeException e) {
@@ -117,7 +117,8 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+	public static synchronized <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons,
+			boolean allowEagerInit) {
 		try {
 			return getApplicationContext().getBeansOfType(requiredType, includeNonSingletons, allowEagerInit);
 		} catch (RuntimeException e) {
@@ -126,7 +127,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
+	public static synchronized Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
 		try {
 			return getApplicationContext().getBeansWithAnnotation(annotationType);
 		} catch (RuntimeException e) {
@@ -135,7 +136,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static <T> T getBean(String name) {
+	public static synchronized <T> T getBean(String name) {
 		try {
 			return (T) getApplicationContext().getBean(name);
 		} catch (RuntimeException e) {
@@ -144,7 +145,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static <T> T getBean(Class<T> requiredType) {
+	public static synchronized <T> T getBean(Class<T> requiredType) {
 		try {
 			return getApplicationContext().getBean(requiredType);
 		} catch (RuntimeException e) {
@@ -153,7 +154,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static <T> T getBeanIfAbsent(Class<T> requiredType) {
+	public static synchronized <T> T getBeanIfNecessary(Class<T> requiredType) {
 		try {
 			return getApplicationContext().getBean(requiredType);
 		} catch (RuntimeException e) {
@@ -161,7 +162,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static <T> T getBean(String name, Class<T> requiredType) {
+	public static synchronized <T> T getBean(String name, Class<T> requiredType) {
 		if (StringUtils.isBlank(name)) {
 			return getBean(requiredType);
 		}
@@ -173,12 +174,12 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		}
 	}
 
-	public static <T> T autowireBean(T bean) {
+	public static synchronized <T> T autowireBean(T bean) {
 		getBeanFactory().autowireBean(bean);
 		return bean;
 	}
 
-	public static <T> T instantiateClass(Class<T> clazz, Object... arguments) {
+	public static synchronized <T> T instantiateClass(Class<T> clazz, Object... arguments) {
 		T bean = BeanUtils.instantiate(clazz, arguments);
 		return autowireBean(bean);
 	}

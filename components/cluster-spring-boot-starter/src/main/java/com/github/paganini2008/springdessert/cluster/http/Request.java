@@ -21,12 +21,12 @@ public interface Request {
 	HttpMethod getMethod();
 
 	HttpHeaders getHeaders();
+	
+	HttpEntity<Object> getBody();
 
 	Map<String, Object> getRequestParameters();
 
 	Map<String, Object> getPathVariables();
-
-	HttpEntity<Object> getBody();
 
 	long getTimestamp();
 

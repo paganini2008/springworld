@@ -16,6 +16,4 @@ public interface RegistryCenter {
 
 	List<ApplicationInfo> getApplications(String applicationName);
 
-	ApplicationInfo getLeader();
-
 }

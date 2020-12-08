@@ -20,6 +20,10 @@ import org.springframework.web.client.ResponseExtractor;
  */
 public class EnhancedRestTemplate extends CharsetDefinedRestTemplate {
 
+	public EnhancedRestTemplate(Charset charset) {
+		super(charset);
+	}
+
 	public EnhancedRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory, Charset charset) {
 		super(clientHttpRequestFactory, charset);
 	}

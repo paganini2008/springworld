@@ -102,7 +102,7 @@ public class GenericRedisTemplate<T> extends RedisTemplate<String, T> {
 		return opsForList().range(key, start, end);
 	}
 
-	public long sizeList(String key) {
+	public long sizeList() {
 		Long l = opsForList().size(key);
 		return l != null ? l.longValue() : 0;
 	}
@@ -111,15 +111,28 @@ public class GenericRedisTemplate<T> extends RedisTemplate<String, T> {
 		opsForHash().put(key, hashKey, value);
 	}
 
+	public Boolean putHashIfAbsent(String hashKey, T value) {
+		return opsForHash().putIfAbsent(key, hashKey, value);
+	}
+
 	public T getHash(String hashKey) {
 		return (T) opsForHash().get(key, hashKey);
 	}
 
-	public List<T> multiGet(String... hashKeys) {
+	public boolean hasHashKey(String hashKey) {
+		return opsForHash().hasKey(key, hashKey);
+	}
+
+	public List<T> multiGetHash(String... hashKeys) {
 		return (List<T>) opsForHash().multiGet(key, Arrays.asList(hashKeys));
 	}
 
 	public Long deleteHash(String... hashKeys) {
 		return opsForHash().delete(key, hashKeys);
 	}
+
+	public long sizeHash() {
+		return opsForHash().size(key);
+	}
+
 }

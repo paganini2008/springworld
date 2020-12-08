@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,25 +21,30 @@ import com.github.paganini2008.devtools.ObjectUtils;
 
 /**
  * 
- * SimpleRequest
- * 
- * @author Jimmy Hoff
+ * ParameterAnnotationRequest
  *
+ * @author Jimmy Hoff
+ * 
  * @since 1.0
  */
-public class SimpleRequest implements Request {
+public class ParameterAnnotationRequest implements Request {
 
 	private final String path;
 	private final HttpMethod method;
+	private final HttpHeaders headers;
 	private final long timestamp;
-	private HttpHeaders headers = new HttpHeaders();
+	private HttpEntity<Object> body;
 	private Map<String, Object> requestParameters = new HashMap<String, Object>();
 	private Map<String, Object> pathVariables = new HashMap<String, Object>();
-	private HttpEntity<Object> body;
 
-	SimpleRequest(String path, HttpMethod method) {
+	ParameterAnnotationRequest(String path, HttpMethod method) {
+		this(path, method, new HttpHeaders());
+	}
+
+	ParameterAnnotationRequest(String path, HttpMethod method, MultiValueMap<String, String> headers) {
 		this.path = path;
 		this.method = method;
+		this.headers = new HttpHeaders(headers);
 		this.timestamp = System.currentTimeMillis();
 	}
 

@@ -8,11 +8,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.multicast.MulticastGroupListener;
 import com.github.paganini2008.springdessert.reditools.BeanNames;
@@ -28,8 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ApplicationRegistryCenter
-		implements ApplicationListener<ApplicationClusterFollowerEvent>, MulticastGroupListener, RegistryCenter {
+public class ApplicationRegistryCenter implements MulticastGroupListener, RegistryCenter {
 
 	private final Map<String, List<ApplicationInfo>> appInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 
@@ -40,19 +37,8 @@ public class ApplicationRegistryCenter
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
-	private ApplicationInfo leaderInfo;
-
 	public List<ApplicationInfo> getApplications(String applicationName) {
 		return appInfoCache.get(applicationName);
-	}
-
-	public ApplicationInfo getLeader() {
-		return leaderInfo;
-	}
-
-	@Override
-	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {
-		this.leaderInfo = event.getLeaderInfo();
 	}
 
 	@Override

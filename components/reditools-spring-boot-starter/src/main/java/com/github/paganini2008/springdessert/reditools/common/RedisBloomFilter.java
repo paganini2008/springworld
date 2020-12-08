@@ -1,6 +1,8 @@
 package com.github.paganini2008.springdessert.reditools.common;
 
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.github.paganini2008.devtools.CharsetUtils;
 import com.google.common.hash.Funnel;
@@ -22,12 +24,12 @@ public class RedisBloomFilter {
 	private final Funnel<CharSequence> funnel;
 	private final RedisOperations<String, String> redisOperations;
 
-	public RedisBloomFilter(String key, int expectedInsertions, double fpp, RedisOperations<String, String> redisOperations) {
+	public RedisBloomFilter(String key, int expectedInsertions, double fpp, RedisConnectionFactory redisConnectionFactory) {
 		this.key = key;
 		this.funnel = Funnels.stringFunnel(CharsetUtils.UTF_8);
 		this.bitSize = optimalNumOfBits(expectedInsertions, fpp);
 		this.numHashFunctions = optimalNumOfHashFunctions(expectedInsertions, bitSize);
-		this.redisOperations = redisOperations;
+		this.redisOperations = new StringRedisTemplate(redisConnectionFactory);
 	}
 
 	public void put(String content) {

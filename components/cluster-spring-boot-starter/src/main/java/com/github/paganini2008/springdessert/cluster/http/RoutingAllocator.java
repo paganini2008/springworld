@@ -2,16 +2,16 @@ package com.github.paganini2008.springdessert.cluster.http;
 
 /**
  * 
- * RoutingPolicy
+ * RoutingAllocator
  * 
  * @author Jimmy Hoff
  *
  * @since 1.0
  */
-public interface RoutingPolicy {
+public interface RoutingAllocator {
 
 	static final String LEADER_ALIAS = "*";
 
-	String extractUrl(String provider, String path);
+	String allocateHost(String provider, String path);
 
 }

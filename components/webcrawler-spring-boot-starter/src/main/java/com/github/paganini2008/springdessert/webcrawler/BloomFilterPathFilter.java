@@ -20,7 +20,9 @@ public class BloomFilterPathFilter implements PathFilter {
 
 	@Override
 	public void update(String content) {
-		bloomFilter.put(content);
+		if (!mightExist(content)) {
+			bloomFilter.put(content);
+		}
 	}
 
 	@Override

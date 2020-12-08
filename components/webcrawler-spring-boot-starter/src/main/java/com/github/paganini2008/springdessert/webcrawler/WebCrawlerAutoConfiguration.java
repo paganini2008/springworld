@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.client.ClientHttpRequestFactory;
 
 import com.github.paganini2008.devtools.date.DateUtils;
@@ -42,8 +41,8 @@ public class WebCrawlerAutoConfiguration {
 	}
 
 	@Bean
-	public PathFilterFactory pathFilterFactory(StringRedisTemplate redisTemplate) {
-		return new BloomFilterPathFilterFactory(clusterName, redisTemplate);
+	public PathFilterFactory pathFilterFactory(RedisConnectionFactory redisConnectionFactory) {
+		return new BloomFilterPathFilterFactory(clusterName, redisConnectionFactory);
 	}
 
 	@Bean

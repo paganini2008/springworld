@@ -62,7 +62,7 @@ public class HtmlUnitPageExtractor extends PageExtractorSupport<WebClient> imple
 		try {
 			Page page = webClient.getPage(url);
 			int responseStatusCode = page.getWebResponse().getStatusCode();
-			if (responseStatusCode == 200) {
+			if (responseStatusCode == HttpStatus.OK.value()) {
 				if (page instanceof HtmlPage) {
 					return ((HtmlPage) page).asXml();
 				} else if (page instanceof TextPage) {

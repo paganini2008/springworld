@@ -61,8 +61,8 @@ public class RestClientConfig {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public RoutingPolicy routingPolicy() {
-		return new LoadBalanceRoutingPolicy();
+	public RoutingAllocator routingAllocator() {
+		return new LoadBalanceRoutingAllocator();
 	}
 
 	@Bean

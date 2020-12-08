@@ -2,6 +2,7 @@ package com.github.paganini2008.springdessert.webcrawler.jdbc;
 
 import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_DELETE_ALL;
 import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_INSERT;
+import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_LATEST_PATH;
 import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_SELECT_FOR_INDEX;
 import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_SELECT_ONE;
 import static com.github.paganini2008.springdessert.webcrawler.jdbc.JdbcResourceManger.SQL_RESOURCE_VERSION_UPDATE;
@@ -37,8 +38,11 @@ public interface ResourceDao {
 
 	@Update(SQL_RESOURCE_VERSION_UPDATE)
 	int updateResourceVersion(@Arg("catalogId") long catalogId, @Arg("version") int version);
-	
+
 	@Update(SQL_RESOURCE_DELETE_ALL)
 	int deleteResourceByCatalogId(@Arg("catalogId") long catalogId);
+
+	@Get(value = SQL_RESOURCE_LATEST_PATH, javaType = true)
+	String getLatestPath(@Arg("catalogId") long catalogId);
 
 }

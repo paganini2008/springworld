@@ -13,11 +13,12 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.devtools.Comparables;
 import com.github.paganini2008.devtools.proxy.Aspect;
-import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springdessert.cluster.ClusterState;
 import com.github.paganini2008.springdessert.cluster.LeaderContext;
+import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -27,19 +28,18 @@ import com.github.paganini2008.springdessert.cluster.LeaderContext;
  *
  * @since 1.0
  */
+@Slf4j
 public class RestClientBeanAspect implements Aspect {
 
+	private final RestClient restClient;
 	private final LeaderContext leaderContext;
 	private final RequestProcessor requestProcessor;
-	private final int defaultRetries;
-	private final int defaultTimeout;
 	private final RequestInterceptorContainer requestInterceptorContainer;
 
-	public RestClientBeanAspect(LeaderContext leaderContext, RequestProcessor requestProcessor, int defaultRetries, int defaultTimeout,
+	public RestClientBeanAspect(RestClient restClient, LeaderContext leaderContext, RequestProcessor requestProcessor,
 			RequestInterceptorContainer requestInterceptorContainer) {
+		this.restClient = restClient;
 		this.leaderContext = leaderContext;
-		this.defaultRetries = defaultRetries;
-		this.defaultTimeout = defaultTimeout;
 		this.requestProcessor = requestProcessor;
 		this.requestInterceptorContainer = requestInterceptorContainer;
 	}
@@ -53,17 +53,19 @@ public class RestClientBeanAspect implements Aspect {
 	}
 
 	@Override
-	public Object call(Object fallback, Method method, Object[] args) throws Throwable {
+	public Object call(Object proxy, Method method, Object[] args) throws Throwable {
 		final Api api = method.getAnnotation(Api.class);
 		String path = api.path();
-		int timeout = api.timeout();
-		timeout = Comparables.getOrDefault(timeout, -1, defaultTimeout);
-		int retries = api.retries();
-		retries = Comparables.getOrDefault(retries, 0, defaultRetries);
+		int timeout = api.timeout() > 0 ? api.timeout() : restClient.timeout();
+		int retries = api.retries() > 0 ? api.retries() : restClient.retries();
+		int concurrency = api.concurrency() > 0 ? api.concurrency() : restClient.concurrency();
+		if (concurrency < 1) {
+			concurrency = Integer.MAX_VALUE;
+		}
 
 		HttpMethod httpMethod = api.method();
 		String[] headers = api.headers();
-		SimpleRequest request = new SimpleRequest(path, httpMethod);
+		ParameterAnnotationRequest request = new ParameterAnnotationRequest(path, httpMethod);
 		request.getHeaders().setContentType(MediaType.parseMediaType(api.contentType()));
 		if (ArrayUtils.isNotEmpty(headers)) {
 			for (String header : headers) {
@@ -84,22 +86,27 @@ public class RestClientBeanAspect implements Aspect {
 		try {
 			requestInterceptorContainer.beforeSubmit(request);
 			if (retries > 0 && timeout > 0) {
-				responseEntity = requestProcessor.sendRequestWithRetryAndTimeout(request, responseType, retries, timeout);
+				responseEntity = requestProcessor.sendRequestWithRetryAndTimeout(request, responseType, concurrency, retries, timeout);
 			} else if (retries < 1 && timeout > 0) {
-				responseEntity = requestProcessor.sendRequestWithTimeout(request, responseType, timeout);
+				responseEntity = requestProcessor.sendRequestWithTimeout(request, responseType, concurrency, timeout);
 			} else if (retries > 0 && timeout < 1) {
-				responseEntity = requestProcessor.sendRequestWithRetry(request, responseType, retries);
+				responseEntity = requestProcessor.sendRequestWithRetry(request, responseType, concurrency, retries);
 			} else {
-				responseEntity = requestProcessor.sendRequest(request, responseType);
+				responseEntity = requestProcessor.sendRequest(request, responseType, concurrency);
 			}
 		} catch (RestClientException e) {
-			try {
-				responseEntity = executeFallback(fallback, method, args, e, api.fallbackException(), api.fallbackHttpStatus());
-			} catch (Exception ee) {
-				reason = ee;
+			FallbackProvider fallback = getFallback(api.fallback(), restClient.fallback());
+			if (fallback != null) {
+				try {
+					responseEntity = executeFallback(fallback, method, args, e, api.fallbackException(), api.fallbackHttpStatus());
+					log.error(e.getMessage(), e);
+				} catch (Exception fallbackError) {
+					reason = fallbackError instanceof RestClientException ? (RestClientException) fallbackError
+							: new RestfulException(fallbackError.getMessage(), fallbackError, request);
+				}
 			}
-		} catch (Exception e) {
-			reason = e;
+		} catch (Throwable e) {
+			log.error(e.getMessage(), e);
 		} finally {
 			requestInterceptorContainer.afterSubmit(request, responseEntity, reason);
 		}
@@ -113,36 +120,46 @@ public class RestClientBeanAspect implements Aspect {
 				throw new RestClientException(reason.getMessage(), reason);
 			}
 		}
-		throw new RestClientException("No result");
+		throw new RestClientException("Illegal request: " + request.toString());
 	}
 
-	private ResponseEntity<?> executeFallback(Object fallback, Method method, Object[] args, RestClientException e,
+	private FallbackProvider getFallback(Class<?> fallbackClass, Class<?> defaultFallbackClass) {
+		try {
+			if (fallbackClass != null) {
+				return (FallbackProvider) ApplicationContextUtils.getBeanIfNecessary(fallbackClass);
+			} else if (defaultFallbackClass != null) {
+				return (FallbackProvider) ApplicationContextUtils.getBeanIfNecessary(defaultFallbackClass);
+			}
+		} catch (RuntimeException e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	private ResponseEntity<?> executeFallback(FallbackProvider fallback, Method method, Object[] arguments, RestClientException e,
 			Class<?>[] exceptionClasses, HttpStatus[] httpStatuses) {
-		if (e instanceof RestfulApiException) {
-			RestfulApiException apiException = (RestfulApiException) e;
+		if (e instanceof RestfulException) {
+			RestfulException restClientException = (RestfulException) e;
 			for (Class<?> cls : exceptionClasses) {
-				if (apiException.getCause() != null && cls.isInstance(apiException.getCause())) {
-					return invokeFallbackMethod(fallback, method, args);
+				if (restClientException.getCause() != null && cls.isInstance(restClientException.getCause())) {
+					return wrapResponse(fallback, method, arguments, restClientException);
 				}
 			}
 		} else if (e instanceof HttpStatusCodeException) {
-			HttpStatusCodeException real = (HttpStatusCodeException) e;
+			HttpStatusCodeException restClientException = (HttpStatusCodeException) e;
 			for (HttpStatus status : httpStatuses) {
-				if (real.getStatusCode() != null && real.getStatusCode() == status) {
-					return invokeFallbackMethod(fallback, method, args);
+				if (restClientException.getStatusCode() != null && restClientException.getStatusCode() == status) {
+					return wrapResponse(fallback, method, arguments, restClientException);
 				}
 			}
-
 		}
 		throw e;
 	}
 
-	private ResponseEntity<?> invokeFallbackMethod(Object fallback, Method method, Object[] args) {
-		if (fallback != null) {
-			Object result = MethodUtils.invokeMethod(fallback, method, args);
-			return ResponseEntity.ok(result);
-		}
-		return null;
+	private ResponseEntity<?> wrapResponse(FallbackProvider fallback, Method method, Object[] arguments,
+			RestClientException restClientException) {
+		Object body = fallback.getBody(restClient.provider(), method, arguments, restClientException);
+		return new ResponseEntity<>(body, fallback.getHeaders(), fallback.getHttpStatus());
 	}
 
 	@Override

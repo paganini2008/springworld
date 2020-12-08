@@ -29,11 +29,15 @@ public @interface Api {
 
 	int timeout() default -1;
 
+	int concurrency() default Integer.MAX_VALUE;
+
 	HttpMethod method() default HttpMethod.GET;
 
 	String[] headers() default {};
 
 	String contentType() default MediaType.APPLICATION_JSON_VALUE;
+
+	Class<?> fallback() default DefaultFallbackProvider.class;
 
 	Class<? super Throwable>[] fallbackException() default {};
 

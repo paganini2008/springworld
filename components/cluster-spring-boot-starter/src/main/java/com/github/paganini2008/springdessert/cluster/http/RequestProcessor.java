@@ -16,11 +16,11 @@ public interface RequestProcessor {
 
 	static final String CURRENT_RETRY_IDENTIFIER = "current-retry";
 
-	<T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int retries);
+	<T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int maxConcurrency, int retries);
 
-	<T> ResponseEntity<T> sendRequest(Request request, Type responseType);
+	<T> ResponseEntity<T> sendRequest(Request request, Type responseType, int maxConcurrency);
 
-	<T> ResponseEntity<T> sendRequestWithTimeout(Request request, Type responseType, int timeout);
+	<T> ResponseEntity<T> sendRequestWithTimeout(Request request, Type responseType, int maxConcurrency, int timeout);
 
-	<T> ResponseEntity<T> sendRequestWithRetryAndTimeout(Request request, Type responseType, int retries, int timeout);
+	<T> ResponseEntity<T> sendRequestWithRetryAndTimeout(Request request, Type responseType, int maxConcurrency, int retries, int timeout);
 }
