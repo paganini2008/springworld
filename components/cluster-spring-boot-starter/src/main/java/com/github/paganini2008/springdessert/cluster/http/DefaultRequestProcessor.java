@@ -3,12 +3,10 @@ package com.github.paganini2008.springdessert.cluster.http;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +14,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.collection.LruMap;
 import com.github.paganini2008.devtools.collection.MapUtils;
@@ -61,60 +58,44 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		this.taskExecutor = taskExecutor;
 	}
 
-	private final MultiMappedMap<String, String, AtomicInteger> concurrencies = new MultiMappedMap<String, String, AtomicInteger>();
-
 	@Override
-	public <T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int maxConcurrency, int retries) {
+	public <T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int retries) {
 		RetryTemplate retryTemplate = retryTemplateCache.get(provider, request.getPath(), () -> {
 			return retryTemplateFactory.setRetryPolicy(retries).createObject();
 		});
 		RetryEntry retryEntry = new RetryEntry(provider, request, retries);
 		return retryTemplate.execute(context -> {
 			context.setAttribute(CURRENT_RETRY_IDENTIFIER, retryEntry);
-			return sendRequest(request, responseType, maxConcurrency);
+			return sendRequest(request, responseType);
 		}, context -> {
 			context.removeAttribute(CURRENT_RETRY_IDENTIFIER);
 			Throwable e = context.getLastThrowable();
-			if (e instanceof RestClientException) {
-				throw (RestClientException) e;
-			}
-			throw new RestfulException(e.getMessage(), e, request);
+			throw ExceptionUtils.wrapException(e.getMessage(), e, request);
 		});
 
 	}
 
 	@Override
-	public <T> ResponseEntity<T> sendRequest(Request request, Type responseType, int maxConcurrency) {
+	public <T> ResponseEntity<T> sendRequest(Request request, Type responseType) {
 		Map<String, Object> uriVariables = new HashMap<String, Object>();
 		String path = request.getPath();
-		if (MapUtils.isNotEmpty(request.getPathVariables())) {
-			uriVariables.putAll(request.getPathVariables());
-		}
-		StringBuilder url = new StringBuilder(routingAllocator.allocateHost(provider, path));
-		if (MapUtils.isNotEmpty(request.getRequestParameters())) {
-			url.append("?").append(getQueryString(request.getRequestParameters()));
-			uriVariables.putAll(request.getRequestParameters());
+		String url = routingAllocator.allocateHost(provider, path);
+		if (request instanceof ParameterizedRequest) {
+			ParameterizedRequest parameterizedRequest = (ParameterizedRequest) request;
+			if (MapUtils.isNotEmpty(parameterizedRequest.getPathVariables())) {
+				uriVariables.putAll(parameterizedRequest.getPathVariables());
+			}
+			if (MapUtils.isNotEmpty(parameterizedRequest.getRequestParameters())) {
+				url = new StringBuilder(url).append("?").append(getQueryString(parameterizedRequest.getRequestParameters())).toString();
+				uriVariables.putAll(parameterizedRequest.getRequestParameters());
+			}
 		}
 		HttpEntity<?> body = request.getBody();
 		if (MapUtils.isNotEmpty(defaultHttpHeaders)) {
 			body.getHeaders().addAll(defaultHttpHeaders);
 		}
-		int concurrency = getConcurrency(request).incrementAndGet();
-		try {
-			if (concurrency > maxConcurrency) {
-				throw new TooManyRequestsException(request);
-			}
-			printFoot(url.toString(), request);
-			return restTemplate.perform(url.toString(), request.getMethod(), body, responseType, uriVariables);
-		} finally {
-			getConcurrency(request).decrementAndGet();
-		}
-	}
-
-	private AtomicInteger getConcurrency(Request request) {
-		return concurrencies.get(provider, request.getPath(), () -> {
-			return new AtomicInteger(0);
-		});
+		printFoot(url, request);
+		return restTemplate.perform(url, request.getMethod(), body, responseType, uriVariables);
 	}
 
 	private String getQueryString(Map<String, Object> queryMap) {
@@ -130,9 +111,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
 	}
 
 	@Override
-	public <T> ResponseEntity<T> sendRequestWithTimeout(Request request, Type responseType, int maxConcurrency, int timeout) {
+	public <T> ResponseEntity<T> sendRequestWithTimeout(Request request, Type responseType, int timeout) {
 		Future<ResponseEntity<T>> future = taskExecutor.submit(() -> {
-			return sendRequest(request, responseType, maxConcurrency);
+			return sendRequest(request, responseType);
 		});
 		try {
 			if (timeout > 0) {
@@ -140,25 +121,19 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			}
 			return future.get();
 		} catch (TimeoutException e) {
-			throw new RequestTimeoutException(request);
-		} catch (InterruptedException | CancellationException e) {
-			throw new RestfulException(e.getMessage(), e, request);
+			throw new RestfulException(request, InterruptedType.TIMEOUT);
 		} catch (ExecutionException e) {
 			Throwable real = e.getCause();
-			if (real instanceof RestClientException) {
-				throw (RestClientException) real;
-			}
-			throw new RestfulException(real.getMessage(), real, request);
+			throw ExceptionUtils.wrapException(real.getMessage(), real, request);
 		} catch (Throwable e) {
-			throw new RestfulException(e.getMessage(), e, request);
+			throw ExceptionUtils.wrapException(e.getMessage(), e, request);
 		}
 	}
 
 	@Override
-	public <T> ResponseEntity<T> sendRequestWithRetryAndTimeout(Request request, Type responseType, int maxConcurrency, int retries,
-			int timeout) {
+	public <T> ResponseEntity<T> sendRequestWithRetryAndTimeout(Request request, Type responseType, int retries, int timeout) {
 		Future<ResponseEntity<T>> future = taskExecutor.submit(() -> {
-			return sendRequestWithRetry(request, responseType, maxConcurrency, retries);
+			return sendRequestWithRetry(request, responseType, retries);
 		});
 		try {
 			if (timeout > 0) {
@@ -166,17 +141,12 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			}
 			return future.get();
 		} catch (TimeoutException e) {
-			throw new RequestTimeoutException(request);
-		} catch (InterruptedException | CancellationException e) {
-			throw new RestfulException(e.getMessage(), e, request);
+			throw new RestfulException(request, InterruptedType.TIMEOUT);
 		} catch (ExecutionException e) {
 			Throwable real = e.getCause();
-			if (real instanceof RestClientException) {
-				throw (RestClientException) real;
-			}
-			throw new RestfulException(real.getMessage(), real, request);
+			throw ExceptionUtils.wrapException(real.getMessage(), real, request);
 		} catch (Throwable e) {
-			throw new RestfulException(e.getMessage(), e, request);
+			throw ExceptionUtils.wrapException(e.getMessage(), e, request);
 		}
 	}
 
@@ -185,9 +155,11 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			log.trace("<RestClient path: {}>", url);
 			log.trace("<RestClient use method: {}>", request.getMethod());
 			log.trace("<RestClient request headers: {}>", request.getHeaders());
-			log.trace("<RestClient request parameters: {}>", request.getRequestParameters());
-			log.trace("<RestClient path variables: {}>", request.getPathVariables());
 			log.trace("<RestClient date: {}>", DateUtils.format(request.getTimestamp(), "MM/dd/yy HH:mm:ss"));
+			if (request instanceof ParameterizedRequest) {
+				log.trace("<RestClient request parameters: {}>", ((ParameterizedRequest) request).getRequestParameters());
+				log.trace("<RestClient path variables: {}>", ((ParameterizedRequest) request).getPathVariables());
+			}
 		}
 	}
 

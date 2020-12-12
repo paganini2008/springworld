@@ -23,10 +23,10 @@ public @interface RestClient {
 
 	int retries() default 0;
 
-	int timeout() default 60;
+	int timeout() default Integer.MAX_VALUE;
 
-	int concurrency() default Integer.MAX_VALUE;
+	int permits() default Integer.MAX_VALUE;
 
-	Class<?> fallback() default DefaultFallbackProvider.class;
+	Class<?> fallback() default Void.class;
 
 }

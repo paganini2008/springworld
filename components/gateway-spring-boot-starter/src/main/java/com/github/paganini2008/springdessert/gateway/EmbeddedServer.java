@@ -2,18 +2,17 @@ package com.github.paganini2008.springdessert.gateway;
 
 /**
  * 
- * EmbeddedHttpServer
+ * EmbeddedServer
  *
  * @author Jimmy Hoff
- * 
- * @since 1.0
+ * @version 1.0
  */
-public interface EmbeddedHttpServer {
+public interface EmbeddedServer {
 
-	int start() ;
-	
+	int start();
+
 	void stop();
-	
+
 	boolean isStarted();
-	
+
 }

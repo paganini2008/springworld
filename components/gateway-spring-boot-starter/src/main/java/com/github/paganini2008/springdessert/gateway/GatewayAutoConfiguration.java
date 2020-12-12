@@ -17,7 +17,7 @@ public class GatewayAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public EmbeddedHttpServer embeddedHttpServer() {
+	public EmbeddedServer embeddedHttpServer() {
 		return new NettyHttpServer();
 	}
 

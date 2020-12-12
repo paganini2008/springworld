@@ -22,6 +22,6 @@ public interface FallbackProvider {
 		return new HttpHeaders();
 	}
 
-	public String getBody(Route route, RestClientException e);
+	public String getBody(Router route, RestClientException e);
 
 }

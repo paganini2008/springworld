@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 /**
@@ -27,9 +26,9 @@ public @interface Api {
 
 	int retries() default 0;
 
-	int timeout() default -1;
+	int timeout() default Integer.MAX_VALUE;
 
-	int concurrency() default Integer.MAX_VALUE;
+	int permits() default Integer.MAX_VALUE;
 
 	HttpMethod method() default HttpMethod.GET;
 
@@ -37,10 +36,6 @@ public @interface Api {
 
 	String contentType() default MediaType.APPLICATION_JSON_VALUE;
 
-	Class<?> fallback() default DefaultFallbackProvider.class;
-
-	Class<? super Throwable>[] fallbackException() default {};
-
-	HttpStatus[] fallbackHttpStatus() default {};
+	Class<?> fallback() default Void.class;
 
 }

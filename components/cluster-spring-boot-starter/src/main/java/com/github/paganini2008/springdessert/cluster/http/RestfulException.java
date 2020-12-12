@@ -14,20 +14,31 @@ public class RestfulException extends RestClientException {
 
 	private static final long serialVersionUID = -8762523199569525919L;
 
-	public RestfulException(String msg, Request request) {
-		super(msg);
-		this.request = request;
+	public RestfulException(Request request, InterruptedType interruptedType) {
+		this(request.toString(), request, interruptedType);
 	}
 
-	public RestfulException(String msg, Throwable e, Request request) {
+	public RestfulException(String msg, Request request, InterruptedType interruptedType) {
+		super(msg);
+		this.request = request;
+		this.interruptedType = interruptedType;
+	}
+
+	public RestfulException(String msg, Throwable e, Request request, InterruptedType interruptedType) {
 		super(msg, e);
 		this.request = request;
+		this.interruptedType = interruptedType;
 	}
 
 	private final Request request;
+	private final InterruptedType interruptedType;
 
 	public Request getRequest() {
 		return request;
+	}
+
+	public InterruptedType getInterruptedType() {
+		return interruptedType;
 	}
 
 }

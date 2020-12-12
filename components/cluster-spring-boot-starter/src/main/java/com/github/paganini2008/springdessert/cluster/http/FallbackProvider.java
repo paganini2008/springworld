@@ -24,6 +24,10 @@ public interface FallbackProvider {
 		return new HttpHeaders();
 	}
 
-	public Object getBody(String provider, Method method, Object[] arguments, RestClientException e);
+	default boolean hasFallback(String provider, Class<?> interfaceClass, Method method, Object[] arguments, RestClientException e) {
+		return true;
+	}
+
+	Object getBody(String provider, Class<?> interfaceClass, Method method, Object[] arguments, RestClientException e);
 
 }

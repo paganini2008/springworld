@@ -52,6 +52,9 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	private LeaderContext leaderContext;
 
 	@Autowired
+	private RequestSemaphore requestSemaphore;
+
+	@Autowired
 	private RequestInterceptorContainer requestInterceptorContainer;
 
 	private ConfigurableBeanFactory beanFactory;
@@ -64,9 +67,8 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, defaultHttpHeaders, routingAllocator, restTemplate,
 				retryTemplateFactory, taskExecutor);
 		log.info("Create RestClient for provider: {}", provider);
-		return (T) ProxyFactory.getDefault().getProxy(null,
-				new RestClientBeanAspect(restClient, leaderContext, requestProcessor, requestInterceptorContainer),
-				new Class<?>[] { interfaceClass });
+		return (T) ProxyFactory.getDefault().getProxy(null, new RestClientBeanAspect(restClient, interfaceClass, leaderContext,
+				requestProcessor, requestSemaphore, requestInterceptorContainer), new Class<?>[] { interfaceClass });
 	}
 
 	@Override

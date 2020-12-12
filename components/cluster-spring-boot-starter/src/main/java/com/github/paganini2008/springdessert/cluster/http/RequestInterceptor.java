@@ -13,11 +13,14 @@ import org.springframework.lang.Nullable;
  */
 public interface RequestInterceptor {
 
-	void beforeSubmit(Request request);
+	default boolean beforeSubmit(String provider, Request request) {
+		return true;
+	}
 
-	void afterSubmit(Request request, @Nullable ResponseEntity<?> responseEntity, Throwable reason);
+	default void afterSubmit(String provider, Request request, @Nullable ResponseEntity<?> responseEntity, @Nullable Throwable reason) {
+	}
 
-	default boolean matches(Request request) {
+	default boolean matches(String provider, Request request) {
 		return true;
 	}
 

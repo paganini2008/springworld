@@ -10,10 +10,10 @@ package com.github.paganini2008.springdessert.gateway;
  */
 public final class RoutingManager {
 
-	private final PathMatchedMap<Route> routingEntries = new PathMatchedMap<Route>();
+	private final PathMatchedMap<Router> routingEntries = new PathMatchedMap<Router>();
 
-	public Route route(String prefix) {
-		routingEntries.putIfAbsent(prefix, new Route(prefix));
+	public Router route(String prefix) {
+		routingEntries.putIfAbsent(prefix, new Router(prefix));
 		return routingEntries.get(prefix);
 	}
 
@@ -21,7 +21,7 @@ public final class RoutingManager {
 		return routingEntries.size();
 	}
 
-	public Route match(String path) {
+	public Router match(String path) {
 		return routingEntries.get(path);
 	}
 

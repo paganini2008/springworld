@@ -9,7 +9,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,43 +20,19 @@ import com.github.paganini2008.devtools.ObjectUtils;
 
 /**
  * 
- * ParameterAnnotationRequest
+ * ParameterizedRequestImpl
  *
  * @author Jimmy Hoff
  * 
  * @since 1.0
  */
-public class ParameterAnnotationRequest implements Request {
+public class ParameterizedRequestImpl extends SimpleRequest implements ParameterizedRequest {
 
-	private final String path;
-	private final HttpMethod method;
-	private final HttpHeaders headers;
-	private final long timestamp;
-	private HttpEntity<Object> body;
 	private Map<String, Object> requestParameters = new HashMap<String, Object>();
 	private Map<String, Object> pathVariables = new HashMap<String, Object>();
 
-	ParameterAnnotationRequest(String path, HttpMethod method) {
-		this(path, method, new HttpHeaders());
-	}
-
-	ParameterAnnotationRequest(String path, HttpMethod method, MultiValueMap<String, String> headers) {
-		this.path = path;
-		this.method = method;
-		this.headers = new HttpHeaders(headers);
-		this.timestamp = System.currentTimeMillis();
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public HttpMethod getMethod() {
-		return method;
-	}
-
-	public HttpHeaders getHeaders() {
-		return headers;
+	ParameterizedRequestImpl(String path, HttpMethod method) {
+		super(path, method, new HttpHeaders());
 	}
 
 	public Map<String, Object> getRequestParameters() {
@@ -68,10 +43,6 @@ public class ParameterAnnotationRequest implements Request {
 		return pathVariables;
 	}
 
-	public HttpEntity<Object> getBody() {
-		return body;
-	}
-
 	public void accessParameter(Parameter parameter, @Nullable Object argument) {
 		String parameterName;
 		Annotation[] annotations = parameter.getAnnotations();
@@ -80,7 +51,7 @@ public class ParameterAnnotationRequest implements Request {
 				if (annotation.annotationType() == RequestHeader.class) {
 					RequestHeader requestHeader = (RequestHeader) annotation;
 					parameterName = ObjectUtils.toString(requestHeader.value(), parameter.getName());
-					headers.add(parameterName, argument != null ? (String) argument : requestHeader.defaultValue());
+					getHeaders().add(parameterName, argument != null ? (String) argument : requestHeader.defaultValue());
 				}
 				if (annotation.annotationType() == RequestParam.class) {
 					RequestParam requestParam = (RequestParam) annotation;
@@ -93,21 +64,13 @@ public class ParameterAnnotationRequest implements Request {
 					pathVariables.put(parameterName, argument);
 				}
 				if (annotation.annotationType() == RequestBody.class || annotation.annotationType() == ModelAttribute.class) {
-					body = new HttpEntity<Object>(argument, headers);
+					setBody(new HttpEntity<Object>(argument, getHeaders()));
 				}
 			}
 		} else {
 			requestParameters.put(parameter.getName(), argument);
 		}
 
-	}
-
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	public String toString() {
-		return method.name().toUpperCase() + " " + path;
 	}
 
 }

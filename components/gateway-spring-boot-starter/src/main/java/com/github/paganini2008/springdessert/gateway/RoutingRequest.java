@@ -1,7 +1,5 @@
 package com.github.paganini2008.springdessert.gateway;
 
-import java.util.Map;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -51,16 +49,6 @@ public class RoutingRequest implements Request {
 	@Override
 	public HttpEntity<Object> getBody() {
 		return body;
-	}
-
-	@Override
-	public Map<String, Object> getRequestParameters() {
-		return null;
-	}
-
-	@Override
-	public Map<String, Object> getPathVariables() {
-		return null;
 	}
 
 	@Override

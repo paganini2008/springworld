@@ -17,14 +17,14 @@ import lombok.experimental.Accessors;
 
 /**
  * 
- * Route
- * @author Fred Feng
+ * Router
  *
- * @since 1.0
+ * @author Jimmy Hoff
+ * @version 1.0
  */
 @Accessors(fluent = true)
 @Data
-public final class Route implements Comparable<Route> {
+public final class Router implements Comparable<Router> {
 
 	private final String prefix;
 	private final int prefixEndPosition;
@@ -39,17 +39,17 @@ public final class Route implements Comparable<Route> {
 	private final MultiValueMap<String, String> defaultHeaders = new LinkedMultiValueMap<String, String>();
 	private final List<String> ignoredHeaders = new ArrayList<String>();
 
-	Route(String prefix) {
+	Router(String prefix) {
 		this.prefix = prefix;
 		this.prefixEndPosition = PathUtils.indexOfLastSeparator(prefix);
 	}
 
-	public Route ignoredHeaders(String[] headerNames) {
+	public Router ignoredHeaders(String[] headerNames) {
 		this.ignoredHeaders.addAll(Arrays.asList(headerNames));
 		return this;
 	}
 
-	public Route defaultHeaders(String[] nameValues) {
+	public Router defaultHeaders(String[] nameValues) {
 		Map<String, String> headerMap = MapUtils.toMap(nameValues);
 		for (Map.Entry<String, String> entry : headerMap.entrySet()) {
 			this.defaultHeaders.add(entry.getKey(), entry.getValue());
@@ -58,7 +58,7 @@ public final class Route implements Comparable<Route> {
 	}
 
 	@Override
-	public int compareTo(Route other) {
+	public int compareTo(Router other) {
 		return other.prefixEndPosition() - prefixEndPosition();
 	}
 

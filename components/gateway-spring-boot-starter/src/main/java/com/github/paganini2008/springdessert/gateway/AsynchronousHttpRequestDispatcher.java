@@ -72,7 +72,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		if (StringUtils.isNotBlank(provider)) {
 			fullPath = provider + path;
 		}
-		Route route = routingManager.match(path);
+		Router route = routingManager.match(path);
 		if (route != null) {
 			String realPath = route.direct() ? path : path.substring(route.prefixEndPosition() + 1);
 			fullPath = routingAllocator.allocateHost(route.provider(), realPath);
@@ -108,7 +108,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		ctx.channel().close();
 	}
 
-	private ResponseEntity<String> doSendRequest(Request request, Route route) {
+	private ResponseEntity<String> doSendRequest(Request request, Router route) {
 		ResponseEntity<String> responseEntity = null;
 		Throwable reason = null;
 		try {
@@ -166,7 +166,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		return null;
 	}
 
-	private ResponseEntity<String> executeFallback(FallbackProvider fallback, Route route, RestClientException e,
+	private ResponseEntity<String> executeFallback(FallbackProvider fallback, Router route, RestClientException e,
 			Class<? super Throwable>[] exceptionClasses, HttpStatus[] httpStatuses) {
 		if (e instanceof RestfulException) {
 			RestfulException restClientException = (RestfulException) e;
@@ -186,7 +186,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		throw e;
 	}
 
-	private ResponseEntity<String> wrapResponse(FallbackProvider fallback, Route route, RestClientException restClientException) {
+	private ResponseEntity<String> wrapResponse(FallbackProvider fallback, Router route, RestClientException restClientException) {
 		String body = fallback.getBody(route, restClientException);
 		return new ResponseEntity<String>(body, fallback.getHeaders(), fallback.getHttpStatus());
 	}

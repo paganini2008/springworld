@@ -1,7 +1,5 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.util.Map;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,10 +21,6 @@ public interface Request {
 	HttpHeaders getHeaders();
 	
 	HttpEntity<Object> getBody();
-
-	Map<String, Object> getRequestParameters();
-
-	Map<String, Object> getPathVariables();
 
 	long getTimestamp();
 

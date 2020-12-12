@@ -17,9 +17,9 @@ import com.github.paganini2008.springdessert.fastjpa.JpaUpdate;
 /**
  * 
  * EntityDao
- * 
+ *
  * @author Jimmy Hoff
- * 
+ * @version 1.0
  */
 @NoRepositoryBean
 public interface EntityDao<E, ID> extends JpaRepositoryImplementation<E, ID>, NativeSqlOperations<E> {

@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class NettyHttpServer implements EmbeddedHttpServer {
+public class NettyHttpServer implements EmbeddedServer {
 
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	private EventLoopGroup bossGroup;
@@ -86,7 +86,7 @@ public class NettyHttpServer implements EmbeddedHttpServer {
 	@PostConstruct
 	public int start() {
 		if (isStarted()) {
-			throw new IllegalStateException("NettyServer has been started.");
+			throw new IllegalStateException("NettyHttpServer has been started.");
 		}
 		bossGroup = new NioEventLoopGroup(threadCount);
 		workerGroup = new NioEventLoopGroup(threadCount);
@@ -118,7 +118,7 @@ public class NettyHttpServer implements EmbeddedHttpServer {
 					: new InetSocketAddress(port);
 			bootstrap.bind(socketAddress).sync();
 			started.set(true);
-			log.info("NettyServer is started on: " + socketAddress);
+			log.info("NettyHttpServer is started on: " + socketAddress);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

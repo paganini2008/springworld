@@ -39,18 +39,20 @@ public class RequestInterceptorContainer implements BeanPostProcessor {
 		}
 	}
 
-	public void beforeSubmit(Request request) {
+	public boolean beforeSubmit(String provider, Request request) {
+		boolean proceeded = true;
 		for (RequestInterceptor interceptor : interceptors) {
-			if (interceptor.matches(request)) {
-				interceptor.beforeSubmit(request);
+			if (interceptor.matches(provider, request)) {
+				proceeded &= interceptor.beforeSubmit(provider, request);
 			}
 		}
+		return proceeded;
 	}
 
-	public void afterSubmit(Request request, ResponseEntity<?> responseEntity, Throwable reason) {
+	public void afterSubmit(String provider, Request request, ResponseEntity<?> responseEntity, Throwable reason) {
 		for (RequestInterceptor interceptor : interceptors) {
-			if (interceptor.matches(request)) {
-				interceptor.afterSubmit(request, responseEntity, reason);
+			if (interceptor.matches(provider, request)) {
+				interceptor.afterSubmit(provider, request, responseEntity, reason);
 			}
 		}
 	}

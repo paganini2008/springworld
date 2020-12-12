@@ -6,7 +6,7 @@ import org.springframework.web.client.RestClientException;
 
 /**
  * 
- * NullableFallbackProvider
+ * DefaultFallbackProvider
  *
  * @author Jimmy Hoff
  * 
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestClientException;
 public class DefaultFallbackProvider implements FallbackProvider {
 
 	@Override
-	public Object getBody(String provider, Method method, Object[] arguments, RestClientException e) {
+	public Object getBody(String provider, Class<?> interfaceClass, Method method, Object[] arguments, RestClientException e) {
 		return null;
 	}
 

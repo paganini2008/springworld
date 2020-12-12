@@ -6,10 +6,9 @@ import javax.persistence.criteria.Predicate;
 /**
  * 
  * Filter
- * 
+ *
  * @author Jimmy Hoff
- * 
- * 
+ * @version 1.0
  */
 public interface Filter {
 
