@@ -10,9 +10,9 @@ import java.util.concurrent.TimeoutException;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.github.paganini2008.devtools.collection.LruMap;
@@ -41,32 +41,34 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		return new LruMap<String, RetryTemplate>(retryTemplateCacheSize);
 	});
 
-	private final String provider;
-	private final @Nullable MultiValueMap<String, String> defaultHttpHeaders;
 	private final RoutingAllocator routingAllocator;
-	private final EnhancedRestTemplate restTemplate;
+	private final RestClientPerformer restClientPerformer;
 	private final RetryTemplateFactory retryTemplateFactory;
 	private final ThreadPoolTaskExecutor taskExecutor;
 
-	DefaultRequestProcessor(String provider, MultiValueMap<String, String> headers, RoutingAllocator routingAllocator,
-			EnhancedRestTemplate restTemplate, RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
-		this.provider = provider;
-		this.defaultHttpHeaders = headers;
+	public DefaultRequestProcessor(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
+			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
 		this.routingAllocator = routingAllocator;
-		this.restTemplate = restTemplate;
+		this.restClientPerformer = restClientPerformer;
 		this.retryTemplateFactory = retryTemplateFactory;
 		this.taskExecutor = taskExecutor;
 	}
 
+	private final MultiValueMap<String, String> defaultHttpHeaders = new LinkedMultiValueMap<String, String>();
+
+	public MultiValueMap<String, String> getDefaultHttpHeaders() {
+		return defaultHttpHeaders;
+	}
+
 	@Override
-	public <T> ResponseEntity<T> sendRequestWithRetry(Request request, Type responseType, int retries) {
+	public <T> ResponseEntity<T> sendRequestWithRetry(String provider, Request request, Type responseType, int retries) {
 		RetryTemplate retryTemplate = retryTemplateCache.get(provider, request.getPath(), () -> {
 			return retryTemplateFactory.setRetryPolicy(retries).createObject();
 		});
 		RetryEntry retryEntry = new RetryEntry(provider, request, retries);
 		return retryTemplate.execute(context -> {
 			context.setAttribute(CURRENT_RETRY_IDENTIFIER, retryEntry);
-			return sendRequest(request, responseType);
+			return sendRequest(provider, request, responseType);
 		}, context -> {
 			context.removeAttribute(CURRENT_RETRY_IDENTIFIER);
 			Throwable e = context.getLastThrowable();
@@ -76,7 +78,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
 	}
 
 	@Override
-	public <T> ResponseEntity<T> sendRequest(Request request, Type responseType) {
+	public <T> ResponseEntity<T> sendRequest(String provider, Request request, Type responseType) {
 		Map<String, Object> uriVariables = new HashMap<String, Object>();
 		String path = request.getPath();
 		String url = routingAllocator.allocateHost(provider, path);
@@ -95,7 +97,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			body.getHeaders().addAll(defaultHttpHeaders);
 		}
 		printFoot(url, request);
-		return restTemplate.perform(url, request.getMethod(), body, responseType, uriVariables);
+		return restClientPerformer.perform(url, request.getMethod(), body, responseType, uriVariables);
 	}
 
 	private String getQueryString(Map<String, Object> queryMap) {
@@ -111,9 +113,9 @@ public class DefaultRequestProcessor implements RequestProcessor {
 	}
 
 	@Override
-	public <T> ResponseEntity<T> sendRequestWithTimeout(Request request, Type responseType, int timeout) {
+	public <T> ResponseEntity<T> sendRequestWithTimeout(String provider, Request request, Type responseType, int timeout) {
 		Future<ResponseEntity<T>> future = taskExecutor.submit(() -> {
-			return sendRequest(request, responseType);
+			return sendRequest(provider, request, responseType);
 		});
 		try {
 			if (timeout > 0) {
@@ -131,9 +133,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
 	}
 
 	@Override
-	public <T> ResponseEntity<T> sendRequestWithRetryAndTimeout(Request request, Type responseType, int retries, int timeout) {
+	public <T> ResponseEntity<T> sendRequestWithRetryAndTimeout(String provider, Request request, Type responseType, int retries,
+			int timeout) {
 		Future<ResponseEntity<T>> future = taskExecutor.submit(() -> {
-			return sendRequestWithRetry(request, responseType, retries);
+			return sendRequestWithRetry(provider, request, responseType, retries);
 		});
 		try {
 			if (timeout > 0) {

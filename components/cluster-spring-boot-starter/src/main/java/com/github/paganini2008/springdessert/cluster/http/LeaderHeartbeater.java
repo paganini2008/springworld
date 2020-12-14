@@ -12,7 +12,7 @@ import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.ClusterState;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 import com.github.paganini2008.springdessert.cluster.LeaderContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +67,7 @@ public class LeaderHeartbeater implements ApplicationListener<ApplicationCluster
 		} catch (RestClientException e) {
 			log.error(e.getMessage(), e);
 		}
-		return leaderContext.getClusterState() != ClusterState.FATAL;
+		return leaderContext.getHealthState() != HealthState.FATAL;
 	}
 
 	@Override

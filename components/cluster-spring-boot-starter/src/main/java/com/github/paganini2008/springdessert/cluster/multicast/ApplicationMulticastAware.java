@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.reditools.common.TtlKeeper;
@@ -22,7 +22,7 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSend
  *
  * @since 1.0
  */
-public class ApplicationMulticastAware implements ApplicationListener<ApplicationClusterRefreshedEvent> {
+public class ApplicationMulticastAware implements ApplicationListener<ContextRefreshedEvent> {
 
 	public static final int DEFAULT_MULTICAST_GROUP_MEMBER_TTL = 5;
 
@@ -39,7 +39,7 @@ public class ApplicationMulticastAware implements ApplicationListener<Applicatio
 	private TtlKeeper ttlKeeper;
 
 	@Override
-	public void onApplicationEvent(ApplicationClusterRefreshedEvent event) {
+	public void onApplicationEvent(ContextRefreshedEvent event) {
 		keepAlive();
 		introduceMyself();
 	}

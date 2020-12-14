@@ -5,10 +5,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
 import com.github.paganini2008.springdessert.cluster.LeaderContext;
@@ -32,30 +29,11 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 		this.interfaceClass = interfaceClass;
 	}
 
-	@Qualifier("defaultHttpHeaders")
-	@Autowired(required = false)
-	private HttpHeaders defaultHttpHeaders;
-
-	@Autowired
-	private RoutingAllocator routingAllocator;
-
-	@Autowired
-	private EnhancedRestTemplate restTemplate;
-
-	@Autowired
-	private RetryTemplateFactory retryTemplateFactory;
-
-	@Autowired
-	private ThreadPoolTaskExecutor taskExecutor;
-
 	@Autowired
 	private LeaderContext leaderContext;
 
 	@Autowired
-	private RequestSemaphore requestSemaphore;
-
-	@Autowired
-	private RequestInterceptorContainer requestInterceptorContainer;
+	private RequestTemplate requestTemplate;
 
 	private ConfigurableBeanFactory beanFactory;
 
@@ -64,11 +42,10 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	public T getObject() throws Exception {
 		final RestClient restClient = interfaceClass.getAnnotation(RestClient.class);
 		final String provider = beanFactory.resolveEmbeddedValue(restClient.provider());
-		RequestProcessor requestProcessor = new DefaultRequestProcessor(provider, defaultHttpHeaders, routingAllocator, restTemplate,
-				retryTemplateFactory, taskExecutor);
 		log.info("Create RestClient for provider: {}", provider);
-		return (T) ProxyFactory.getDefault().getProxy(null, new RestClientBeanAspect(restClient, interfaceClass, leaderContext,
-				requestProcessor, requestSemaphore, requestInterceptorContainer), new Class<?>[] { interfaceClass });
+		return (T) ProxyFactory.getDefault().getProxy(null,
+				new RestClientBeanAspect(provider, restClient, interfaceClass, leaderContext, requestTemplate),
+				new Class<?>[] { interfaceClass });
 	}
 
 	@Override

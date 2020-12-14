@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -33,13 +32,14 @@ public final class Router implements Comparable<Router> {
 	private int timeout;
 	private int concurrency;
 	private boolean direct;
-	private Class<?> fallbackClass;
-	private HttpStatus[] fallbackHttpStatus;
-	private Class<? super Throwable>[] fallbackException;
+	private Class<?> fallback;
 	private final MultiValueMap<String, String> defaultHeaders = new LinkedMultiValueMap<String, String>();
 	private final List<String> ignoredHeaders = new ArrayList<String>();
 
 	Router(String prefix) {
+		if (prefix.endsWith("/")) {
+			throw new IllegalArgumentException("Router's prefix must not end with '/'");
+		}
 		this.prefix = prefix;
 		this.prefixEndPosition = PathUtils.indexOfLastSeparator(prefix);
 	}

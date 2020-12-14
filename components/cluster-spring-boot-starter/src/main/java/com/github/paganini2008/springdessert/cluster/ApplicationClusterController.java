@@ -48,8 +48,8 @@ public class ApplicationClusterController {
 	}
 
 	@GetMapping("/state")
-	public ResponseEntity<ClusterState> state() {
-		return ResponseEntity.ok(leaderContext.getClusterState());
+	public ResponseEntity<HealthState> state() {
+		return ResponseEntity.ok(leaderContext.getHealthState());
 	}
 
 	@GetMapping("/list")

@@ -38,7 +38,7 @@ public class UnsafeLeaderRecoveryCallback implements ApplicationListener<Applica
 
 	@Override
 	public void recover(ApplicationInfo leaderInfo) {
-		leaderContext.setClusterState(ClusterState.PROTECTED);
+		leaderContext.setHealthState(HealthState.PROTECTED);
 		electionObservable.notifyObservers(leaderInfo);
 	}
 

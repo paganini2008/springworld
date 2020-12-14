@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import org.springframework.web.client.RestClientException;
 
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestClientException;
 public class DefaultFallbackProvider implements FallbackProvider {
 
 	@Override
-	public Object getBody(String provider, Class<?> interfaceClass, Method method, Object[] arguments, RestClientException e) {
+	public Object getBody(String provider, Request request, Type responseType, RestClientException e) {
 		return null;
 	}
 

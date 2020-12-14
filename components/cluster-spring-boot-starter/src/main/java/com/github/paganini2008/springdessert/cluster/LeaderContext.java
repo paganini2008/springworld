@@ -14,26 +14,26 @@ import org.springframework.context.event.SmartApplicationListener;
 public class LeaderContext implements SmartApplicationListener {
 
 	private ApplicationInfo leaderInfo;
-	private volatile ClusterState clusterState = ClusterState.UNKOWN;
+	private volatile HealthState healthState = HealthState.UNKOWN;
 
 	public ApplicationInfo getLeader() {
 		return leaderInfo;
 	}
 
-	public ClusterState getClusterState() {
-		return clusterState;
+	public HealthState getHealthState() {
+		return healthState;
 	}
 
-	public void setClusterState(ClusterState clusterState) {
-		if (clusterState.compareTo(ClusterState.FATAL) < 0) {
-			this.clusterState = clusterState;
+	public void setHealthState(HealthState clusterState) {
+		if (healthState.compareTo(HealthState.FATAL) < 0) {
+			this.healthState = healthState;
 		}
 	}
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		ApplicationClusterEvent applicationClusterEvent = (ApplicationClusterEvent) event;
-		this.clusterState = applicationClusterEvent.getClusterState();
+		this.healthState = applicationClusterEvent.getHealthState();
 
 		if (event instanceof ApplicationClusterRefreshedEvent) {
 			this.leaderInfo = ((ApplicationClusterRefreshedEvent) event).getLeaderInfo();

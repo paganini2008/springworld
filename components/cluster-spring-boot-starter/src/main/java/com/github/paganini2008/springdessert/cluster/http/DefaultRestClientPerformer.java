@@ -12,19 +12,19 @@ import org.springframework.web.client.ResponseExtractor;
 
 /**
  * 
- * EnhancedRestTemplate
+ * DefaultRestClientPerformer
  * 
  * @author Jimmy Hoff
  *
  * @since 1.0
  */
-public class EnhancedRestTemplate extends CharsetDefinedRestTemplate {
+public class DefaultRestClientPerformer extends CharsetDefinedRestTemplate implements RestClientPerformer {
 
-	public EnhancedRestTemplate(Charset charset) {
+	public DefaultRestClientPerformer(Charset charset) {
 		super(charset);
 	}
 
-	public EnhancedRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory, Charset charset) {
+	public DefaultRestClientPerformer(ClientHttpRequestFactory clientHttpRequestFactory, Charset charset) {
 		super(clientHttpRequestFactory, charset);
 	}
 

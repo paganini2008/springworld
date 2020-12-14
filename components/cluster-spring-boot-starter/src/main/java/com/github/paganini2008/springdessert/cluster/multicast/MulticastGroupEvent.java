@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.ClusterState;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 
 /**
  * 
@@ -18,7 +18,7 @@ public class MulticastGroupEvent extends ApplicationClusterEvent {
 	private static final long serialVersionUID = -2482108960259276628L;
 
 	public MulticastGroupEvent(ApplicationContext source, ApplicationInfo applicationInfo, EventType eventType) {
-		super(source, ClusterState.ACCESSABLE);
+		super(source, HealthState.ACCESSABLE);
 		this.applicationInfo = applicationInfo;
 		this.eventType = eventType;
 	}

@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.cluster.http;
 import org.springframework.http.HttpMethod;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.ClusterState;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 
 /**
  * 
@@ -20,7 +20,7 @@ public interface LeaderService {
 	ApplicationInfo ping();
 
 	@Api(path = "/application/cluster/state", method = HttpMethod.GET, retries = 2, timeout = 60)
-	ClusterState state();
+	HealthState state();
 
 	@Api(path = "/application/cluster/list", method = HttpMethod.GET)
 	ApplicationInfo[] list();

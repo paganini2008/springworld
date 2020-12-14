@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.ClusterState;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 import com.github.paganini2008.springdessert.cluster.UnsafeLeaderRecoveryCallback;
 import com.github.paganini2008.springdessert.cluster.utils.ApiRetryListener;
 
@@ -28,7 +28,7 @@ public class RetryableLeaderRecoveryCallback extends UnsafeLeaderRecoveryCallbac
 
 	@Override
 	public void recover(ApplicationInfo leader) {
-		leaderContext.setClusterState(ClusterState.PROTECTED);
+		leaderContext.setHealthState(HealthState.PROTECTED);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class RetryableLeaderRecoveryCallback extends UnsafeLeaderRecoveryCallbac
 	@Override
 	public void onRetryEnd(String provider, Request request, Throwable e) {
 		ApplicationInfo leader = leaderContext.getLeader();
-		if (leaderContext.getClusterState() == ClusterState.PROTECTED) {
+		if (leaderContext.getHealthState() == HealthState.PROTECTED) {
 			log.warn("Application cluster leader [{}] is exhausted", leader);
 			leaderHeartbeater.cancel();
 			super.recover(leader);

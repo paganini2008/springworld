@@ -65,24 +65,15 @@ public class RestClientConfig {
 		return new LoadBalanceRoutingAllocator();
 	}
 
+	@ConditionalOnMissingBean
 	@Bean
-	public EnhancedRestTemplate enhancedRestTemplate(ClientHttpRequestFactory clientHttpRequestFactory) {
-		return new EnhancedRestTemplate(clientHttpRequestFactory, CharsetUtils.UTF_8);
-	}
-
-	@Bean
-	public RequestInterceptorContainer requestInterceptorContainer() {
-		return new RequestInterceptorContainer();
+	public RestClientPerformer restClientPerformer(ClientHttpRequestFactory clientHttpRequestFactory) {
+		return new DefaultRestClientPerformer(clientHttpRequestFactory, CharsetUtils.UTF_8);
 	}
 
 	@Bean
 	public RetryTemplateFactory retryTemplateFactory() {
 		return new RetryTemplateFactory();
-	}
-
-	@Bean
-	public LoggingRetryListener loggingRetryListener() {
-		return new LoggingRetryListener();
 	}
 
 	@ConditionalOnMissingBean
@@ -95,6 +86,28 @@ public class RestClientConfig {
 		taskExecutor.setThreadFactory(new PooledThreadFactory("rest-client-threads-"));
 		taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
 		return taskExecutor;
+	}
+
+	@Bean
+	public RequestProcessor requestProcessor(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
+			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
+		return new DefaultRequestProcessor(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor);
+	}
+
+	@Bean
+	public RequestTemplate requestTemplate(RequestProcessor requestProcessor) {
+		return new RequestTemplate(requestProcessor);
+	}
+
+	@Bean
+	public LoggingRetryListener loggingRetryListener() {
+		return new LoggingRetryListener();
+	}
+	
+	@ConditionalOnMissingBean
+	@Bean
+	public StatisticIndicator statisticIndicator() {
+		return new FallbackStatisticIndicator();
 	}
 
 	/**

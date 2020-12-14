@@ -9,20 +9,19 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
+import com.github.paganini2008.springdessert.cluster.http.FallbackProvider;
 import com.github.paganini2008.springdessert.cluster.http.Request;
-import com.github.paganini2008.springdessert.cluster.http.RequestInterceptorContainer;
 import com.github.paganini2008.springdessert.cluster.http.RequestProcessor;
 import com.github.paganini2008.springdessert.cluster.http.RestfulException;
 import com.github.paganini2008.springdessert.cluster.http.RoutingAllocator;
+import com.github.paganini2008.springdessert.cluster.http.SimpleRequest;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 
 import io.netty.buffer.ByteBuf;
@@ -53,38 +52,43 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 	private RequestProcessor requestProcessor;
 
 	@Autowired
-	private RequestInterceptorContainer requestInterceptorContainer;
+	private RoutingAllocator routingAllocator;
 
 	@Autowired
 	private RoutingManager routingManager;
-
-	@Autowired
-	private RoutingAllocator routingAllocator;
 
 	private final PathMatchedMap<String> staticResources = new PathMatchedMap<String>();
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object data) throws Exception {
 		final FullHttpRequest httpRequest = (FullHttpRequest) data;
-		String path = httpRequest.uri();
+		final String path = httpRequest.uri();
 		String fullPath = "";
 		String provider = staticResources.get(path);
 		if (StringUtils.isNotBlank(provider)) {
 			fullPath = provider + path;
 		}
-		Router route = routingManager.match(path);
-		if (route != null) {
-			String realPath = route.direct() ? path : path.substring(route.prefixEndPosition() + 1);
-			fullPath = routingAllocator.allocateHost(route.provider(), realPath);
+		Router router = null;
+		if (StringUtils.isBlank(fullPath)) {
+			router = routingManager.match(path);
+			if (router != null) {
+				String realPath = router.direct() ? path : path.substring(router.prefixEndPosition() + 1);
+				fullPath = routingAllocator.allocateHost(router.provider(), realPath);
+			}
 		}
-		HttpHeaders httpHeaders = getHttpHeaders(httpRequest);
-		if (MapUtils.isNotEmpty(route.defaultHeaders())) {
-			httpHeaders.addAll(route.defaultHeaders());
-		}
-		if (CollectionUtils.isNotEmpty(route.ignoredHeaders())) {
-			MapUtils.removeKeys(httpHeaders, route.ignoredHeaders());
+		HttpHeaders httpHeaders = copyHttpHeaders(httpRequest);
+		if (router != null) {
+			if (MapUtils.isNotEmpty(router.defaultHeaders())) {
+				httpHeaders.addAll(router.defaultHeaders());
+			}
+			if (CollectionUtils.isNotEmpty(router.ignoredHeaders())) {
+				MapUtils.removeKeys(httpHeaders, router.ignoredHeaders());
+			}
 		}
 		MediaType mediaType = httpHeaders.getContentType();
+		if (mediaType == null) {
+			mediaType = MediaType.APPLICATION_JSON;
+		}
 
 		ByteBuf byteBuf = httpRequest.content();
 		byte[] body = null;
@@ -93,8 +97,11 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 			body = new byte[length];
 			byteBuf.readBytes(body);
 		}
-		RoutingRequest routingRequest = new RoutingRequest(fullPath, HttpMethod.valueOf(httpRequest.method().name()), httpHeaders, body);
-		ResponseEntity<String> responseEntity = doSendRequest(routingRequest, route);
+		SimpleRequest request = new SimpleRequest(fullPath, HttpMethod.valueOf(httpRequest.method().name()), httpHeaders, body);
+		request.setAttribute("timeout", Integer.min(api.timeout(), restClient.timeout()));
+		request.setAttribute("retries", Integer.max(api.retries(), restClient.retries()));
+		request.setAttribute("permits", Integer.min(api.permits(), restClient.permits()));
+		request.setAttribute("fallback", getFallback(api.fallback(), restClient.fallback()));
 
 		ByteBuf buffer = Unpooled.copiedBuffer(responseEntity.getBody(), CharsetUtil.UTF_8);
 		DefaultFullHttpResponse response = new DefaultFullHttpResponse(httpRequest.protocolVersion(),
@@ -155,10 +162,12 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		throw new RestClientException("Illegal request: " + request.toString());
 	}
 
-	private FallbackProvider getFallback(Class<?> fallbackClass) {
+	private FallbackProvider getFallback(Class<?> fallbackClass, Class<?> defaultFallbackClass) {
 		try {
-			if (fallbackClass != null) {
+			if (fallbackClass != null && fallbackClass != Void.class && fallbackClass != void.class) {
 				return (FallbackProvider) ApplicationContextUtils.getBeanIfNecessary(fallbackClass);
+			} else if (defaultFallbackClass != null && defaultFallbackClass != Void.class && defaultFallbackClass != void.class) {
+				return (FallbackProvider) ApplicationContextUtils.getBeanIfNecessary(defaultFallbackClass);
 			}
 		} catch (RuntimeException e) {
 			log.error(e.getMessage(), e);
@@ -166,32 +175,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		return null;
 	}
 
-	private ResponseEntity<String> executeFallback(FallbackProvider fallback, Router route, RestClientException e,
-			Class<? super Throwable>[] exceptionClasses, HttpStatus[] httpStatuses) {
-		if (e instanceof RestfulException) {
-			RestfulException restClientException = (RestfulException) e;
-			for (Class<?> cls : exceptionClasses) {
-				if (restClientException.getCause() != null && cls.isInstance(restClientException.getCause())) {
-					return wrapResponse(fallback, route, restClientException);
-				}
-			}
-		} else if (e instanceof HttpStatusCodeException) {
-			HttpStatusCodeException restClientException = (HttpStatusCodeException) e;
-			for (HttpStatus status : httpStatuses) {
-				if (restClientException.getStatusCode() != null && restClientException.getStatusCode() == status) {
-					return wrapResponse(fallback, route, restClientException);
-				}
-			}
-		}
-		throw e;
-	}
-
-	private ResponseEntity<String> wrapResponse(FallbackProvider fallback, Router route, RestClientException restClientException) {
-		String body = fallback.getBody(route, restClientException);
-		return new ResponseEntity<String>(body, fallback.getHeaders(), fallback.getHttpStatus());
-	}
-
-	private HttpHeaders getHttpHeaders(FullHttpRequest httpRequest) {
+	private HttpHeaders copyHttpHeaders(FullHttpRequest httpRequest) {
 		HttpHeaders headers = new HttpHeaders();
 		for (Map.Entry<String, String> headerEntry : httpRequest.headers()) {
 			headers.add(headerEntry.getKey(), headerEntry.getValue());

@@ -1,9 +1,11 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestClientException;
 
 /**
@@ -24,10 +26,10 @@ public interface FallbackProvider {
 		return new HttpHeaders();
 	}
 
-	default boolean hasFallback(String provider, Class<?> interfaceClass, Method method, Object[] arguments, RestClientException e) {
+	default boolean hasFallback(String provider, Request request, Type responseType, @Nullable RestClientException e) {
 		return true;
 	}
 
-	Object getBody(String provider, Class<?> interfaceClass, Method method, Object[] arguments, RestClientException e);
+	Object getBody(String provider, Request request, Type responseType, @Nullable RestClientException e);
 
 }
