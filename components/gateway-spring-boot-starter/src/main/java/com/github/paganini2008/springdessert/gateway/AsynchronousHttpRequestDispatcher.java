@@ -19,6 +19,7 @@ import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.cluster.http.FallbackProvider;
 import com.github.paganini2008.springdessert.cluster.http.Request;
 import com.github.paganini2008.springdessert.cluster.http.RequestProcessor;
+import com.github.paganini2008.springdessert.cluster.http.RequestTemplate;
 import com.github.paganini2008.springdessert.cluster.http.RestfulException;
 import com.github.paganini2008.springdessert.cluster.http.RoutingAllocator;
 import com.github.paganini2008.springdessert.cluster.http.SimpleRequest;
@@ -49,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupport implements HttpRequestDispatcher {
 
 	@Autowired
-	private RequestProcessor requestProcessor;
+	private RequestTemplate requestTemplate;
 
 	@Autowired
 	private RoutingAllocator routingAllocator;
@@ -63,6 +64,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 	public void channelRead(ChannelHandlerContext ctx, Object data) throws Exception {
 		final FullHttpRequest httpRequest = (FullHttpRequest) data;
 		final String path = httpRequest.uri();
+		HttpHeaders httpHeaders = copyHttpHeaders(httpRequest);
 		String fullPath = "";
 		String provider = staticResources.get(path);
 		if (StringUtils.isNotBlank(provider)) {
@@ -76,7 +78,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 				fullPath = routingAllocator.allocateHost(router.provider(), realPath);
 			}
 		}
-		HttpHeaders httpHeaders = copyHttpHeaders(httpRequest);
+		
 		if (router != null) {
 			if (MapUtils.isNotEmpty(router.defaultHeaders())) {
 				httpHeaders.addAll(router.defaultHeaders());
@@ -98,11 +100,17 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 			byteBuf.readBytes(body);
 		}
 		SimpleRequest request = new SimpleRequest(fullPath, HttpMethod.valueOf(httpRequest.method().name()), httpHeaders, body);
-		request.setAttribute("timeout", Integer.min(api.timeout(), restClient.timeout()));
-		request.setAttribute("retries", Integer.max(api.retries(), restClient.retries()));
-		request.setAttribute("permits", Integer.min(api.permits(), restClient.permits()));
-		request.setAttribute("fallback", getFallback(api.fallback(), restClient.fallback()));
-
+		request.setAttribute("timeout", router.timeout());
+		request.setAttribute("retries", router.retries());
+		request.setAttribute("permits", router.permits());
+		request.setAttribute("fallback", getFallback(router.fallback()));
+		ResponseEntity<String> responseEntity;
+		try {
+			 responseEntity = requestTemplate.sendRequest(provider, request, String.class);
+		} finally {
+			request.clearAttributes();
+		}
+		
 		ByteBuf buffer = Unpooled.copiedBuffer(responseEntity.getBody(), CharsetUtil.UTF_8);
 		DefaultFullHttpResponse response = new DefaultFullHttpResponse(httpRequest.protocolVersion(),
 				HttpResponseStatus.valueOf(responseEntity.getStatusCodeValue()), buffer);
@@ -115,60 +123,11 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		ctx.channel().close();
 	}
 
-	private ResponseEntity<String> doSendRequest(Request request, Router route) {
-		ResponseEntity<String> responseEntity = null;
-		Throwable reason = null;
-		try {
-			requestInterceptorContainer.beforeSubmit(request);
-			int retries = route.retries();
-			int timeout = route.timeout();
-			int concurrency = route.concurrency();
-			if (retries > 0 && timeout > 0) {
-				responseEntity = requestProcessor.sendRequestWithRetryAndTimeout(request, String.class, concurrency, retries, timeout);
-			} else if (retries < 1 && timeout > 0) {
-				responseEntity = requestProcessor.sendRequestWithTimeout(request, String.class, concurrency, timeout);
-			} else if (retries > 0 && timeout < 1) {
-				responseEntity = requestProcessor.sendRequestWithRetry(request, String.class, concurrency, retries);
-			} else {
-				responseEntity = requestProcessor.sendRequest(request, String.class, concurrency);
-			}
-		} catch (RestClientException e) {
-			FallbackProvider fallback = getFallback(route.fallbackClass());
-			if (fallback != null) {
-				try {
-					responseEntity = executeFallback(fallback, route, e, route.fallbackException(), route.fallbackHttpStatus());
-					log.error(e.getMessage(), e);
-				} catch (Exception fallbackError) {
-					reason = fallbackError instanceof RestClientException ? (RestClientException) fallbackError
-							: new RestfulException(fallbackError.getMessage(), fallbackError, request);
-				}
-			}
-		} catch (Throwable e) {
-			log.error(e.getMessage(), e);
-		} finally {
-			requestInterceptorContainer.afterSubmit(request, responseEntity, reason);
-		}
-		if (responseEntity != null) {
-			return responseEntity;
-		}
-
-		if (reason != null) {
-			if (reason instanceof RestClientException) {
-				throw (RestClientException) reason;
-			} else {
-				throw new RestClientException(reason.getMessage(), reason);
-			}
-		}
-		throw new RestClientException("Illegal request: " + request.toString());
-	}
-
-	private FallbackProvider getFallback(Class<?> fallbackClass, Class<?> defaultFallbackClass) {
+	private FallbackProvider getFallback(Class<?> fallbackClass) {
 		try {
 			if (fallbackClass != null && fallbackClass != Void.class && fallbackClass != void.class) {
 				return (FallbackProvider) ApplicationContextUtils.getBeanIfNecessary(fallbackClass);
-			} else if (defaultFallbackClass != null && defaultFallbackClass != Void.class && defaultFallbackClass != void.class) {
-				return (FallbackProvider) ApplicationContextUtils.getBeanIfNecessary(defaultFallbackClass);
-			}
+			} 
 		} catch (RuntimeException e) {
 			log.error(e.getMessage(), e);
 		}

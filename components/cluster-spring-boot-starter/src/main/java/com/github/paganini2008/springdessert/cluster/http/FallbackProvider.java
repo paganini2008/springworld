@@ -1,6 +1,5 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.springframework.http.HttpHeaders;

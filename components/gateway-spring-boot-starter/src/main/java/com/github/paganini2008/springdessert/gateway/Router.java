@@ -30,7 +30,7 @@ public final class Router implements Comparable<Router> {
 	private String provider;
 	private int retries;
 	private int timeout;
-	private int concurrency;
+	private int permits;
 	private boolean direct;
 	private Class<?> fallback;
 	private final MultiValueMap<String, String> defaultHeaders = new LinkedMultiValueMap<String, String>();

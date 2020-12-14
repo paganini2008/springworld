@@ -72,7 +72,7 @@ public class StatisticMetric implements Statistic {
 		return snapshot;
 	}
 
-	public final class SnapshotImpl implements Snapshot {
+	public class SnapshotImpl implements Snapshot {
 
 		private final List<Request> latestRequests = new LruList<Request>(120);
 		private final AtomicLongSequence totalRequestTime = new AtomicLongSequence();

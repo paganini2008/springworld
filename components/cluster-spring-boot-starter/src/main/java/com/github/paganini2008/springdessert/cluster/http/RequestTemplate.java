@@ -32,8 +32,8 @@ public class RequestTemplate implements BeanPostProcessor {
 		this.requestProcessor = requestProcessor;
 	}
 
-	public ResponseEntity<Object> sendRequest(String provider, Request req, Type responseType) {
-		ResponseEntity<Object> responseEntity = null;
+	public <T> ResponseEntity<T> sendRequest(String provider, Request req, Type responseType) {
+		ResponseEntity<T> responseEntity = null;
 		RestClientException reason = null;
 		AbstractRequest request = (AbstractRequest) req;
 		String path = request.getPath();
@@ -77,15 +77,16 @@ public class RequestTemplate implements BeanPostProcessor {
 		return responseEntity;
 	}
 
-	protected ResponseEntity<Object> executeFallback(String provider, Request request, Type responseType, RestClientException e,
+	@SuppressWarnings("unchecked")
+	protected <T> ResponseEntity<T> executeFallback(String provider, Request request, Type responseType, RestClientException e,
 			FallbackProvider fallback) {
 		if (fallback == null) {
 			throw e;
 		}
 		try {
 			if (fallback.hasFallback(provider, request, responseType, e)) {
-				Object body = fallback.getBody(provider, request, responseType, e);
-				return new ResponseEntity<Object>(body, fallback.getHeaders(), fallback.getHttpStatus());
+				T body = (T) fallback.getBody(provider, request, responseType, e);
+				return new ResponseEntity<T>(body, fallback.getHeaders(), fallback.getHttpStatus());
 			}
 		} catch (Exception fallbackError) {
 			throw ExceptionUtils.wrapException("Failed to execute fallback", fallbackError, request);
