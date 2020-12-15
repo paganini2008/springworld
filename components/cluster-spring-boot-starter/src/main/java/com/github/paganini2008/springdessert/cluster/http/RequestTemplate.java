@@ -35,8 +35,8 @@ public class RequestTemplate implements BeanPostProcessor {
 	public <T> ResponseEntity<T> sendRequest(String provider, Request req, Type responseType) {
 		ResponseEntity<T> responseEntity = null;
 		RestClientException reason = null;
-		AbstractRequest request = (AbstractRequest) req;
-		String path = request.getPath();
+		final AbstractRequest request = (AbstractRequest) req;
+		final String path = request.getPath();
 		int retries = (Integer) request.getAttribute("retries");
 		int timeout = (Integer) request.getAttribute("timeout");
 		int permits = (Integer) request.getAttribute("permits");
@@ -47,7 +47,7 @@ public class RequestTemplate implements BeanPostProcessor {
 		});
 		try {
 			if (permit.availablePermits() < 1) {
-				throw new RestfulException(request, InterruptedType.BLOCKED);
+				throw new RestfulException(request, InterruptedType.TOO_MANY_REQUESTS);
 			}
 			permit.accquire();
 			if (beforeSubmit(provider, request)) {
@@ -63,8 +63,8 @@ public class RequestTemplate implements BeanPostProcessor {
 			}
 		} catch (RestClientException e) {
 			log.error(e.getMessage(), e);
-			reason = e;
 			responseEntity = executeFallback(provider, request, responseType, e, fallbackProvider);
+			reason = e;
 		} catch (Throwable e) {
 			log.error(e.getMessage(), e);
 		} finally {
@@ -72,7 +72,7 @@ public class RequestTemplate implements BeanPostProcessor {
 			afterSubmit(provider, request, responseEntity, reason);
 		}
 		if (responseEntity == null) {
-			responseEntity = executeFallback(provider, request, responseType, null, fallbackProvider);
+			responseEntity = executeFallback(provider, request, responseType, reason, fallbackProvider);
 		}
 		return responseEntity;
 	}
@@ -89,7 +89,7 @@ public class RequestTemplate implements BeanPostProcessor {
 				return new ResponseEntity<T>(body, fallback.getHeaders(), fallback.getHttpStatus());
 			}
 		} catch (Exception fallbackError) {
-			throw ExceptionUtils.wrapException("Failed to execute fallback", fallbackError, request);
+			throw RestClientUtils.wrapException("Failed to execute fallback", fallbackError, request);
 		}
 		throw e;
 	}

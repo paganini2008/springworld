@@ -72,7 +72,7 @@ public class DefaultRequestProcessor implements RequestProcessor {
 		}, context -> {
 			context.removeAttribute(CURRENT_RETRY_IDENTIFIER);
 			Throwable e = context.getLastThrowable();
-			throw ExceptionUtils.wrapException(e.getMessage(), e, request);
+			throw RestClientUtils.wrapException(e.getMessage(), e, request);
 		});
 
 	}
@@ -123,12 +123,12 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			}
 			return future.get();
 		} catch (TimeoutException e) {
-			throw new RestfulException(request, InterruptedType.TIMEOUT);
+			throw new RestfulException(request, InterruptedType.REQUEST_TIMEOUT);
 		} catch (ExecutionException e) {
 			Throwable real = e.getCause();
-			throw ExceptionUtils.wrapException(real.getMessage(), real, request);
+			throw RestClientUtils.wrapException(real.getMessage(), real, request);
 		} catch (Throwable e) {
-			throw ExceptionUtils.wrapException(e.getMessage(), e, request);
+			throw RestClientUtils.wrapException(e.getMessage(), e, request);
 		}
 	}
 
@@ -144,12 +144,12 @@ public class DefaultRequestProcessor implements RequestProcessor {
 			}
 			return future.get();
 		} catch (TimeoutException e) {
-			throw new RestfulException(request, InterruptedType.TIMEOUT);
+			throw new RestfulException(request, InterruptedType.REQUEST_TIMEOUT);
 		} catch (ExecutionException e) {
 			Throwable real = e.getCause();
-			throw ExceptionUtils.wrapException(real.getMessage(), real, request);
+			throw RestClientUtils.wrapException(real.getMessage(), real, request);
 		} catch (Throwable e) {
-			throw ExceptionUtils.wrapException(e.getMessage(), e, request);
+			throw RestClientUtils.wrapException(e.getMessage(), e, request);
 		}
 	}
 

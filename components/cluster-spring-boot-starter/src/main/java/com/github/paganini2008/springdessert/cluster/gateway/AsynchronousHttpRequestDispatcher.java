@@ -11,16 +11,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 
-import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.devtools.cache.Cache;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.cluster.http.FallbackProvider;
-import com.github.paganini2008.springdessert.cluster.http.Request;
-import com.github.paganini2008.springdessert.cluster.http.RequestProcessor;
 import com.github.paganini2008.springdessert.cluster.http.RequestTemplate;
-import com.github.paganini2008.springdessert.cluster.http.RestfulException;
+import com.github.paganini2008.springdessert.cluster.http.RestClientUtils;
 import com.github.paganini2008.springdessert.cluster.http.RoutingAllocator;
 import com.github.paganini2008.springdessert.cluster.http.SimpleRequest;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
@@ -58,40 +55,50 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 	@Autowired
 	private RoutingManager routingManager;
 
-	private final PathMatchedMap<String> staticResources = new PathMatchedMap<String>();
+	@Autowired
+	private Cache cache;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object data) throws Exception {
 		final FullHttpRequest httpRequest = (FullHttpRequest) data;
 		final String path = httpRequest.uri();
-		HttpHeaders httpHeaders = copyHttpHeaders(httpRequest);
-		String fullPath = "";
-		String provider = staticResources.get(path);
-		if (StringUtils.isNotBlank(provider)) {
-			fullPath = provider + path;
+		Router router = routingManager.match(path);
+		String shortPath = router.direct() ? path : path.substring(router.prefixEndPosition() + 1);
+		String fullPath = routingAllocator.allocateHost(router.provider(), shortPath);
+		ResponseEntity<String> responseEntity = null;
+		if (router.cached()) {
+			responseEntity = (ResponseEntity<String>) cache.getObject(fullPath, () -> {
+				return doSendRequest(httpRequest, router, fullPath);
+			});
 		}
-		Router router = null;
-		if (StringUtils.isBlank(fullPath)) {
-			router = routingManager.match(path);
-			if (router != null) {
-				String realPath = router.direct() ? path : path.substring(router.prefixEndPosition() + 1);
-				fullPath = routingAllocator.allocateHost(router.provider(), realPath);
-			}
+		if (responseEntity == null) {
+			responseEntity = doSendRequest(httpRequest, router, fullPath);
 		}
-		
-		if (router != null) {
-			if (MapUtils.isNotEmpty(router.defaultHeaders())) {
-				httpHeaders.addAll(router.defaultHeaders());
-			}
-			if (CollectionUtils.isNotEmpty(router.ignoredHeaders())) {
-				MapUtils.removeKeys(httpHeaders, router.ignoredHeaders());
-			}
-		}
-		MediaType mediaType = httpHeaders.getContentType();
+		ByteBuf buffer = Unpooled.copiedBuffer(responseEntity.getBody(), CharsetUtil.UTF_8);
+		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(httpRequest.protocolVersion(),
+				HttpResponseStatus.valueOf(responseEntity.getStatusCodeValue()), buffer);
+		httpResponse.headers().set(CONTENT_LENGTH, buffer.readableBytes());
+		MediaType mediaType = responseEntity.getHeaders().getContentType();
 		if (mediaType == null) {
-			mediaType = MediaType.APPLICATION_JSON;
+			mediaType = MediaType.ALL;
 		}
+		httpResponse.headers().set(CONTENT_TYPE, mediaType.toString());
+		if (HttpUtil.isKeepAlive(httpRequest)) {
+			httpResponse.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+		}
+		ctx.writeAndFlush(httpResponse);
+		ctx.channel().close();
+	}
 
+	private ResponseEntity<String> doSendRequest(FullHttpRequest httpRequest, Router router, String fullPath) {
+		HttpHeaders httpHeaders = copyHttpHeaders(httpRequest);
+		if (MapUtils.isNotEmpty(router.defaultHeaders())) {
+			httpHeaders.addAll(router.defaultHeaders());
+		}
+		if (CollectionUtils.isNotEmpty(router.ignoredHeaders())) {
+			MapUtils.removeKeys(httpHeaders, router.ignoredHeaders());
+		}
 		ByteBuf byteBuf = httpRequest.content();
 		byte[] body = null;
 		int length = byteBuf.readableBytes();
@@ -104,30 +111,21 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		request.setAttribute("retries", router.retries());
 		request.setAttribute("permits", router.permits());
 		request.setAttribute("fallback", getFallback(router.fallback()));
+
 		ResponseEntity<String> responseEntity;
 		try {
-			 responseEntity = requestTemplate.sendRequest(provider, request, String.class);
-		} finally {
-			request.clearAttributes();
+			responseEntity = requestTemplate.sendRequest(router.provider(), request, String.class);
+		} catch (Throwable e) {
+			responseEntity = RestClientUtils.getErrorResponse(e);
 		}
-		
-		ByteBuf buffer = Unpooled.copiedBuffer(responseEntity.getBody(), CharsetUtil.UTF_8);
-		DefaultFullHttpResponse response = new DefaultFullHttpResponse(httpRequest.protocolVersion(),
-				HttpResponseStatus.valueOf(responseEntity.getStatusCodeValue()), buffer);
-		response.headers().set(CONTENT_TYPE, "application/json");
-		response.headers().set(CONTENT_LENGTH, buffer.readableBytes());
-		if (HttpUtil.isKeepAlive(httpRequest)) {
-			response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-		}
-		ctx.writeAndFlush(response);
-		ctx.channel().close();
+		return responseEntity;
 	}
 
 	private FallbackProvider getFallback(Class<?> fallbackClass) {
 		try {
 			if (fallbackClass != null && fallbackClass != Void.class && fallbackClass != void.class) {
 				return (FallbackProvider) ApplicationContextUtils.getBeanIfNecessary(fallbackClass);
-			} 
+			}
 		} catch (RuntimeException e) {
 			log.error(e.getMessage(), e);
 		}

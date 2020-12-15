@@ -67,7 +67,7 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 	}
 
 	private boolean isRequestTimeout(RestClientException e) {
-		return e instanceof RestfulException && ((RestfulException) e).getInterruptedType() == InterruptedType.TIMEOUT;
+		return e instanceof RestfulException && ((RestfulException) e).getInterruptedType() == InterruptedType.REQUEST_TIMEOUT;
 	}
 
 }
