@@ -18,6 +18,9 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.github.paganini2008.springdessert.cluster.gateway.HttpRequestDispatcher;
+import com.github.paganini2008.springdessert.cluster.gateway.HttpRequestDispatcherSupport;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;

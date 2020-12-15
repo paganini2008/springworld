@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.gateway;
+package com.github.paganini2008.springdessert.cluster.gateway;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

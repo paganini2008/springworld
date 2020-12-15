@@ -1,8 +1,8 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,7 +16,7 @@ import org.springframework.http.HttpMethod;
  */
 public abstract class AbstractRequest implements Request {
 
-	private final Map<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
+	private final Map<String, Object> attributeMap = new HashMap<String, Object>();
 	private final String path;
 	private final HttpMethod method;
 	private final HttpHeaders headers;
@@ -43,7 +43,7 @@ public abstract class AbstractRequest implements Request {
 	}
 
 	public Map<String, Object> copyAttributes() {
-		return new HashMap<String, Object>(attributeMap);
+		return Collections.unmodifiableMap(attributeMap);
 	}
 
 	public void clearAttributes() {

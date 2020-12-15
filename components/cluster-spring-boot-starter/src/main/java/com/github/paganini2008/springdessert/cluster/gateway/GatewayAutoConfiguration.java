@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.gateway;
+package com.github.paganini2008.springdessert.cluster.gateway;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,7 @@ public class GatewayAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public HttpRequestDispatcher httpRequestDispatcher() {
-		return new SynchronousHttpRequestDispatcher();
+		return new AsynchronousHttpRequestDispatcher();
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.gateway;
+package com.github.paganini2008.springdessert.cluster.gateway;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
