@@ -11,6 +11,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -74,6 +75,10 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
 	public static Environment getEnvironment() {
 		return contextHolder.getEnvironment();
+	}
+
+	public static void publishEvent(ApplicationEvent event) {
+		getApplicationContext().publishEvent(event);
 	}
 
 	public static synchronized int countOfBeans() {

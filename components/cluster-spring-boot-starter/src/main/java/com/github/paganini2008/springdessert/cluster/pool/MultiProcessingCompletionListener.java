@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.cluster.pool;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 
 /**
@@ -14,7 +14,7 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSend
  *
  * @since 1.0
  */
-public class MultiProcessingCompletionListener implements MulticastMessageListener {
+public class MultiProcessingCompletionListener implements ApplicationMessageListener {
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;

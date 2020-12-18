@@ -9,7 +9,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.reditools.common.TtlKeeper;
 
@@ -76,7 +76,7 @@ public class ConsistencyRequestSerial {
 	}
 
 	private String counterName(String name) {
-		return String.format(CONSISTENCY_SERIAL_PATTERN, ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName, name);
+		return String.format(CONSISTENCY_SERIAL_PATTERN, Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName, name);
 	}
 
 }

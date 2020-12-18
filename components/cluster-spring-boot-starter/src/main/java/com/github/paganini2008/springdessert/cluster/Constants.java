@@ -5,10 +5,11 @@ package com.github.paganini2008.springdessert.cluster;
  * Constants
  *
  * @author Jimmy Hoff
- * 
- * @since 1.0
+ * @version 1.0
  */
-public abstract class Constants {
+public class Constants {
+
+	public static final String APPLICATION_CLUSTER_NAMESPACE = "spring:application:cluster:";
 
 	public final static int RANDOM_PORT_RANGE_START = 50000;
 

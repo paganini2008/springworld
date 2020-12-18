@@ -15,6 +15,6 @@ public interface LeaderElection {
 
 	void launch();
 
-	void adapt(ApplicationEvent applicationEvent);
+	void onTriggered(ApplicationEvent applicationEvent);
 
 }

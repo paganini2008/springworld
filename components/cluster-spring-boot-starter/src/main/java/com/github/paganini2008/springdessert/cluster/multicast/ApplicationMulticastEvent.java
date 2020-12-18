@@ -8,23 +8,23 @@ import com.github.paganini2008.springdessert.cluster.HealthState;
 
 /**
  * 
- * MulticastGroupEvent
+ * ApplicationMulticastEvent
  *
  * @author Jimmy Hoff
- * @since 1.0
+ * @version 1.0
  */
-public class MulticastGroupEvent extends ApplicationClusterEvent {
+public class ApplicationMulticastEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = -2482108960259276628L;
 
-	public MulticastGroupEvent(ApplicationContext source, ApplicationInfo applicationInfo, EventType eventType) {
-		super(source, HealthState.ACCESSABLE);
+	public ApplicationMulticastEvent(ApplicationContext source, ApplicationInfo applicationInfo, MulticastEventType eventType) {
+		super(source, HealthState.UNLEADABLE);
 		this.applicationInfo = applicationInfo;
-		this.eventType = eventType;
+		this.multicastEventType = eventType;
 	}
 
 	private final ApplicationInfo applicationInfo;
-	private final EventType eventType;
+	private final MulticastEventType multicastEventType;
 	private Object message;
 
 	public Object getMessage() {
@@ -39,11 +39,11 @@ public class MulticastGroupEvent extends ApplicationClusterEvent {
 		return applicationInfo;
 	}
 
-	public EventType getEventType() {
-		return eventType;
+	public MulticastEventType getMulticastEventType() {
+		return multicastEventType;
 	}
 
-	public static enum EventType {
+	public static enum MulticastEventType {
 		ON_ACTIVE, ON_INACTIVE, ON_MESSAGE;
 	}
 

@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
 import com.github.paganini2008.springdessert.jobsoup.model.JobLifeCycleParam;
 
 /**
@@ -18,7 +18,7 @@ import com.github.paganini2008.springdessert.jobsoup.model.JobLifeCycleParam;
  *
  * @since 1.0
  */
-public abstract class LifeCycleListenerContainer implements MulticastMessageListener {
+public abstract class LifeCycleListenerContainer implements ApplicationMessageListener {
 
 	private final Set<LifeCycleListener> lifeCycleListeners = Collections.synchronizedNavigableSet(new TreeSet<LifeCycleListener>());
 

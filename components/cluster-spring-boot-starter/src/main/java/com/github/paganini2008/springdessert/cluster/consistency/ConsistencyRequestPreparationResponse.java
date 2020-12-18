@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.cluster.consistency;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ConsistencyRequestPreparationResponse implements MulticastMessageListener {
+public class ConsistencyRequestPreparationResponse implements ApplicationMessageListener {
 
 	@Autowired
 	private Court court;

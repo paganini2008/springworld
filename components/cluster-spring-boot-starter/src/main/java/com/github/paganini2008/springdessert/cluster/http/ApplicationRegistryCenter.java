@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastGroupListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastListener;
 import com.github.paganini2008.springdessert.reditools.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ApplicationRegistryCenter implements MulticastGroupListener, RegistryCenter {
+public class ApplicationRegistryCenter implements ApplicationMulticastListener, RegistryCenter {
 
 	private final Map<String, List<ApplicationInfo>> appInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 

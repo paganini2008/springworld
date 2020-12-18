@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
@@ -28,6 +29,11 @@ public class RequestTemplate implements BeanPostProcessor {
 	private final MultiMappedMap<String, String, Permit> requestPermitMap = new MultiMappedMap<String, String, Permit>();
 	private final RequestProcessor requestProcessor;
 
+	public RequestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
+			RetryTemplateFactory retryTemplateFactory, AsyncTaskExecutor taskExecutor) {
+		this(new DefaultRequestProcessor(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor));
+	}
+
 	public RequestTemplate(RequestProcessor requestProcessor) {
 		this.requestProcessor = requestProcessor;
 	}
@@ -37,10 +43,10 @@ public class RequestTemplate implements BeanPostProcessor {
 		RestClientException reason = null;
 		final AbstractRequest request = (AbstractRequest) req;
 		final String path = request.getPath();
-		int retries = (Integer) request.getAttribute("retries");
-		int timeout = (Integer) request.getAttribute("timeout");
-		int permits = (Integer) request.getAttribute("permits");
-		FallbackProvider fallbackProvider = (FallbackProvider) request.getAttribute("fallback");
+		int retries = (Integer) request.getAttribute(Request.MAX_RETRY_COUNT, 0);
+		int timeout = (Integer) request.getAttribute(Request.MAX_TIMEOUT, 0);
+		int permits = (Integer) request.getAttribute(Request.MAX_ALLOWED_PERMITS, Integer.MAX_VALUE);
+		FallbackProvider fallbackProvider = (FallbackProvider) request.getAttribute(Request.FALLBACK);
 
 		Permit permit = requestPermitMap.get(provider, path, () -> {
 			return new Permit(permits);

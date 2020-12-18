@@ -4,13 +4,13 @@ import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 
 /**
  * 
- * MulticastGroupListener
+ * ApplicationMulticastListener
  * 
  * @author Jimmy Hoff
  *
  * @since 1.0
  */
-public interface MulticastGroupListener extends MulticastListener {
+public interface ApplicationMulticastListener extends ApplicationClusterListener {
 
 	default void onActive(ApplicationInfo applicationInfo) {
 	}
@@ -18,7 +18,7 @@ public interface MulticastGroupListener extends MulticastListener {
 	default void onInactive(ApplicationInfo applicationInfo) {
 	}
 
-	default void onMessage(ApplicationInfo applicationInfo, Object message) {
+	default void onGlobalMessage(ApplicationInfo applicationInfo, String id, Object message) {
 	}
 
 }

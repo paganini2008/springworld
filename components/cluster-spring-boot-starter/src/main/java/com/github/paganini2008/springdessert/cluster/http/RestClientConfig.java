@@ -16,10 +16,8 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -27,9 +25,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
-import com.github.paganini2008.springdessert.cluster.LeaderRecoveryCallback;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 
@@ -55,7 +52,7 @@ public class RestClientConfig {
 
 	@Bean
 	public LoadBalancer applicationClusterLoadBalancer(RedisConnectionFactory connectionFactory) {
-		final String name = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter";
+		final String name = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter";
 		return new ApplicationClusterLoadBalancer(name, connectionFactory);
 	}
 
@@ -89,51 +86,20 @@ public class RestClientConfig {
 	}
 
 	@Bean
-	public RequestProcessor requestProcessor(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
+	public RequestTemplate requestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
 			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
-		return new DefaultRequestProcessor(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor);
-	}
-
-	@Bean
-	public RequestTemplate requestTemplate(RequestProcessor requestProcessor) {
-		return new RequestTemplate(requestProcessor);
+		return new RequestTemplate(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor);
 	}
 
 	@Bean
 	public LoggingRetryListener loggingRetryListener() {
 		return new LoggingRetryListener();
 	}
-	
+
 	@ConditionalOnMissingBean
 	@Bean
 	public StatisticIndicator statisticIndicator() {
 		return new FallbackStatisticIndicator();
-	}
-
-	/**
-	 * 
-	 * LeaderHeartbeaterConfig
-	 * 
-	 * @author Jimmy Hoff
-	 *
-	 * @since 1.0
-	 */
-	@EnableRestClient(include = { LeaderService.class })
-	@Configuration
-	@ConditionalOnProperty(name = "spring.application.cluster.leader.heartbeat.enabled", havingValue = "true", matchIfMissing = true)
-	public static class LeaderHeartbeaterConfig {
-
-		@Bean
-		public LeaderHeartbeater leaderHeartbeater() {
-			return new LeaderHeartbeater();
-		}
-
-		@Primary
-		@Bean
-		public LeaderRecoveryCallback retryableLeaderRecoveryCallback() {
-			return new RetryableLeaderRecoveryCallback();
-		}
-
 	}
 
 	/**

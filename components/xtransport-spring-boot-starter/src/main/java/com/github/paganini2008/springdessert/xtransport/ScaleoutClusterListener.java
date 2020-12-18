@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastGroupListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastListener;
 import com.github.paganini2008.xtransport.NioClient;
 import com.github.paganini2008.xtransport.TransportNodeCentre;
 
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class ScaleoutClusterListener implements MulticastGroupListener {
+public class ScaleoutClusterListener implements ApplicationMulticastListener {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;

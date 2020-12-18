@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.github.paganini2008.devtools.multithreads.Clock;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
 
 /**
  * 
@@ -52,32 +52,32 @@ public class ConsistencyRequestConfig {
 	}
 
 	@Bean
-	public MulticastMessageListener consistencyRequestPreparationRequest() {
+	public ApplicationMessageListener consistencyRequestPreparationRequest() {
 		return new ConsistencyRequestPreparationRequest();
 	}
 
 	@Bean
-	public MulticastMessageListener consistencyRequestPreparationResponse() {
+	public ApplicationMessageListener consistencyRequestPreparationResponse() {
 		return new ConsistencyRequestPreparationResponse();
 	}
 
 	@Bean
-	public MulticastMessageListener consistencyRequestCommitmentRequest() {
+	public ApplicationMessageListener consistencyRequestCommitmentRequest() {
 		return new ConsistencyRequestCommitmentRequest();
 	}
 
 	@Bean
-	public MulticastMessageListener consistencyRequestCommitmentResponse() {
+	public ApplicationMessageListener consistencyRequestCommitmentResponse() {
 		return new ConsistencyRequestCommitmentResponse();
 	}
 
 	@Bean
-	public MulticastMessageListener consistencyRequestLearningRequest() {
+	public ApplicationMessageListener consistencyRequestLearningRequest() {
 		return new ConsistencyRequestLearningRequest();
 	}
 
 	@Bean
-	public MulticastMessageListener consistencyRequestLearningResponse() {
+	public ApplicationMessageListener consistencyRequestLearningResponse() {
 		return new ConsistencyRequestLearningResponse();
 	}
 

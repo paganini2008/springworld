@@ -9,7 +9,7 @@ import com.github.paganini2008.devtools.reflection.MethodUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.reditools.common.SharedLatch;
 
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class ProcessPoolTaskListener implements MulticastMessageListener {
+public class ProcessPoolTaskListener implements ApplicationMessageListener {
 
 	@Value("${spring.application.name}")
 	private String applicationName;

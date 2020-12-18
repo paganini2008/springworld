@@ -39,7 +39,11 @@ public abstract class AbstractRequest implements Request {
 	}
 
 	public Object getAttribute(String attributeName) {
-		return attributeMap.get(attributeName);
+		return getAttribute(attributeName, null);
+	}
+
+	public Object getAttribute(String attributeName, Object defaultValue) {
+		return attributeMap.getOrDefault(attributeName, defaultValue);
 	}
 
 	public Map<String, Object> copyAttributes() {

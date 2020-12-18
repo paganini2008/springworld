@@ -1,8 +1,11 @@
 package com.github.paganini2008.springdessert.cluster.gateway;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 
 /**
  * 
@@ -12,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
  * 
  * @since 1.0
  */
+@ConditionalOnBean(ApplicationMulticastConfig.class)
 @Configuration
 public class GatewayAutoConfiguration {
 

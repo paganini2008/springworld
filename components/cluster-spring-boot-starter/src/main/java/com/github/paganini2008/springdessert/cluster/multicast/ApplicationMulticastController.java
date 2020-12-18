@@ -27,8 +27,7 @@ public class ApplicationMulticastController {
 	private String applicationName;
 
 	@GetMapping("/multicast")
-	public ResponseEntity<String> multicast(
-			@RequestParam(name = "t", required = false, defaultValue = "*") String topic,
+	public ResponseEntity<String> multicast(@RequestParam(name = "t", required = false, defaultValue = "*") String topic,
 			@RequestParam("c") String content) {
 		multicastGroup.multicast(topic, content);
 		return ResponseEntity.ok("ok");

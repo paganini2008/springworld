@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
 import com.github.paganini2008.springdessert.reditools.common.RedisSharedLatch;
@@ -39,7 +39,7 @@ public class ProcessPoolConfig {
 
 	@Bean
 	public RedisCounter redisCounter(RedisConnectionFactory redisConnectionFactory, TtlKeeper ttlKeeper) {
-		final String fullName = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool";
+		final String fullName = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool";
 		RedisCounter redisCounter = new RedisCounter(fullName, redisConnectionFactory);
 		redisCounter.keepAlive(ttlKeeper, 5, TimeUnit.SECONDS);
 		return redisCounter;

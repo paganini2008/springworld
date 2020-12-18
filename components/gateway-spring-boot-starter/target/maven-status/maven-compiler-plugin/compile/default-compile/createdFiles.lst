@@ -1,11 +1,1 @@
-com\github\paganini2008\springdessert\gateway\RoutingManager$RoutingEntry.class
-com\github\paganini2008\springdessert\gateway\NettyHttpServer.class
 com\github\paganini2008\springdessert\gateway\SynchronousHttpRequestDispatcher.class
-com\github\paganini2008\springdessert\gateway\RoutingManager.class
-com\github\paganini2008\springdessert\gateway\GatewayAutoConfiguration.class
-com\github\paganini2008\springdessert\gateway\HttpRequestDispatcher.class
-com\github\paganini2008\springdessert\gateway\EnableGateway.class
-com\github\paganini2008\springdessert\gateway\PrefixRoutingMap.class
-com\github\paganini2008\springdessert\gateway\NettyHttpServer$1.class
-com\github\paganini2008\springdessert\gateway\HttpRequestDispatcherSupport.class
-com\github\paganini2008\springdessert\gateway\EmbeddedHttpServer.class

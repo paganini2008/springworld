@@ -1,24 +1,22 @@
 package com.github.paganini2008.springdessert.cluster;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.springdessert.cluster.election.LeaderElection;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
- * UnsafeLeaderRecoveryCallback
- * 
- * @author Jimmy Hoff
+ * DefaultLeaderRecovery
  *
- * @since 1.0
+ * @author Jimmy Hoff
+ * @version 1.0
  */
-public class UnsafeLeaderRecoveryCallback implements ApplicationListener<ApplicationClusterFollowerEvent>, LeaderRecoveryCallback {
-
-	protected final Logger log = LoggerFactory.getLogger(getClass());
+@Slf4j
+public class DefaultLeaderRecovery implements ApplicationListener<ApplicationClusterFollowerEvent>, LeaderRecovery {
 
 	private final Observable electionObservable = Observable.unrepeatable();
 
@@ -38,7 +36,7 @@ public class UnsafeLeaderRecoveryCallback implements ApplicationListener<Applica
 
 	@Override
 	public void recover(ApplicationInfo leaderInfo) {
-		leaderContext.setHealthState(HealthState.PROTECTED);
+		leaderContext.setHealthState(HealthState.UNLEADABLE);
 		electionObservable.notifyObservers(leaderInfo);
 	}
 

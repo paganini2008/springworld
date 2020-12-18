@@ -10,6 +10,6 @@ package com.github.paganini2008.springdessert.cluster;
  */
 public enum HealthState {
 
-	ACCESSABLE, PROTECTED, UNKOWN, FATAL;
+	UNLEADABLE, LEADABLE, FATAL;
 
 }

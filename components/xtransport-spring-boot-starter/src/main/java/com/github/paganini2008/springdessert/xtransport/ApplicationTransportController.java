@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.reditools.BeanNames;
 import com.github.paganini2008.xtransport.NioClient;
@@ -82,7 +82,7 @@ public class ApplicationTransportController {
 
 	@GetMapping("/http/services")
 	public ResponseEntity<String[]> httpServices() {
-		String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
+		String key = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
 		List<Object> locations = new ArrayList<Object>();
 		ApplicationInfo applicationInfo;
@@ -97,7 +97,7 @@ public class ApplicationTransportController {
 
 	@GetMapping("/tcp/services")
 	public ResponseEntity<String[]> tcpServices() {
-		String key = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName;
+		String key = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName;
 		List<Object> dataList = redisTemplate.opsForList().range(key, 0, -1);
 		List<Object> appKeys = new ArrayList<Object>();
 		for (Object data : dataList) {

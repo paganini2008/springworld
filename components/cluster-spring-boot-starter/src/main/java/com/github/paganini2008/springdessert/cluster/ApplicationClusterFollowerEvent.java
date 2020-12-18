@@ -13,15 +13,15 @@ public class ApplicationClusterFollowerEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = 9109166626001674260L;
 
-	public ApplicationClusterFollowerEvent(ApplicationContext context, ApplicationInfo leaderInfo) {
-		super(context, HealthState.ACCESSABLE);
-		this.leaderInfo = leaderInfo;
+	public ApplicationClusterFollowerEvent(ApplicationContext context, ApplicationInfo leader) {
+		super(context, HealthState.LEADABLE);
+		this.leader = leader;
 	}
 
-	private final ApplicationInfo leaderInfo;
+	private final ApplicationInfo leader;
 
 	public ApplicationInfo getLeaderInfo() {
-		return leaderInfo;
+		return leader;
 	}
 
 }

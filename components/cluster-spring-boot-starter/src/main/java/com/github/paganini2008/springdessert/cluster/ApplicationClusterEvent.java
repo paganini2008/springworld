@@ -10,7 +10,7 @@ import org.springframework.context.event.ApplicationContextEvent;
  * @author Jimmy Hoff
  * @version 1.0
  */
-public abstract class ApplicationClusterEvent extends ApplicationContextEvent {
+public class ApplicationClusterEvent extends ApplicationContextEvent {
 
 	private static final long serialVersionUID = -9030425105386583374L;
 

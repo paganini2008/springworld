@@ -4,31 +4,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.DefaultLeaderRecovery;
 import com.github.paganini2008.springdessert.cluster.HealthState;
-import com.github.paganini2008.springdessert.cluster.UnsafeLeaderRecoveryCallback;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationHeartbeatTask;
 import com.github.paganini2008.springdessert.cluster.utils.ApiRetryListener;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * RetryableLeaderRecoveryCallback
+ * RetryableLeaderRecovery
  * 
  * @author Jimmy Hoff
  *
  * @since 1.0
  */
 @Slf4j
-public class RetryableLeaderRecoveryCallback extends UnsafeLeaderRecoveryCallback implements ApiRetryListener {
-
-	private static final String LEADER_PING_PATH = "/application/cluster/ping";
+public class RetryableLeaderRecovery extends DefaultLeaderRecovery implements ApiRetryListener {
 
 	@Autowired
-	private LeaderHeartbeater leaderHeartbeater;
+	private LeaderService leaderService;
 
 	@Override
-	public void recover(ApplicationInfo leader) {
-		leaderContext.setHealthState(HealthState.PROTECTED);
+	public void recover(ApplicationInfo formerLeader) {
+		leaderContext.setHealthState(HealthState.UNLEADABLE);
+		try {
+			leaderService.ping();
+		} catch (Throwable e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -44,16 +48,15 @@ public class RetryableLeaderRecoveryCallback extends UnsafeLeaderRecoveryCallbac
 	@Override
 	public void onRetryEnd(String provider, Request request, Throwable e) {
 		ApplicationInfo leader = leaderContext.getLeader();
-		if (leaderContext.getHealthState() == HealthState.PROTECTED) {
+		if (leaderContext.getHealthState() == HealthState.UNLEADABLE) {
 			log.warn("Application cluster leader [{}] is exhausted", leader);
-			leaderHeartbeater.cancel();
 			super.recover(leader);
 		}
 	}
 
 	@Override
 	public boolean matches(String provider, Request request) {
-		return StringUtils.isNotBlank(request.getPath()) && request.getPath().equals(LEADER_PING_PATH);
+		return StringUtils.isNotBlank(request.getPath()) && request.getPath().equals(ApplicationHeartbeatTask.APPLICATION_PING_PATH);
 	}
 
 }

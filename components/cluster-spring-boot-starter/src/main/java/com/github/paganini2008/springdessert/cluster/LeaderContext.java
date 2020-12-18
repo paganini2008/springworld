@@ -14,7 +14,7 @@ import org.springframework.context.event.SmartApplicationListener;
 public class LeaderContext implements SmartApplicationListener {
 
 	private ApplicationInfo leaderInfo;
-	private volatile HealthState healthState = HealthState.UNKOWN;
+	private volatile HealthState healthState = HealthState.UNLEADABLE;
 
 	public ApplicationInfo getLeader() {
 		return leaderInfo;

@@ -8,10 +8,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -44,10 +44,10 @@ public class DefaultRequestProcessor implements RequestProcessor {
 	private final RoutingAllocator routingAllocator;
 	private final RestClientPerformer restClientPerformer;
 	private final RetryTemplateFactory retryTemplateFactory;
-	private final ThreadPoolTaskExecutor taskExecutor;
+	private final AsyncTaskExecutor taskExecutor;
 
 	public DefaultRequestProcessor(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
-			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
+			RetryTemplateFactory retryTemplateFactory, AsyncTaskExecutor taskExecutor) {
 		this.routingAllocator = routingAllocator;
 		this.restClientPerformer = restClientPerformer;
 		this.retryTemplateFactory = retryTemplateFactory;

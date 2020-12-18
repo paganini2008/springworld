@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.MulticastMessageListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 
 /**
@@ -16,7 +16,7 @@ import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
  * @author Jimmy Hoff
  * @since 1.0
  */
-public class LoadBalancedJobBeanProcessor implements MulticastMessageListener {
+public class LoadBalancedJobBeanProcessor implements ApplicationMessageListener {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
@@ -43,7 +43,7 @@ public class LoadBalancedJobBeanProcessor implements MulticastMessageListener {
 
 	@Override
 	public String getTopic() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
+		return Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:loadbalance";
 	}
 
 }

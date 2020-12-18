@@ -2,10 +2,10 @@ package com.github.paganini2008.springdessert.cluster.multicast;
 
 /**
  * 
- * MulticastListener
+ * ApplicationClusterListener
  *
  * @author Jimmy Hoff
  * @since 1.0
  */
-public interface MulticastListener {
+public interface ApplicationClusterListener {
 }

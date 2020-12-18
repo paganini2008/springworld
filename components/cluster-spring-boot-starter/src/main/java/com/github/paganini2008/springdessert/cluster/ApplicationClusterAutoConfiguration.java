@@ -22,7 +22,6 @@ import com.github.paganini2008.springdessert.cluster.utils.LazilyAutowiredBeanIn
 @Configuration
 @Import({ ApplicationContextUtils.class, 
 		BeanExpressionUtils.class, 
-		ApplicationClusterConfig.class, 
 		ApplicationMulticastConfig.class,
 		ProcessPoolConfig.class, 
 		ConsistencyRequestConfig.class,

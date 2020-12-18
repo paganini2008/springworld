@@ -2,6 +2,7 @@ package com.github.paganini2008.springdessert.cluster;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.io.IOUtils;
@@ -57,7 +58,7 @@ public final class InstanceId {
 
 	@Setter
 	@Getter
-	private ApplicationInfo leaderInfo;
+	private volatile @Nullable ApplicationInfo leaderInfo;
 
 	public String get() {
 		if (StringUtils.isBlank(id)) {

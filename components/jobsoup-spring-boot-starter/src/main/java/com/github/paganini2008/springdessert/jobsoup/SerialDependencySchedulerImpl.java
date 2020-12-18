@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.Observer;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 import com.github.paganini2008.springdessert.jobsoup.model.JobPeerResult;
@@ -106,7 +106,7 @@ public class SerialDependencySchedulerImpl extends Observable implements SerialD
 
 	@Override
 	public void notifyDependants(JobKey jobKey, Object attachment) {
-		final String channel = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:dependency:"
+		final String channel = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:dependency:"
 				+ jobKey.getIdentifier();
 		JobParam jobParam = new JobParam(jobKey, attachment, 0);
 		redisMessageSender.sendMessage(channel, jobParam);
@@ -119,7 +119,7 @@ public class SerialDependencySchedulerImpl extends Observable implements SerialD
 		if (ArrayUtils.isNotEmpty(targetJob.getDependencyPostHandlers())) {
 			boolean result = true;
 			for (Class<?> requiredType : targetJob.getDependencyPostHandlers()) {
-				DependencyPostHandler handler = (DependencyPostHandler) ApplicationContextUtils.getBeanIfAbsent(requiredType);
+				DependencyPostHandler handler = (DependencyPostHandler) ApplicationContextUtils.getBeanIfNecessary(requiredType);
 				result &= handler.approve(jobResult.getJobKey(), jobResult.getRunningState(), jobResult.getAttachment(),
 						jobResult.getResult());
 			}

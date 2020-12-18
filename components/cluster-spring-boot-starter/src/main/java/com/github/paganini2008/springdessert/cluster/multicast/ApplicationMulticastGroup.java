@@ -2,10 +2,9 @@ package com.github.paganini2008.springdessert.cluster.multicast;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,20 +102,20 @@ public class ApplicationMulticastGroup {
 	}
 
 	public int countOfCandidate() {
-		return new HashSet<ApplicationInfo>(allCandidates).size();
+		return getCandidates().length;
 	}
 
 	public int countOfCandidate(String group) {
-		return groupCandidates.containsKey(group) ? new HashSet<ApplicationInfo>(groupCandidates.get(group)).size() : 0;
+		return getCandidates(group).length;
 	}
 
 	public ApplicationInfo[] getCandidates() {
-		return new HashSet<ApplicationInfo>(allCandidates).toArray(new ApplicationInfo[0]);
+		return new LinkedHashSet<ApplicationInfo>(allCandidates).toArray(new ApplicationInfo[0]);
 	}
 
 	public ApplicationInfo[] getCandidates(String group) {
 		if (groupCandidates.containsKey(group)) {
-			return new HashSet<ApplicationInfo>(groupCandidates.get(group)).toArray(new ApplicationInfo[0]);
+			return new LinkedHashSet<ApplicationInfo>(groupCandidates.get(group)).toArray(new ApplicationInfo[0]);
 		}
 		return new ApplicationInfo[0];
 	}
@@ -128,7 +127,6 @@ public class ApplicationMulticastGroup {
 	public void unicast(String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
 		ApplicationInfo applicationInfo = loadBalancer.select(message, allCandidates);
-		System.out.println("选中   " + applicationInfo.getId());
 		if (applicationInfo != null) {
 			doSendMessage(applicationInfo.getId(), topic, message, timeout);
 		}
@@ -142,7 +140,6 @@ public class ApplicationMulticastGroup {
 		Assert.hasNoText(topic, "Topic must be required");
 		if (groupCandidates.containsKey(group)) {
 			ApplicationInfo applicationInfo = loadBalancer.select(message, groupCandidates.get(group));
-			System.out.println("选中   " + applicationInfo.getId());
 			if (applicationInfo != null) {
 				doSendMessage(applicationInfo.getId(), topic, message, timeout);
 			}
@@ -155,7 +152,7 @@ public class ApplicationMulticastGroup {
 
 	public void multicast(String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		for (ApplicationInfo applicationInfo : new HashSet<ApplicationInfo>(allCandidates)) {
+		for (ApplicationInfo applicationInfo : getCandidates()) {
 			doSendMessage(applicationInfo.getId(), topic, message, timeout);
 		}
 	}
@@ -166,9 +163,7 @@ public class ApplicationMulticastGroup {
 
 	public void multicast(String group, String topic, Object message, int timeout) {
 		Assert.hasNoText(topic, "Topic must be required");
-		Set<ApplicationInfo> copy = groupCandidates.containsKey(group) ? new HashSet<ApplicationInfo>(groupCandidates.get(group))
-				: new HashSet<ApplicationInfo>();
-		for (ApplicationInfo applicationInfo : copy) {
+		for (ApplicationInfo applicationInfo : getCandidates(group)) {
 			doSendMessage(applicationInfo.getId(), topic, message, timeout);
 		}
 	}
@@ -184,7 +179,7 @@ public class ApplicationMulticastGroup {
 	}
 
 	public void ack(String channel, MulticastMessage messageObject) {
-		messageObject.setTopic(MulticastMessageAcker.TOPIC_NAME);
+		messageObject.setTopic(MulticastMessageAcker.DEFAULT_TOPIC_NAME);
 		doSendMessage(channel, messageObject, -1);
 	}
 

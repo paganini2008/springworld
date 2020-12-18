@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.reditools.BeanNames;
 
 /**
@@ -56,7 +56,7 @@ public class CachedDelayQueue implements DelayQueue {
 	}
 
 	private String getKey() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool:delay-queue";
+		return Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":pool:delay-queue";
 	}
 
 }

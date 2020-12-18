@@ -62,7 +62,7 @@ public class InternalJobBeanLoader implements JobBeanLoader {
 			return parallelizeJobIfNecessary(jobKey, job, jobDetail);
 
 		} else if (NotManagedJob.class.isAssignableFrom(jobClass)) {
-			NotManagedJob target = (NotManagedJob) ApplicationContextUtils.getBeanIfAbsent(jobClass);
+			NotManagedJob target = (NotManagedJob) ApplicationContextUtils.getBeanIfNecessary(jobClass);
 			JobDetail jobDetail = jobManager.getJobDetail(jobKey, true);
 			Job job = (Job) proxyFactory.getProxy(target, new JobBeanAspect(jobDetail), Job.class);
 			if (jobDetail.getJobTriggerDetail().getTriggerType() != TriggerType.DEPENDENT) {

@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0
  */
 @Slf4j
-public class MulticastMessageAcker implements MulticastMessageListener {
+public class MulticastMessageAcker implements ApplicationMessageListener {
 
-	static final String TOPIC_NAME = "<MULTICAST-MESSAGE-ACKER>";
+	static final String DEFAULT_TOPIC_NAME = "<MULTICAST-MESSAGE-ACKER>";
 
 	private final Map<String, MulticastMessage> ackQueue = new ConcurrentHashMap<String, MulticastMessage>();
 
@@ -57,7 +57,7 @@ public class MulticastMessageAcker implements MulticastMessageListener {
 
 	@Override
 	public String getTopic() {
-		return TOPIC_NAME;
+		return DEFAULT_TOPIC_NAME;
 	}
 
 }

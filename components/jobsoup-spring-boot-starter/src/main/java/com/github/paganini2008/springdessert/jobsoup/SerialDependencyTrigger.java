@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.jobsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.jobsoup.model.JobParam;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
 
@@ -30,7 +30,7 @@ public class SerialDependencyTrigger implements RedisMessageHandler {
 
 	@Override
 	public String getChannel() {
-		return ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:dependency:*";
+		return Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":scheduler:job:dependency:*";
 	}
 
 	@Override

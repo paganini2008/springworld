@@ -73,10 +73,10 @@ public class RestClientBeanAspect implements Aspect {
 		for (int i = 0; i < parameters.length; i++) {
 			request.accessParameter(parameters[i], args[i]);
 		}
-		request.setAttribute("timeout", Integer.min(api.timeout(), restClient.timeout()));
-		request.setAttribute("retries", Integer.max(api.retries(), restClient.retries()));
-		request.setAttribute("permits", Integer.min(api.permits(), restClient.permits()));
-		request.setAttribute("fallback", getFallback(api.fallback(), restClient.fallback()));
+		request.setAttribute(Request.MAX_TIMEOUT, Integer.min(api.timeout(), restClient.timeout()));
+		request.setAttribute(Request.MAX_RETRY_COUNT, Integer.max(api.retries(), restClient.retries()));
+		request.setAttribute(Request.MAX_ALLOWED_PERMITS, Integer.min(api.permits(), restClient.permits()));
+		request.setAttribute(Request.FALLBACK, getFallback(api.fallback(), restClient.fallback()));
 		request.setAttribute("methodSignature", new MethodSignature(interfaceClass, method, args));
 		try {
 			ResponseEntity<Object> responseEntity = requestTemplate.sendRequest(provider, request, responseType);

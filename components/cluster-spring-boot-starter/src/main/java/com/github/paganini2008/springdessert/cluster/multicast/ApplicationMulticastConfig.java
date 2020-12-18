@@ -1,16 +1,24 @@
 package com.github.paganini2008.springdessert.cluster.multicast;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterAware;
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterController;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
+import com.github.paganini2008.springdessert.cluster.Constants;
+import com.github.paganini2008.springdessert.cluster.DefaultInstanceIdGenerator;
+import com.github.paganini2008.springdessert.cluster.InstanceId;
+import com.github.paganini2008.springdessert.cluster.InstanceIdGenerator;
+import com.github.paganini2008.springdessert.cluster.LeaderContext;
+import com.github.paganini2008.springdessert.cluster.RedisConnectionFailureHandler;
 import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
-import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
 
 /**
  * 
@@ -22,30 +30,62 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHand
  */
 @Configuration
 @ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true", matchIfMissing = true)
-@Import({ ApplicationMulticastController.class })
+@Import({ ApplicationMulticastController.class, ApplicationClusterController.class })
 public class ApplicationMulticastConfig {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
 	@Bean
-	public ApplicationMulticastAware applicationMulticastAware() {
-		return new ApplicationMulticastAware();
+	@ConditionalOnMissingBean
+	public InstanceIdGenerator instanceIdGenerator() {
+		return new DefaultInstanceIdGenerator();
 	}
 
 	@Bean
-	public RedisMessageHandler applicationActiveListener() {
-		return new ApplicationActiveListener();
+	public InstanceId instanceId() {
+		return new InstanceId();
 	}
 
 	@Bean
-	public RedisMessageHandler applicationInactiveListener() {
-		return new ApplicationInactiveListener();
+	public LeaderContext leaderContext() {
+		return new LeaderContext();
 	}
 
 	@Bean
-	public RedisMessageHandler applicationMessageListener() {
-		return new ApplicationMessageListener();
+	public RedisConnectionFailureHandler redisConnectionFailureHandler() {
+		return new RedisConnectionFailureHandler();
+	}
+
+	@ConditionalOnMissingBean
+	@Bean(destroyMethod = "shutdown")
+	public TaskScheduler taskScheduler() {
+		ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+		threadPoolTaskScheduler.setPoolSize(8);
+		threadPoolTaskScheduler.setThreadNamePrefix("spring-application-cluster-task-scheduler-");
+		threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
+		threadPoolTaskScheduler.setAwaitTerminationSeconds(60);
+		return threadPoolTaskScheduler;
+	}
+
+	@Bean
+	public ApplicationMulticastStarter applicationMulticastStarter() {
+		return new ApplicationMulticastStarter();
+	}
+
+	@Bean
+	public ApplicationMulticastStarterListener applicationMulticastStarterListener() {
+		return new ApplicationMulticastStarterListener();
+	}
+
+	@Bean
+	public ApplicationMessageStarterListener applicationMessageListener() {
+		return new ApplicationMessageStarterListener();
+	}
+	
+	@Bean
+	public ApplicationClusterHeartbeatListener applicationClusterHeartbeatListener() {
+		return new ApplicationClusterHeartbeatListener();
 	}
 
 	@Bean
@@ -55,7 +95,7 @@ public class ApplicationMulticastConfig {
 
 	@Bean
 	public LoadBalancer multicastLoadBalancer(RedisConnectionFactory connectionFactory) {
-		final String name = ApplicationClusterAware.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter:multicast";
+		final String name = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter:multicast";
 		return new ApplicationClusterLoadBalancer(name, connectionFactory);
 	}
 
@@ -65,13 +105,13 @@ public class ApplicationMulticastConfig {
 	}
 
 	@Bean
-	public MulticastListenerContainer multicastListenerContainer() {
-		return new MulticastListenerContainer();
+	public ApplicationClusterListenerContainer applicationClusterListenerContainer() {
+		return new ApplicationClusterListenerContainer();
 	}
 
 	@Bean
-	public MulticastGroupListener loggingMulticastGroupListener() {
-		return new LoggingMulticastGroupListener();
+	public ApplicationMulticastListener loggingApplicationClusterListener() {
+		return new LoggingApplicationClusterListener();
 	}
 
 }

@@ -22,7 +22,7 @@ public class SimpleRequest extends AbstractRequest implements Request {
 		super(path, method, headers);
 		this.body = new HttpEntity<Object>(body, headers);
 	}
-	
+
 	private HttpEntity<Object> body;
 
 	public HttpEntity<Object> getBody() {
@@ -31,6 +31,22 @@ public class SimpleRequest extends AbstractRequest implements Request {
 
 	public void setBody(HttpEntity<Object> body) {
 		this.body = body;
+	}
+
+	public static SimpleRequest getRequest(String path) {
+		return new SimpleRequest(path, HttpMethod.GET, new HttpHeaders());
+	}
+
+	public static SimpleRequest postRequest(String path) {
+		return new SimpleRequest(path, HttpMethod.POST, new HttpHeaders());
+	}
+
+	public static SimpleRequest putRequest(String path) {
+		return new SimpleRequest(path, HttpMethod.PUT, new HttpHeaders());
+	}
+
+	public static SimpleRequest deleteRequest(String path) {
+		return new SimpleRequest(path, HttpMethod.DELETE, new HttpHeaders());
 	}
 
 }
