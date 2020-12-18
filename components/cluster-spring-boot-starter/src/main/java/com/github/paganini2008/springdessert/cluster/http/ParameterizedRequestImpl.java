@@ -26,13 +26,17 @@ import com.github.paganini2008.devtools.ObjectUtils;
  * 
  * @since 1.0
  */
-public class ParameterizedRequestImpl extends SimpleRequest implements ParameterizedRequest {
+public class ParameterizedRequestImpl extends ForwardedRequest implements ParameterizedRequest {
 
 	private Map<String, Object> requestParameters = new HashMap<String, Object>();
 	private Map<String, Object> pathVariables = new HashMap<String, Object>();
 
 	ParameterizedRequestImpl(String path, HttpMethod method) {
-		super(path, method, new HttpHeaders());
+		this(path, method, new HttpHeaders());
+	}
+
+	ParameterizedRequestImpl(String path, HttpMethod method, HttpHeaders httpHeaders) {
+		super(path, method, httpHeaders);
 	}
 
 	public Map<String, Object> getRequestParameters() {

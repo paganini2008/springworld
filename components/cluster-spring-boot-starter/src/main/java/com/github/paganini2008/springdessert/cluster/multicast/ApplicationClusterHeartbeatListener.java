@@ -49,8 +49,8 @@ public class ApplicationClusterHeartbeatListener implements ApplicationListener<
 	@Autowired
 	private ApplicationMulticastGroup applicationMulticastGroup;
 
-	@Value("${spring.application.cluster.multicast.heartbeat.interruptedCount:5}")
-	private int interruptedCount;
+	@Value("${spring.application.cluster.multicast.heartbeat.timeout:5}")
+	private int timeout;
 
 	private final Map<ApplicationInfo, ScheduledFuture<?>> applicationFutures = new ConcurrentHashMap<ApplicationInfo, ScheduledFuture<?>>();
 
@@ -61,7 +61,7 @@ public class ApplicationClusterHeartbeatListener implements ApplicationListener<
 		if (eventType == MulticastEventType.ON_ACTIVE) {
 			if (!instanceId.getApplicationInfo().equals(event.getApplicationInfo())) {
 				ApplicationHeartbeatTask heartbeatTask = new ApplicationHeartbeatTask(applicationInfo, restClientPerformer,
-						retryTemplateFactory, taskExecutor, applicationMulticastGroup, interruptedCount);
+						retryTemplateFactory, taskExecutor, applicationMulticastGroup, timeout);
 				applicationFutures.put(applicationInfo,
 						taskScheduler.scheduleWithFixedDelay(heartbeatTask, Duration.ofSeconds(DEFAULT_HEARTBEAT_INTERVAL)));
 				log.info("Keep heartbeating from application '{}' with fixed delay {} second.", applicationInfo.getId(),

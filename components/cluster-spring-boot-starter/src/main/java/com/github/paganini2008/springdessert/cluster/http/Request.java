@@ -14,11 +14,6 @@ import org.springframework.http.HttpMethod;
  */
 public interface Request {
 
-	static final String MAX_RETRY_COUNT = "REST_CLIENT_MAX_RETRY_COUNT";
-	static final String MAX_TIMEOUT = "REST_CLIENT_MAX_TIMEOUT";
-	static final String MAX_ALLOWED_PERMITS = "REST_CLIENT_MAX_ALLOWED_PERMITS";
-	static final String FALLBACK = "REST_CLIENT_FALLBACK";
-
 	String getPath();
 
 	HttpMethod getMethod();

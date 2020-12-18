@@ -2,12 +2,15 @@ package com.github.paganini2008.springdessert.cluster.http;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.ArrayUtils;
@@ -47,14 +50,28 @@ public class RestClientBeanAspect implements Aspect {
 	@Override
 	public boolean beforeCall(Object target, Method method, Object[] args) {
 		if (leaderContext.getHealthState() == HealthState.FATAL) {
-			throw new ResourceAccessException("Fatal Cluster State");
+			throw new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE, "RestClient is unavailable now");
 		}
 		return true;
 	}
 
 	@Override
 	public Object call(Object proxy, Method method, Object[] args) throws Throwable {
-		final Api api = method.getAnnotation(Api.class);
+		BasicRequest request;
+		Api api = method.getAnnotation(Api.class);
+		if (api != null) {
+			request = buildDefaultRequest(api, method, args);
+		} else if (method.getAnnotation(RequestMapping.class) != null) {
+			request = new SpringAnnotationRequest(method.getAnnotation(RequestMapping.class));
+		} else {
+			throw new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE, "No definition on target method");
+		}
+		request.setAttribute("methodSignature", new MethodSignature(interfaceClass, method, args));
+		ResponseEntity<Object> responseEntity = requestTemplate.sendRequest(provider, request, method.getGenericReturnType());
+		return responseEntity.getBody();
+	}
+
+	private BasicRequest buildDefaultRequest(Api api, Method method, Object[] args) {
 		final String path = api.path();
 		HttpMethod httpMethod = api.method();
 		String[] headers = api.headers();
@@ -68,22 +85,15 @@ public class RestClientBeanAspect implements Aspect {
 				}
 			}
 		}
-		Type responseType = method.getGenericReturnType();
 		Parameter[] parameters = method.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			request.accessParameter(parameters[i], args[i]);
 		}
-		request.setAttribute(Request.MAX_TIMEOUT, Integer.min(api.timeout(), restClient.timeout()));
-		request.setAttribute(Request.MAX_RETRY_COUNT, Integer.max(api.retries(), restClient.retries()));
-		request.setAttribute(Request.MAX_ALLOWED_PERMITS, Integer.min(api.permits(), restClient.permits()));
-		request.setAttribute(Request.FALLBACK, getFallback(api.fallback(), restClient.fallback()));
-		request.setAttribute("methodSignature", new MethodSignature(interfaceClass, method, args));
-		try {
-			ResponseEntity<Object> responseEntity = requestTemplate.sendRequest(provider, request, responseType);
-			return responseEntity.getBody();
-		} finally {
-			request.clearAttributes();
-		}
+		request.setTimeout(Integer.min(api.timeout(), restClient.timeout()));
+		request.setRetries(Integer.max(api.retries(), restClient.retries()));
+		request.setAllowedPermits(Integer.min(api.allowedPermits(), restClient.permits()));
+		request.setFallback(getFallback(api.fallback(), restClient.fallback()));
+		return request;
 	}
 
 	private FallbackProvider getFallback(Class<?> fallbackClass, Class<?> defaultFallbackClass) {
@@ -136,6 +146,21 @@ public class RestClientBeanAspect implements Aspect {
 
 		public Object[] getArgs() {
 			return args;
+		}
+
+	}
+
+	private static class SpringAnnotationRequest extends ParameterizedRequestImpl {
+
+		SpringAnnotationRequest(RequestMapping requestMapping) {
+			super(requestMapping.value()[0], HttpMethod.valueOf(requestMapping.method()[0].name()));
+			if (ArrayUtils.isNotEmpty(requestMapping.produces())) {
+				List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
+				for (String produce : requestMapping.produces()) {
+					acceptableMediaTypes.add(MediaType.parseMediaType(produce));
+				}
+				getHeaders().setAccept(acceptableMediaTypes);
+			}
 		}
 
 	}

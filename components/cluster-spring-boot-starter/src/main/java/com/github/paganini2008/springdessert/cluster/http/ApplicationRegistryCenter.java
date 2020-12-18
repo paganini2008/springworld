@@ -1,19 +1,14 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastListener;
-import com.github.paganini2008.springdessert.reditools.BeanNames;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,13 +25,6 @@ public class ApplicationRegistryCenter implements ApplicationMulticastListener, 
 
 	private final Map<String, List<ApplicationInfo>> appInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
-
-	@Qualifier(BeanNames.REDIS_TEMPLATE)
-	@Autowired
-	private RedisTemplate<String, Object> redisTemplate;
-
 	public List<ApplicationInfo> getApplications(String applicationName) {
 		return appInfoCache.get(applicationName);
 	}
@@ -48,6 +36,9 @@ public class ApplicationRegistryCenter implements ApplicationMulticastListener, 
 			return new CopyOnWriteArrayList<ApplicationInfo>();
 		});
 		infoList.add(applicationInfo);
+		if (infoList.size() > 0) {
+			Collections.sort(infoList);
+		}
 		log.info("Register application: [{}]", applicationInfo);
 	}
 

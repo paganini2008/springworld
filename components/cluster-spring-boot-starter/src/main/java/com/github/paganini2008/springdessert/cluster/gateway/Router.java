@@ -30,7 +30,7 @@ public final class Router implements Comparable<Router> {
 	private String provider;
 	private int retries;
 	private int timeout;
-	private int permits;
+	private int allowedPermits;
 	private boolean direct;
 	private boolean cached;
 	private Class<?> fallback;

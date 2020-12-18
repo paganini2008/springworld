@@ -4,17 +4,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
 /**
  * 
- * AbstractRequest
+ * BasicRequest
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-public abstract class AbstractRequest implements Request {
+public class BasicRequest implements Request {
 
 	private final Map<String, Object> attributeMap = new HashMap<String, Object>();
 	private final String path;
@@ -22,12 +23,25 @@ public abstract class AbstractRequest implements Request {
 	private final HttpHeaders headers;
 	private final long timestamp;
 
-	protected AbstractRequest(String path, HttpMethod method, HttpHeaders headers) {
-		super();
+	public BasicRequest(String path, HttpMethod method, HttpHeaders headers) {
 		this.path = path;
 		this.method = method;
 		this.headers = headers;
 		this.timestamp = System.currentTimeMillis();
+	}
+
+	private HttpEntity<Object> body;
+
+	public HttpEntity<Object> getBody() {
+		return body;
+	}
+
+	public void setBody(Object body) {
+		this.body = new HttpEntity<Object>(body, headers);
+	}
+
+	public void setBody(HttpEntity<Object> body) {
+		this.body = body;
 	}
 
 	public void setAttribute(String attributeName, Object attributeValue) {

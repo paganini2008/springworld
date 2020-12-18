@@ -28,7 +28,7 @@ public @interface Api {
 
 	int timeout() default Integer.MAX_VALUE;
 
-	int permits() default Integer.MAX_VALUE;
+	int allowedPermits() default Integer.MAX_VALUE;
 
 	HttpMethod method() default HttpMethod.GET;
 

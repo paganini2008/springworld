@@ -41,12 +41,12 @@ public class RequestTemplate implements BeanPostProcessor {
 	public <T> ResponseEntity<T> sendRequest(String provider, Request req, Type responseType) {
 		ResponseEntity<T> responseEntity = null;
 		RestClientException reason = null;
-		final AbstractRequest request = (AbstractRequest) req;
+		final ForwardedRequest request = (ForwardedRequest) req;
 		final String path = request.getPath();
-		int retries = (Integer) request.getAttribute(Request.MAX_RETRY_COUNT, 0);
-		int timeout = (Integer) request.getAttribute(Request.MAX_TIMEOUT, 0);
-		int permits = (Integer) request.getAttribute(Request.MAX_ALLOWED_PERMITS, Integer.MAX_VALUE);
-		FallbackProvider fallbackProvider = (FallbackProvider) request.getAttribute(Request.FALLBACK);
+		int retries = request.getRetries();
+		int timeout = request.getTimeout();
+		int permits = request.getAllowedPermits();
+		FallbackProvider fallbackProvider = request.getFallback();
 
 		Permit permit = requestPermitMap.get(provider, path, () -> {
 			return new Permit(permits);

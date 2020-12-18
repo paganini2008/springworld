@@ -16,10 +16,10 @@ import com.github.paganini2008.devtools.cache.Cache;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.cluster.http.FallbackProvider;
+import com.github.paganini2008.springdessert.cluster.http.ForwardedRequest;
 import com.github.paganini2008.springdessert.cluster.http.RequestTemplate;
 import com.github.paganini2008.springdessert.cluster.http.RestClientUtils;
 import com.github.paganini2008.springdessert.cluster.http.RoutingAllocator;
-import com.github.paganini2008.springdessert.cluster.http.SimpleRequest;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 
 import io.netty.buffer.ByteBuf;
@@ -106,11 +106,12 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 			body = new byte[length];
 			byteBuf.readBytes(body);
 		}
-		SimpleRequest request = new SimpleRequest(fullPath, HttpMethod.valueOf(httpRequest.method().name()), httpHeaders, body);
-		request.setAttribute("timeout", router.timeout());
-		request.setAttribute("retries", router.retries());
-		request.setAttribute("permits", router.permits());
-		request.setAttribute("fallback", getFallback(router.fallback()));
+		ForwardedRequest request = new ForwardedRequest(fullPath, HttpMethod.valueOf(httpRequest.method().name()), httpHeaders);
+		request.setBody(body);
+		request.setTimeout(router.timeout());
+		request.setRetries(router.retries());
+		request.setAllowedPermits(router.allowedPermits());
+		request.setFallback(getFallback(router.fallback()));
 
 		ResponseEntity<String> responseEntity;
 		try {
