@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterLeaderEvent;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterLeaderEvent;
 import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springdessert.jobsoup.JobBeanInitializer;
 import com.github.paganini2008.springdessert.jobsoup.SchedulerStarterListener;

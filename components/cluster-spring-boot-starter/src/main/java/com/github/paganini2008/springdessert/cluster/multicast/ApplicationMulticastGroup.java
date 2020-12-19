@@ -23,7 +23,7 @@ import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
+import com.github.paganini2008.springdessert.cluster.LoadBalancer;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
 
 import lombok.Getter;

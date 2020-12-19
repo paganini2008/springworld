@@ -1,7 +1,5 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.util.concurrent.ThreadPoolExecutor;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -24,11 +22,10 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.CharsetUtils;
-import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.Constants;
+import com.github.paganini2008.springdessert.cluster.LoadBalancer;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
-import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 
 /**
  * 
@@ -73,22 +70,10 @@ public class RestClientConfig {
 		return new RetryTemplateFactory();
 	}
 
-	@ConditionalOnMissingBean
 	@Bean
-	public ThreadPoolTaskExecutor restClientThreadPool() {
-		final int nThreads = Runtime.getRuntime().availableProcessors();
-		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-		taskExecutor.setCorePoolSize(nThreads);
-		taskExecutor.setMaxPoolSize(nThreads * 2);
-		taskExecutor.setThreadFactory(new PooledThreadFactory("rest-client-threads-"));
-		taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
-		return taskExecutor;
-	}
-
-	@Bean
-	public RequestTemplate requestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
-			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor) {
-		return new RequestTemplate(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor);
+	public RequestTemplate genericRequestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
+			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor, StatisticIndicator statisticIndicator) {
+		return new RequestTemplate(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor, statisticIndicator);
 	}
 
 	@Bean

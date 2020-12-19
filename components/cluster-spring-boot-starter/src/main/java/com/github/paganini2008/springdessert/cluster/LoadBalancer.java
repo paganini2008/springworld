@@ -1,8 +1,6 @@
-package com.github.paganini2008.springdessert.cluster.utils;
+package com.github.paganini2008.springdessert.cluster;
 
 import java.util.List;
-
-import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 
 /**
  * 

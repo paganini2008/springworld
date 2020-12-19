@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.jobsoup;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterLeaderEvent;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterLeaderEvent;
 
 /**
  * 

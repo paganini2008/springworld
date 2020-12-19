@@ -8,11 +8,11 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterFollowerEvent;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterLeaderEvent;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterFollowerEvent;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterLeaderEvent;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springdessert.cluster.election.LeaderElection;
 import com.github.paganini2008.springdessert.cluster.election.LeaderNotFoundException;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;

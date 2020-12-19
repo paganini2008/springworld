@@ -3,15 +3,16 @@ package com.github.paganini2008.springdessert.cluster;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterRefreshedEvent;
+
 /**
  * 
- * LeaderContext
- * 
- * @author Jimmy Hoff
+ * ApplicationClusterContext
  *
- * @since 1.0
+ * @author Jimmy Hoff
+ * @version 1.0
  */
-public class LeaderContext implements SmartApplicationListener {
+public class ApplicationClusterContext implements SmartApplicationListener {
 
 	private ApplicationInfo leaderInfo;
 	private volatile HealthState healthState = HealthState.UNLEADABLE;

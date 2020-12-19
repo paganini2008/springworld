@@ -6,6 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.context.annotation.Import;
+
 /**
  * 
  * EnableApplicationCluster
@@ -16,8 +18,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
+@Import(ApplicationClusterConfigurationSelector.class)
 public @interface EnableApplicationCluster {
 
+	boolean multicast() default true;
+
 	boolean leader() default false;
+
+	boolean monitor() default true;
 
 }

@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.LoadBalancer;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.election.LeaderNotFoundException;
-import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 
 /**
  * 

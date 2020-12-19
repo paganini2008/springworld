@@ -1,10 +1,12 @@
-package com.github.paganini2008.springdessert.cluster;
+package com.github.paganini2008.springdessert.cluster.election;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.devtools.Observable;
-import com.github.paganini2008.springdessert.cluster.election.LeaderElection;
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterContext;
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +26,7 @@ public class DefaultLeaderRecovery implements ApplicationListener<ApplicationClu
 	private LeaderElection leaderElection;
 
 	@Autowired
-	protected LeaderContext leaderContext;
+	protected ApplicationClusterContext leaderContext;
 
 	@Override
 	public void onApplicationEvent(ApplicationClusterFollowerEvent event) {

@@ -10,7 +10,6 @@ import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryListener;
 
 import com.github.paganini2008.springdessert.cluster.http.DefaultRequestProcessor.RetryEntry;
-import com.github.paganini2008.springdessert.cluster.utils.ApiRetryListener;
 
 /**
  * 

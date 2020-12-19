@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springdessert.cluster.LeaderRecovery;
+import com.github.paganini2008.springdessert.cluster.election.LeaderRecovery;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
 
 import lombok.extern.slf4j.Slf4j;

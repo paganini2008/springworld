@@ -30,7 +30,7 @@ public class ApplicationClusterController {
 	private InstanceId instanceId;
 
 	@Autowired
-	private LeaderContext leaderContext;
+	private ApplicationClusterContext leaderContext;
 
 	@GetMapping("/ping")
 	public ResponseEntity<ApplicationInfo> ping() {

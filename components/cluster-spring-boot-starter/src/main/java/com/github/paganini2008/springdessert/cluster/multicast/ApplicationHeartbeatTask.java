@@ -13,6 +13,7 @@ import com.github.paganini2008.springdessert.cluster.http.ForwardedRequest;
 import com.github.paganini2008.springdessert.cluster.http.RequestTemplate;
 import com.github.paganini2008.springdessert.cluster.http.RestClientPerformer;
 import com.github.paganini2008.springdessert.cluster.http.RetryTemplateFactory;
+import com.github.paganini2008.springdessert.cluster.http.StatisticIndicator;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 
@@ -35,10 +36,11 @@ public class ApplicationHeartbeatTask implements Runnable {
 	private final ApplicationInfo applicationInfo;
 
 	ApplicationHeartbeatTask(ApplicationInfo applicationInfo, RestClientPerformer restClientPerformer,
-			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor,
+			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor, StatisticIndicator statisticIndicator,
 			ApplicationMulticastGroup applicationMulticastGroup, int timeout) {
 		this.applicationInfo = applicationInfo;
-		this.requestTemplate = new RequestTemplate(new DirectRoutingAllocator(), restClientPerformer, retryTemplateFactory, taskExecutor);
+		this.requestTemplate = new RequestTemplate(new DirectRoutingAllocator(), restClientPerformer, retryTemplateFactory, taskExecutor,
+				statisticIndicator);
 		this.applicationMulticastGroup = applicationMulticastGroup;
 		this.timeout = Integer.max(DEFAULT_MINUMUN_TIMEOUT, timeout);
 	}

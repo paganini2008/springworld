@@ -2,8 +2,8 @@ package com.github.paganini2008.springdessert.cluster.http;
 
 import org.springframework.context.ApplicationListener;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.election.LeaderNotFoundException;
 
 /**

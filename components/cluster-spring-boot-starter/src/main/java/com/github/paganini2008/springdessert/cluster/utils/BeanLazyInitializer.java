@@ -4,18 +4,19 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
 
 import com.github.paganini2008.devtools.Observable;
 
 /**
  * 
- * LazilyAutowiredBeanInspector
- * 
- * @author Jimmy Hoff
+ * BeanLazyInitializer
  *
- * @since 1.0
+ * @author Jimmy Hoff
+ * @version 1.0
  */
-public class LazilyAutowiredBeanInspector implements ApplicationListener<ContextRefreshedEvent> {
+@Component
+public class BeanLazyInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
 	private final Observable lazyAutowiredObservable = Observable.unrepeatable();
 

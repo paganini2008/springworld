@@ -18,6 +18,7 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	private Float timeoutPercentage = 0.8F;
 	private Float errorPercentage = 0.8F;
+	private Float permitPercentage = 0.8F;
 
 	public void setTimeoutPercentage(Float timeoutPercentage) {
 		this.timeoutPercentage = timeoutPercentage;
@@ -27,6 +28,10 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 		this.errorPercentage = errorPercentage;
 	}
 
+	public void setPermitPercentage(Float permitPercentage) {
+		this.permitPercentage = permitPercentage;
+	}
+
 	public Statistic getStatistic(String provider, String path) {
 		return cache.get(provider, path);
 	}
@@ -34,34 +39,39 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 	@Override
 	public boolean beforeSubmit(String provider, Request request) {
 		boolean proceed = true;
-		Statistic apiHealthMetrics = cache.get(provider, request.getPath(), () -> {
-			return new StatisticMetric(provider, request.getPath());
+		Statistic statistic = cache.get(provider, request.getPath(), () -> {
+			return new StatisticMetric(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits());
 		});
 		if (timeoutPercentage != null) {
-			long totalExecutionCount = apiHealthMetrics.getTotalExecutionCount();
-			long timeoutExecutionCount = apiHealthMetrics.getTimeoutExecutionCount();
-			proceed &= (float) (timeoutExecutionCount / totalExecutionCount) < timeoutPercentage;
+			long totalExecutionCount = statistic.getTotalExecutionCount();
+			long timeoutExecutionCount = statistic.getTimeoutExecutionCount();
+			proceed &= (float) (timeoutExecutionCount / totalExecutionCount) < timeoutPercentage.floatValue();
 		}
 		if (errorPercentage != null) {
-			long totalExecutionCount = apiHealthMetrics.getTotalExecutionCount();
-			long failedExecutionCount = apiHealthMetrics.getFailedExecutionCount();
-			proceed &= (float) (failedExecutionCount / totalExecutionCount) < errorPercentage;
+			long totalExecutionCount = statistic.getTotalExecutionCount();
+			long failedExecutionCount = statistic.getFailedExecutionCount();
+			proceed &= (float) (failedExecutionCount / totalExecutionCount) < errorPercentage.floatValue();
+		}
+		if (permitPercentage != null) {
+			long maxPermits = statistic.getPermit().maxPermits();
+			long availablePermits = statistic.getPermit().availablePermits();
+			proceed &= (float) (maxPermits - availablePermits / maxPermits) < permitPercentage.floatValue();
 		}
 		return proceed;
 	}
 
 	@Override
 	public void afterSubmit(String provider, Request request, ResponseEntity<?> responseEntity, Throwable e) {
-		StatisticMetric apiHealthMetrics = cache.get(provider, request.getPath());
-		apiHealthMetrics.getSnapshot().addRequest(request);
-		apiHealthMetrics.getTotalExecution().incrementAndGet();
+		StatisticMetric statistic = cache.get(provider, request.getPath());
+		statistic.getSnapshot().addRequest(request);
+		statistic.getTotalExecution().incrementAndGet();
 		if (responseEntity != null && (responseEntity.getStatusCodeValue() < 200 || responseEntity.getStatusCodeValue() >= 300)) {
-			apiHealthMetrics.getFailedExecution().incrementAndGet();
+			statistic.getFailedExecution().incrementAndGet();
 		} else if (e != null && e instanceof RestClientException) {
 			if (isRequestTimeout((RestClientException) e)) {
-				apiHealthMetrics.getTimeoutExecution().incrementAndGet();
+				statistic.getTimeoutExecution().incrementAndGet();
 			} else {
-				apiHealthMetrics.getFailedExecution().incrementAndGet();
+				statistic.getFailedExecution().incrementAndGet();
 			}
 		}
 	}

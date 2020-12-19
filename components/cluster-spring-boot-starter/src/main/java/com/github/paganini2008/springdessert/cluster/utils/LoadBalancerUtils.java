@@ -6,6 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.multithreads.AtomicIntegerSequence;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.LoadBalancer;
 
 /**
  * 

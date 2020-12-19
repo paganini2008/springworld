@@ -16,7 +16,7 @@ import org.springframework.web.client.RestClientException;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.proxy.Aspect;
 import com.github.paganini2008.springdessert.cluster.HealthState;
-import com.github.paganini2008.springdessert.cluster.LeaderContext;
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterContext;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +35,10 @@ public class RestClientBeanAspect implements Aspect {
 	private final String provider;
 	private final RestClient restClient;
 	private final Class<?> interfaceClass;
-	private final LeaderContext leaderContext;
+	private final ApplicationClusterContext leaderContext;
 	private final RequestTemplate requestTemplate;
 
-	public RestClientBeanAspect(String provider, RestClient restClient, Class<?> interfaceClass, LeaderContext leaderContext,
+	public RestClientBeanAspect(String provider, RestClient restClient, Class<?> interfaceClass, ApplicationClusterContext leaderContext,
 			RequestTemplate requestTemplate) {
 		this.provider = provider;
 		this.restClient = restClient;

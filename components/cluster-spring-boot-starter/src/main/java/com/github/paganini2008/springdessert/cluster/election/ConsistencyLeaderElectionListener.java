@@ -9,10 +9,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.github.paganini2008.springdessert.cluster.Constants;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springdessert.cluster.LeaderRecovery;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastListener;
 import com.github.paganini2008.springdessert.reditools.BeanNames;

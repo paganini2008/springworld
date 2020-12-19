@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterController;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
@@ -16,9 +14,9 @@ import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.DefaultInstanceIdGenerator;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.cluster.InstanceIdGenerator;
-import com.github.paganini2008.springdessert.cluster.LeaderContext;
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterContext;
+import com.github.paganini2008.springdessert.cluster.LoadBalancer;
 import com.github.paganini2008.springdessert.cluster.RedisConnectionFailureHandler;
-import com.github.paganini2008.springdessert.cluster.utils.LoadBalancer;
 
 /**
  * 
@@ -48,24 +46,13 @@ public class ApplicationMulticastConfig {
 	}
 
 	@Bean
-	public LeaderContext leaderContext() {
-		return new LeaderContext();
+	public ApplicationClusterContext leaderContext() {
+		return new ApplicationClusterContext();
 	}
 
 	@Bean
 	public RedisConnectionFailureHandler redisConnectionFailureHandler() {
 		return new RedisConnectionFailureHandler();
-	}
-
-	@ConditionalOnMissingBean
-	@Bean(destroyMethod = "shutdown")
-	public TaskScheduler taskScheduler() {
-		ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
-		threadPoolTaskScheduler.setPoolSize(8);
-		threadPoolTaskScheduler.setThreadNamePrefix("spring-application-cluster-task-scheduler-");
-		threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
-		threadPoolTaskScheduler.setAwaitTerminationSeconds(60);
-		return threadPoolTaskScheduler;
 	}
 
 	@Bean

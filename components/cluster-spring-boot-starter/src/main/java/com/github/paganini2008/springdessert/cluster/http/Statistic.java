@@ -1,6 +1,9 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.util.List;
+import java.util.Map;
+
+import com.github.paganini2008.springdessert.cluster.http.StatisticMetric.Permit;
+import com.github.paganini2008.springdessert.cluster.http.StatisticMetric.Snapshot;
 
 /**
  * 
@@ -21,20 +24,10 @@ public interface Statistic {
 
 	long getFailedExecutionCount();
 
+	Permit getPermit();
+
 	Snapshot getSnapshot();
-
-	interface Snapshot {
-		
-		long addRequest(Request request);
-
-		long getMaximumRequestTime();
-
-		long getAverageRequestTime();
-		
-		long getMinimumRequestTime();
-
-		List<Request> getLatestRequests();
-
-	}
+	
+	Map<String, Object> toMap();
 
 }

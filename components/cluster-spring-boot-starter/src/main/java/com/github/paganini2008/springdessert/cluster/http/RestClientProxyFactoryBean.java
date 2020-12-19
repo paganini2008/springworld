@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 import com.github.paganini2008.devtools.proxy.ProxyFactory;
-import com.github.paganini2008.springdessert.cluster.LeaderContext;
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +30,7 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	}
 
 	@Autowired
-	private LeaderContext leaderContext;
+	private ApplicationClusterContext leaderContext;
 
 	@Autowired
 	private RequestTemplate requestTemplate;

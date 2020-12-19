@@ -3,7 +3,7 @@ package com.github.paganini2008.springdessert.jobsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterLeaderEvent;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterLeaderEvent;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageHandler;
 import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;

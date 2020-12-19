@@ -3,7 +3,6 @@ package com.github.paganini2008.springdessert.cluster.http;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -11,7 +10,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
-import com.github.paganini2008.devtools.collection.MultiMappedMap;
+import com.github.paganini2008.springdessert.cluster.http.StatisticMetric.Permit;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,16 +25,17 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestTemplate implements BeanPostProcessor {
 
 	private final List<RequestInterceptor> interceptors = new CopyOnWriteArrayList<RequestInterceptor>();
-	private final MultiMappedMap<String, String, Permit> requestPermitMap = new MultiMappedMap<String, String, Permit>();
 	private final RequestProcessor requestProcessor;
+	private final StatisticIndicator statisticIndicator;
 
 	public RequestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
-			RetryTemplateFactory retryTemplateFactory, AsyncTaskExecutor taskExecutor) {
-		this(new DefaultRequestProcessor(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor));
+			RetryTemplateFactory retryTemplateFactory, AsyncTaskExecutor taskExecutor, StatisticIndicator statisticIndicator) {
+		this(new DefaultRequestProcessor(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor), statisticIndicator);
 	}
 
-	public RequestTemplate(RequestProcessor requestProcessor) {
+	public RequestTemplate(RequestProcessor requestProcessor, StatisticIndicator statisticIndicator) {
 		this.requestProcessor = requestProcessor;
+		this.statisticIndicator = statisticIndicator;
 	}
 
 	public <T> ResponseEntity<T> sendRequest(String provider, Request req, Type responseType) {
@@ -45,12 +45,10 @@ public class RequestTemplate implements BeanPostProcessor {
 		final String path = request.getPath();
 		int retries = request.getRetries();
 		int timeout = request.getTimeout();
-		int permits = request.getAllowedPermits();
 		FallbackProvider fallbackProvider = request.getFallback();
 
-		Permit permit = requestPermitMap.get(provider, path, () -> {
-			return new Permit(permits);
-		});
+		Statistic statistic = statisticIndicator.getStatistic(provider, path);
+		Permit permit = statistic.getPermit();
 		try {
 			if (permit.availablePermits() < 1) {
 				throw new RestfulException(request, InterruptedType.TOO_MANY_REQUESTS);
@@ -98,37 +96,6 @@ public class RequestTemplate implements BeanPostProcessor {
 			throw RestClientUtils.wrapException("Failed to execute fallback", fallbackError, request);
 		}
 		throw e;
-	}
-
-	public static class Permit {
-
-		private final AtomicInteger counter;
-		private final int maxPermits;
-
-		Permit(int maxPermits) {
-			this.counter = new AtomicInteger(0);
-			this.maxPermits = maxPermits;
-		}
-
-		public int accquire() {
-			return counter.incrementAndGet();
-		}
-
-		public int accquire(int permits) {
-			return counter.addAndGet(permits);
-		}
-
-		public int release() {
-			return counter.decrementAndGet();
-		}
-
-		public int release(int permits) {
-			return counter.addAndGet(-permits);
-		}
-
-		public int availablePermits() {
-			return maxPermits - counter.get();
-		}
 	}
 
 	@Override

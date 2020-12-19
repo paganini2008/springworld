@@ -1,11 +1,9 @@
-package com.github.paganini2008.springdessert.cluster;
+package com.github.paganini2008.springdessert.cluster.election;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.github.paganini2008.springdessert.cluster.election.LeaderElection;
-import com.github.paganini2008.springdessert.cluster.election.LeaderElectionListener;
 import com.github.paganini2008.springdessert.cluster.http.EnableRestClient;
 import com.github.paganini2008.springdessert.cluster.http.LeaderService;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationLeaderElection;

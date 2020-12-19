@@ -1,6 +1,9 @@
-package com.github.paganini2008.springdessert.cluster;
+package com.github.paganini2008.springdessert.cluster.election;
 
 import org.springframework.context.ApplicationContext;
+
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterEvent;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 
 /**
  * 

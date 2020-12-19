@@ -33,7 +33,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 	private SharedLatch sharedLatch;
 
 	@Autowired
-	private ApplicationMulticastGroup multicastGroup;
+	private ApplicationMulticastGroup applicationMulticastGroup;
 
 	@Autowired
 	private RedisMessageSender redisMessageSender;
@@ -51,7 +51,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 			if (log.isTraceEnabled()) {
 				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
 			}
-			multicastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
+			applicationMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
 		} else {
 			delayQueue.offer(invocation);
 			log.info("Invocation: {} go into the pending queue.", invocation);
@@ -67,7 +67,7 @@ public class ProcessPoolExecutor implements ProcessPool {
 			if (log.isTraceEnabled()) {
 				log.trace("Now processPool's concurrency is " + sharedLatch.cons());
 			}
-			multicastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
+			applicationMulticastGroup.unicast(applicationName, ProcessPoolTaskListener.class.getName(), invocation);
 		} else {
 			delayQueue.offer(invocation);
 			log.info("Invocation: {} go into the pending queue.", invocation);

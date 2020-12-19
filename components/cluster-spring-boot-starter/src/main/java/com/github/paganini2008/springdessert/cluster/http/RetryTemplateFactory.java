@@ -10,8 +10,6 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
-import com.github.paganini2008.springdessert.cluster.utils.ApiRetryListener;
-
 /**
  * 
  * RetryTemplateFactory

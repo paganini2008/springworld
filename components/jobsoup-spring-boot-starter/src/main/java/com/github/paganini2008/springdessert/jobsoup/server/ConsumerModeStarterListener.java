@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.github.paganini2008.devtools.ArrayUtils;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
+import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterRefreshedEvent;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 import com.github.paganini2008.springdessert.jobsoup.DependencyType;
 import com.github.paganini2008.springdessert.jobsoup.JobKey;

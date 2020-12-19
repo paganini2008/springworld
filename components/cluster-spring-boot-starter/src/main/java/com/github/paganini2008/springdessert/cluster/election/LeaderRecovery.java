@@ -1,4 +1,6 @@
-package com.github.paganini2008.springdessert.cluster;
+package com.github.paganini2008.springdessert.cluster.election;
+
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 
 /**
  * 
