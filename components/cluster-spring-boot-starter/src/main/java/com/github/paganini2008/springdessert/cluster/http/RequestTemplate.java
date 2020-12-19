@@ -10,7 +10,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
-import com.github.paganini2008.springdessert.cluster.http.StatisticMetric.Permit;
+import com.github.paganini2008.springdessert.cluster.http.Statistic.Permit;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,15 +42,14 @@ public class RequestTemplate implements BeanPostProcessor {
 		ResponseEntity<T> responseEntity = null;
 		RestClientException reason = null;
 		final ForwardedRequest request = (ForwardedRequest) req;
-		final String path = request.getPath();
 		int retries = request.getRetries();
 		int timeout = request.getTimeout();
 		FallbackProvider fallbackProvider = request.getFallback();
 
-		Statistic statistic = statisticIndicator.getStatistic(provider, path);
+		Statistic statistic = statisticIndicator.getStatistic(provider, request);
 		Permit permit = statistic.getPermit();
 		try {
-			if (permit.availablePermits() < 1) {
+			if (permit.getAvailablePermits() < 1) {
 				throw new RestfulException(request, InterruptedType.TOO_MANY_REQUESTS);
 			}
 			permit.accquire();

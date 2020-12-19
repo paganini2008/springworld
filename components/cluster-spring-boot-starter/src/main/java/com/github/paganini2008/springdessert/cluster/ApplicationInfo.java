@@ -84,8 +84,8 @@ public class ApplicationInfo implements Serializable, Comparable<ApplicationInfo
 
 	@Override
 	public int compareTo(ApplicationInfo otherInfo) {
-		String left = String.format("%s-%s-%s", id, clusterName, applicationName);
-		String right = String.format("%s-%s-%s", otherInfo.getId(), otherInfo.getClusterName(), otherInfo.getApplicationName());
+		String left = String.format("%d::%s", startTime, id);
+		String right = String.format("%d::%s", otherInfo.getStartTime(), otherInfo.getId());
 		return left.compareTo(right);
 	}
 

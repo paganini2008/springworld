@@ -2,10 +2,10 @@ package com.github.paganini2008.springdessert.cluster.multicast;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -110,12 +110,12 @@ public class ApplicationMulticastGroup {
 	}
 
 	public ApplicationInfo[] getCandidates() {
-		return new LinkedHashSet<ApplicationInfo>(allCandidates).toArray(new ApplicationInfo[0]);
+		return new TreeSet<ApplicationInfo>(allCandidates).toArray(new ApplicationInfo[0]);
 	}
 
 	public ApplicationInfo[] getCandidates(String group) {
 		if (groupCandidates.containsKey(group)) {
-			return new LinkedHashSet<ApplicationInfo>(groupCandidates.get(group)).toArray(new ApplicationInfo[0]);
+			return new TreeSet<ApplicationInfo>(groupCandidates.get(group)).toArray(new ApplicationInfo[0]);
 		}
 		return new ApplicationInfo[0];
 	}

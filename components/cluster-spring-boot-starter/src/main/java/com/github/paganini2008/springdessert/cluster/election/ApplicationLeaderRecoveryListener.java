@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.cluster.multicast;
+package com.github.paganini2008.springdessert.cluster.election;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springdessert.cluster.election.LeaderRecovery;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
 
 import lombok.extern.slf4j.Slf4j;

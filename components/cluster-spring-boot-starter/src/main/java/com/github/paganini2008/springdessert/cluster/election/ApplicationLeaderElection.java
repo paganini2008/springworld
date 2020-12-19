@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.cluster.multicast;
+package com.github.paganini2008.springdessert.cluster.election;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +10,9 @@ import org.springframework.context.ApplicationEvent;
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
-import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterFollowerEvent;
-import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterLeaderEvent;
-import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterRefreshedEvent;
-import com.github.paganini2008.springdessert.cluster.election.LeaderElection;
-import com.github.paganini2008.springdessert.cluster.election.LeaderNotFoundException;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,7 +60,7 @@ public class ApplicationLeaderElection implements LeaderElection, ApplicationCon
 		leader.setLeader(true);
 		instanceId.setLeaderInfo(leader);
 		log.info("Current leader: " + leader);
-		
+
 		applicationContext.publishEvent(new ApplicationClusterRefreshedEvent(applicationContext, leader));
 	}
 

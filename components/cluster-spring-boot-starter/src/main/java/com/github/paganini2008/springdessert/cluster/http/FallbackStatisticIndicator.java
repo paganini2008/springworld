@@ -1,5 +1,9 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
@@ -14,7 +18,7 @@ import com.github.paganini2008.devtools.collection.MultiMappedMap;
  */
 public class FallbackStatisticIndicator implements RequestInterceptor, StatisticIndicator {
 
-	private final MultiMappedMap<String, String, StatisticMetric> cache = new MultiMappedMap<String, String, StatisticMetric>();
+	private final MultiMappedMap<String, String, Statistic> cache = new MultiMappedMap<String, String, Statistic>();
 
 	private Float timeoutPercentage = 0.8F;
 	private Float errorPercentage = 0.8F;
@@ -32,16 +36,23 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 		this.permitPercentage = permitPercentage;
 	}
 
-	public Statistic getStatistic(String provider, String path) {
-		return cache.get(provider, path);
+	@Override
+	public Statistic getStatistic(String provider, Request request) {
+		return cache.get(provider, request.getPath(), () -> {
+			return new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits());
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Statistic> getAll(String provider) {
+		return cache.containsKey(provider) ? new LinkedHashMap<String, Statistic>(cache.get(provider)) : Collections.EMPTY_MAP;
 	}
 
 	@Override
 	public boolean beforeSubmit(String provider, Request request) {
 		boolean proceed = true;
-		Statistic statistic = cache.get(provider, request.getPath(), () -> {
-			return new StatisticMetric(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits());
-		});
+		Statistic statistic = getStatistic(provider, request);
 		if (timeoutPercentage != null) {
 			long totalExecutionCount = statistic.getTotalExecutionCount();
 			long timeoutExecutionCount = statistic.getTimeoutExecutionCount();
@@ -53,8 +64,8 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 			proceed &= (float) (failedExecutionCount / totalExecutionCount) < errorPercentage.floatValue();
 		}
 		if (permitPercentage != null) {
-			long maxPermits = statistic.getPermit().maxPermits();
-			long availablePermits = statistic.getPermit().availablePermits();
+			long maxPermits = statistic.getPermit().getMaxPermits();
+			long availablePermits = statistic.getPermit().getAvailablePermits();
 			proceed &= (float) (maxPermits - availablePermits / maxPermits) < permitPercentage.floatValue();
 		}
 		return proceed;
@@ -62,7 +73,7 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	@Override
 	public void afterSubmit(String provider, Request request, ResponseEntity<?> responseEntity, Throwable e) {
-		StatisticMetric statistic = cache.get(provider, request.getPath());
+		Statistic statistic = cache.get(provider, request.getPath());
 		statistic.getSnapshot().addRequest(request);
 		statistic.getTotalExecution().incrementAndGet();
 		if (responseEntity != null && (responseEntity.getStatusCodeValue() < 200 || responseEntity.getStatusCodeValue() >= 300)) {

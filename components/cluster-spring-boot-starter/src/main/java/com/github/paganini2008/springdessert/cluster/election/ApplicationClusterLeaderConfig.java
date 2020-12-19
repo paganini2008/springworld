@@ -6,9 +6,6 @@ import org.springframework.context.annotation.Configuration;
 
 import com.github.paganini2008.springdessert.cluster.http.EnableRestClient;
 import com.github.paganini2008.springdessert.cluster.http.LeaderService;
-import com.github.paganini2008.springdessert.cluster.multicast.ApplicationLeaderElection;
-import com.github.paganini2008.springdessert.cluster.multicast.ApplicationLeaderElectionListener;
-import com.github.paganini2008.springdessert.cluster.multicast.ApplicationLeaderRecoveryListener;
 
 /**
  * 

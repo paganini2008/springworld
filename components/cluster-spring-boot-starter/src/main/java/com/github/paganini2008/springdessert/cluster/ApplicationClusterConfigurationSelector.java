@@ -11,6 +11,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import com.github.paganini2008.springdessert.cluster.consistency.ConsistencyRequestConfig;
 import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterLeaderConfig;
 import com.github.paganini2008.springdessert.cluster.http.RestClientConfig;
+import com.github.paganini2008.springdessert.cluster.monitor.HealthIndicatorConfig;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 import com.github.paganini2008.springdessert.cluster.pool.ProcessPoolConfig;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationUtilityConfig;
@@ -31,16 +32,17 @@ public class ApplicationClusterConfigurationSelector implements ImportSelector {
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		List<String> importedClassNames = new ArrayList<String>();
 		importedClassNames.add(ApplicationUtilityConfig.class.getName());
-		
+
 		AnnotationAttributes annotationAttributes = AnnotationAttributes
 				.fromMap(importingClassMetadata.getAnnotationAttributes(EnableApplicationCluster.class.getName()));
-		boolean multicast = annotationAttributes.getBoolean("multicast");
-		boolean leader = annotationAttributes.getBoolean("leader");
-		if (multicast) {
+		if (annotationAttributes.getBoolean("multicast")) {
 			importedClassNames.addAll(Arrays.asList(relatedMulticastClassNames));
 		}
-		if (leader) {
+		if (annotationAttributes.getBoolean("leader")) {
 			importedClassNames.add(ApplicationClusterLeaderConfig.class.getName());
+		}
+		if (annotationAttributes.getBoolean("monitor")) {
+			importedClassNames.add(HealthIndicatorConfig.class.getName());
 		}
 		return importedClassNames.toArray(new String[0]);
 	}

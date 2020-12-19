@@ -15,8 +15,8 @@ import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.ArrayUtils;
 import com.github.paganini2008.devtools.proxy.Aspect;
-import com.github.paganini2008.springdessert.cluster.HealthState;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterContext;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,21 +35,21 @@ public class RestClientBeanAspect implements Aspect {
 	private final String provider;
 	private final RestClient restClient;
 	private final Class<?> interfaceClass;
-	private final ApplicationClusterContext leaderContext;
+	private final ApplicationClusterContext applicationClusterContext;
 	private final RequestTemplate requestTemplate;
 
-	public RestClientBeanAspect(String provider, RestClient restClient, Class<?> interfaceClass, ApplicationClusterContext leaderContext,
-			RequestTemplate requestTemplate) {
+	public RestClientBeanAspect(String provider, RestClient restClient, Class<?> interfaceClass,
+			ApplicationClusterContext applicationClusterContext, RequestTemplate requestTemplate) {
 		this.provider = provider;
 		this.restClient = restClient;
 		this.interfaceClass = interfaceClass;
-		this.leaderContext = leaderContext;
+		this.applicationClusterContext = applicationClusterContext;
 		this.requestTemplate = requestTemplate;
 	}
 
 	@Override
 	public boolean beforeCall(Object target, Method method, Object[] args) {
-		if (leaderContext.getHealthState() == HealthState.FATAL) {
+		if (applicationClusterContext.getHealthState() == HealthState.FATAL) {
 			throw new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE, "RestClient is unavailable now");
 		}
 		return true;
@@ -62,7 +62,7 @@ public class RestClientBeanAspect implements Aspect {
 		if (api != null) {
 			request = buildDefaultRequest(api, method, args);
 		} else if (method.getAnnotation(RequestMapping.class) != null) {
-			request = new SpringAnnotationRequest(method.getAnnotation(RequestMapping.class));
+			request = new RequestSpringAnnotationSupported(method.getAnnotation(RequestMapping.class));
 		} else {
 			throw new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE, "No definition on target method");
 		}
@@ -150,9 +150,16 @@ public class RestClientBeanAspect implements Aspect {
 
 	}
 
-	private static class SpringAnnotationRequest extends ParameterizedRequestImpl {
+	/**
+	 * 
+	 * SpringAnnotationRequest
+	 *
+	 * @author Jimmy Hoff
+	 * @version 1.0
+	 */
+	private static class RequestSpringAnnotationSupported extends ParameterizedRequestImpl {
 
-		SpringAnnotationRequest(RequestMapping requestMapping) {
+		RequestSpringAnnotationSupported(RequestMapping requestMapping) {
 			super(requestMapping.value()[0], HttpMethod.valueOf(requestMapping.method()[0].name()));
 			if (ArrayUtils.isNotEmpty(requestMapping.produces())) {
 				List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();

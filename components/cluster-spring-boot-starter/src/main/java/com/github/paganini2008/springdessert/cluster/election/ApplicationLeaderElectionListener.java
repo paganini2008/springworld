@@ -1,10 +1,9 @@
-package com.github.paganini2008.springdessert.cluster.multicast;
+package com.github.paganini2008.springdessert.cluster.election;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 
-import com.github.paganini2008.springdessert.cluster.election.LeaderElection;
-import com.github.paganini2008.springdessert.cluster.election.LeaderElectionListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
 
 /**

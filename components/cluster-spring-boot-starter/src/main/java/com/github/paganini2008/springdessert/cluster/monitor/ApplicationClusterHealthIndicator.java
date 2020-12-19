@@ -34,10 +34,10 @@ public class ApplicationClusterHealthIndicator extends AbstractHealthIndicator {
 			builder.up();
 		}
 		builder.withDetail("healthState", healthState);
-		builder.withDetail("totalMemory", FileUtils.formatSize(Runtime.getRuntime().totalMemory()));
-		builder.withDetail("usedMemory", FileUtils.formatSize(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
 		builder.withDetail("candidates", applicationMulticastGroup.countOfCandidate());
 		builder.withDetail("leader", getLeaderInfo());
+		builder.withDetail("totalMemory", FileUtils.formatSize(Runtime.getRuntime().totalMemory()));
+		builder.withDetail("usedMemory", FileUtils.formatSize(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
 	}
 
 	private ApplicationInfo getLeaderInfo() {
