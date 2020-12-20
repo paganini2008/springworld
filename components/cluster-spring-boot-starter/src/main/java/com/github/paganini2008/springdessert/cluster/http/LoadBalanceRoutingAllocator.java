@@ -10,6 +10,7 @@ import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.LoadBalancer;
 import com.github.paganini2008.springdessert.cluster.election.ApplicationClusterFollowerEvent;
 import com.github.paganini2008.springdessert.cluster.election.LeaderNotFoundException;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationRegistryCenter;
 
 /**
  * 
@@ -22,7 +23,7 @@ import com.github.paganini2008.springdessert.cluster.election.LeaderNotFoundExce
 public class LoadBalanceRoutingAllocator implements RoutingAllocator, ApplicationListener<ApplicationClusterFollowerEvent> {
 
 	@Autowired
-	private RegistryCenter registryCenter;
+	private ApplicationRegistryCenter registryCenter;
 
 	@Qualifier("applicationClusterLoadBalancer")
 	@Autowired

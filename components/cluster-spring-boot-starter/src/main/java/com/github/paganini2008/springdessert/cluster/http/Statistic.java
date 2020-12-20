@@ -143,6 +143,7 @@ public final class Statistic {
 
 		public long addRequest(Request request) {
 			latestRequests.add(request);
+			totalExecution.incrementAndGet();
 			long elapsed = System.currentTimeMillis() - request.getTimestamp();
 			totalRequestTime.addAndGet(elapsed);
 			maximumRequestTime = Long.max(maximumRequestTime, elapsed);
@@ -159,7 +160,7 @@ public final class Statistic {
 		}
 
 		public long getAverageRequestTime() {
-			return totalRequestTime.get() / totalExecution.get();
+			return totalExecution.get() > 0 ? totalRequestTime.get() / totalExecution.get() : 0L;
 		}
 
 		public List<Request> getLatestRequests() {

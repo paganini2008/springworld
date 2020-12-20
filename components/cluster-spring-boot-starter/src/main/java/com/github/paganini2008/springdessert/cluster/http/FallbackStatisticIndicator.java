@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 import com.github.paganini2008.devtools.collection.MultiMappedMap;
+import com.github.paganini2008.devtools.primitives.Floats;
 
 /**
  * 
@@ -40,9 +41,13 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	@Override
 	public Statistic compute(String provider, Request request) {
-		return cache.get(provider, request.getPath(), () -> {
-			return new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits());
-		});
+		Statistic statistic = cache.get(provider, request.getPath());
+		if (statistic == null) {
+			cache.putIfAbsent(provider, request.getPath(),
+					new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits()));
+			statistic = cache.get(provider, request.getPath());
+		}
+		return statistic;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,20 +69,19 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 	public boolean beforeSubmit(String provider, Request request) {
 		boolean proceed = true;
 		Statistic statistic = compute(provider, request);
-		if (timeoutPercentage != null) {
-			long totalExecutionCount = statistic.getTotalExecutionCount();
+		long totalExecutionCount = statistic.getTotalExecutionCount();
+		if (timeoutPercentage != null && totalExecutionCount > 0) {
 			long timeoutExecutionCount = statistic.getTimeoutExecutionCount();
-			proceed &= (float) (timeoutExecutionCount / totalExecutionCount) < timeoutPercentage.floatValue();
+			proceed &= Floats.toFixed((float) (timeoutExecutionCount / totalExecutionCount), 2) < timeoutPercentage.floatValue();
 		}
-		if (errorPercentage != null) {
-			long totalExecutionCount = statistic.getTotalExecutionCount();
+		if (errorPercentage != null && totalExecutionCount > 0) {
 			long failedExecutionCount = statistic.getFailedExecutionCount();
-			proceed &= (float) (failedExecutionCount / totalExecutionCount) < errorPercentage.floatValue();
+			proceed &= Floats.toFixed((float) (failedExecutionCount / totalExecutionCount), 2) < errorPercentage.floatValue();
 		}
-		if (permitPercentage != null) {
+		if (permitPercentage != null && totalExecutionCount > 0) {
 			long maxPermits = statistic.getPermit().getMaxPermits();
 			long availablePermits = statistic.getPermit().getAvailablePermits();
-			proceed &= (float) (maxPermits - availablePermits / maxPermits) < permitPercentage.floatValue();
+			proceed &= Floats.toFixed((float) ((maxPermits - availablePermits) / maxPermits), 2) < permitPercentage.floatValue();
 		}
 		return proceed;
 	}
@@ -86,7 +90,6 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 	public void afterSubmit(String provider, Request request, ResponseEntity<?> responseEntity, Throwable e) {
 		Statistic statistic = cache.get(provider, request.getPath());
 		statistic.getSnapshot().addRequest(request);
-		statistic.getTotalExecution().incrementAndGet();
 		if (responseEntity != null && (responseEntity.getStatusCodeValue() < 200 || responseEntity.getStatusCodeValue() >= 300)) {
 			statistic.getFailedExecution().incrementAndGet();
 		} else if (e != null && e instanceof RestClientException) {

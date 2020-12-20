@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class ApplicationClusterListenerContainer implements ApplicationListener<ApplicationMulticastEvent>, BeanPostProcessor {
+public class ApplicationClusterListenerContainer implements BeanPostProcessor, ApplicationListener<ApplicationMulticastEvent> {
 
 	private final List<ApplicationMulticastListener> listeners = new CopyOnWriteArrayList<ApplicationMulticastListener>();
 	private final Map<String, List<ApplicationMessageListener>> messageListeners = new ConcurrentHashMap<String, List<ApplicationMessageListener>>();

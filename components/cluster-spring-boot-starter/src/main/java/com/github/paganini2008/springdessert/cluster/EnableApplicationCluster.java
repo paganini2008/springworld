@@ -21,10 +21,12 @@ import org.springframework.context.annotation.Import;
 @Import(ApplicationClusterConfigurationSelector.class)
 public @interface EnableApplicationCluster {
 
-	boolean multicast() default true;
+	boolean enableMulticast() default true;
 
-	boolean leader() default false;
+	boolean enableLeaderElection() default false;
 
-	boolean monitor() default true;
+	boolean enableGateway() default false;
+
+	boolean enableMonitor() default false;
 
 }

@@ -11,16 +11,15 @@ import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMultic
 
 /**
  * 
- * GatewayAutoConfiguration
+ * CustomizedRoutingConfig
  *
  * @author Jimmy Hoff
- * 
- * @since 1.0
+ * @version 1.0
  */
 @ConditionalOnBean(ApplicationMulticastConfig.class)
 @Configuration
-public class GatewayAutoConfiguration {
-	
+public class CustomizedRoutingConfig {
+
 	@Bean
 	public RouterManager routerManager() {
 		return new RouterManager();
@@ -35,7 +34,7 @@ public class GatewayAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public HttpRequestDispatcher httpRequestDispatcher() {
-		return new AsynchronousHttpRequestDispatcher();
+		return new NettyHttpRequestDispatcher();
 	}
 
 	@ConditionalOnMissingBean

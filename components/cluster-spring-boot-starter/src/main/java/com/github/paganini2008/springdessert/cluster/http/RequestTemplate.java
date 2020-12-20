@@ -1,11 +1,7 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
@@ -22,18 +18,22 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class RequestTemplate implements BeanPostProcessor {
+public class RequestTemplate {
 
-	private final List<RequestInterceptor> interceptors = new CopyOnWriteArrayList<RequestInterceptor>();
 	private final RequestProcessor requestProcessor;
 	private final StatisticIndicator statisticIndicator;
+	private final RequestInterceptorContainer requestInterceptorContainer;
 
 	public RequestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
-			RetryTemplateFactory retryTemplateFactory, AsyncTaskExecutor taskExecutor, StatisticIndicator statisticIndicator) {
-		this(new DefaultRequestProcessor(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor), statisticIndicator);
+			RetryTemplateFactory retryTemplateFactory, AsyncTaskExecutor taskExecutor,
+			RequestInterceptorContainer requestInterceptorContainer, StatisticIndicator statisticIndicator) {
+		this(new DefaultRequestProcessor(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor),
+				requestInterceptorContainer, statisticIndicator);
 	}
 
-	public RequestTemplate(RequestProcessor requestProcessor, StatisticIndicator statisticIndicator) {
+	public RequestTemplate(RequestProcessor requestProcessor, RequestInterceptorContainer requestInterceptorContainer,
+			StatisticIndicator statisticIndicator) {
+		this.requestInterceptorContainer = requestInterceptorContainer;
 		this.requestProcessor = requestProcessor;
 		this.statisticIndicator = statisticIndicator;
 	}
@@ -53,7 +53,7 @@ public class RequestTemplate implements BeanPostProcessor {
 				throw new RestfulException(request, InterruptedType.TOO_MANY_REQUESTS);
 			}
 			permit.accquire();
-			if (beforeSubmit(provider, request)) {
+			if (requestInterceptorContainer.beforeSubmit(provider, request)) {
 				if (retries > 0 && timeout > 0) {
 					responseEntity = requestProcessor.sendRequestWithRetryAndTimeout(provider, request, responseType, retries, timeout);
 				} else if (retries < 1 && timeout > 0) {
@@ -72,7 +72,7 @@ public class RequestTemplate implements BeanPostProcessor {
 			log.error(e.getMessage(), e);
 		} finally {
 			permit.release();
-			afterSubmit(provider, request, responseEntity, reason);
+			requestInterceptorContainer.afterSubmit(provider, request, responseEntity, reason);
 		}
 		if (responseEntity == null) {
 			responseEntity = executeFallback(provider, request, responseType, reason, fallbackProvider);
@@ -95,44 +95,6 @@ public class RequestTemplate implements BeanPostProcessor {
 			throw RestClientUtils.wrapException("Failed to execute fallback", fallbackError, request);
 		}
 		throw e;
-	}
-
-	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		if (bean instanceof RequestInterceptor) {
-			addInterceptor((RequestInterceptor) bean);
-		}
-		return bean;
-	}
-
-	public void addInterceptor(RequestInterceptor interceptor) {
-		if (interceptor != null) {
-			interceptors.add(interceptor);
-		}
-	}
-
-	public void removeInterceptor(RequestInterceptor interceptor) {
-		if (interceptor != null) {
-			interceptors.remove(interceptor);
-		}
-	}
-
-	public boolean beforeSubmit(String provider, Request request) {
-		boolean proceeded = true;
-		for (RequestInterceptor interceptor : interceptors) {
-			if (interceptor.matches(provider, request)) {
-				proceeded &= interceptor.beforeSubmit(provider, request);
-			}
-		}
-		return proceeded;
-	}
-
-	public void afterSubmit(String provider, Request request, ResponseEntity<?> responseEntity, Throwable reason) {
-		for (RequestInterceptor interceptor : interceptors) {
-			if (interceptor.matches(provider, request)) {
-				interceptor.afterSubmit(provider, request, responseEntity, reason);
-			}
-		}
 	}
 
 }

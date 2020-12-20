@@ -1,22 +1,25 @@
 package com.github.paganini2008.springdessert.cluster.multicast;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import com.github.paganini2008.springdessert.cluster.ApplicationClusterContext;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterController;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.DefaultInstanceIdGenerator;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.cluster.InstanceIdGenerator;
-import com.github.paganini2008.springdessert.cluster.ApplicationClusterContext;
 import com.github.paganini2008.springdessert.cluster.LoadBalancer;
 import com.github.paganini2008.springdessert.cluster.RedisConnectionFailureHandler;
+import com.github.paganini2008.springdessert.cluster.consistency.ConsistencyRequestConfig;
+import com.github.paganini2008.springdessert.cluster.http.RestClientConfig;
+import com.github.paganini2008.springdessert.cluster.pool.ProcessPoolConfig;
 
 /**
  * 
@@ -27,8 +30,9 @@ import com.github.paganini2008.springdessert.cluster.RedisConnectionFailureHandl
  * @since 1.0
  */
 @Configuration
-@ConditionalOnProperty(value = "spring.application.cluster.multicast.enabled", havingValue = "true", matchIfMissing = true)
-@Import({ ApplicationMulticastController.class, ApplicationClusterController.class })
+@AutoConfigureBefore({ RestClientConfig.class, ProcessPoolConfig.class, ConsistencyRequestConfig.class })
+@Import({ ApplicationMulticastController.class, ApplicationClusterController.class, RestClientConfig.class, ProcessPoolConfig.class,
+		ConsistencyRequestConfig.class })
 public class ApplicationMulticastConfig {
 
 	@Value("${spring.application.cluster.name}")
@@ -46,8 +50,13 @@ public class ApplicationMulticastConfig {
 	}
 
 	@Bean
-	public ApplicationClusterContext leaderContext() {
+	public ApplicationClusterContext applicationClusterContext() {
 		return new ApplicationClusterContext();
+	}
+
+	@Bean
+	public ApplicationClusterListenerContainer applicationClusterListenerContainer() {
+		return new ApplicationClusterListenerContainer();
 	}
 
 	@Bean
@@ -69,7 +78,7 @@ public class ApplicationMulticastConfig {
 	public ApplicationMessageStarterListener applicationMessageListener() {
 		return new ApplicationMessageStarterListener();
 	}
-	
+
 	@Bean
 	public ApplicationClusterHeartbeatListener applicationClusterHeartbeatListener() {
 		return new ApplicationClusterHeartbeatListener();
@@ -92,13 +101,13 @@ public class ApplicationMulticastConfig {
 	}
 
 	@Bean
-	public ApplicationClusterListenerContainer applicationClusterListenerContainer() {
-		return new ApplicationClusterListenerContainer();
+	public LoggingApplicationMulticastListener loggingApplicationMulticastListener() {
+		return new LoggingApplicationMulticastListener();
 	}
 
 	@Bean
-	public ApplicationMulticastListener loggingApplicationClusterListener() {
-		return new LoggingApplicationClusterListener();
+	public ApplicationRegistryCenter applicationRegistryCenter() {
+		return new ApplicationRegistryCenter();
 	}
 
 }

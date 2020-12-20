@@ -85,7 +85,7 @@ public class NettyEmbeddedServer implements EmbeddedServer {
 	@PostConstruct
 	public int start() {
 		if (isStarted()) {
-			throw new IllegalStateException("NettyHttpServer has been started.");
+			throw new IllegalStateException("Netty has been started.");
 		}
 		bossGroup = new NioEventLoopGroup(threadCount);
 		workerGroup = new NioEventLoopGroup(threadCount);

@@ -12,7 +12,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,16 +36,11 @@ import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMultic
  * @since 1.0
  */
 @Configuration
-@ConditionalOnBean(ApplicationMulticastConfig.class)
+@AutoConfigureAfter(ApplicationMulticastConfig.class)
 public class RestClientConfig {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
-
-	@Bean
-	public RegistryCenter applicationRegistryCenter() {
-		return new ApplicationRegistryCenter();
-	}
 
 	@Bean
 	public LoadBalancer applicationClusterLoadBalancer(RedisConnectionFactory connectionFactory) {
@@ -71,9 +66,16 @@ public class RestClientConfig {
 	}
 
 	@Bean
+	public RequestInterceptorContainer requestInterceptorContainer() {
+		return new RequestInterceptorContainer();
+	}
+
+	@Bean
 	public RequestTemplate genericRequestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
-			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor, StatisticIndicator statisticIndicator) {
-		return new RequestTemplate(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor, statisticIndicator);
+			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor,
+			RequestInterceptorContainer requestInterceptorContainer, StatisticIndicator statisticIndicator) {
+		return new RequestTemplate(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor, requestInterceptorContainer,
+				statisticIndicator);
 	}
 
 	@Bean

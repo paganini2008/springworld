@@ -19,7 +19,6 @@ import com.github.paganini2008.springdessert.cluster.http.FallbackProvider;
 import com.github.paganini2008.springdessert.cluster.http.ForwardedRequest;
 import com.github.paganini2008.springdessert.cluster.http.RequestTemplate;
 import com.github.paganini2008.springdessert.cluster.http.RestClientUtils;
-import com.github.paganini2008.springdessert.cluster.http.RoutingAllocator;
 import com.github.paganini2008.springdessert.cluster.utils.ApplicationContextUtils;
 
 import io.netty.buffer.ByteBuf;
@@ -42,13 +41,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Sharable
-public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcher {
+public class NettyHttpRequestDispatcher extends HttpRequestDispatcher {
 
 	@Autowired
 	private RequestTemplate requestTemplate;
-
-	@Autowired
-	private RoutingAllocator routingAllocator;
 
 	@Autowired
 	private RouterManager routingManager;
@@ -62,16 +58,15 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcher {
 		final FullHttpRequest httpRequest = (FullHttpRequest) data;
 		final String path = httpRequest.uri();
 		Router router = routingManager.match(path);
-		String shortPath = router.direct() ? path : path.substring(router.prefixEndPosition() + 1);
-		String fullPath = routingAllocator.allocateHost(router.provider(), shortPath);
+		String rawPath = router.direct() ? path : path.substring(router.prefixEndPosition());
 		ResponseEntity<String> responseEntity = null;
 		if (router.cached()) {
-			responseEntity = (ResponseEntity<String>) cache.getObject(fullPath, () -> {
-				return doSendRequest(httpRequest, router, fullPath);
+			responseEntity = (ResponseEntity<String>) cache.getObject(rawPath, () -> {
+				return doSendRequest(httpRequest, router, rawPath);
 			});
 		}
 		if (responseEntity == null) {
-			responseEntity = doSendRequest(httpRequest, router, fullPath);
+			responseEntity = doSendRequest(httpRequest, router, rawPath);
 		}
 		ByteBuf buffer = Unpooled.copiedBuffer(responseEntity.getBody(), router.charset());
 		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(httpRequest.protocolVersion(),
@@ -89,7 +84,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcher {
 		ctx.channel().close();
 	}
 
-	private ResponseEntity<String> doSendRequest(FullHttpRequest httpRequest, Router router, String fullPath) {
+	private ResponseEntity<String> doSendRequest(FullHttpRequest httpRequest, Router router, String rawPath) {
 		HttpHeaders httpHeaders = copyHttpHeaders(httpRequest);
 		if (MapUtils.isNotEmpty(router.defaultHeaders())) {
 			httpHeaders.addAll(router.defaultHeaders());
@@ -104,7 +99,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcher {
 			body = new byte[length];
 			byteBuf.readBytes(body);
 		}
-		ForwardedRequest request = new ForwardedRequest(fullPath, HttpMethod.valueOf(httpRequest.method().name()), httpHeaders);
+		ForwardedRequest request = new ForwardedRequest(rawPath, HttpMethod.valueOf(httpRequest.method().name()), httpHeaders);
 		request.setBody(body);
 		request.setTimeout(router.timeout());
 		request.setRetries(router.retries());

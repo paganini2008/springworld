@@ -6,13 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * LoggingApplicationClusterListener
+ * LoggingApplicationMulticastListener
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
 @Slf4j
-public class LoggingApplicationClusterListener implements ApplicationMulticastListener, ApplicationMessageListener {
+public class LoggingApplicationMulticastListener implements ApplicationMulticastListener, ApplicationMessageListener {
 
 	@Override
 	public void onActive(ApplicationInfo applicationInfo) {

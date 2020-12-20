@@ -13,6 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
+import com.github.paganini2008.springdessert.cluster.http.RequestInterceptorContainer;
 import com.github.paganini2008.springdessert.cluster.http.RestClientPerformer;
 import com.github.paganini2008.springdessert.cluster.http.RetryTemplateFactory;
 import com.github.paganini2008.springdessert.cluster.http.StatisticIndicator;
@@ -48,6 +49,9 @@ public class ApplicationClusterHeartbeatListener implements ApplicationListener<
 	private ThreadPoolTaskExecutor taskExecutor;
 
 	@Autowired
+	private RequestInterceptorContainer requestInterceptorContainer;
+
+	@Autowired
 	private StatisticIndicator statisticIndicator;
 
 	@Autowired
@@ -65,7 +69,8 @@ public class ApplicationClusterHeartbeatListener implements ApplicationListener<
 		if (eventType == MulticastEventType.ON_ACTIVE) {
 			if (!instanceId.getApplicationInfo().equals(event.getApplicationInfo())) {
 				ApplicationHeartbeatTask heartbeatTask = new ApplicationHeartbeatTask(applicationInfo, restClientPerformer,
-						retryTemplateFactory, taskExecutor, statisticIndicator, applicationMulticastGroup, timeout);
+						retryTemplateFactory, taskExecutor, requestInterceptorContainer, statisticIndicator, applicationMulticastGroup,
+						timeout);
 				applicationFutures.put(applicationInfo,
 						taskScheduler.scheduleWithFixedDelay(heartbeatTask, Duration.ofSeconds(DEFAULT_HEARTBEAT_INTERVAL)));
 				log.info("Keep heartbeating from application '{}' with fixed delay {} second.", applicationInfo.getId(),

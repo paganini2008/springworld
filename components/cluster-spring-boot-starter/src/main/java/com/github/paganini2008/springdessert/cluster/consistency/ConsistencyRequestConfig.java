@@ -1,12 +1,10 @@
 package com.github.paganini2008.springdessert.cluster.consistency;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.github.paganini2008.devtools.multithreads.Clock;
-import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
 
 /**
@@ -17,7 +15,6 @@ import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessag
  * @since 1.0
  */
 @Configuration
-@ConditionalOnBean(ApplicationMulticastConfig.class)
 public class ConsistencyRequestConfig {
 
 	@ConditionalOnMissingBean(Clock.class)
