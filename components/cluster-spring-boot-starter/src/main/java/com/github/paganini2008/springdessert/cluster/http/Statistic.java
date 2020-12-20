@@ -34,6 +34,9 @@ public final class Statistic {
 		this.snapshot = new Snapshot(totalExecution);
 	}
 
+	private volatile long lastExecutionCount;
+	private long qps;
+
 	public String getProvider() {
 		return provider;
 	}
@@ -69,6 +72,17 @@ public final class Statistic {
 		return failedExecution.get();
 	}
 
+	public void setQps() {
+		long totalExecutionCount = getTotalExecutionCount();
+		this.qps = totalExecutionCount - lastExecutionCount;
+		System.out.println(path + ", lastExecutionCount: " + lastExecutionCount + ", qps: " + qps);
+		this.lastExecutionCount = totalExecutionCount;
+	}
+
+	public long getQps() {
+		return qps;
+	}
+
 	public Permit getPermit() {
 		return permit;
 	}
@@ -84,10 +98,11 @@ public final class Statistic {
 		data.put("totalExecutionCount", getTotalExecutionCount());
 		data.put("timeoutExecutionCount", getTimeoutExecutionCount());
 		data.put("failedExecutionCount", getFailedExecutionCount());
+		data.put("qps", getQps());
 		data.put("maximumRequestTime", snapshot.getMaximumRequestTime());
 		data.put("minimumRequestTime", snapshot.getMinimumRequestTime());
 		data.put("averageRequestTime", snapshot.getAverageRequestTime());
-		data.put("availablePermits", permit.getAvailablePermits());
+		data.put("activePermits", permit.getMaxPermits() - permit.getAvailablePermits());
 		data.put("maxPermits", permit.getMaxPermits());
 		return data;
 	}

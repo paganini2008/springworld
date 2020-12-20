@@ -40,7 +40,7 @@ public class ApplicationMulticastConfig {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public InstanceIdGenerator instanceIdGenerator() {
+	public InstanceIdGenerator defaultInstanceIdGenerator() {
 		return new DefaultInstanceIdGenerator();
 	}
 

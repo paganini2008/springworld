@@ -1,14 +1,18 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.client.RestClientException;
 
+import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.collection.MultiMappedMap;
 import com.github.paganini2008.devtools.primitives.Floats;
 
@@ -19,13 +23,19 @@ import com.github.paganini2008.devtools.primitives.Floats;
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class FallbackStatisticIndicator implements RequestInterceptor, StatisticIndicator {
+public class FallbackStatisticIndicator implements RequestInterceptor, StatisticIndicator, Runnable {
 
 	private final MultiMappedMap<String, String, Statistic> cache = new MultiMappedMap<String, String, Statistic>();
+	private final Observable qpsCheckpointer = Observable.repeatable();
 
 	private Float timeoutPercentage = 0.8F;
 	private Float errorPercentage = 0.8F;
 	private Float permitPercentage = 0.8F;
+
+	@Autowired
+	public void configure(TaskScheduler taskScheduler) {
+		taskScheduler.scheduleWithFixedDelay(this, Duration.ofSeconds(1));
+	}
 
 	public void setTimeoutPercentage(Float timeoutPercentage) {
 		this.timeoutPercentage = timeoutPercentage;
@@ -43,9 +53,18 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 	public Statistic compute(String provider, Request request) {
 		Statistic statistic = cache.get(provider, request.getPath());
 		if (statistic == null) {
-			cache.putIfAbsent(provider, request.getPath(),
-					new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits()));
-			statistic = cache.get(provider, request.getPath());
+			synchronized (this) {
+				statistic = cache.get(provider, request.getPath());
+				if (statistic == null) {
+					cache.putIfAbsent(provider, request.getPath(),
+							new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits()));
+					Statistic newStatistic = cache.get(provider, request.getPath());
+					qpsCheckpointer.addObserver((ob, arg) -> {
+						newStatistic.setQps();
+					});
+					statistic = newStatistic;
+				}
+			}
 		}
 		return statistic;
 	}
@@ -103,6 +122,11 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	private boolean isRequestTimeout(RestClientException e) {
 		return e instanceof RestfulException && ((RestfulException) e).getInterruptedType() == InterruptedType.REQUEST_TIMEOUT;
+	}
+
+	@Override
+	public void run() {
+		qpsCheckpointer.notifyObservers();
 	}
 
 }
