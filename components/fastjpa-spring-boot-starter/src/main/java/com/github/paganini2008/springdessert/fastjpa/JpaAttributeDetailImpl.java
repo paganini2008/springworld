@@ -5,9 +5,10 @@ import javax.persistence.metamodel.SingularAttribute;
 
 /**
  * 
- * JpaAttributeImpl
+ * JpaAttributeDetailImpl
+ *
  * @author Jimmy Hoff
- * 
+ * @version 1.0
  */
 public class JpaAttributeDetailImpl<E> implements JpaAttributeDetail {
 

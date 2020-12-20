@@ -7,8 +7,6 @@ import com.github.paganini2008.devtools.reflection.ConstructorUtils;
  * NewEntityInjectionHandler
  *
  * @author Jimmy Hoff
- * 
- * 
  * @version 1.0
  */
 public class NewEntityInjectionHandler implements InjectionHandler {

@@ -15,9 +15,9 @@ import com.github.paganini2008.springdessert.fastjpa.support.RowMapperResultSetS
 /**
  * 
  * HibernateRowMapperResultSetSlice
- * 
+ *
  * @author Jimmy Hoff
- * 
+ * @version 1.0
  */
 public class HibernateRowMapperResultSetSlice<T> extends RowMapperResultSetSlice<T> {
 

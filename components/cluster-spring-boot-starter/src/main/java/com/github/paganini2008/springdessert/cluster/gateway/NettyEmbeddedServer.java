@@ -117,7 +117,7 @@ public class NettyEmbeddedServer implements EmbeddedServer {
 					: new InetSocketAddress(port);
 			bootstrap.bind(socketAddress).sync();
 			started.set(true);
-			log.info("NettyHttpServer is started on: " + socketAddress);
+			log.info("Netty is started ok on port: " + socketAddress);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
@@ -137,7 +137,7 @@ public class NettyEmbeddedServer implements EmbeddedServer {
 				bossGroup.shutdownGracefully();
 			}
 			started.set(false);
-			log.info("NettyServer is stoped successfully.");
+			log.info("Netty is stoped ok.");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

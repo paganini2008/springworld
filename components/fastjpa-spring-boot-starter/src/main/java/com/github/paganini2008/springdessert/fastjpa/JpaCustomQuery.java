@@ -5,10 +5,9 @@ import java.util.List;
 /**
  * 
  * JpaCustomQuery
- * 
+ *
  * @author Jimmy Hoff
- * 
- * 
+ * @version 1.0
  */
 public interface JpaCustomQuery<X> {
 
