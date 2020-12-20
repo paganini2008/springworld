@@ -1,10 +1,9 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.client.RestClientException;
 
-import com.github.paganini2008.devtools.Observable;
 import com.github.paganini2008.devtools.collection.MultiMappedMap;
 import com.github.paganini2008.devtools.primitives.Floats;
 
@@ -26,7 +24,6 @@ import com.github.paganini2008.devtools.primitives.Floats;
 public class FallbackStatisticIndicator implements RequestInterceptor, StatisticIndicator, Runnable {
 
 	private final MultiMappedMap<String, String, Statistic> cache = new MultiMappedMap<String, String, Statistic>();
-	private final Observable qpsCheckpointer = Observable.repeatable();
 
 	private Float timeoutPercentage = 0.8F;
 	private Float errorPercentage = 0.8F;
@@ -53,33 +50,24 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 	public Statistic compute(String provider, Request request) {
 		Statistic statistic = cache.get(provider, request.getPath());
 		if (statistic == null) {
-			synchronized (this) {
-				statistic = cache.get(provider, request.getPath());
-				if (statistic == null) {
-					cache.putIfAbsent(provider, request.getPath(),
-							new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits()));
-					Statistic newStatistic = cache.get(provider, request.getPath());
-					qpsCheckpointer.addObserver((ob, arg) -> {
-						newStatistic.setQps();
-					});
-					statistic = newStatistic;
-				}
-			}
+			cache.putIfAbsent(provider, request.getPath(),
+					new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits()));
+			statistic = cache.get(provider, request.getPath());
 		}
 		return statistic;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Statistic> list(String provider) {
-		return cache.containsKey(provider) ? new ArrayList<Statistic>(cache.get(provider).values()) : Collections.EMPTY_LIST;
+	public Collection<Statistic> toCollection(String provider) {
+		return cache.containsKey(provider) ? Collections.unmodifiableCollection((cache.get(provider).values())) : Collections.EMPTY_LIST;
 	}
 
 	@Override
-	public Map<String, List<Statistic>> toMap() {
-		Map<String, List<Statistic>> copy = new HashMap<String, List<Statistic>>();
+	public Map<String, Collection<Statistic>> toMap() {
+		Map<String, Collection<Statistic>> copy = new HashMap<String, Collection<Statistic>>();
 		for (Map.Entry<String, Map<String, Statistic>> entry : cache.entrySet()) {
-			copy.put(entry.getKey(), new ArrayList<Statistic>(entry.getValue().values()));
+			copy.put(entry.getKey(), Collections.unmodifiableCollection(entry.getValue().values()));
 		}
 		return copy;
 	}
@@ -126,7 +114,11 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	@Override
 	public void run() {
-		qpsCheckpointer.notifyObservers();
+		for (Map.Entry<String, Map<String, Statistic>> outter : cache.entrySet()) {
+			for (Map.Entry<String, Statistic> inner : outter.getValue().entrySet()) {
+				inner.getValue().calculateQps();
+			}
+		}
 	}
 
 }

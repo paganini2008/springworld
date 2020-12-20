@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -14,8 +14,8 @@ public interface StatisticIndicator {
 
 	Statistic compute(String provider, Request request);
 
-	List<Statistic> list(String provider);
+	Collection<Statistic> toCollection(String provider);
 
-	Map<String, List<Statistic>> toMap();
+	Map<String, Collection<Statistic>> toMap();
 
 }

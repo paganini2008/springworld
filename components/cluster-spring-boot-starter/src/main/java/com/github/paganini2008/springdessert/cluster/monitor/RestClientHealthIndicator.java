@@ -1,6 +1,6 @@
 package com.github.paganini2008.springdessert.cluster.monitor;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -37,9 +37,9 @@ public class RestClientHealthIndicator extends AbstractHealthIndicator {
 		} else {
 			builder.up();
 		}
-		Map<String, List<Statistic>> source = statisticIndicator.toMap();
+		Map<String, Collection<Statistic>> source = statisticIndicator.toMap();
 		if (MapUtils.isNotEmpty(source)) {
-			for (Map.Entry<String, List<Statistic>> entry : source.entrySet()) {
+			for (Map.Entry<String, Collection<Statistic>> entry : source.entrySet()) {
 				builder.withDetail(entry.getKey(), entry.getValue().stream().map(stat -> stat.toMap()).collect(Collectors.toList()));
 			}
 		}

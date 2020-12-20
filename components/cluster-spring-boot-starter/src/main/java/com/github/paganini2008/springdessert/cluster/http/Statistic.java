@@ -72,7 +72,7 @@ public final class Statistic {
 		return failedExecution.get();
 	}
 
-	public void setQps() {
+	public void calculateQps() {
 		long totalExecutionCount = getTotalExecutionCount();
 		this.qps = totalExecutionCount - lastExecutionCount;
 		System.out.println(path + ", lastExecutionCount: " + lastExecutionCount + ", qps: " + qps);
