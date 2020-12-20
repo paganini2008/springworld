@@ -1,5 +1,6 @@
 package com.github.paganini2008.springdessert.cluster.gateway;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.io.PathUtils;
 
@@ -29,10 +31,11 @@ public final class Router implements Comparable<Router> {
 	private final int prefixEndPosition;
 	private String provider;
 	private int retries;
-	private int timeout;
-	private int allowedPermits;
+	private int timeout = Integer.MAX_VALUE;
+	private int allowedPermits = Integer.MAX_VALUE;
 	private boolean direct;
 	private boolean cached;
+	private Charset charset = CharsetUtils.UTF_8;
 	private Class<?> fallback;
 	private final MultiValueMap<String, String> defaultHeaders = new LinkedMultiValueMap<String, String>();
 	private final List<String> ignoredHeaders = new ArrayList<String>();

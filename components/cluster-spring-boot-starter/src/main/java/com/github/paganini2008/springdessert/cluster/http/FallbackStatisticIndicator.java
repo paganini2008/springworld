@@ -1,7 +1,9 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,7 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 	}
 
 	@Override
-	public Statistic getStatistic(String provider, Request request) {
+	public Statistic compute(String provider, Request request) {
 		return cache.get(provider, request.getPath(), () -> {
 			return new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits());
 		});
@@ -45,14 +47,23 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, Statistic> getAll(String provider) {
-		return cache.containsKey(provider) ? new LinkedHashMap<String, Statistic>(cache.get(provider)) : Collections.EMPTY_MAP;
+	public List<Statistic> list(String provider) {
+		return cache.containsKey(provider) ? new ArrayList<Statistic>(cache.get(provider).values()) : Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public Map<String, List<Statistic>> toMap() {
+		Map<String, List<Statistic>> copy = new HashMap<String, List<Statistic>>();
+		for (Map.Entry<String, Map<String, Statistic>> entry : cache.entrySet()) {
+			copy.put(entry.getKey(), new ArrayList<Statistic>(entry.getValue().values()));
+		}
+		return copy;
 	}
 
 	@Override
 	public boolean beforeSubmit(String provider, Request request) {
 		boolean proceed = true;
-		Statistic statistic = getStatistic(provider, request);
+		Statistic statistic = compute(provider, request);
 		if (timeoutPercentage != null) {
 			long totalExecutionCount = statistic.getTotalExecutionCount();
 			long timeoutExecutionCount = statistic.getTimeoutExecutionCount();

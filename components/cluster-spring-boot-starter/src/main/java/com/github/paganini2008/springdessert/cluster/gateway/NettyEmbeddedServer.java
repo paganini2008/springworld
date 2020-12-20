@@ -34,14 +34,13 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * NettyHttpServer
+ * NettyEmbeddedServer
  *
  * @author Jimmy Hoff
- * 
- * @since 1.0
+ * @version 1.0
  */
 @Slf4j
-public class NettyHttpServer implements EmbeddedServer {
+public class NettyEmbeddedServer implements EmbeddedServer {
 
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	private EventLoopGroup bossGroup;

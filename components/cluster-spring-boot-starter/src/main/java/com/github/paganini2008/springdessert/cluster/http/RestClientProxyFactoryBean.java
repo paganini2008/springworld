@@ -30,7 +30,7 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 	}
 
 	@Autowired
-	private ApplicationClusterContext leaderContext;
+	private ApplicationClusterContext applicationClusterContext;
 
 	@Autowired
 	private RequestTemplate requestTemplate;
@@ -44,7 +44,7 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T>, BeanFactor
 		final String provider = beanFactory.resolveEmbeddedValue(restClient.provider());
 		log.info("Create RestClient for provider: {}", provider);
 		return (T) ProxyFactory.getDefault().getProxy(null,
-				new RestClientBeanAspect(provider, restClient, interfaceClass, leaderContext, requestTemplate),
+				new RestClientBeanAspect(provider, restClient, interfaceClass, applicationClusterContext, requestTemplate),
 				new Class<?>[] { interfaceClass });
 	}
 

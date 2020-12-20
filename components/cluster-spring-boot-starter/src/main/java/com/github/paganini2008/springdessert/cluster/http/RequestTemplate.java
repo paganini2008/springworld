@@ -46,7 +46,7 @@ public class RequestTemplate implements BeanPostProcessor {
 		int timeout = request.getTimeout();
 		FallbackProvider fallbackProvider = request.getFallback();
 
-		Statistic statistic = statisticIndicator.getStatistic(provider, request);
+		Statistic statistic = statisticIndicator.compute(provider, request);
 		Permit permit = statistic.getPermit();
 		try {
 			if (permit.getAvailablePermits() < 1) {

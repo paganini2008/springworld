@@ -1,9 +1,10 @@
 package com.github.paganini2008.springdessert.cluster.monitor;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 
@@ -22,9 +23,6 @@ import com.github.paganini2008.springdessert.cluster.http.StatisticIndicator;
  */
 public class RestClientHealthIndicator extends AbstractHealthIndicator {
 
-	@Value("${spring.application.name}")
-	private String applicationName;
-
 	@Autowired
 	private StatisticIndicator statisticIndicator;
 
@@ -39,10 +37,10 @@ public class RestClientHealthIndicator extends AbstractHealthIndicator {
 		} else {
 			builder.up();
 		}
-		Map<String, Statistic> source = statisticIndicator.getAll(applicationName);
+		Map<String, List<Statistic>> source = statisticIndicator.toMap();
 		if (MapUtils.isNotEmpty(source)) {
-			for (Map.Entry<String, Statistic> entry : source.entrySet()) {
-				builder.withDetail(entry.getKey(), entry.getValue().toMap());
+			for (Map.Entry<String, List<Statistic>> entry : source.entrySet()) {
+				builder.withDetail(entry.getKey(), entry.getValue().stream().map(stat -> stat.toMap()).collect(Collectors.toList()));
 			}
 		}
 	}

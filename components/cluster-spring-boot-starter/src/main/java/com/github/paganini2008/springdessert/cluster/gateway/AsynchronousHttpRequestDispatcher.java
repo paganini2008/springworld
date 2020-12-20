@@ -31,7 +31,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
-import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -44,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Sharable
-public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupport implements HttpRequestDispatcher {
+public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcher {
 
 	@Autowired
 	private RequestTemplate requestTemplate;
@@ -53,7 +52,7 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 	private RoutingAllocator routingAllocator;
 
 	@Autowired
-	private RoutingManager routingManager;
+	private RouterManager routingManager;
 
 	@Autowired
 	private Cache cache;
@@ -75,13 +74,13 @@ public class AsynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupp
 		if (responseEntity == null) {
 			responseEntity = doSendRequest(httpRequest, router, fullPath);
 		}
-		ByteBuf buffer = Unpooled.copiedBuffer(responseEntity.getBody(), CharsetUtil.UTF_8);
+		ByteBuf buffer = Unpooled.copiedBuffer(responseEntity.getBody(), router.charset());
 		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(httpRequest.protocolVersion(),
 				HttpResponseStatus.valueOf(responseEntity.getStatusCodeValue()), buffer);
 		httpResponse.headers().set(CONTENT_LENGTH, buffer.readableBytes());
 		MediaType mediaType = responseEntity.getHeaders().getContentType();
 		if (mediaType == null) {
-			mediaType = MediaType.ALL;
+			mediaType = MediaType.APPLICATION_JSON;
 		}
 		httpResponse.headers().set(CONTENT_TYPE, mediaType.toString());
 		if (HttpUtil.isKeepAlive(httpRequest)) {

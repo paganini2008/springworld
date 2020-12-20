@@ -1,5 +1,9 @@
 package com.github.paganini2008.springdessert.cluster.gateway;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * HttpRequestDispatcher
@@ -8,6 +12,14 @@ package com.github.paganini2008.springdessert.cluster.gateway;
  * 
  * @since 1.0
  */
-public interface HttpRequestDispatcher {
+@Slf4j
+public class HttpRequestDispatcher extends ChannelInboundHandlerAdapter {
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) throws Exception {
+		super.exceptionCaught(ctx, e);
+		log.error(e.getMessage(), e);
+		ctx.channel().close();
+	}
 
 }

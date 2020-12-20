@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.paganini2008.springdessert.cluster.gateway.HttpRequestDispatcher;
-import com.github.paganini2008.springdessert.cluster.gateway.HttpRequestDispatcherSupport;
+import com.github.paganini2008.springdessert.cluster.gateway.HttpRequestDispatcher;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -40,7 +40,7 @@ import io.netty.util.CharsetUtil;
  * @since 1.0
  */
 @Sharable
-public class SynchronousHttpRequestDispatcher extends HttpRequestDispatcherSupport implements HttpRequestDispatcher {
+public class SynchronousHttpRequestDispatcher extends HttpRequestDispatcher implements HttpRequestDispatcher {
 
 	@Autowired
 	private RestTemplate restTemplate;
