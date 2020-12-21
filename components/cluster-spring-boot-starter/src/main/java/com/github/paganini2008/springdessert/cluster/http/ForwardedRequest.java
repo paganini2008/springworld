@@ -12,6 +12,10 @@ import org.springframework.http.HttpMethod;
  */
 public class ForwardedRequest extends BasicRequest implements Request {
 
+	public ForwardedRequest(String path, String methodName) {
+		this(path, HttpMethod.valueOf(methodName.toUpperCase()), null);
+	}
+
 	public ForwardedRequest(String path, HttpMethod method, HttpHeaders headers) {
 		super(path, method, headers);
 	}

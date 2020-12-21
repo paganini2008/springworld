@@ -1,38 +1,22 @@
 package com.github.paganini2008.springdessert.cluster.http;
 
-import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.client.RestClientException;
 
-import com.github.paganini2008.devtools.collection.MultiMappedMap;
 import com.github.paganini2008.devtools.primitives.Floats;
 
 /**
  * 
- * FallbackStatisticIndicator
+ * RequestStatisticIndicator
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class FallbackStatisticIndicator implements RequestInterceptor, StatisticIndicator, Runnable {
-
-	private final MultiMappedMap<String, String, Statistic> cache = new MultiMappedMap<String, String, Statistic>();
+public class RequestStatisticIndicator extends AbstractStatisticIndicator implements RequestInterceptor, StatisticIndicator {
 
 	private Float timeoutPercentage = 0.8F;
 	private Float errorPercentage = 0.8F;
 	private Float permitPercentage = 0.8F;
-
-	@Autowired
-	public void configure(TaskScheduler taskScheduler) {
-		taskScheduler.scheduleWithFixedDelay(this, Duration.ofSeconds(1));
-	}
 
 	public void setTimeoutPercentage(Float timeoutPercentage) {
 		this.timeoutPercentage = timeoutPercentage;
@@ -44,32 +28,6 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	public void setPermitPercentage(Float permitPercentage) {
 		this.permitPercentage = permitPercentage;
-	}
-
-	@Override
-	public Statistic compute(String provider, Request request) {
-		Statistic statistic = cache.get(provider, request.getPath());
-		if (statistic == null) {
-			cache.putIfAbsent(provider, request.getPath(),
-					new Statistic(provider, request.getPath(), ((ForwardedRequest) request).getAllowedPermits()));
-			statistic = cache.get(provider, request.getPath());
-		}
-		return statistic;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Collection<Statistic> toCollection(String provider) {
-		return cache.containsKey(provider) ? Collections.unmodifiableCollection((cache.get(provider).values())) : Collections.EMPTY_LIST;
-	}
-
-	@Override
-	public Map<String, Collection<Statistic>> toMap() {
-		Map<String, Collection<Statistic>> copy = new HashMap<String, Collection<Statistic>>();
-		for (Map.Entry<String, Map<String, Statistic>> entry : cache.entrySet()) {
-			copy.put(entry.getKey(), Collections.unmodifiableCollection(entry.getValue().values()));
-		}
-		return copy;
 	}
 
 	@Override
@@ -110,15 +68,6 @@ public class FallbackStatisticIndicator implements RequestInterceptor, Statistic
 
 	private boolean isRequestTimeout(RestClientException e) {
 		return e instanceof RestfulException && ((RestfulException) e).getInterruptedType() == InterruptedType.REQUEST_TIMEOUT;
-	}
-
-	@Override
-	public void run() {
-		for (Map.Entry<String, Map<String, Statistic>> outter : cache.entrySet()) {
-			for (Map.Entry<String, Statistic> inner : outter.getValue().entrySet()) {
-				inner.getValue().calculateQps();
-			}
-		}
 	}
 
 }

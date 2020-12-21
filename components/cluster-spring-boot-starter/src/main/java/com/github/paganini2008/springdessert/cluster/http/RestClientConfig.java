@@ -83,7 +83,7 @@ public class RestClientConfig {
 	@ConditionalOnMissingBean
 	@Bean
 	public StatisticIndicator statisticIndicator() {
-		return new FallbackStatisticIndicator();
+		return new RequestStatisticIndicator();
 	}
 
 	/**

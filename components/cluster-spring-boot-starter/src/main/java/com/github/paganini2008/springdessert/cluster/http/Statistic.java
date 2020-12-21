@@ -75,7 +75,6 @@ public final class Statistic {
 	public void calculateQps() {
 		long totalExecutionCount = getTotalExecutionCount();
 		this.qps = totalExecutionCount - lastExecutionCount;
-		System.out.println(path + ", lastExecutionCount: " + lastExecutionCount + ", qps: " + qps);
 		this.lastExecutionCount = totalExecutionCount;
 	}
 
@@ -157,9 +156,13 @@ public final class Statistic {
 		private final AtomicLongSequence totalExecution;
 
 		public long addRequest(Request request) {
+			return addRequest(request, request.getTimestamp());
+		}
+
+		public long addRequest(Request request, long startTime) {
 			latestRequests.add(request);
 			totalExecution.incrementAndGet();
-			long elapsed = System.currentTimeMillis() - request.getTimestamp();
+			long elapsed = System.currentTimeMillis() - startTime;
 			totalRequestTime.addAndGet(elapsed);
 			maximumRequestTime = Long.max(maximumRequestTime, elapsed);
 			minimumRequestTime = Long.min(minimumRequestTime, elapsed);
