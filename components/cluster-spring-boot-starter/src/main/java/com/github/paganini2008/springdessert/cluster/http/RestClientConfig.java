@@ -11,6 +11,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -70,7 +71,7 @@ public class RestClientConfig {
 	@Bean
 	public RequestTemplate genericRequestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
 			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor,
-			RequestInterceptorContainer requestInterceptorContainer, StatisticIndicator statisticIndicator) {
+			RequestInterceptorContainer requestInterceptorContainer, @Qualifier("requestStatistic") StatisticIndicator statisticIndicator) {
 		return new RequestTemplate(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor, requestInterceptorContainer,
 				statisticIndicator);
 	}
@@ -80,10 +81,14 @@ public class RestClientConfig {
 		return new LoggingRetryListener();
 	}
 
-	@ConditionalOnMissingBean
-	@Bean
-	public StatisticIndicator statisticIndicator() {
+	@Bean("requestStatistic")
+	public StatisticIndicator requestStatistic() {
 		return new RequestStatisticIndicator();
+	}
+
+	@Bean("responseStatistic")
+	public StatisticIndicator responseStatistic() {
+		return new ResponseStatisticIndicator();
 	}
 
 	/**

@@ -27,8 +27,8 @@ import com.github.paganini2008.devtools.collection.MultiMappedMap;
 public abstract class AbstractStatisticIndicator implements StatisticIndicator, Runnable {
 
 	protected final MultiMappedMap<String, String, Statistic> cache = new MultiMappedMap<String, String, Statistic>();
-	private final PathMatcher pathMatcher = new AntPathMatcher();
-	private final List<String> pathPatterns = new CopyOnWriteArrayList<String>();
+	protected final PathMatcher pathMatcher = new AntPathMatcher();
+	protected final List<String> pathPatterns = new CopyOnWriteArrayList<String>();
 
 	@Autowired
 	public void configure(TaskScheduler taskScheduler) {
@@ -51,7 +51,8 @@ public abstract class AbstractStatisticIndicator implements StatisticIndicator, 
 		}
 		Statistic statistic = cache.get(provider, path);
 		if (statistic == null) {
-			cache.putIfAbsent(provider, path, new Statistic(provider, path, ((ForwardedRequest) request).getAllowedPermits()));
+			int maxPermits = request instanceof ForwardedRequest ? ((ForwardedRequest) request).getAllowedPermits() : Integer.MAX_VALUE;
+			cache.putIfAbsent(provider, path, new Statistic(provider, path, maxPermits));
 			statistic = cache.get(provider, path);
 		}
 		return statistic;

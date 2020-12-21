@@ -18,22 +18,22 @@ import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMultic
 @Configuration
 public class HealthIndicatorConfig {
 
-	@Bean("applicationClusterHealth")
+	@Bean("applicationCluster")
 	@ConditionalOnBean(ApplicationMulticastConfig.class)
 	public ApplicationClusterHealthIndicator applicationClusterHealthIndicator() {
 		return new ApplicationClusterHealthIndicator();
 	}
 
-	@Bean("taskExecutorHealth")
+	@Bean("taskExecutor")
 	@ConditionalOnBean(ThreadPoolTaskExecutor.class)
 	public TaskExecutorHealthIndicator taskExecutorHealthIndicator() {
 		return new TaskExecutorHealthIndicator();
 	}
 
-	@Bean("restClientHealth")
+	@Bean("httpStatistic")
 	@ConditionalOnBean(RestClientConfig.class)
-	public RestClientHealthIndicator restClientHealthIndicator() {
-		return new RestClientHealthIndicator();
+	public HttpStatisticHealthIndicator httpStatisticHealthIndicator() {
+		return new HttpStatisticHealthIndicator();
 	}
 
 }

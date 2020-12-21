@@ -76,6 +76,8 @@ public final class Statistic {
 		long totalExecutionCount = getTotalExecutionCount();
 		this.qps = totalExecutionCount - lastExecutionCount;
 		this.lastExecutionCount = totalExecutionCount;
+		System.out
+				.println("totalExecutionCount: " + lastExecutionCount + ", totalExecutionCount: " + totalExecutionCount + ", qps: " + qps);
 	}
 
 	public long getQps() {

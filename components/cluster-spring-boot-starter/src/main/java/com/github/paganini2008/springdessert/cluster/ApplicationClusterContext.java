@@ -26,9 +26,7 @@ public class ApplicationClusterContext implements SmartApplicationListener {
 	}
 
 	public void setHealthState(HealthState clusterState) {
-		if (healthState.compareTo(HealthState.FATAL) < 0) {
-			this.healthState = healthState;
-		}
+		this.healthState = healthState;
 	}
 
 	@Override

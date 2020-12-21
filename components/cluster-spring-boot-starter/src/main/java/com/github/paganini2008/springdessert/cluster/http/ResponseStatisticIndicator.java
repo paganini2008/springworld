@@ -19,15 +19,14 @@ public class ResponseStatisticIndicator extends AbstractStatisticIndicator imple
 	@Value("${spring.application.name}")
 	private String applicationName;
 
-	public boolean preHandle(HttpServletRequest req, HttpServletResponse response, Object handler) throws Exception {
+	public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
 		req.setAttribute("timestamp", System.currentTimeMillis());
 		Statistic statistic = compute(applicationName, SimpleRequest.of(req.getServletPath()));
 		statistic.getPermit().accquire();
 		return true;
 	}
 
-	public void afterCompletion(HttpServletRequest req, HttpServletResponse response, Object handler, @Nullable Exception ex)
-			throws Exception {
+	public void afterCompletion(HttpServletRequest req, HttpServletResponse resp, Object handler, @Nullable Exception ex) throws Exception {
 		Request request = SimpleRequest.of(req.getServletPath());
 		Statistic statistic = compute(applicationName, request);
 		statistic.getPermit().release();
