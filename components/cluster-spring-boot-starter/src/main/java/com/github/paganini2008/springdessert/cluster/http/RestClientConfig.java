@@ -20,6 +20,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
@@ -86,9 +89,26 @@ public class RestClientConfig {
 		return new RequestStatisticIndicator();
 	}
 
-	@Bean("responseStatistic")
-	public StatisticIndicator responseStatistic() {
-		return new ResponseStatisticIndicator();
+	/**
+	 * 
+	 * ResponseStatisticConfig
+	 *
+	 * @author Jimmy Hoff
+	 * @version 1.0
+	 */
+	@Configuration
+	public static class ResponseStatisticConfig implements WebMvcConfigurer {
+
+		@Bean("responseStatistic")
+		public StatisticIndicator responseStatistic() {
+			return new ResponseStatisticIndicator();
+		}
+
+		@Override
+		public void addInterceptors(InterceptorRegistry registry) {
+			registry.addInterceptor((HandlerInterceptor) responseStatistic());
+		}
+
 	}
 
 	/**
