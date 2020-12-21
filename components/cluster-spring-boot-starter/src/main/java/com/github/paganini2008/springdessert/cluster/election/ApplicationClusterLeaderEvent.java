@@ -16,8 +16,12 @@ public class ApplicationClusterLeaderEvent extends ApplicationClusterEvent {
 
 	private static final long serialVersionUID = -2932470508571995512L;
 
-	public ApplicationClusterLeaderEvent(ApplicationContext context) {
-		super(context, HealthState.LEADABLE);
+	public ApplicationClusterLeaderEvent(ApplicationContext applicationContext) {
+		this(applicationContext, HealthState.LEADABLE);
+	}
+
+	public ApplicationClusterLeaderEvent(ApplicationContext applicationContext, HealthState healthState) {
+		super(applicationContext, healthState);
 	}
 
 }

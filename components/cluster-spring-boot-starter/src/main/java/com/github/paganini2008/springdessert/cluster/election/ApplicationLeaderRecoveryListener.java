@@ -2,9 +2,11 @@ package com.github.paganini2008.springdessert.cluster.election;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.HealthState;
 import com.github.paganini2008.springdessert.cluster.InstanceId;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
@@ -39,6 +41,9 @@ public class ApplicationLeaderRecoveryListener implements ApplicationListener<Ap
 			instanceId.setLeaderInfo(null);
 
 			leaderRecovery.recover(formerLeader);
+
+			ApplicationContext applicationContext = applicationEvent.getApplicationContext();
+			applicationContext.publishEvent(new ApplicationClusterLeaderEvent(applicationContext, HealthState.UNLEADABLE));
 		}
 	}
 

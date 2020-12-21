@@ -10,12 +10,12 @@ import org.springframework.context.event.ApplicationContextEvent;
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class ApplicationClusterEvent extends ApplicationContextEvent {
+public abstract class ApplicationClusterEvent extends ApplicationContextEvent {
 
 	private static final long serialVersionUID = -9030425105386583374L;
 
-	public ApplicationClusterEvent(ApplicationContext source, HealthState healthState) {
-		super(source);
+	public ApplicationClusterEvent(ApplicationContext applicationContext, HealthState healthState) {
+		super(applicationContext);
 		this.healthState = healthState;
 	}
 

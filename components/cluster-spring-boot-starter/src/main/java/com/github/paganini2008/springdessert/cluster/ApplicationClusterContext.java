@@ -17,7 +17,7 @@ public class ApplicationClusterContext implements SmartApplicationListener {
 	private ApplicationInfo leaderInfo;
 	private volatile HealthState healthState = HealthState.UNLEADABLE;
 
-	public ApplicationInfo getLeader() {
+	public ApplicationInfo getLeaderInfo() {
 		return leaderInfo;
 	}
 

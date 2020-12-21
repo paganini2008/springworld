@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.beans.ToStringBuilder;
+import com.github.paganini2008.springdessert.cluster.utils.Contact;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -106,7 +106,7 @@ public class ApplicationMulticastConfig {
 	}
 
 	@Bean
-	public ApplicationRegistryCenter applicationRegistryCenter() {
+	public RegistryCenter applicationRegistryCenter() {
 		return new ApplicationRegistryCenter();
 	}
 

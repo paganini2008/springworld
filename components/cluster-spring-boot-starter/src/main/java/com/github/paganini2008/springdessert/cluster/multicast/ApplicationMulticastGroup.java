@@ -68,7 +68,9 @@ public class ApplicationMulticastGroup {
 		for (int i = 0; i < applicationInfo.getWeight(); i++) {
 			allCandidates.add(applicationInfo);
 		}
-		Collections.sort(allCandidates);
+		if (allCandidates.size() > 1) {
+			Collections.sort(allCandidates);
+		}
 
 		List<ApplicationInfo> candidates = MapUtils.get(groupCandidates, applicationInfo.getApplicationName(), () -> {
 			return new CopyOnWriteArrayList<ApplicationInfo>();
@@ -76,7 +78,9 @@ public class ApplicationMulticastGroup {
 		for (int i = 0; i < applicationInfo.getWeight(); i++) {
 			candidates.add(applicationInfo);
 		}
-		Collections.sort(candidates);
+		if (candidates.size() > 1) {
+			Collections.sort(candidates);
+		}
 		log.info("Registered candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(), allCandidates.size());
 	}
 

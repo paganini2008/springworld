@@ -7,6 +7,7 @@ import org.springframework.lang.Nullable;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.io.IOUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
+import com.github.paganini2008.springdessert.cluster.utils.Contact;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,9 @@ public final class InstanceId {
 
 	@Autowired
 	private InstanceIdGenerator idGenerator;
+	
+	@Autowired
+	private Contact contact;
 
 	@Getter
 	@Value("${spring.application.cluster.name}")
@@ -51,10 +55,6 @@ public final class InstanceId {
 	@Getter
 	@Value("${spring.application.cluster.applicationContextPath:}")
 	private String applicationContextPath;
-
-	@Setter
-	@Getter
-	private Contact contact;
 
 	@Setter
 	@Getter

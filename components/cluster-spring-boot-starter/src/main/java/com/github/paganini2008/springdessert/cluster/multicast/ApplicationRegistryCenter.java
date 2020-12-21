@@ -17,48 +17,60 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 
  * ApplicationRegistryCenter
- * 
- * @author Jimmy Hoff
  *
- * @since 1.0
+ * @author Jimmy Hoff
+ * @version 1.0
  */
 @Slf4j
-public class ApplicationRegistryCenter implements ApplicationListener<ApplicationMulticastEvent> {
+public class ApplicationRegistryCenter implements RegistryCenter, ApplicationListener<ApplicationMulticastEvent> {
 
-	private final Map<String, List<ApplicationInfo>> applicaitonInfoCache = new ConcurrentHashMap<String, List<ApplicationInfo>>();
-
-	public List<ApplicationInfo> getApplications(String applicationName) {
-		return applicaitonInfoCache.get(applicationName);
-	}
+	private final Map<String, List<ApplicationInfo>> applicationInfoHolder = new ConcurrentHashMap<String, List<ApplicationInfo>>();
 
 	@Override
-	public void onApplicationEvent(ApplicationMulticastEvent event) {
-		if (event.getMulticastEventType() == MulticastEventType.ON_ACTIVE) {
-			doIfActive(event.getApplicationInfo());
-		} else if (event.getMulticastEventType() == MulticastEventType.ON_INACTIVE) {
-			doIfInactive(event.getApplicationInfo());
-		}
-	}
-
-	private void doIfActive(ApplicationInfo applicationInfo) {
+	public void registerApplication(ApplicationInfo applicationInfo) {
 		String applicationName = applicationInfo.getApplicationName();
-		List<ApplicationInfo> infoList = MapUtils.get(applicaitonInfoCache, applicationName, () -> {
+		List<ApplicationInfo> infoList = MapUtils.get(applicationInfoHolder, applicationName, () -> {
 			return new CopyOnWriteArrayList<ApplicationInfo>();
 		});
 		infoList.add(applicationInfo);
-		if (infoList.size() > 0) {
+		if (infoList.size() > 1) {
 			Collections.sort(infoList);
 		}
 		log.info("Register application: [{}] to ApplicationRegistryCenter", applicationInfo);
 	}
 
-	private void doIfInactive(ApplicationInfo applicationInfo) {
+	@Override
+	public void removeApplication(ApplicationInfo applicationInfo) {
 		String applicationName = applicationInfo.getApplicationName();
-		List<ApplicationInfo> infoList = applicaitonInfoCache.get(applicationName);
+		List<ApplicationInfo> infoList = applicationInfoHolder.get(applicationName);
 		if (infoList != null) {
 			infoList.remove(applicationInfo);
 		}
-		log.info("Unregister application: [{}] to ApplicationRegistryCenter", applicationInfo);
+		log.info("Remove application: [{}] from ApplicationRegistryCenter", applicationInfo);
+	}
+
+	@Override
+	public List<ApplicationInfo> getApplications(String applicationName) {
+		return applicationInfoHolder.get(applicationName);
+	}
+
+	@Override
+	public int countOfApplication() {
+		int total = 0;
+		for (List<ApplicationInfo> list : applicationInfoHolder.values()) {
+			total += list.size();
+		}
+		return total;
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationMulticastEvent event) {
+		ApplicationInfo applicationInfo = event.getApplicationInfo();
+		if (event.getMulticastEventType() == MulticastEventType.ON_ACTIVE) {
+			registerApplication(applicationInfo);
+		} else if (event.getMulticastEventType() == MulticastEventType.ON_INACTIVE) {
+			removeApplication(applicationInfo);
+		}
 	}
 
 }

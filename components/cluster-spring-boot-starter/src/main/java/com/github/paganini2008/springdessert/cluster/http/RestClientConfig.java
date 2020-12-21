@@ -12,7 +12,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +24,6 @@ import com.github.paganini2008.devtools.CharsetUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationClusterLoadBalancer;
 import com.github.paganini2008.springdessert.cluster.Constants;
 import com.github.paganini2008.springdessert.cluster.LoadBalancer;
-import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastConfig;
 
 /**
  * 
@@ -36,7 +34,6 @@ import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMultic
  * @since 1.0
  */
 @Configuration
-@AutoConfigureAfter(ApplicationMulticastConfig.class)
 public class RestClientConfig {
 
 	@Value("${spring.application.cluster.name}")
