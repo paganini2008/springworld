@@ -21,6 +21,12 @@ import org.springframework.context.annotation.Import;
 @Import(ApplicationClusterConfigurationSelector.class)
 public @interface EnableApplicationCluster {
 
+	String clusterName() default "";
+
+	String applicationName() default "";
+
+	int weight() default 1;
+
 	boolean enableMulticast() default true;
 
 	boolean enableLeaderElection() default false;

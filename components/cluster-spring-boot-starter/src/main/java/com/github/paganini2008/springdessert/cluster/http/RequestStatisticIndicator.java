@@ -53,7 +53,7 @@ public class RequestStatisticIndicator extends AbstractStatisticIndicator implem
 
 	@Override
 	public void afterSubmit(String provider, Request request, ResponseEntity<?> responseEntity, Throwable e) {
-		Statistic statistic = cache.get(provider, request.getPath());
+		Statistic statistic = compute(provider, request);
 		statistic.getSnapshot().addRequest(request);
 		if (responseEntity != null && (responseEntity.getStatusCodeValue() < 200 || responseEntity.getStatusCodeValue() >= 300)) {
 			statistic.getFailedExecution().incrementAndGet();

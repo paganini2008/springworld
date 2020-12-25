@@ -46,7 +46,7 @@ public class ApplicationMulticastGroup {
 	@Autowired
 	private RedisMessageSender redisMessageSender;
 
-	@Qualifier("multicastLoadBalancer")
+	@Qualifier("applicationMulticastLoadBalancer")
 	@Autowired
 	private LoadBalancer loadBalancer;
 

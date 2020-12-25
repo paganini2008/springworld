@@ -43,6 +43,7 @@ public class RestClientConfig {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
+	@ConditionalOnMissingBean(name = "applicationClusterLoadBalancer")
 	@Bean
 	public LoadBalancer applicationClusterLoadBalancer(RedisConnectionFactory connectionFactory) {
 		final String name = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter";
@@ -141,7 +142,7 @@ public class RestClientConfig {
 					.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
 			PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
 			connectionManager.setMaxTotal(maxTotal);
-			connectionManager.setDefaultMaxPerRoute(20);
+			connectionManager.setDefaultMaxPerRoute(maxTotal / 4);
 			connectionManager.setValidateAfterInactivity(10000);
 			RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setCookieSpec(CookieSpecs.DEFAULT)
 					.setCircularRedirectsAllowed(false).setRedirectsEnabled(false).setSocketTimeout(connectionTimeout)

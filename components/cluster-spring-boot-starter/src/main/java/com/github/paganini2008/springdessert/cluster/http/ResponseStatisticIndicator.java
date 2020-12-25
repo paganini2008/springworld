@@ -16,11 +16,13 @@ import org.springframework.web.servlet.HandlerInterceptor;
  */
 public class ResponseStatisticIndicator extends AbstractStatisticIndicator implements HandlerInterceptor, StatisticIndicator {
 
+	private static final String REQUEST_ATTRIBUTE_TIMESTAMP = "timestamp";
+
 	@Value("${spring.application.name}")
 	private String applicationName;
 
 	public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
-		req.setAttribute("timestamp", System.currentTimeMillis());
+		req.setAttribute(REQUEST_ATTRIBUTE_TIMESTAMP, System.currentTimeMillis());
 		Statistic statistic = compute(applicationName, SimpleRequest.of(req.getServletPath()));
 		statistic.getPermit().accquire();
 		return true;
@@ -31,7 +33,7 @@ public class ResponseStatisticIndicator extends AbstractStatisticIndicator imple
 		Statistic statistic = compute(applicationName, request);
 		statistic.getPermit().release();
 
-		long startTime = (Long) req.getAttribute("timestamp");
+		long startTime = (Long) req.getAttribute(REQUEST_ATTRIBUTE_TIMESTAMP);
 		statistic.getSnapshot().addRequest(request, startTime);
 
 		statistic.getTotalExecution().incrementAndGet();

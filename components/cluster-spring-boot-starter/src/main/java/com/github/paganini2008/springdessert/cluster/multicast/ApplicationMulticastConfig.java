@@ -89,8 +89,9 @@ public class ApplicationMulticastConfig {
 		return new ApplicationMulticastGroup();
 	}
 
+	@ConditionalOnMissingBean(name = "applicationMulticastLoadBalancer")
 	@Bean
-	public LoadBalancer multicastLoadBalancer(RedisConnectionFactory connectionFactory) {
+	public LoadBalancer applicationMulticastLoadBalancer(RedisConnectionFactory connectionFactory) {
 		final String name = Constants.APPLICATION_CLUSTER_NAMESPACE + clusterName + ":counter:multicast";
 		return new ApplicationClusterLoadBalancer(name, connectionFactory);
 	}
