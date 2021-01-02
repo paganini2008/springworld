@@ -13,7 +13,7 @@ import com.github.paganini2008.springdessert.cluster.HealthState;
  *
  * @since 1.0
  */
-@RestClient(provider = RoutingAllocator.LEADER_ALIAS)
+@RestClient(provider = RoutingAllocator.LEADER)
 public interface LeaderService {
 
 	@Api(path = "/application/cluster/ping", method = HttpMethod.GET, retries = 3, timeout = 60)

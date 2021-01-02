@@ -9,17 +9,16 @@ package com.github.paganini2008.xtransport;
  * @since 1.0
  */
 public interface TransportClient {
-	
-	String[] getChannels();
 
-	void send(CharSequence json);
+	default void send(CharSequence json) {
+		send(Tuple.byString(json.toString()));
+	}
 
 	void send(Tuple tuple);
-
-	boolean isStarted();
-
-	void start();
-
-	void close();
+	
+	boolean isActive();
+	
+	default void close() {
+	}
 
 }

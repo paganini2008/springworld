@@ -13,7 +13,7 @@ import com.github.paganini2008.springdessert.reditools.messager.RedisMessageConf
  * @author Jimmy Hoff
  * @version 1.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import({ RedisMessageConfig.class, RedisCommonConfig.class })
 public class ReditoolsAutoConfiguration {
 }

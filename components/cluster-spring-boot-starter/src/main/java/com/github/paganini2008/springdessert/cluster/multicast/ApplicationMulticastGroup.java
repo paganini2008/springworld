@@ -95,13 +95,13 @@ public class ApplicationMulticastGroup {
 			allCandidates.remove(applicationInfo);
 		}
 
-		if (groupCandidates.containsKey(applicationInfo.getApplicationName())) {
-			List<ApplicationInfo> candidates = groupCandidates.get(applicationInfo.getApplicationName());
+		List<ApplicationInfo> candidates = groupCandidates.get(applicationInfo.getApplicationName());
+		if (candidates != null) {
 			while (candidates.contains(applicationInfo)) {
 				candidates.remove(applicationInfo);
 			}
-			log.info("Removed candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(), allCandidates.size());
 		}
+		log.info("Removed candidate: {}, Proportion: {}/{}", applicationInfo, candidates.size(), allCandidates.size());
 
 	}
 

@@ -21,7 +21,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.github.paganini2008.springdessert.reditools.BeanNames;
 
 /**
@@ -31,18 +31,17 @@ import com.github.paganini2008.springdessert.reditools.BeanNames;
  * @author Jimmy Hoff
  * @version 1.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(RedisConnectionFactory.class)
 public class RedisMessageConfig {
 
-	@ConditionalOnMissingBean(RedisSerializer.class)
+	@ConditionalOnMissingBean
 	@Bean(BeanNames.REDIS_SERIALIZER)
 	public RedisSerializer<Object> redisSerializer() {
-		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
 		ObjectMapper om = new ObjectMapper();
-		om.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE);
 		om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-		om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+		om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
+		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
 		jackson2JsonRedisSerializer.setObjectMapper(om);
 		return jackson2JsonRedisSerializer;
 	}
@@ -62,7 +61,7 @@ public class RedisMessageConfig {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(StringRedisTemplate.class)
+	@ConditionalOnMissingBean
 	public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		return new StringRedisTemplate(redisConnectionFactory);
 	}
@@ -81,7 +80,7 @@ public class RedisMessageConfig {
 	}
 
 	@ConditionalOnProperty(name = "spring.redis.messager.dispatcher.mode", havingValue = "pubsub", matchIfMissing = true)
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class PubSubModeConfig {
 
 		@Value("${spring.redis.messager.pubsub.channel:messager-pubsub}")
@@ -118,7 +117,7 @@ public class RedisMessageConfig {
 	}
 
 	@ConditionalOnProperty(name = "spring.redis.messager.dispatcher.mode", havingValue = "queue")
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class QueueModeConfig {
 
 		@Value("${spring.redis.messager.queue.channel:messager-queue}")
@@ -163,11 +162,6 @@ public class RedisMessageConfig {
 	@Bean(BeanNames.REDIS_MESSAGE_SENDER)
 	public RedisMessageSender redisMessageSender() {
 		return new RedisMessageSender();
-	}
-
-	@Bean
-	public RedisMessageHandlerBeanProcessor redisMessageHandlerBeanProcessor() {
-		return new RedisMessageHandlerBeanProcessor();
 	}
 
 }

@@ -34,14 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * AsynchronousHttpRequestDispatcher
+ * NettyRequestDispatcher
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
 @Slf4j
 @Sharable
-public class NettyHttpRequestDispatcher extends HttpRequestDispatcher {
+public class NettyRequestDispatcher extends RequestDispatcher {
 
 	@Autowired
 	private RequestTemplate requestTemplate;

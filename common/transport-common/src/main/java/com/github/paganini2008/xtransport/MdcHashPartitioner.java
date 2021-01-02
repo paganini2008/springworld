@@ -1,9 +1,6 @@
-package com.github.paganini2008.xtransport.logging;
+package com.github.paganini2008.xtransport;
 
 import java.util.Map;
-
-import com.github.paganini2008.xtransport.HashPartitioner;
-import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 

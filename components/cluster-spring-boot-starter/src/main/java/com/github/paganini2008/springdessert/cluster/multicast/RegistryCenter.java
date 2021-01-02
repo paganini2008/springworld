@@ -17,6 +17,8 @@ public interface RegistryCenter {
 
 	void removeApplication(ApplicationInfo applicationInfo);
 
+	List<ApplicationInfo> getApplications();
+
 	List<ApplicationInfo> getApplications(String applicationName);
 
 	int countOfApplication();

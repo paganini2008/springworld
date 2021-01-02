@@ -23,7 +23,6 @@
 		<module>jdbc-spring-boot-starter</module>
 		<module>xmemcached-spring-boot-starter</module>
 		<module>webcrawler-spring-boot-starter</module>
-		<module>gateway-spring-boot-starter</module>
     </modules>
 	
     <packaging>pom</packaging>

@@ -34,13 +34,16 @@ public class LoadBalanceRoutingAllocator implements RoutingAllocator, Applicatio
 	@Override
 	public String allocateHost(String provider, String path) {
 		ApplicationInfo selectedApplication;
-		if (provider.equals(LEADER_ALIAS)) {
+		if (provider.equalsIgnoreCase(LEADER)) {
 			if (leaderInfo == null) {
-				throw new LeaderNotFoundException(LEADER_ALIAS);
+				throw new LeaderNotFoundException(LEADER);
 			}
 			selectedApplication = leaderInfo;
+		} else if (provider.equals(ALL)) {
+			List<ApplicationInfo> candidates = registryCenter.getApplications();
+			selectedApplication = loadBalancer.select(path, candidates);
 		} else {
-			List<ApplicationInfo> candidates = registryCenter.getApplications(provider.toLowerCase());
+			List<ApplicationInfo> candidates = registryCenter.getApplications(provider);
 			selectedApplication = loadBalancer.select(path, candidates);
 		}
 		if (selectedApplication == null) {

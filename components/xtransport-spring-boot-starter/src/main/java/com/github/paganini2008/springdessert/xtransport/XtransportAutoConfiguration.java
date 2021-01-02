@@ -36,7 +36,6 @@ import com.github.paganini2008.xtransport.ChannelEventListener;
 import com.github.paganini2008.xtransport.NioClient;
 import com.github.paganini2008.xtransport.Partitioner;
 import com.github.paganini2008.xtransport.RoundRobinPartitioner;
-import com.github.paganini2008.xtransport.TransportNodeCentre;
 import com.github.paganini2008.xtransport.embeddedio.EmbeddedClient;
 import com.github.paganini2008.xtransport.embeddedio.EmbeddedSerializationFactory;
 import com.github.paganini2008.xtransport.embeddedio.SerializationFactory;
@@ -83,16 +82,6 @@ public class XtransportAutoConfiguration {
 	@Bean
 	public Partitioner partitioner() {
 		return new RoundRobinPartitioner();
-	}
-
-	@Bean
-	public ScaleoutClusterListener scaleoutClusterListener() {
-		return new ScaleoutClusterListener();
-	}
-
-	@Bean
-	public TransportNodeCentre transportNodeCentre() {
-		return new DefaultTransportNodeCentre();
 	}
 
 	@Bean

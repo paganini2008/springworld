@@ -4,6 +4,7 @@ import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RA
 import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_START;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -19,7 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
-import com.github.paganini2008.xtransport.TransportNodeCentre;
+import com.github.paganini2008.xtransport.TransportClientException;
 import com.github.paganini2008.xtransport.grizzly.IdleTimeoutFilter;
 import com.github.paganini2008.xtransport.grizzly.IdleTimeoutPolicies;
 import com.github.paganini2008.xtransport.grizzly.TupleCodecFactory;
@@ -50,18 +51,15 @@ public class GrizzlyServer implements NioServer {
 
 	@Value("${spring.application.transport.nioserver.idleTimeout:60}")
 	private int idleTimeout;
-	
+
 	@Autowired
 	private GrizzlyServerHandler serverHandler;
 
 	@Autowired
 	private TupleCodecFactory codecFactory;
 
-	@Autowired
-	private TransportNodeCentre transportNodeCentre;
-
 	@Override
-	public int start() {
+	public SocketAddress start() {
 		if (isStarted()) {
 			throw new IllegalStateException("GrizzlyServer has been started.");
 		}
@@ -90,14 +88,12 @@ public class GrizzlyServer implements NioServer {
 			localAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
 			transport.bind(localAddress);
 			transport.start();
-			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			transportNodeCentre.registerNode(location);
 			started.set(true);
-			log.info("GrizzlyServer is started on: " + localAddress);
+			log.info("Grizzly is started on: " + localAddress);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			throw new TransportClientException(e.getMessage(), e);
 		}
-		return port;
+		return localAddress;
 	}
 
 	@Override
@@ -112,7 +108,7 @@ public class GrizzlyServer implements NioServer {
 			log.error(e.getMessage(), e);
 		}
 		started.set(false);
-		log.info("GrizzlyServer is shutdown.");
+		log.info("Grizzly is closed successfully.");
 	}
 
 	@Override

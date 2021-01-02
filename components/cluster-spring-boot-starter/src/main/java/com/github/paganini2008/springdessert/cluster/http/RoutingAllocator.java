@@ -10,7 +10,9 @@ package com.github.paganini2008.springdessert.cluster.http;
  */
 public interface RoutingAllocator {
 
-	static final String LEADER_ALIAS = "*";
+	static final String ALL = "*";
+
+	static final String LEADER = "L";
 
 	String allocateHost(String provider, String path);
 

@@ -1,17 +1,16 @@
 package com.github.paganini2008.xtransport;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayDeque;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.LruQueue;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.logging.Log;
@@ -21,6 +20,8 @@ import com.github.paganini2008.devtools.multithreads.ThreadUtils;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.ConnectionPool;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -37,57 +38,51 @@ import okhttp3.Response;
  */
 public class DefaultHttpClient implements HttpClient, Executable {
 
-	private static final Log logger = LogFactory.getLog(HttpTransportClient.class);
-	private static final int MAX_MESSAGE_QUEUE_BUFFER_SIZE = 1024;
+	private static final Log logger = LogFactory.getLog(DefaultHttpClient.class);
+	private static final String servicePath = "/application/cluster/transport/send";
+	private static final int DEFAULT_TIMEOUT = 60;
 	private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-	private final ObjectMapper objectMapper = new ObjectMapper();
-	private final List<String> channels = new CopyOnWriteArrayList<String>();
-	private final Map<String, Queue<Object>> retryQueue = new ConcurrentHashMap<String, Queue<Object>>();
-	private final OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-	private OkHttpClient client;
-	private Timer timer;
+	private static final int RETRY_QUEUE_MAX_SIZE = 1024;
+	private final Queue<Object> retryQueue = new LruQueue<Object>(RETRY_QUEUE_MAX_SIZE);
 
-	@Override
-	public void open() {
-		timer = ThreadUtils.scheduleAtFixedRate(this, 3, TimeUnit.SECONDS);
-		client = clientBuilder.build();
+	private ObjectMapper objectMapper = new ObjectMapper();
+
+	public DefaultHttpClient(String brokerUrl) {
+		this(brokerUrl, () -> {
+			return new OkHttpClient.Builder().retryOnConnectionFailure(false).connectionPool(new ConnectionPool(200, 60, TimeUnit.SECONDS))
+					.connectTimeout(Duration.ofSeconds(DEFAULT_TIMEOUT)).writeTimeout(Duration.ofSeconds(DEFAULT_TIMEOUT))
+					.readTimeout(Duration.ofSeconds(DEFAULT_TIMEOUT)).build();
+		});
+	}
+
+	public DefaultHttpClient(String brokerUrl, Supplier<OkHttpClient> supplier) {
+		this.brokerUrl = brokerUrl;
+		this.client = supplier.get();
+		this.active.set(true);
+		ThreadUtils.scheduleWithFixedDelay(this, 5, TimeUnit.SECONDS);
+	}
+
+	private final String brokerUrl;
+	private final OkHttpClient client;
+	private final Map<String, String> defaultHeaders = new LinkedHashMap<String, String>();
+	private final AtomicBoolean active = new AtomicBoolean();
+
+	public void setObjectMapper(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
-	public void setConnectionTimeout(int timeout) {
-		clientBuilder.connectTimeout(timeout, TimeUnit.SECONDS);
+	public void addHeader(String name, String value) {
+		defaultHeaders.putIfAbsent(name, value);
 	}
 
 	@Override
-	public void setReadTimeout(int timeout) {
-		clientBuilder.readTimeout(20, TimeUnit.SECONDS);
-	}
-
-	@Override
-	public void close() {
-		if (timer != null) {
-			timer.cancel();
-		}
-		client = null;
+	public void setHeader(String name, String value) {
+		defaultHeaders.put(name, value);
 	}
 
 	@Override
 	public void send(Object data) {
-		for (String channel : channels) {
-			doSend(channel, data);
-		}
-	}
-
-	@Override
-	public void send(Object data, Partitioner partitioner) {
-		final String channel = partitioner.selectChannel(data, channels);
-		if (StringUtils.isBlank(channel)) {
-			return;
-		}
-		doSend(channel, data);
-	}
-
-	private void doSend(final String channel, final Object data) {
 		String jsonString;
 		try {
 			jsonString = objectMapper.writeValueAsString(data);
@@ -95,54 +90,58 @@ public class DefaultHttpClient implements HttpClient, Executable {
 			logger.error(e.getMessage(), e);
 			return;
 		}
-		Request request = new Request.Builder().url(channel).post(RequestBody.create(JSON, jsonString)).build();
+		Request.Builder requestBuilder = new Request.Builder().url(brokerUrl + servicePath).post(RequestBody.create(JSON, jsonString));
+		if (MapUtils.isNotEmpty(defaultHeaders)) {
+			requestBuilder.headers(Headers.of(defaultHeaders));
+		}
+
+		Request request = requestBuilder.build();
 		Call call = client.newCall(request);
 		call.enqueue(new Callback() {
 
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
+				if (response.code() >= 200 && response.code() < 300) {
+					if (logger.isDebugEnabled()) {
+						logger.debug(response.body().string());
+					}
+				}
 				response.close();
 			}
 
 			@Override
 			public void onFailure(Call call, IOException e) {
-				logger.error(e.getMessage(), e);
-				final Queue<Object> q = MapUtils.get(retryQueue, channel, () -> {
-					return new LruQueue<Object>(MAX_MESSAGE_QUEUE_BUFFER_SIZE);
-				});
-				q.add(data);
+				if (logger.isErrorEnabled()) {
+					logger.error(e.getMessage(), e);
+				}
+				retryQueue.add(data);
 			}
 		});
+
 	}
 
 	@Override
-	public void addChannel(String channel) {
-		if (!channels.contains(channel)) {
-			channels.add(channel);
-		}
+	public boolean isOpened() {
+		return active.get();
 	}
 
 	@Override
-	public void clearChannels() {
-		channels.clear();
+	public void close() {
+		active.set(false);
+		client.connectionPool().evictAll();
 	}
 
 	@Override
 	public boolean execute() {
-		if (retryQueue.isEmpty()) {
-			return true;
-		}
-		String channel;
-		Queue<Object> q;
-		for (Map.Entry<String, Queue<Object>> entry : retryQueue.entrySet()) {
-			channel = entry.getKey();
-			q = new ArrayDeque<Object>(entry.getValue());
-			for (Object data : q) {
-				entry.getValue().remove(data);
-				doSend(channel, data);
+		if (retryQueue.size() > 0) {
+			ArrayDeque<Object> q = new ArrayDeque<Object>(retryQueue);
+			while (!q.isEmpty()) {
+				Object data = q.poll();
+				retryQueue.remove(data);
+				send(data);
 			}
 		}
-		return true;
+		return isOpened();
 	}
 
 }

@@ -5,6 +5,7 @@ import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RA
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +24,7 @@ import com.github.paganini2008.embeddedio.IoAcceptor;
 import com.github.paganini2008.embeddedio.NioAcceptor;
 import com.github.paganini2008.embeddedio.SerializationTransformer;
 import com.github.paganini2008.embeddedio.Transformer;
-import com.github.paganini2008.xtransport.TransportNodeCentre;
+import com.github.paganini2008.xtransport.TransportClientException;
 import com.github.paganini2008.xtransport.embeddedio.SerializationFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,11 +61,8 @@ public class EmbeddedServer implements NioServer {
 	@Autowired
 	private SerializationFactory serializationFactory;
 
-	@Autowired
-	private TransportNodeCentre transportNodeCentre;
-
 	@Override
-	public int start() throws Exception {
+	public SocketAddress start() throws Exception {
 		if (isStarted()) {
 			throw new IllegalStateException("EmbeddedServer has been started.");
 		}
@@ -86,14 +84,12 @@ public class EmbeddedServer implements NioServer {
 		acceptor.setLocalAddress(localAddress);
 		try {
 			acceptor.start();
-			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			transportNodeCentre.registerNode(location);
 			started.set(true);
 			log.info("EmbeddedServer is started on: " + localAddress);
 		} catch (IOException e) {
-			log.error(e.getMessage(), e);
+			throw new TransportClientException(e.getMessage(), e);
 		}
-		return port;
+		return localAddress;
 	}
 
 	@Override

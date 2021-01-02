@@ -61,17 +61,19 @@ public class ApplicationInfo implements Serializable, Comparable<ApplicationInfo
 
 	@Override
 	public int hashCode() {
-		int result = id.hashCode();
-		result |= clusterName.hashCode();
-		return result | 37;
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (clusterName != null ? 0 : clusterName.hashCode());
+		result = prime * result + (id != null ? 0 : id.hashCode());
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this) {
-			return true;
-		}
 		if (obj instanceof ApplicationInfo) {
+			if (obj == this) {
+				return true;
+			}
 			ApplicationInfo other = (ApplicationInfo) obj;
 			return getClusterName().equals(other.getClusterName()) && getId().equals(other.getId());
 		}

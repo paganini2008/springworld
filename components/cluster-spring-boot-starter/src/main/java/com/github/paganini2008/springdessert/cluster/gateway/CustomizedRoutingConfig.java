@@ -30,8 +30,8 @@ public class CustomizedRoutingConfig {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public HttpRequestDispatcher httpRequestDispatcher() {
-		return new NettyHttpRequestDispatcher();
+	public RequestDispatcher httpRequestDispatcher() {
+		return new NettyRequestDispatcher();
 	}
 
 	@ConditionalOnMissingBean

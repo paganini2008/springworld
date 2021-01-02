@@ -1,4 +1,4 @@
-package com.github.paganini2008.xtransport.logging;
+package com.github.paganini2008.xtransport.log4j;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;

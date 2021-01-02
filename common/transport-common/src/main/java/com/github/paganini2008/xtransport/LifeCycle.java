@@ -9,9 +9,11 @@ package com.github.paganini2008.xtransport;
  */
 public interface LifeCycle {
 
-	void open();
+	default void open() {
+	}
 	
-	void close();
+	default void close() {
+	}
 	
 	boolean isOpened();
 	

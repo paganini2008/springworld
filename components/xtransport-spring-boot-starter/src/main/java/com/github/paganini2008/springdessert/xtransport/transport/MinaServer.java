@@ -3,8 +3,8 @@ package com.github.paganini2008.springdessert.xtransport.transport;
 import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_END;
 import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_START;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -25,10 +25,10 @@ import org.springframework.beans.factory.annotation.Value;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.xtransport.ChannelEvent;
-import com.github.paganini2008.xtransport.ChannelEventListener;
-import com.github.paganini2008.xtransport.TransportNodeCentre;
-import com.github.paganini2008.xtransport.Tuple;
 import com.github.paganini2008.xtransport.ChannelEvent.EventType;
+import com.github.paganini2008.xtransport.ChannelEventListener;
+import com.github.paganini2008.xtransport.TransportClientException;
+import com.github.paganini2008.xtransport.Tuple;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,11 +72,8 @@ public class MinaServer implements NioServer {
 	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
-	@Autowired
-	private TransportNodeCentre transportNodeCentre;
-
 	@Override
-	public int start() {
+	public SocketAddress start() {
 		if (isStarted()) {
 			throw new IllegalStateException("MinaServer has been started.");
 		}
@@ -103,14 +100,12 @@ public class MinaServer implements NioServer {
 		try {
 			localAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
 			ioAcceptor.bind(localAddress);
-			String location = localAddress.getHostName() + ":" + localAddress.getPort();
-			transportNodeCentre.registerNode(location);
 			started.set(true);
-			log.info("MinaServer is started on: " + localAddress);
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
+			log.info("Mina is started on: " + localAddress);
+		} catch (Exception e) {
+			throw new TransportClientException(e.getMessage(), e);
 		}
-		return port;
+		return localAddress;
 	}
 
 	@Override
@@ -129,7 +124,7 @@ public class MinaServer implements NioServer {
 			ioAcceptor = null;
 
 			started.set(false);
-			log.info("MinaServer is closed.");
+			log.info("Mina is closed successfully.");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

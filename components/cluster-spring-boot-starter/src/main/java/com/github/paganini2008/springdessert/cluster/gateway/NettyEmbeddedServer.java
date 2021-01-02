@@ -47,7 +47,7 @@ public class NettyEmbeddedServer implements EmbeddedServer {
 	private EventLoopGroup workerGroup;
 
 	@Autowired
-	private HttpRequestDispatcher httpRequestDispatcher;
+	private RequestDispatcher httpRequestDispatcher;
 
 	@Value("${spring.application.gateway.embeddedserver.port:7000}")
 	private int port;

@@ -6,14 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * HttpRequestDispatcher
+ * RequestDispatcher
  *
  * @author Jimmy Hoff
  * 
  * @since 1.0
  */
 @Slf4j
-public class HttpRequestDispatcher extends ChannelInboundHandlerAdapter {
+public class RequestDispatcher extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) throws Exception {

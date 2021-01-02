@@ -4,6 +4,7 @@ import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RA
 import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_START;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -12,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
-import com.github.paganini2008.xtransport.TransportNodeCentre;
+import com.github.paganini2008.xtransport.TransportClientException;
 import com.github.paganini2008.xtransport.netty.KeepAlivePolicy;
 import com.github.paganini2008.xtransport.netty.MessageCodecFactory;
 
@@ -58,14 +59,11 @@ public class NettyServer implements NioServer {
 	private int idleTimeout;
 
 	@Autowired
-	private TransportNodeCentre transportNodeCentre;
-
-	@Autowired
 	private KeepAlivePolicy keepAlivePolicy;
 
-	public int start() {
+	public SocketAddress start() {
 		if (isStarted()) {
-			throw new IllegalStateException("NettyServer has been started.");
+			throw new IllegalStateException("Netty has been started.");
 		}
 		final int nThreads = threadCount > 0 ? threadCount : Runtime.getRuntime().availableProcessors() * 2;
 		bossGroup = new NioEventLoopGroup(nThreads);
@@ -85,18 +83,16 @@ public class NettyServer implements NioServer {
 			}
 		});
 		int port = NetUtils.getRandomPort(PORT_RANGE_START, PORT_RANGE_END);
+		InetSocketAddress socketAddress;
 		try {
-			InetSocketAddress socketAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port)
-					: new InetSocketAddress(port);
+			socketAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
 			bootstrap.bind(socketAddress).sync();
-			String location = socketAddress.getHostName() + ":" + socketAddress.getPort();
-			transportNodeCentre.registerNode(location);
 			started.set(true);
-			log.info("NettyServer is started on: " + socketAddress);
-		} catch (InterruptedException e) {
-			log.error(e.getMessage(), e);
+			log.info("Netty is started on: " + socketAddress);
+		} catch (Exception e) {
+			throw new TransportClientException(e.getMessage(), e);
 		}
-		return port;
+		return socketAddress;
 	}
 
 	public void stop() {
@@ -111,7 +107,7 @@ public class NettyServer implements NioServer {
 				bossGroup.shutdownGracefully();
 			}
 			started.set(false);
-			log.info("NettyServer is stoped successfully.");
+			log.info("Netty is stoped successfully.");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

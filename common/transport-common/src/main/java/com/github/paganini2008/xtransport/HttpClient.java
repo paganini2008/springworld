@@ -10,16 +10,14 @@ package com.github.paganini2008.xtransport;
  */
 public interface HttpClient extends LifeCycle, Client {
 
-	default boolean isOpened() {
-		return true;
+	void addHeader(String name, String value);
+
+	default void setHeader(String name, String value) {
+		addHeader(name, value);
 	}
 
-	void setConnectionTimeout(int timeout);
-
-	void setReadTimeout(int timeout);
-
-	void addChannel(String channel);
-
-	void clearChannels();
+	default void send(Object data, Partitioner partitioner) {
+		send(data);
+	}
 
 }

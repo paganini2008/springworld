@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @since 1.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class RedisCommonConfig {
 
 	@Bean

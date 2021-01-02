@@ -1,13 +1,14 @@
 package com.github.paganini2008.springdessert.cluster.multicast;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.context.ApplicationListener;
 
+import com.github.paganini2008.devtools.collection.CaseInsensitiveMap;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
 import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
@@ -24,15 +25,25 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApplicationRegistryCenter implements RegistryCenter, ApplicationListener<ApplicationMulticastEvent> {
 
-	private final Map<String, List<ApplicationInfo>> applicationInfoHolder = new ConcurrentHashMap<String, List<ApplicationInfo>>();
+	private final List<ApplicationInfo> allApplications = new CopyOnWriteArrayList<ApplicationInfo>();
+	private final Map<String, List<ApplicationInfo>> applications = CaseInsensitiveMap.concurrentHashMap();
 
 	@Override
 	public void registerApplication(ApplicationInfo applicationInfo) {
-		String applicationName = applicationInfo.getApplicationName();
-		List<ApplicationInfo> infoList = MapUtils.get(applicationInfoHolder, applicationName, () -> {
+		for (int i = 0; i < applicationInfo.getWeight(); i++) {
+			allApplications.add(applicationInfo);
+		}
+		if (allApplications.size() > 1) {
+			Collections.sort(allApplications);
+		}
+
+		List<ApplicationInfo> infoList = MapUtils.get(applications, applicationInfo.getApplicationName(), () -> {
 			return new CopyOnWriteArrayList<ApplicationInfo>();
 		});
-		infoList.add(applicationInfo);
+		for (int i = 0; i < applicationInfo.getWeight(); i++) {
+			infoList.add(applicationInfo);
+		}
+
 		if (infoList.size() > 1) {
 			Collections.sort(infoList);
 		}
@@ -41,26 +52,31 @@ public class ApplicationRegistryCenter implements RegistryCenter, ApplicationLis
 
 	@Override
 	public void removeApplication(ApplicationInfo applicationInfo) {
-		String applicationName = applicationInfo.getApplicationName();
-		List<ApplicationInfo> infoList = applicationInfoHolder.get(applicationName);
+		while (allApplications.contains(applicationInfo)) {
+			allApplications.remove(applicationInfo);
+		}
+		List<ApplicationInfo> infoList = applications.get(applicationInfo.getApplicationName());
 		if (infoList != null) {
-			infoList.remove(applicationInfo);
+			while (infoList.contains(applicationInfo)) {
+				infoList.remove(applicationInfo);
+			}
 		}
 		log.info("Remove application: [{}] from ApplicationRegistryCenter", applicationInfo);
 	}
 
 	@Override
+	public List<ApplicationInfo> getApplications() {
+		return allApplications;
+	}
+
+	@Override
 	public List<ApplicationInfo> getApplications(String applicationName) {
-		return applicationInfoHolder.get(applicationName);
+		return applications.get(applicationName);
 	}
 
 	@Override
 	public int countOfApplication() {
-		int total = 0;
-		for (List<ApplicationInfo> list : applicationInfoHolder.values()) {
-			total += list.size();
-		}
-		return total;
+		return new HashSet<ApplicationInfo>(allApplications).size();
 	}
 
 	@Override
