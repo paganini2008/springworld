@@ -75,7 +75,7 @@ public class TcpTransportClient implements TransportClient, Executable {
 				InetSocketAddress socketAddress = new InetSocketAddress(args[0], Integer.parseInt(args[1]));
 				if (!nioClient.isConnected(socketAddress)) {
 					nioClient.connect(socketAddress, location -> {
-						logger.info("TransportClient connect to: " + location);
+						logger.info("TcpTransportClient connect to: " + location);
 					});
 				}
 			} catch (Exception e) {
