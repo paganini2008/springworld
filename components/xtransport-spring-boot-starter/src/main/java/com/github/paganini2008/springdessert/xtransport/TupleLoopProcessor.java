@@ -41,7 +41,7 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 
 	@Autowired(required = false)
 	private Executor threadPool;
-	
+
 	@Qualifier("consumer")
 	@Autowired
 	private Counter counter;
@@ -63,6 +63,7 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 			return new CopyOnWriteArrayList<Handler>();
 		});
 		handlers.add(handler);
+		log.info("Add handler: {}", handler);
 	}
 
 	public void removeHandler(Handler handler) {
@@ -72,6 +73,7 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 			while (handlers.contains(handler)) {
 				handlers.remove(handler);
 			}
+			log.info("Remove handler: {}", handler);
 		}
 	}
 

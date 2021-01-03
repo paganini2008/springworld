@@ -17,7 +17,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 
 import com.github.paganini2008.devtools.beans.BeanUtils;
-import com.github.paganini2008.devtools.jdbc.PageableSlice;
+import com.github.paganini2008.devtools.jdbc.PageableResultSetSlice;
 
 /**
  * 
@@ -27,7 +27,7 @@ import com.github.paganini2008.devtools.jdbc.PageableSlice;
  * 
  * @since 1.0
  */
-public class ElasticsearchTemplateResultSlice extends PageableSlice<SearchResult> {
+public class ElasticsearchTemplateResultSlice extends PageableResultSetSlice<SearchResult> {
 
 	private final String keyword;
 	private final int version;

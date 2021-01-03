@@ -2,9 +2,11 @@ package com.github.paganini2008.springdessert.logtracker;
 
 import java.time.Duration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
@@ -13,6 +15,7 @@ import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
 import com.github.paganini2008.springdessert.logtracker.es.LogEntryService;
+import com.github.paganini2008.springdessert.logtracker.ui.LogTraceController;
 
 import lombok.Setter;
 import redis.clients.jedis.JedisPoolConfig;
@@ -25,6 +28,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * @version 1.0
  */
 @EnableElasticsearchRepositories("com.github.paganini2008.springdessert.logtracker.es")
+@Import({ LogTraceController.class })
 @Configuration
 public class LogTrackerAutoConfiguration {
 
@@ -40,7 +44,7 @@ public class LogTrackerAutoConfiguration {
 
 	@Setter
 	@Configuration
-	@ConfigurationProperties(prefix = "logtracker.redis")
+	@ConfigurationProperties(prefix = "spring.application.cluster.logtracker.redis")
 	public class RedisConfig {
 
 		private String host = "localhost";
@@ -48,6 +52,7 @@ public class LogTrackerAutoConfiguration {
 		private int port = 6379;
 		private int dbIndex = 0;
 
+		@ConditionalOnMissingBean
 		@Bean
 		public RedisConnectionFactory redisConnectionFactory() {
 			RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
@@ -62,12 +67,13 @@ public class LogTrackerAutoConfiguration {
 			return factory;
 		}
 
+		@ConditionalOnMissingBean
 		@Bean
 		public JedisPoolConfig jedisPoolConfig() {
 			JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-			jedisPoolConfig.setMinIdle(2);
+			jedisPoolConfig.setMinIdle(1);
 			jedisPoolConfig.setMaxIdle(10);
-			jedisPoolConfig.setMaxTotal(50);
+			jedisPoolConfig.setMaxTotal(100);
 			jedisPoolConfig.setMaxWaitMillis(-1);
 			jedisPoolConfig.setTestWhileIdle(true);
 			return jedisPoolConfig;
