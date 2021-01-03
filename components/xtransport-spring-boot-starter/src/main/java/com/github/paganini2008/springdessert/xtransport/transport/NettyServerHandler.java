@@ -38,7 +38,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 	@Autowired(required = false)
 	private ChannelEventListener<Channel> channelEventListener;
 
-	@Value("${spring.application.transport.bufferzone.collectionName}")
+	@Value("${spring.application.cluster.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Override

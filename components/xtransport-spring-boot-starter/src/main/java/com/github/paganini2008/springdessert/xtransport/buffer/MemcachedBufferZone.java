@@ -29,10 +29,10 @@ public class MemcachedBufferZone implements BufferZone {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@Value("${spring.application.transport.bufferzone.collectionName}")
+	@Value("${spring.application.cluster.transport.bufferzone.collectionName}")
 	private String collectionName;
 
-	@Value("${spring.application.transport.bufferzone.hashed:false}")
+	@Value("${spring.application.cluster.transport.bufferzone.hashed:false}")
 	private boolean hashed;
 
 	@Autowired

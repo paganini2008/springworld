@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GrizzlyServerHandler extends BaseFilter {
 
-	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
+	@Value("${spring.application.cluster.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
 	@Autowired
@@ -39,7 +39,7 @@ public class GrizzlyServerHandler extends BaseFilter {
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.application.transport.bufferzone.collectionName}")
+	@Value("${spring.application.cluster.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Autowired(required = false)

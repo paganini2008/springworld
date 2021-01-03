@@ -39,7 +39,7 @@ public class RedisBufferZone implements BufferZone, BeanLifeCycle {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@Value("${spring.application.transport.bufferzone.hashed:false}")
+	@Value("${spring.application.cluster.transport.bufferzone.hashed:false}")
 	private boolean hashed;
 
 	private final Map<String, String> keyMapper = new ConcurrentHashMap<String, String>();

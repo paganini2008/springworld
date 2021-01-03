@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessLogging implements Executable, ApplicationListener<ContextRefreshedEvent>, DisposableBean {
 
-	@Value("${spring.application.transport.bufferzone.collectionName}")
+	@Value("${spring.application.cluster.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Qualifier("producer")

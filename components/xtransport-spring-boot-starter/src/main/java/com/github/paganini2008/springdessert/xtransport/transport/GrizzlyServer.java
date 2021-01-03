@@ -40,13 +40,13 @@ public class GrizzlyServer implements NioServer {
 	private DelayedExecutor delayedExecutor;
 	private InetSocketAddress localAddress;
 
-	@Value("${spring.application.transport.nioserver.threads:-1}")
+	@Value("${spring.application.cluster.transport.nioserver.threads:-1}")
 	private int threadCount;
 
-	@Value("${spring.application.transport.nioserver.hostName:}")
+	@Value("${spring.application.cluster.transport.nioserver.hostName:}")
 	private String hostName;
 
-	@Value("${spring.application.transport.nioserver.idleTimeout:60}")
+	@Value("${spring.application.cluster.transport.nioserver.idleTimeout:60}")
 	private int idleTimeout;
 
 	@Autowired

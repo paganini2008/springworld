@@ -89,12 +89,12 @@ public class XtransportAutoConfiguration {
 		return new ProcessLogging();
 	}
 
-	@Bean(name = "consumer", initMethod = "start", destroyMethod = "stop")
+	@Bean("consumer")
 	public Counter consumer(RedisConnectionFactory redisConnectionFactory) {
 		return new Counter(clusterName, "consumer", redisConnectionFactory);
 	}
 
-	@Bean(name = "producer", initMethod = "start", destroyMethod = "stop")
+	@Bean("producer")
 	public Counter producer(RedisConnectionFactory redisConnectionFactory) {
 		return new Counter(clusterName, "producer", redisConnectionFactory);
 	}
@@ -114,7 +114,7 @@ public class XtransportAutoConfiguration {
 	 * @since 1.0
 	 */
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.transport.bufferzone", havingValue = "memcached")
+	@ConditionalOnProperty(name = "spring.application.cluster.transport.bufferzone", havingValue = "memcached")
 	public static class MemcachedBufferZoneConfiguration {
 
 		@Value("${spring.memcached.address:localhost:11211}")
@@ -136,7 +136,7 @@ public class XtransportAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "netty", matchIfMissing = true)
+	@ConditionalOnProperty(name = "spring.application.cluster.transport.nioserver", havingValue = "netty", matchIfMissing = true)
 	public static class NettyTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
@@ -176,7 +176,7 @@ public class XtransportAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "mina")
+	@ConditionalOnProperty(name = "spring.application.cluster.transport.nioserver", havingValue = "mina")
 	public static class MinaTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
@@ -210,7 +210,7 @@ public class XtransportAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "grizzly")
+	@ConditionalOnProperty(name = "spring.application.cluster.transport.nioserver", havingValue = "grizzly")
 	public static class GrizzlyTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")
@@ -244,7 +244,7 @@ public class XtransportAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.application.transport.nioserver", havingValue = "embedded-io")
+	@ConditionalOnProperty(name = "spring.application.cluster.transport.nioserver", havingValue = "embedded-io")
 	public static class EmbeddedIOTransportConfiguration {
 
 		@Bean(initMethod = "open", destroyMethod = "close")

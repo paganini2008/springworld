@@ -23,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyServerKeepAlivePolicy extends KeepAlivePolicy {
 
-	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
+	@Value("${spring.application.cluster.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
-	@Value("${spring.application.transport.nioserver.idleTimeout:60}")
+	@Value("${spring.application.cluster.transport.nioserver.idleTimeout:60}")
 	private int idleTimeout;
 
 	@Autowired(required = false)

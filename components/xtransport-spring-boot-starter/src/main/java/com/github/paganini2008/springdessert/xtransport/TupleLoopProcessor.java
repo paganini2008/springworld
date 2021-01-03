@@ -46,10 +46,10 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.application.transport.bufferzone.collectionName}")
+	@Value("${spring.application.cluster.transport.bufferzone.collectionName}")
 	private String collectionName;
 
-	@Value("${spring.application.transport.bufferzone.pullSize:1}")
+	@Value("${spring.application.cluster.transport.bufferzone.pullSize:1}")
 	private int pullSize;
 
 	private final List<BatchHandler> batchHandlers = new CopyOnWriteArrayList<BatchHandler>();

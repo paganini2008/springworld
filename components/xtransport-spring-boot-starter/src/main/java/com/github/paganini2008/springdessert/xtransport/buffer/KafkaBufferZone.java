@@ -43,13 +43,13 @@ public class KafkaBufferZone implements BufferZone, BeanLifeCycle {
 	@Autowired
 	private RedisConnectionFactory redisConnectionFactory;
 
-	@Value("${spring.application.transport.bufferzone.kafka.bootstrapServers}")
+	@Value("${spring.application.cluster.transport.bufferzone.kafka.bootstrapServers}")
 	private String bootstrapServers;
 
-	@Value("${spring.application.transport.bufferzone.collectionName}")
+	@Value("${spring.application.cluster.transport.bufferzone.collectionName}")
 	private String topicName;
 
-	@Value("${spring.application.transport.bufferzone.pullSize:100}")
+	@Value("${spring.application.cluster.transport.bufferzone.pullSize:100}")
 	private int pullSize;
 
 	@Value("${spring.application.cluster.name}")
@@ -76,7 +76,7 @@ public class KafkaBufferZone implements BufferZone, BeanLifeCycle {
 		p.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
 		p.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		p.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, FstKafkaSerializer.class);
-		p.put(ConsumerConfig.GROUP_ID_CONFIG, "spring.application.transport." + clusterName);
+		p.put(ConsumerConfig.GROUP_ID_CONFIG, "spring.application.cluster.transport." + clusterName);
 
 		kafkaConsumer = new KafkaConsumer<String, Tuple>(p);
 		kafkaConsumer.subscribe(Arrays.asList(topicName));

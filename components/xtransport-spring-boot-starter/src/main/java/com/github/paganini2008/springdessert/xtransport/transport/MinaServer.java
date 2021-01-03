@@ -57,16 +57,16 @@ public class MinaServer implements NioServer {
 	@Autowired(required = false)
 	private ChannelEventListener<IoSession> channelEventListener;
 
-	@Value("${spring.application.transport.nioserver.threads:-1}")
+	@Value("${spring.application.cluster.transport.nioserver.threads:-1}")
 	private int threadCount;
 
-	@Value("${spring.application.transport.nioserver.hostName:}")
+	@Value("${spring.application.cluster.transport.nioserver.hostName:}")
 	private String hostName;
 
-	@Value("${spring.application.transport.nioserver.idleTimeout:60}")
+	@Value("${spring.application.cluster.transport.nioserver.idleTimeout:60}")
 	private int idleTimeout;
 
-	@Value("${spring.application.transport.nioserver.keepalive.response:true}")
+	@Value("${spring.application.cluster.transport.nioserver.keepalive.response:true}")
 	private boolean keepaliveResposne;
 
 	@Override

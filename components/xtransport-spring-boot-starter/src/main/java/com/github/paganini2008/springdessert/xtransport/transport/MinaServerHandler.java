@@ -32,7 +32,7 @@ public class MinaServerHandler extends IoHandlerAdapter {
 	@Autowired
 	private Counter counter;
 
-	@Value("${spring.application.transport.bufferzone.collectionName}")
+	@Value("${spring.application.cluster.transport.bufferzone.collectionName}")
 	private String collectionName;
 
 	@Autowired(required = false)
