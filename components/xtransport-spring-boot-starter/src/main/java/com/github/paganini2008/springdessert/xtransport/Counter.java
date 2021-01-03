@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import com.github.paganini2008.devtools.multithreads.Executable;
 import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
 import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
 
 /**
@@ -17,15 +18,16 @@ import com.github.paganini2008.springdessert.reditools.common.RedisCounter;
  * @author Jimmy Hoff
  * @version 1.0
  */
-public final class Counter extends RedisCounter implements Executable {
+public final class Counter implements BeanLifeCycle, Executable {
 
-	private static final String defaultRedisKeyPattern = "spring:transport:cluster:%s:counter:%s";
+	private static final String defaultRedisKeyPattern = "spring:application:transport:cluster:%s:counter:%s";
 
 	public Counter(String name, String roleName, RedisConnectionFactory connectionFactory) {
-		super(String.format(defaultRedisKeyPattern, name, roleName), connectionFactory);
+		redisCounter = new RedisCounter(String.format(defaultRedisKeyPattern, name, roleName), connectionFactory);
 	}
 
-	private final AtomicLong counter = new AtomicLong();
+	private final AtomicLong counter = new AtomicLong(0);
+	private final RedisCounter redisCounter;
 	private final AtomicBoolean running = new AtomicBoolean();
 
 	private volatile long increment;
@@ -35,55 +37,60 @@ public final class Counter extends RedisCounter implements Executable {
 
 	public void incrementCount() {
 		counter.incrementAndGet();
-		super.incrementAndGet();
 	}
 
 	public void incrementCount(int value) {
 		counter.addAndGet(value);
-		super.addAndGet(value);
 	}
 
-	public long get(boolean total) {
-		return total ? super.get() : counter.get();
+	public long get() {
+		return counter.get();
 	}
 
-	public void start() {
+	public long getTotal() {
+		return redisCounter.get();
+	}
+
+	public void configure() {
 		counter.set(0);
 		running.set(true);
 		ThreadUtils.scheduleWithFixedDelay(this, 1, TimeUnit.SECONDS);
 	}
 
-	public void stop() {
+	public void destroy() {
 		running.set(false);
-		super.destroy();
+		redisCounter.destroy();
 	}
 
-	public long tps(boolean total) {
-		return total ? totalTps : tps;
+	public long getTps() {
+		return tps;
+	}
+
+	public long getTotalTps() {
+		return totalTps;
 	}
 
 	@Override
 	public boolean execute() {
-		long value = get(true);
-		if (value > 0) {
-			long current = value;
-			totalTps = current - totalIncrement;
-			totalIncrement = current;
-		}
-
-		value = get(false);
+		long value = counter.get();
 		if (value > 0) {
 			long current = value;
 			tps = current - increment;
 			increment = current;
+		}
+		value = redisCounter.addAndGet(value);
+		if (value > 0) {
+			long current = value;
+			totalTps = current - totalIncrement;
+			totalIncrement = current;
 		}
 		return running.get();
 	}
 
 	public String toString() {
 		StringBuilder str = new StringBuilder("<Counter>");
-		str.append(" count: ").append(get(false) + "/" + get(true));
-		str.append(", tps: ").append(tps(false) + "/" + tps(true));
+		str.append(" count: ").append(get() + "/" + getTotal());
+		str.append(", tps: ").append(getTps() + "/" + getTotalTps());
 		return str.toString();
 	}
 

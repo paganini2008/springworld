@@ -1,8 +1,5 @@
 package com.github.paganini2008.springdessert.xtransport.transport;
 
-import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_END;
-import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_START;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -79,7 +76,7 @@ public class EmbeddedServer implements NioServer {
 		}
 		acceptor.addHandler(serverHandler);
 
-		int port = NetUtils.getRandomPort(PORT_RANGE_START, PORT_RANGE_END);
+		int port = NetUtils.getRandomPort(PORT_RANGE_BEGIN, PORT_RANGE_END);
 		localAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
 		acceptor.setLocalAddress(localAddress);
 		try {

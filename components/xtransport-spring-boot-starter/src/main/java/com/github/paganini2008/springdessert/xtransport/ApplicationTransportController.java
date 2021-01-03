@@ -55,8 +55,8 @@ public class ApplicationTransportController {
 	@GetMapping("/tps")
 	public ResponseEntity<Map<String, Object>> tps() {
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("producer", new Object[] { producer.tps(false), producer.tps(true) });
-		data.put("consumer", new Object[] { consumer.tps(false), consumer.tps(true) });
+		data.put("producer", producer.getTps() + "/" + producer.getTotalTps());
+		data.put("consumer", consumer.getTps() + "/" + consumer.getTotalTps());
 		return ResponseEntity.ok(data);
 	}
 

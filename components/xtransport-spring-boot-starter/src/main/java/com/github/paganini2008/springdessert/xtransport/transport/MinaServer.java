@@ -1,8 +1,5 @@
 package com.github.paganini2008.springdessert.xtransport.transport;
 
-import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_END;
-import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_START;
-
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -96,7 +93,7 @@ public class MinaServer implements NioServer {
 
 		ioAcceptor.getFilterChain().addLast("threadPool", new ExecutorFilter(nThreads));
 		ioAcceptor.setHandler(serverHandler);
-		int port = NetUtils.getRandomPort(PORT_RANGE_START, PORT_RANGE_END);
+		int port = NetUtils.getRandomPort(PORT_RANGE_BEGIN, PORT_RANGE_END);
 		try {
 			localAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
 			ioAcceptor.bind(localAddress);

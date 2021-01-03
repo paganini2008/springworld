@@ -1,8 +1,5 @@
 package com.github.paganini2008.springdessert.xtransport.transport;
 
-import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_END;
-import static com.github.paganini2008.springdessert.xtransport.Constants.PORT_RANGE_START;
-
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -82,7 +79,7 @@ public class NettyServer implements NioServer {
 				pipeline.addLast(serverHandler);
 			}
 		});
-		int port = NetUtils.getRandomPort(PORT_RANGE_START, PORT_RANGE_END);
+		int port = NetUtils.getRandomPort(PORT_RANGE_BEGIN, PORT_RANGE_END);
 		InetSocketAddress socketAddress;
 		try {
 			socketAddress = StringUtils.isNotBlank(hostName) ? new InetSocketAddress(hostName, port) : new InetSocketAddress(port);
