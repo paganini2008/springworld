@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -25,6 +26,7 @@ public class TaskExecutorHealthIndicator extends AbstractHealthIndicator {
 
 	private static final float WARNING_THRESHOLD = 0.8F;
 
+	@Qualifier("clusterTaskExecutor")
 	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
 

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.context.ApplicationListener;
@@ -26,7 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ApplicationRegistryCenter implements RegistryCenter, ApplicationListener<ApplicationMulticastEvent> {
 
 	private final List<ApplicationInfo> allApplications = new CopyOnWriteArrayList<ApplicationInfo>();
-	private final Map<String, List<ApplicationInfo>> applications = CaseInsensitiveMap.concurrentHashMap();
+	private final Map<String, List<ApplicationInfo>> applications = new CaseInsensitiveMap<List<ApplicationInfo>>(
+			new ConcurrentHashMap<String, List<ApplicationInfo>>());
 
 	@Override
 	public void registerApplication(ApplicationInfo applicationInfo) {

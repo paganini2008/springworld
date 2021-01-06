@@ -33,7 +33,7 @@ public class ApplicationUtilityConfig {
 	@Value("${spring.application.cluster.common.taskSchedulerThreads:-1}")
 	private int taskSchedulerThreads;
 
-	@ConditionalOnMissingBean
+	@ConditionalOnMissingBean(name = "clusterTaskExecutor")
 	@Bean
 	public ThreadPoolTaskExecutor clusterTaskExecutor() {
 		final int nThreads = taskExecutorThreads > 0 ? taskExecutorThreads : Runtime.getRuntime().availableProcessors() * 2;
@@ -45,7 +45,7 @@ public class ApplicationUtilityConfig {
 		return taskExecutor;
 	}
 
-	@ConditionalOnMissingBean
+	@ConditionalOnMissingBean(name = "clusterTaskScheduler")
 	@Bean(destroyMethod = "shutdown")
 	public ThreadPoolTaskScheduler clusterTaskScheduler() {
 		final int nThreads = taskExecutorThreads > 0 ? taskExecutorThreads : Runtime.getRuntime().availableProcessors() * 2;

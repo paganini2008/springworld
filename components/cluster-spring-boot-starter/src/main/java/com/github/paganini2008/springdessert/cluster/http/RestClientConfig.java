@@ -74,7 +74,7 @@ public class RestClientConfig {
 
 	@Bean
 	public RequestTemplate genericRequestTemplate(RoutingAllocator routingAllocator, RestClientPerformer restClientPerformer,
-			RetryTemplateFactory retryTemplateFactory, ThreadPoolTaskExecutor taskExecutor,
+			RetryTemplateFactory retryTemplateFactory, @Qualifier("clusterTaskExecutor") ThreadPoolTaskExecutor taskExecutor,
 			RequestInterceptorContainer requestInterceptorContainer, @Qualifier("requestStatistic") StatisticIndicator statisticIndicator) {
 		return new RequestTemplate(routingAllocator, restClientPerformer, retryTemplateFactory, taskExecutor, requestInterceptorContainer,
 				statisticIndicator);

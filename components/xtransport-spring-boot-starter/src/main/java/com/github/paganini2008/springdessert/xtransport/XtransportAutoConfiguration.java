@@ -1,5 +1,7 @@
 package com.github.paganini2008.springdessert.xtransport;
 
+import java.util.concurrent.ThreadPoolExecutor;
+
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.glassfish.grizzly.Connection;
@@ -10,7 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.springdessert.xmemcached.MemcachedTemplate;
 import com.github.paganini2008.springdessert.xmemcached.MemcachedTemplateBuilder;
 import com.github.paganini2008.springdessert.xmemcached.serializer.FstMemcachedSerializer;
@@ -32,6 +36,7 @@ import com.github.paganini2008.springdessert.xtransport.transport.NettyServer;
 import com.github.paganini2008.springdessert.xtransport.transport.NettyServerHandler;
 import com.github.paganini2008.springdessert.xtransport.transport.NettyServerKeepAlivePolicy;
 import com.github.paganini2008.springdessert.xtransport.transport.NioServer;
+import com.github.paganini2008.springdessert.xtransport.transport.NioServerStarter;
 import com.github.paganini2008.xtransport.ChannelEventListener;
 import com.github.paganini2008.xtransport.NioClient;
 import com.github.paganini2008.xtransport.Partitioner;
@@ -67,6 +72,16 @@ public class XtransportAutoConfiguration {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
+	@Bean
+	public ApplicationTransportContext applicationTransportContext() {
+		return new ApplicationTransportContext();
+	}
+	
+	@Bean
+	public NioServerStarter nioServerStarter() {
+		return new NioServerStarter();
+	}
+
 	@ConditionalOnMissingBean
 	@Bean
 	public Serializer serializer() {
@@ -76,6 +91,19 @@ public class XtransportAutoConfiguration {
 	@Bean
 	public TupleLoopProcessor tupleLoopProcessor() {
 		return new TupleLoopProcessor();
+	}
+
+	@ConditionalOnMissingBean(name = "loopProcessorThreads")
+	@Bean
+	public ThreadPoolTaskExecutor loopProcessorThreads(
+			@Value("${spring.application.cluster.transport.processor.threads:-1}") int taskExecutorThreads) {
+		final int nThreads = taskExecutorThreads > 0 ? taskExecutorThreads : Runtime.getRuntime().availableProcessors() * 2;
+		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+		taskExecutor.setCorePoolSize(nThreads);
+		taskExecutor.setMaxPoolSize(nThreads);
+		taskExecutor.setThreadFactory(new PooledThreadFactory("spring-application-cluster-task-executor-"));
+		taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+		return taskExecutor;
 	}
 
 	@ConditionalOnMissingBean
@@ -146,7 +174,7 @@ public class XtransportAutoConfiguration {
 			return nioClient;
 		}
 
-		@Bean(initMethod = "start", destroyMethod = "stop")
+		@Bean
 		public NioServer nioServer() {
 			return new NettyServer();
 		}
@@ -186,7 +214,7 @@ public class XtransportAutoConfiguration {
 			return nioClient;
 		}
 
-		@Bean(initMethod = "start", destroyMethod = "stop")
+		@Bean
 		public NioServer nioServer() {
 			return new MinaServer();
 		}
@@ -220,7 +248,7 @@ public class XtransportAutoConfiguration {
 			return nioClient;
 		}
 
-		@Bean(initMethod = "start", destroyMethod = "stop")
+		@Bean
 		public NioServer nioServer() {
 			return new GrizzlyServer();
 		}
@@ -254,7 +282,7 @@ public class XtransportAutoConfiguration {
 			return nioClient;
 		}
 
-		@Bean(initMethod = "start", destroyMethod = "stop")
+		@Bean
 		public NioServer nioServer() {
 			return new EmbeddedServer();
 		}

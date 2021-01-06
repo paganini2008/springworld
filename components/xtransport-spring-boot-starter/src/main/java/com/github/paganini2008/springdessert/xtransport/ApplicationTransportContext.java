@@ -6,10 +6,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
 
 import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
-import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastListener;
-import com.github.paganini2008.springdessert.xtransport.transport.NioServerStarterListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMessageListener;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
 import com.github.paganini2008.xtransport.NioClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,10 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class ApplicationTransportContext implements ApplicationMulticastListener {
+public class ApplicationTransportContext implements ApplicationMessageListener, ApplicationListener<ApplicationMulticastEvent> {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
-
-	@Autowired
-	private NioServerStarterListener nioServerStarterListener;
 
 	@Autowired
 	private NioClient nioClient;
@@ -40,19 +39,25 @@ public class ApplicationTransportContext implements ApplicationMulticastListener
 	}
 
 	@Override
-	public void onActive(ApplicationInfo applicationInfo) {
-		nioServerStarterListener.addPromise(serverInfo -> {
-			nioClient.connect(new InetSocketAddress(serverInfo.getHostName(), serverInfo.getPort()), address -> {
-				log.info("NioClient connect to: " + address);
-				serverInfos.put(applicationInfo, serverInfo);
-			});
+	public void onApplicationEvent(ApplicationMulticastEvent event) {
+		if (event.getMulticastEventType() == MulticastEventType.ON_INACTIVE) {
+			serverInfos.remove(event.getApplicationInfo());
+			log.info("Application '{}' has left transport cluster '{}'", event.getApplicationInfo(), clusterName);
+		}
+	}
+
+	@Override
+	public synchronized void onMessage(ApplicationInfo applicationInfo, String id, Object message) {
+		ServerInfo serverInfo = (ServerInfo) message;
+		nioClient.connect(new InetSocketAddress(serverInfo.getHostName(), serverInfo.getPort()), address -> {
+			log.info("NioClient connect to {}", address);
+			serverInfos.put(applicationInfo, serverInfo);
 		});
 	}
 
 	@Override
-	public void onInactive(ApplicationInfo applicationInfo) {
-		log.info("Application [{}] has left spring transport cluster [{}]", applicationInfo, clusterName);
-		serverInfos.remove(applicationInfo);
+	public String getTopic() {
+		return ApplicationTransportContext.class.getName();
 	}
 
 }

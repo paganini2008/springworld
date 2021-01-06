@@ -1,17 +1,17 @@
 package com.github.paganini2008.springdessert.xtransport.transport;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 
-import com.github.paganini2008.devtools.multithreads.Executable;
-import com.github.paganini2008.devtools.multithreads.ThreadUtils;
-import com.github.paganini2008.springdessert.reditools.messager.RedisMessageSender;
+import com.github.paganini2008.springdessert.cluster.ApplicationInfo;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastEvent.MulticastEventType;
+import com.github.paganini2008.springdessert.cluster.multicast.ApplicationMulticastGroup;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
+import com.github.paganini2008.springdessert.xtransport.ApplicationTransportContext;
 import com.github.paganini2008.springdessert.xtransport.ServerInfo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,45 +24,39 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  */
 @Slf4j
-public class NioServerStarter implements ApplicationListener<ContextRefreshedEvent>, InitializingBean, Executable {
+public class NioServerStarter implements BeanLifeCycle, ApplicationListener<ApplicationMulticastEvent> {
 
 	public static final String DEFAULT_CHANNEL_PATTERN = "spring:application:cluster:%s:transport:starter";
+
+	@Value("${spring.application.cluster.name}")
+	private String clusterName;
 
 	@Autowired
 	private NioServer nioServer;
 
 	@Autowired
-	private RedisMessageSender redisMessageSender;
-
-	@Autowired
-	private NioServerStarterListener starterListener;
-
-	@Value("${spring.application.cluster.name}")
-	private String clusterName;
+	private ApplicationMulticastGroup applicationMulticastGroup;
 
 	private InetSocketAddress socketAddress;
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
-		ThreadUtils.scheduleWithFixedDelay(this, 5, TimeUnit.SECONDS);
+	public void configure() throws Exception {
+		socketAddress = (InetSocketAddress) nioServer.start();
 	}
 
 	@Override
-	public void onApplicationEvent(ContextRefreshedEvent event) {
-		try {
-			socketAddress = (InetSocketAddress) nioServer.start();
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+	public void onApplicationEvent(ApplicationMulticastEvent event) {
+		if (event.getMulticastEventType() == MulticastEventType.ON_ACTIVE) {
+			ApplicationInfo applicationInfo = event.getApplicationInfo();
+			applicationMulticastGroup.send(applicationInfo.getId(), ApplicationTransportContext.class.getName(),
+					new ServerInfo(socketAddress));
+			log.info("Application '{}' join transport cluster '{}'", applicationInfo, clusterName);
 		}
 	}
 
 	@Override
-	public boolean execute() {
-		if (socketAddress != null && starterListener.countOfPromise() > 0) {
-			final String listeningChannel = String.format(DEFAULT_CHANNEL_PATTERN, clusterName);
-			redisMessageSender.sendMessage(listeningChannel, new ServerInfo(socketAddress));
-		}
-		return socketAddress == null || nioServer.isStarted();
+	public void destroy() {
+		nioServer.stop();
 	}
 
 }

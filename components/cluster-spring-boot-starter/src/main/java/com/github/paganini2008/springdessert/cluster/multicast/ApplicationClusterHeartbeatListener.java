@@ -37,6 +37,7 @@ public class ApplicationClusterHeartbeatListener implements ApplicationListener<
 	@Autowired
 	private InstanceId instanceId;
 
+	@Qualifier("clusterTaskScheduler")
 	@Autowired
 	private TaskScheduler taskScheduler;
 
@@ -46,6 +47,7 @@ public class ApplicationClusterHeartbeatListener implements ApplicationListener<
 	@Autowired
 	private RetryTemplateFactory retryTemplateFactory;
 
+	@Qualifier("clusterTaskExecutor")
 	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
 

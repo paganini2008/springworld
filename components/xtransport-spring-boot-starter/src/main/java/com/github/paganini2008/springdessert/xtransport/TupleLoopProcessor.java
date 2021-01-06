@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.BeansException;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.github.paganini2008.devtools.Assert;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
@@ -39,8 +39,9 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 	@Autowired
 	private BufferZone bufferZone;
 
-	@Autowired(required = false)
-	private Executor threadPool;
+	@Qualifier("loopProcessorThreads")
+	@Autowired
+	private ThreadPoolTaskExecutor threadPool;
 
 	@Qualifier("consumer")
 	@Autowired
