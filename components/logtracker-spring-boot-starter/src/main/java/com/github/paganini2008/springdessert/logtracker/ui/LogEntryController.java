@@ -14,14 +14,14 @@ import com.github.paganini2008.springdessert.logtracker.es.LogEntryService;
 
 /**
  * 
- * LogTraceController
+ * LogEntryController
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-@RequestMapping("/application/cluster/log")
+@RequestMapping("/application/cluster/log/entry")
 @RestController
-public class LogTraceController {
+public class LogEntryController {
 
 	@Autowired
 	private LogEntryService logEntryService;

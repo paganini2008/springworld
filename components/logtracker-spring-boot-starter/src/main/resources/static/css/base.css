@@ -1,0 +1,380 @@
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	background-color: #FCFCFC;
+	font-style: normal;
+	font-size: 14px;
+	font-family: Open Sans,sans-serif;
+	color: #000;
+}
+
+#top {
+	height: 80px;
+	line-height: 80px;
+	background-color: #000;
+	width: 100%;
+	position: absolute;
+	z-index: 5;
+	top: 0;
+	text-align: center;
+	clear: both;
+}
+
+#foot {
+	height: 50px;
+	line-height: 50px;
+	background-color: #000;
+	color: #fff;
+	width: 100%;
+	position: absolute;
+	z-index: 200;
+	bottom: 0;
+	text-align: center;
+	clear: both;
+	font-weight: bold;
+}
+
+#container {
+	width: calc(100% - 10px);
+	height: auto;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	top: 80px;
+	bottom: 50px;
+	left: 10px;
+	right: 0px;
+	position: absolute;
+	z-index: 0;
+	clear: both;
+}
+
+#left {
+	width: 15%;
+	height: 100%;
+	float: left;
+	position: relative;
+}
+
+#right {
+	width: 85%;
+	height: 100%;
+	float: left;
+	position: relative;
+}
+
+#tabBox, #jobDetail, #searchBox, #stackTraceBox, #logBox{
+	background-color: #fff;
+}
+
+#currentClusterName {
+	float: right;
+	display: inline-block;
+	margin-right: 15px;
+	margin-top: 30px;
+	width: 120px;
+	height: 30px;
+	line-height: 30px;
+	padding-left: 5px;
+}
+
+#tabContent {
+	width: 100%;
+}
+
+#logBox {
+	clear: both;
+}
+
+.logItem {
+	width: 100%;
+	text-align: left;
+}
+
+#stackTraceBox {
+	clear: both;
+	overflow-y: scroll;
+	height: 100%;
+	width: 100%;
+}
+
+.traceItem {
+	width: 100%;
+	text-align: left;
+	font-size: 12px;
+}
+
+.traceItem pre {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+input, select, textarea {
+	font: 14px 微软雅黑;
+}
+
+img {
+	cursor: pointer;
+}
+
+#logoText {
+	font-weight: bold;
+	font-size: 26pt;
+	float: left;
+	display: inline-block;
+	height: 100%;
+	color: #fff;
+	margin-left: 110px;
+	cursor: pointer;
+}
+
+#navBox {
+	width: 100%;
+	display: block;
+	margin-top: 60px;
+	font-size: 14pt;
+}
+
+#navBox li {
+	list-style: none;
+	display: block;
+	width: 100%;
+	height: 36px;
+	line-height: 36px;
+	text-align: left;
+	margin-top: 5px;
+	cursor: pointer;
+	font-weight: bold;
+	clear: both;
+}
+
+#navBox li a {
+	display: inline-block;
+	float: left;
+	margin-left: 10px;
+}
+
+#sec-nav {
+	width: 100%;
+	clear: both;
+	padding: 5px 0px 10px 0px;
+}
+
+#sec-nav ul {
+	width: auto;
+	height: 28px;
+	line-height: 28px;
+	display: block;
+	font-size: 13px;
+}
+
+#sec-nav ul li {
+	list-style: none;
+	float: left;
+	display: inline-block;
+	margin-right: 5px;
+	width: 80px;
+	height: 28px;
+	line-height: 28px;
+	text-align: center;
+	border: 1px solid #DCDCDC;
+	cursor: pointer;
+	background-color: #fff;
+	border-radius: 10px;
+	padding: 0px 10px;
+}
+
+#leftTop {
+	width: 70%;
+	height: 50px;
+	float: left;
+	display: inline-block;
+	margin-top: 5px;
+}
+
+#rightTop {
+	width: 30%;
+	height: 50px;
+	float: left;
+	display: inline-block;
+	margin-top: 20px;
+}
+
+#rightTop span {
+	display: block;
+	text-align: right;
+	left: right;
+	height: 20px;
+	margin: 2px 20px 2px;
+}
+
+.cBtn {
+	width: 80px;
+	padding: 5px 20px;
+	cursor: pointer;
+}
+
+.tblCom {
+	table-layout: fixed;
+}
+
+.tblCom thead tr {
+	height: 38px;
+	line-height: 38px;
+	border-top: 1px solid #BEBEBE;
+	background-color: #000;
+}
+
+.tblCom thead tr td {
+	height: 38px;
+	line-height: 38px;
+	font-weight: bold;
+	color: #fff;
+	border-left: 1px solid #BEBEBE;
+	border-top: 1px solid #BEBEBE;
+	border-bottom: 1px solid #BEBEBE;
+}
+
+.tblCom thead tr td:nth-child(1) {
+	border-left: 1px solid #BEBEBE;
+	text-align: center;
+}
+
+.tblCom thead tr td:last-child {
+	border-right: 1px solid #BEBEBE;
+}
+
+.tblCom tbody tr {
+	height: 38px;
+	line-height: 38px;
+}
+
+.tblCom tbody tr td {
+	height: 38px;
+	line-height: 38px;
+	word-break: keep-all;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	border-left: 1px solid #BEBEBE;
+	border-bottom: 1px solid #BEBEBE;
+	text-indent: 5px;
+}
+
+.tblCom tbody tr td:nth-child(1) {
+	border-left: 1px solid #BEBEBE;
+	text-align: center;
+}
+
+.tblCom tbody tr td:last-child {
+	border-right: 1px solid #BEBEBE;
+	text-align: center;
+}
+
+.tdLeft5 {
+	text-align: left;
+	padding-left: 5px;
+}
+
+.tdLeft10 {
+	text-align: left;
+	padding-left: 10px;
+}
+
+.tdRight5 {
+	text-align: right;
+	padding-right: 5px;
+}
+
+.tdRight10 {
+	text-align: right;
+	padding-right: 10px;
+}
+
+.trGreen {
+	color: #00BB00;
+}
+
+.trRed {
+	color: #D9006C;
+}
+
+.popTop {
+	width: 520px;
+	height: 30px;
+	line-height: 30px;
+	margin: 0px 10px 15px;
+	text-align: left;
+}
+
+.popTitle {
+	font-weight: bold;
+	font-size: 15px;
+	letter-spacing: 1px;
+}
+
+.popClose {
+	display: inline-block;
+	float: right;
+	width: 22px;
+	height: 22px;
+	margin: 4px 0px;
+	background: url('../img/mod_close.png') no-repeat scroll transparent;
+	cursor: pointer;
+}
+
+.popBox {
+	width: 550px;
+	text-align: left;
+	padding: 5px 10px;
+	height: auto;
+	overflow: hidden;
+}
+
+.popContent p {
+	height: auto;
+	display: block;
+	line-height: 30px;
+	margin-bottom: 2px;
+	width: 100%;
+}
+
+.popContent p label {
+	display: inline-block;
+	width: 100px;
+	height: 30px;
+	text-align: right;
+	padding-right: 10px;
+	font-weight: bold;
+}
+
+a:link {
+	text-decoration: none;
+}
+
+a:visited {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: none;
+	font-weight: bold;
+}
+
+a:active {
+	text-decoration: none;
+}
+
+.tabNoData {
+	display: table;
+	width: 100%;
+	height: 600px;
+	line-height: 600px;
+}

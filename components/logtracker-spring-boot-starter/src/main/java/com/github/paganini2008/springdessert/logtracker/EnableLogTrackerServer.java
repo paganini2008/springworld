@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
+import com.github.paganini2008.springdessert.logtracker.ui.LogTrackerUIAutoConfiguration;
 import com.github.paganini2008.springdessert.xtransport.EnableXTransport;
 
 /**
@@ -21,6 +22,6 @@ import com.github.paganini2008.springdessert.xtransport.EnableXTransport;
 @Target(ElementType.TYPE)
 @Documented
 @EnableXTransport
-@Import(LogTrackerAutoConfiguration.class)
+@Import({ LogTrackerAutoConfiguration.class, LogTrackerUIAutoConfiguration.class })
 public @interface EnableLogTrackerServer {
 }

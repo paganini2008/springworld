@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
@@ -16,7 +15,6 @@ import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
 import com.github.paganini2008.springdessert.logtracker.es.LogEntryService;
-import com.github.paganini2008.springdessert.logtracker.ui.LogTraceController;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 
@@ -31,7 +29,6 @@ import redis.clients.jedis.JedisPoolConfig;
  * @version 1.0
  */
 @EnableElasticsearchRepositories("com.github.paganini2008.springdessert.logtracker.es")
-@Import({ LogTraceController.class })
 @Configuration(proxyBeanMethods = false)
 public class LogTrackerAutoConfiguration {
 

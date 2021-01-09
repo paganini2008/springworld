@@ -12,12 +12,12 @@
 
 	<artifactId>logtracker-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
- 
+
 	<name>logtracker-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
-	<dependencies> 
-	
+	<dependencies>
+
 		<dependency>
 			<groupId>com.github.paganini2008.springdessert</groupId>
 			<artifactId>xtransport-spring-boot-starter</artifactId>
@@ -37,6 +37,17 @@
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-elasticsearch</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
