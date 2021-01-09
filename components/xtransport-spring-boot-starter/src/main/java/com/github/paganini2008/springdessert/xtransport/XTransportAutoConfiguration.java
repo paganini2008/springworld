@@ -60,14 +60,14 @@ import io.netty.channel.Channel;
 
 /**
  * 
- * XtransportAutoConfiguration
+ * XTransportAutoConfiguration
  * 
  * @author Jimmy Hoff
  * @version 1.0
  */
 @Import({ ApplicationTransportController.class, BenchmarkController.class })
 @Configuration
-public class XtransportAutoConfiguration {
+public class XTransportAutoConfiguration {
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
@@ -101,7 +101,7 @@ public class XtransportAutoConfiguration {
 		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 		taskExecutor.setCorePoolSize(nThreads);
 		taskExecutor.setMaxPoolSize(nThreads);
-		taskExecutor.setThreadFactory(new PooledThreadFactory("spring-application-cluster-task-executor-"));
+		taskExecutor.setThreadFactory(new PooledThreadFactory("spring-application-cluster-transport-executor-"));
 		taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
 		return taskExecutor;
 	}

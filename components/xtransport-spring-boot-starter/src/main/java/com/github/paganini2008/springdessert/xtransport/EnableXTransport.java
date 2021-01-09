@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.cluster;
+package com.github.paganini2008.springdessert.xtransport;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 
 /**
  * 
- * EnableApplicationCluster
+ * EnableXTransport
  *
  * @author Jimmy Hoff
  * @version 1.0
@@ -18,15 +18,6 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(ApplicationClusterConfigurationSelector.class)
-public @interface EnableApplicationCluster {
-
-	boolean enableMulticast() default true;
-
-	boolean enableLeaderElection() default false;
-
-	boolean enableGateway() default false;
-
-	boolean enableMonitor() default false;
-
+@Import(XTransportAutoConfiguration.class)
+public @interface EnableXTransport {
 }

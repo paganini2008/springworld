@@ -11,9 +11,9 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class SearchAllResultSetSlice extends IndexSearchResultSetSlice {
+public class MatchAllSearchResultSetSlice extends IndexSearchResultSetSlice {
 
-	public SearchAllResultSetSlice(ElasticsearchTemplate elasticsearchTemplate) {
+	public MatchAllSearchResultSetSlice(ElasticsearchTemplate elasticsearchTemplate) {
 		super(elasticsearchTemplate);
 	}
 

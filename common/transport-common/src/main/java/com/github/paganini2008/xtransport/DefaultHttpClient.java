@@ -39,7 +39,7 @@ import okhttp3.Response;
 public class DefaultHttpClient implements HttpClient, Executable {
 
 	private static final Log logger = LogFactory.getLog(DefaultHttpClient.class);
-	private static final String servicePath = "/application/cluster/transport/send";
+	private static final String servicePath = "/application/cluster/transport/emit";
 	private static final int DEFAULT_TIMEOUT = 60;
 	private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 	private static final int RETRY_QUEUE_MAX_SIZE = 1024;

@@ -14,7 +14,8 @@ import lombok.Setter;
 @Setter
 public class SearchQuery {
 
-	private String clusterName;
+	private String keyword;
+	private String clusterName = "default";
 	private String applicationName;
 	private String host;
 	private String identifier;

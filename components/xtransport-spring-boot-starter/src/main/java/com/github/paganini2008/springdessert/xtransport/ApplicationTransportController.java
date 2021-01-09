@@ -3,15 +3,19 @@ package com.github.paganini2008.springdessert.xtransport;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.ArrayUtils;
+import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.xtransport.NioClient;
 import com.github.paganini2008.xtransport.Partitioner;
 import com.github.paganini2008.xtransport.Tuple;
@@ -45,11 +49,19 @@ public class ApplicationTransportController {
 	@Autowired
 	private Counter consumer;
 
-	@GetMapping("/send")
-	public ResponseEntity<String> send(@RequestParam("message") String message) {
-		Tuple data = Tuple.byString(message);
+	@GetMapping("/emit")
+	public ResponseEntity<Map<String, String>> emit0(HttpServletRequest request) {
+		Map<String, String> parameterMap = MapUtils.toSingleValueMap(request.getParameterMap());
+		Tuple data = Tuple.wrap(parameterMap);
 		nioClient.send(data, partitioner);
-		return ResponseEntity.ok(message);
+		return ResponseEntity.ok(parameterMap);
+	}
+
+	@PostMapping("/emit")
+	public ResponseEntity<Map<String, Object>> emit(@RequestBody Map<String, Object> body) {
+		Tuple data = Tuple.wrap(body);
+		nioClient.send(data, partitioner);
+		return ResponseEntity.ok(body);
 	}
 
 	@GetMapping("/tps")

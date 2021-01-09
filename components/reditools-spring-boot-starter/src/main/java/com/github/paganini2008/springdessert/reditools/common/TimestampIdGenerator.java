@@ -39,7 +39,7 @@ public class TimestampIdGenerator implements IdGenerator {
 	public long generateId() {
 		final String timestamp = DateUtils.format(System.currentTimeMillis(), defaultDatePattern);
 		RedisAtomicLong counter = MapUtils.get(cache, timestamp, () -> {
-			RedisAtomicLong l = new RedisAtomicLong(keyPrefix + timestamp, connectionFactory);
+			RedisAtomicLong l = new RedisAtomicLong(keyPrefix + ":" + timestamp, connectionFactory);
 			l.expire(60, TimeUnit.SECONDS);
 			return l;
 		});
