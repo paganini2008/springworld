@@ -14,21 +14,28 @@
 <script>
 	$(function(){
 	
-		//setInterval(refresh, 2000);
-		refresh();
+		setInterval(refresh, 1000);
 	});
 	
 	function refresh(){
 		var url = '${contextPath}/application/cluster/log/entry/';
 		
 		$.get(url, null, function(data){
-			var s = '';
+			var log = '';
 			$.each(data.data.results, function(i, item){
-				s += 'Message: ' + item['message'];
-				s += ', Reason: ' + item['reason'];
-				
+				var logEntry = '<div class="logEntry"><pre>';
+				logEntry += '<font color="#FF0000"><b>[' + item.clusterName + '-' + item.applicationName + '[host=' + item.host + ', identifier=' + item.identifier + ']]: </b></font>';
+				logEntry += item.datetime + ' <b class="' + item.level.toLowerCase() + '">[' + item.level.toUpperCase() + ' ]</b> ' + item.loggerName + ' - ' + item.message;
+				if(item.stackTraces.length > 0){
+					logEntry += '<br />';
+					$.each(item.stackTraces, function(j, stackTrace){
+						logEntry += stackTrace + '<br />';
+					});
+				}
+				logEntry += '</pre></div>';
+				log += logEntry;
 			});
-			$('#logBox').html(s);
+			$('#logBox').html(log);
 		});
 		
 		
@@ -36,12 +43,12 @@
 </script>
 <body>
 	<div id="top">
-		LogTracker
+		LogBox
 	</div>
 	<div id="container">
 		<div id="searchBox">
 			<form id="searchFrm" action="${contextPath}/application/cluster/log/search" method="post">
-				<div>
+				<div class="searchCondition">
 					<span>
 						<label>ClusterName: </label>
 						<input type="text" value="default" name="clusterName"/>
@@ -59,8 +66,8 @@
 						<input type="text" value="" name="identifier"/>
 					</span>
 				</div>
-				<div>
-					<span>
+				<div class="searchCondition">
+					<span style="width: 50%;">
 						<label>LoggerName: </label>
 						<input type="text" value="" name="loggerName"/>
 					</span>
@@ -73,12 +80,12 @@
 						<input type="text" value="" name="marker"/>
 					</span>
 				</div>
-				<div>
-					<span>
+				<div class="searchCondition">
+					<span style="width: 75%">
 						<label>Keyword: </label>
-						<input type="text" value="" name="keyword"/>
+						<input type="text" value="" name="keyword" id="keyword"/>
 					</span>
-					<span>
+					<span style="width: 25%">
 						<input type="button" id="searchBtn" value="Search It"/>
 					</span>
 				</div>

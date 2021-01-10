@@ -31,8 +31,8 @@ public class SearchResult implements Serializable {
 	private String loggerName;
 	private String message;
 	private String level;
-	private String reason;
+	private String[] stackTraces;
 	private String mdc;
 	private String marker;
-	private long createTime;
+	private String datetime;
 }

@@ -6,7 +6,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 /**
  * 
- * SearchAllResultSetSlice
+ * MatchAllSearchResultSetSlice
  *
  * @author Jimmy Hoff
  * @version 1.0

@@ -4,13 +4,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
+import com.github.paganini2008.xtransport.Env;
 import com.github.paganini2008.xtransport.TransportClient;
 import com.github.paganini2008.xtransport.Tuple;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxyUtil;
+import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
 /**
@@ -26,7 +29,7 @@ public abstract class TransportClientAppenderBase extends UnsynchronizedAppender
 	private String clusterName = "default";
 	private String applicationName;
 	private String host = NetUtils.getLocalHost();
-	private String identifier;
+	private String identifier = String.valueOf(Env.getPid());
 
 	public void setApplicationName(String applicationName) {
 		this.applicationName = applicationName;
@@ -57,7 +60,11 @@ public abstract class TransportClientAppenderBase extends UnsynchronizedAppender
 		tuple.setField("loggerName", eventObject.getLoggerName());
 		tuple.setField("message", eventObject.getFormattedMessage());
 		tuple.setField("level", eventObject.getLevel().toString());
-		tuple.setField("reason", ThrowableProxyUtil.asString(eventObject.getThrowableProxy()));
+		String reason = ThrowableProxyUtil.asString(eventObject.getThrowableProxy());
+		if (StringUtils.isNotBlank(reason)) {
+			//reason = reason.replace(CoreConstants.LINE_SEPARATOR, " <br/> ");
+		}
+		tuple.setField("reason", reason);
 		Map<String, String> mdc = eventObject.getMDCPropertyMap();
 		tuple.setField("mdc", MapUtils.isNotEmpty(mdc) ? new HashMap<String, String>(mdc) : Collections.EMPTY_MAP);
 		tuple.setField("marker", eventObject.getMarker() != null ? eventObject.getMarker().getName() : "");

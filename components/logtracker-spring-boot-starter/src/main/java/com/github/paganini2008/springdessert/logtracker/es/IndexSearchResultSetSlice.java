@@ -53,10 +53,10 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 				.withHighlightFields(new HighlightBuilder.Field(SEARCH_FIELD_MESSAGE), new HighlightBuilder.Field(SEARCH_FIELD_REASON),
 						new HighlightBuilder.Field(SEARCH_FIELD_MDC))
 				.withHighlightBuilder(new HighlightBuilder().preTags("<font class=\"search-keyword\" color=\"#FF0000\">")
-						.postTags("</font>").fragmentSize(10).numOfFragments(3).noMatchSize(150));
+						.postTags("</font>").fragmentSize(20).numOfFragments(3));
 
 		if (maxResults > 0) {
-			searchQueryBuilder = searchQueryBuilder.withPageable(PageRequest.of(getPageNumber(), maxResults));
+			searchQueryBuilder = searchQueryBuilder.withPageable(PageRequest.of(getPageNumber() - 1, maxResults));
 		}
 		AggregatedPage<LogEntry> page = elasticsearchTemplate.queryForPage(searchQueryBuilder.build(), LogEntry.class,
 				new HighlightResultMapper(elasticsearchTemplate.getElasticsearchConverter().getMappingContext()));
