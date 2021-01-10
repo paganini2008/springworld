@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.logtracker.ui;
+package com.github.paganini2008.springdessert.logbox.ui;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,4 +22,5 @@ public class SearchQuery {
 	private String loggerName;
 	private String level;
 	private String marker;
+	private Boolean asc;
 }

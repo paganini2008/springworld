@@ -10,51 +10,22 @@
 <link href="${contextPath}/static/css/base.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="${contextPath}/static/js/lib/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="${contextPath}/static/js/lib/json2.js"></script>
+<script type="text/javascript" src="${contextPath}/static/js/app.js"></script>
 </head>
-<script>
-	$(function(){
-	
-		setInterval(refresh, 1000);
-	});
-	
-	function refresh(){
-		var url = '${contextPath}/application/cluster/log/entry/';
-		
-		$.get(url, null, function(data){
-			var log = '';
-			$.each(data.data.results, function(i, item){
-				var logEntry = '<div class="logEntry"><pre>';
-				logEntry += '<font color="#FF0000"><b>[' + item.clusterName + '-' + item.applicationName + '[host=' + item.host + ', identifier=' + item.identifier + ']]: </b></font>';
-				logEntry += item.datetime + ' <b class="' + item.level.toLowerCase() + '">[' + item.level.toUpperCase() + ' ]</b> ' + item.loggerName + ' - ' + item.message;
-				if(item.stackTraces.length > 0){
-					logEntry += '<br />';
-					$.each(item.stackTraces, function(j, stackTrace){
-						logEntry += stackTrace + '<br />';
-					});
-				}
-				logEntry += '</pre></div>';
-				log += logEntry;
-			});
-			$('#logBox').html(log);
-		});
-		
-		
-	}
-</script>
 <body>
 	<div id="top">
 		LogBox
 	</div>
 	<div id="container">
 		<div id="searchBox">
-			<form id="searchFrm" action="${contextPath}/application/cluster/log/search" method="post">
+			<form id="searchFrm" action="${contextPath}/application/cluster/log/entry/search" method="post">
 				<div class="searchCondition">
 					<span>
-						<label>ClusterName: </label>
+						<label>Cluster Name: </label>
 						<input type="text" value="default" name="clusterName"/>
 					</span>
 					<span>
-						<label>ApplicationName: </label>
+						<label>Application Name: </label>
 						<input type="text" value="" name="applicationName"/>
 					</span>
 					<span>
@@ -86,6 +57,8 @@
 						<input type="text" value="" name="keyword" id="keyword"/>
 					</span>
 					<span style="width: 25%">
+						<b>升序</b><input type="radio" value="true" name="asc" checked="true"/>
+						<b>降序</b><input type="radio" value="false" name="asc"/>
 						<input type="button" id="searchBtn" value="Search It"/>
 					</span>
 				</div>

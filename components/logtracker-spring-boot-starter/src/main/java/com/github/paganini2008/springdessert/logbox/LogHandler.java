@@ -1,12 +1,15 @@
-package com.github.paganini2008.springdessert.logtracker;
+package com.github.paganini2008.springdessert.logbox;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-import com.github.paganini2008.springdessert.logtracker.es.LogEntry;
-import com.github.paganini2008.springdessert.logtracker.es.LogEntryService;
+import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.springdessert.logbox.es.LogEntry;
+import com.github.paganini2008.springdessert.logbox.es.LogEntryService;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.xtransport.Handler;
 import com.github.paganini2008.xtransport.Tuple;
+import com.github.paganini2008.xtransport.logback.TransportClientAppenderBase;
 
 /**
  * 
@@ -23,6 +26,9 @@ public class LogHandler implements Handler {
 	@Autowired
 	private LogEntryService logEntryService;
 
+	@Value("${spring.application.cluster.logbox.interferedCharacterRegex:}")
+	private String interferedCharacterRegex;
+
 	@Override
 	public void onData(Tuple tuple) {
 		LogEntry logEntry = new LogEntry();
@@ -38,7 +44,16 @@ public class LogHandler implements Handler {
 		logEntry.setMarker(tuple.getField("marker", String.class));
 		logEntry.setMdc(tuple.getField("mdc", String.class));
 		logEntry.setCreateTime(tuple.getField("timestamp", Long.class));
+		if (StringUtils.isNotBlank(interferedCharacterRegex)) {
+			logEntry.setMessage(logEntry.getMessage().replaceAll(interferedCharacterRegex, ""));
+			logEntry.setReason(logEntry.getReason().replaceAll(interferedCharacterRegex, ""));
+		}
 		logEntryService.saveLogEntry(logEntry);
+	}
+
+	@Override
+	public String getTopic() {
+		return TransportClientAppenderBase.GLOBAL_TOPIC_NAME;
 	}
 
 }

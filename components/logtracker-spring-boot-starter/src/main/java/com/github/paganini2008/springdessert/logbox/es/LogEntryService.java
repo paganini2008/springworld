@@ -1,12 +1,12 @@
-package com.github.paganini2008.springdessert.logtracker.es;
+package com.github.paganini2008.springdessert.logbox.es;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.github.paganini2008.devtools.jdbc.PageRequest;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
-import com.github.paganini2008.springdessert.logtracker.ui.SearchQuery;
-import com.github.paganini2008.springdessert.logtracker.ui.SearchResult;
+import com.github.paganini2008.springdessert.logbox.ui.SearchQuery;
+import com.github.paganini2008.springdessert.logbox.ui.SearchResult;
 
 /**
  * 

@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.logtracker.ui;
+package com.github.paganini2008.springdessert.logbox.ui;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;

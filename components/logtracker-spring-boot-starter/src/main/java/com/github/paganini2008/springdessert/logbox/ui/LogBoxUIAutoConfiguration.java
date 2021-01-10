@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.logtracker.ui;
+package com.github.paganini2008.springdessert.logbox.ui;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Import;
 
 /**
  * 
- * LogTrackerUIAutoConfiguration
+ * LogBoxUIAutoConfiguration
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
 @Import({ PageController.class, LogEntryController.class })
 @Configuration(proxyBeanMethods = false)
-public class LogTrackerUIAutoConfiguration {
+public class LogBoxUIAutoConfiguration {
 
 	@Bean
 	public WebMvcConfig webMvcConfig() {

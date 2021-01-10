@@ -1,9 +1,9 @@
-package com.github.paganini2008.springdessert.logtracker.es;
+package com.github.paganini2008.springdessert.logbox.es;
 
-import static com.github.paganini2008.springdessert.logtracker.ui.SearchResult.SEARCH_FIELD_MDC;
-import static com.github.paganini2008.springdessert.logtracker.ui.SearchResult.SEARCH_FIELD_MESSAGE;
-import static com.github.paganini2008.springdessert.logtracker.ui.SearchResult.SEARCH_FIELD_REASON;
-import static com.github.paganini2008.springdessert.logtracker.ui.SearchResult.SORTED_FIELD_CREATE_TIME;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_MDC;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_MESSAGE;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_REASON;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SORTED_FIELD_CREATE_TIME;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 
 import com.github.paganini2008.devtools.beans.BeanUtils;
 import com.github.paganini2008.devtools.jdbc.PageableResultSetSlice;
-import com.github.paganini2008.springdessert.logtracker.ui.SearchResult;
+import com.github.paganini2008.springdessert.logbox.ui.SearchResult;
 
 /**
  * 
@@ -48,12 +48,12 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 	@Override
 	public List<SearchResult> list(int maxResults, int firstResult) {
 		QueryBuilder queryBuilder = buildQuery();
-		FieldSortBuilder sortBuilder = SortBuilders.fieldSort(SORTED_FIELD_CREATE_TIME).order(SortOrder.DESC);
+		FieldSortBuilder sortBuilder = buildFieldSort();
 		NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder().withQuery(queryBuilder).withSort(sortBuilder)
 				.withHighlightFields(new HighlightBuilder.Field(SEARCH_FIELD_MESSAGE), new HighlightBuilder.Field(SEARCH_FIELD_REASON),
 						new HighlightBuilder.Field(SEARCH_FIELD_MDC))
-				.withHighlightBuilder(new HighlightBuilder().preTags("<font class=\"search-keyword\" color=\"#FF0000\">")
-						.postTags("</font>").fragmentSize(20).numOfFragments(3));
+				.withHighlightBuilder(new HighlightBuilder().preTags("<font class=\"searchKeyword\">").postTags("</font>").fragmentSize(20)
+						.numOfFragments(3));
 
 		if (maxResults > 0) {
 			searchQueryBuilder = searchQueryBuilder.withPageable(PageRequest.of(getPageNumber() - 1, maxResults));
@@ -69,5 +69,9 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 	}
 
 	protected abstract QueryBuilder buildQuery();
+
+	protected FieldSortBuilder buildFieldSort() {
+		return SortBuilders.fieldSort(SORTED_FIELD_CREATE_TIME).order(SortOrder.ASC);
+	}
 
 }

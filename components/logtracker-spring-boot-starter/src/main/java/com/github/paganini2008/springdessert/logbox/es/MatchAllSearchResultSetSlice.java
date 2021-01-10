@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.logtracker.es;
+package com.github.paganini2008.springdessert.logbox.es;
 
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;

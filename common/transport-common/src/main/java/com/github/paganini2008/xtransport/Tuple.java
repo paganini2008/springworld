@@ -58,7 +58,13 @@ public interface Tuple {
 	}
 
 	public static Tuple newOne() {
-		return new TupleImpl();
+		return newOne(DEFAULT_TOPIC);
+	}
+
+	public static Tuple newOne(String topic) {
+		Tuple tuple = new TupleImpl();
+		tuple.setField(KEYWORD_TOPIC, topic);
+		return tuple;
 	}
 
 	public static Tuple byString(String content) {

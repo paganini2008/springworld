@@ -1,1 +1,1 @@
-org.springframework.boot.env.EnvironmentPostProcessor=com.github.paganini2008.springdessert.logtracker.ui.FreemarkConfigurator
+org.springframework.boot.env.EnvironmentPostProcessor=com.github.paganini2008.springdessert.logbox.ui.FreemarkConfigurator

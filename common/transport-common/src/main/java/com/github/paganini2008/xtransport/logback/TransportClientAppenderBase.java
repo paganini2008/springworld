@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.net.NetUtils;
 import com.github.paganini2008.xtransport.Env;
@@ -13,7 +12,6 @@ import com.github.paganini2008.xtransport.Tuple;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxyUtil;
-import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
 /**
@@ -25,6 +23,7 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
  */
 public abstract class TransportClientAppenderBase extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
+	public static final String GLOBAL_TOPIC_NAME = "LOGBOX";
 	private TransportClient transportClient;
 	private String clusterName = "default";
 	private String applicationName;
@@ -52,18 +51,16 @@ public abstract class TransportClientAppenderBase extends UnsynchronizedAppender
 		if (transportClient == null) {
 			return;
 		}
-		Tuple tuple = Tuple.newOne();
+		Tuple tuple = Tuple.newOne(GLOBAL_TOPIC_NAME);
 		tuple.setField("clusterName", clusterName);
 		tuple.setField("applicationName", applicationName);
 		tuple.setField("host", host);
 		tuple.setField("identifier", identifier);
 		tuple.setField("loggerName", eventObject.getLoggerName());
-		tuple.setField("message", eventObject.getFormattedMessage());
+		String msg = eventObject.getFormattedMessage();
+		tuple.setField("message", msg);
 		tuple.setField("level", eventObject.getLevel().toString());
 		String reason = ThrowableProxyUtil.asString(eventObject.getThrowableProxy());
-		if (StringUtils.isNotBlank(reason)) {
-			//reason = reason.replace(CoreConstants.LINE_SEPARATOR, " <br/> ");
-		}
 		tuple.setField("reason", reason);
 		Map<String, String> mdc = eventObject.getMDCPropertyMap();
 		tuple.setField("mdc", MapUtils.isNotEmpty(mdc) ? new HashMap<String, String>(mdc) : Collections.EMPTY_MAP);

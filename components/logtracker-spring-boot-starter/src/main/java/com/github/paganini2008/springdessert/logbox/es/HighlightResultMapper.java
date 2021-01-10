@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.logtracker.es;
+package com.github.paganini2008.springdessert.logbox.es;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

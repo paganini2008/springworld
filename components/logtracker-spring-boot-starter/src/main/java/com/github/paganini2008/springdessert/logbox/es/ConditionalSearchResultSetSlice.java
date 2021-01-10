@@ -1,16 +1,20 @@
-package com.github.paganini2008.springdessert.logtracker.es;
+package com.github.paganini2008.springdessert.logbox.es;
 
-import static com.github.paganini2008.springdessert.logtracker.ui.SearchResult.SEARCH_FIELD_MDC;
-import static com.github.paganini2008.springdessert.logtracker.ui.SearchResult.SEARCH_FIELD_MESSAGE;
-import static com.github.paganini2008.springdessert.logtracker.ui.SearchResult.SEARCH_FIELD_REASON;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_MDC;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_MESSAGE;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_REASON;
+import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SORTED_FIELD_CREATE_TIME;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springdessert.logtracker.ui.SearchQuery;
+import com.github.paganini2008.springdessert.logbox.ui.SearchQuery;
 
 /**
  * 
@@ -58,6 +62,11 @@ public class ConditionalSearchResultSetSlice extends IndexSearchResultSetSlice {
 			}
 		}
 		return queryBuilder;
+	}
+
+	@Override
+	protected FieldSortBuilder buildFieldSort() {
+		return SortBuilders.fieldSort(SORTED_FIELD_CREATE_TIME).order(searchQuery.getAsc() ? SortOrder.ASC : SortOrder.DESC);
 	}
 
 }

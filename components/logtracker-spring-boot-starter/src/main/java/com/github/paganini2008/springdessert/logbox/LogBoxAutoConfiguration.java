@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.logtracker;
+package com.github.paganini2008.springdessert.logbox;
 
 import java.time.Duration;
 
@@ -14,7 +14,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
-import com.github.paganini2008.springdessert.logtracker.es.LogEntryService;
+import com.github.paganini2008.springdessert.logbox.es.LogEntryService;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 
@@ -23,14 +23,14 @@ import redis.clients.jedis.JedisPoolConfig;
 
 /**
  * 
- * LogTrackerAutoConfiguration
+ * LogBoxAutoConfiguration
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-@EnableElasticsearchRepositories("com.github.paganini2008.springdessert.logtracker.es")
+@EnableElasticsearchRepositories("com.github.paganini2008.springdessert.logbox.es")
 @Configuration(proxyBeanMethods = false)
-public class LogTrackerAutoConfiguration {
+public class LogBoxAutoConfiguration {
 
 	private static final String keyPattern = "spring:application:cluster:%s:logtracker:id";
 
