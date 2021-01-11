@@ -19,11 +19,13 @@
 <script>
 	$(function(){
 		$('#startDate').datetimepicker({
-		  	lang:'en'
+		  	dateFormat: 'yy-mm-dd',
+	        timeFormat: 'HH:mm:ss'
 		});
 		
 		$('#endDate').datetimepicker({
-		    lang:'en'
+		    dateFormat: 'yy-mm-dd',
+	        timeFormat: 'HH:mm:ss'
 		});
 	});
 </script>
@@ -33,7 +35,7 @@
 	</div>
 	<div id="container">
 		<div id="searchBox">
-			<form id="searchFrm" action="${contextPath}/application/cluster/log/entry/search" method="post">
+			<form id="searchFrm" action="${contextPath}/application/cluster/log/history/search" method="post">
 				<div class="searchCondition">
 					<span>
 						<label>Cluster Name: </label>
@@ -80,18 +82,18 @@
 				<div class="searchCondition">
 					<span style="width: 25%">
 						<label>Start Date: </label>
-						<input type="text" value="" name="startDate" id="startDate" />
+						<input type="text" value="${startDate!}" name="startDate" id="startDate" />
 					</span>
 					<span style="width: 25%">
 						<label>End Date: </label>
-						<input type="text" value="" name="endDate" id="endDate" />
+						<input type="text" value="${endDate!}" name="endDate" id="endDate" />
 					</span>
 					<span style="width: 50%">
 					</span>
 				</div>
 			</form>
 		</div>
-		<div id="logBox">
+		<div id="logBox" style="height: calc(100% - 150px);">
 		</div>
 	</div>
 	<div id="foot">

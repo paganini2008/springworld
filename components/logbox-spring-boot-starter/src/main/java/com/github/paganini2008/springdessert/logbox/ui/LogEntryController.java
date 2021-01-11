@@ -19,7 +19,7 @@ import com.github.paganini2008.springdessert.logbox.es.LogEntryService;
  * @author Jimmy Hoff
  * @version 1.0
  */
-@RequestMapping("/application/cluster/log/entry")
+@RequestMapping("/application/cluster/log")
 @RestController
 public class LogEntryController {
 
@@ -33,7 +33,7 @@ public class LogEntryController {
 		return Response.success(PageBean.wrap(pageResponse));
 	}
 
-	@PostMapping("/search")
+	@PostMapping("/entry/search")
 	public Response search(@RequestBody SearchQuery searchQuery,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@CookieValue(value = "PAGE_FETCH_SIZE", required = false, defaultValue = "100") int size) {
@@ -41,10 +41,11 @@ public class LogEntryController {
 		return Response.success(PageBean.wrap(pageResponse));
 	}
 
-	@GetMapping("/search")
-	public Response search(@RequestParam("q") String keyword, @RequestParam(value = "page", defaultValue = "1", required = false) int page,
+	@PostMapping("/history/search")
+	public Response searchHistory(@RequestBody HistoryQuery searchQuery,
+			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@CookieValue(value = "PAGE_FETCH_SIZE", required = false, defaultValue = "100") int size) {
-		PageResponse<SearchResult> pageResponse = logEntryService.search(keyword, page, size);
+		PageResponse<SearchResult> pageResponse = logEntryService.search(searchQuery, page, size);
 		return Response.success(PageBean.wrap(pageResponse));
 	}
 

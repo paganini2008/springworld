@@ -47,16 +47,21 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 
 	@Override
 	public List<SearchResult> list(int maxResults, int firstResult) {
+		QueryBuilder filterBuilder = buildFilter();
 		QueryBuilder queryBuilder = buildQuery();
 		FieldSortBuilder sortBuilder = buildFieldSort();
-		NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder().withQuery(queryBuilder).withSort(sortBuilder)
+		NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
+		if (filterBuilder != null) {
+			searchQueryBuilder.withFilter(filterBuilder);
+		}
+		searchQueryBuilder.withQuery(queryBuilder).withSort(sortBuilder)
 				.withHighlightFields(new HighlightBuilder.Field(SEARCH_FIELD_MESSAGE), new HighlightBuilder.Field(SEARCH_FIELD_REASON),
 						new HighlightBuilder.Field(SEARCH_FIELD_MDC))
 				.withHighlightBuilder(new HighlightBuilder().preTags("<font class=\"searchKeyword\">").postTags("</font>").fragmentSize(20)
 						.numOfFragments(3));
 
 		if (maxResults > 0) {
-			searchQueryBuilder = searchQueryBuilder.withPageable(PageRequest.of(getPageNumber() - 1, maxResults));
+			searchQueryBuilder.withPageable(PageRequest.of(getPageNumber() - 1, maxResults));
 		}
 		AggregatedPage<LogEntry> page = elasticsearchTemplate.queryForPage(searchQueryBuilder.build(), LogEntry.class,
 				new HighlightResultMapper(elasticsearchTemplate.getElasticsearchConverter().getMappingContext()));
@@ -66,6 +71,10 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 			dataList.add(BeanUtils.copy(resource, SearchResult.class, null));
 		}
 		return dataList;
+	}
+
+	protected QueryBuilder buildFilter() {
+		return null;
 	}
 
 	protected abstract QueryBuilder buildQuery();

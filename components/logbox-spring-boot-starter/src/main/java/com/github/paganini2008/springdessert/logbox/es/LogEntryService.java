@@ -5,6 +5,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.github.paganini2008.devtools.jdbc.PageRequest;
 import com.github.paganini2008.devtools.jdbc.PageResponse;
+import com.github.paganini2008.springdessert.logbox.ui.HistoryQuery;
 import com.github.paganini2008.springdessert.logbox.ui.SearchQuery;
 import com.github.paganini2008.springdessert.logbox.ui.SearchResult;
 
@@ -31,12 +32,12 @@ public class LogEntryService {
 		return new MatchAllSearchResultSetSlice(elasticsearchTemplate).list(PageRequest.of(page, size));
 	}
 
-	public PageResponse<SearchResult> search(String keyword, int page, int size) {
-		return new KeywordSearchResultSetSlice(elasticsearchTemplate, keyword).list(PageRequest.of(page, size));
+	public PageResponse<SearchResult> search(HistoryQuery searchQuery, int page, int size) {
+		return new HistorySearchResultSetSlice(elasticsearchTemplate, searchQuery).list(PageRequest.of(page, size));
 	}
 
 	public PageResponse<SearchResult> search(SearchQuery searchQuery, int page, int size) {
-		return new ConditionalSearchResultSetSlice(elasticsearchTemplate, searchQuery).list(PageRequest.of(page, size));
+		return new RealtimeSearchResultSetSlice(elasticsearchTemplate, searchQuery).list(PageRequest.of(page, size));
 	}
 
 }
