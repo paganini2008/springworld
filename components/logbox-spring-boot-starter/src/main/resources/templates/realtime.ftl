@@ -3,7 +3,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>LogTracker</title>
+<title>LogBox Realtime</title>
+<link rel="shortcut icon" href="#"/>
 <script type="text/javascript">
 	var $contextPath = '${contextPath}';
 </script>
@@ -12,9 +13,14 @@
 <script type="text/javascript" src="${contextPath}/static/js/lib/json2.js"></script>
 <script type="text/javascript" src="${contextPath}/static/js/app.js"></script>
 </head>
+<script>
+	$(function(){
+		setInterval(doSearch, 1000);
+	});
+</script>
 <body>
 	<div id="top">
-		LogBox
+		<label id="title">LogBox (v2.0)</label>
 	</div>
 	<div id="container">
 		<div id="searchBox">
@@ -39,7 +45,7 @@
 				</div>
 				<div class="searchCondition">
 					<span style="width: 50%;">
-						<label>LoggerName: </label>
+						<label>Logger Name: </label>
 						<input type="text" value="" name="loggerName"/>
 					</span>
 					<span>
@@ -68,6 +74,7 @@
 		</div>
 	</div>
 	<div id="foot">
+		Spring Dessert Series
 	</div>
 </body>
 </html>

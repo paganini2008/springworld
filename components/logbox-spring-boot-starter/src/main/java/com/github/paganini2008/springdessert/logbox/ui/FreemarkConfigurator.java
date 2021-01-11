@@ -21,10 +21,10 @@ public class FreemarkConfigurator implements EnvironmentPostProcessor {
 
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-		Resource resource = new ClassPathResource("logtracker-freemarker.properties");
+		Resource resource = new ClassPathResource("logbox-freemarker.properties");
 		PropertySource<?> freemarkerConfig;
 		try {
-			freemarkerConfig = propertySourceLoader.load("logtracker-freemarker", resource).get(0);
+			freemarkerConfig = propertySourceLoader.load("logbox-freemarker", resource).get(0);
 		} catch (Exception e) {
 			throw new IllegalStateException(e.getMessage(), e);
 		}

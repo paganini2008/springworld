@@ -10,10 +10,10 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>logtracker-spring-boot-starter</artifactId>
+	<artifactId>logbox-spring-boot-starter</artifactId>
 	<packaging>jar</packaging>
 
-	<name>logtracker-spring-boot-starter</name>
+	<name>logbox-spring-boot-starter</name>
 	<url>https://github.com/paganini2008/springworld</url>
 
 	<dependencies>

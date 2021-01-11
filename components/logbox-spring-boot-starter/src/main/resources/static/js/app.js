@@ -17,8 +17,6 @@ $.fn.parseForm = function(){
 	};
 
 $(function(){
-
-	//setInterval(doSearch, 1000);
 		
 	$('#searchBtn').click(function(){
 		doSearch();
