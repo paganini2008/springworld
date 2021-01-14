@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
+import com.github.paganini2008.springdessert.cluster.EnableApplicationCluster;
 import com.github.paganini2008.springdessert.logbox.ui.LogBoxUIAutoConfiguration;
 import com.github.paganini2008.springdessert.xtransport.EnableXTransport;
 
@@ -22,6 +23,7 @@ import com.github.paganini2008.springdessert.xtransport.EnableXTransport;
 @Target(ElementType.TYPE)
 @Documented
 @EnableXTransport
+@EnableApplicationCluster(enableLeaderElection = true, enableMonitor = true)
 @Import({ LogBoxAutoConfiguration.class, LogBoxUIAutoConfiguration.class })
 public @interface EnableLogTrackerServer {
 }

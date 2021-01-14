@@ -3,14 +3,10 @@ package com.github.paganini2008.springdessert.logbox.es;
 import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_MDC;
 import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_MESSAGE;
 import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_REASON;
-import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SORTED_FIELD_CREATE_TIME;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.github.paganini2008.devtools.StringUtils;
@@ -72,8 +68,8 @@ public class RealtimeSearchResultSetSlice extends IndexSearchResultSetSlice {
 	}
 
 	@Override
-	protected FieldSortBuilder buildFieldSort() {
-		return SortBuilders.fieldSort(SORTED_FIELD_CREATE_TIME).order(searchQuery.getAsc() ? SortOrder.ASC : SortOrder.DESC);
+	protected boolean tailLog() {
+		return searchQuery.getAsc() != null ? searchQuery.getAsc().booleanValue() : false;
 	}
 
 }

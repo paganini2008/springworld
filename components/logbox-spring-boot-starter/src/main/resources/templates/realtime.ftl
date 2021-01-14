@@ -14,8 +14,24 @@
 <script type="text/javascript" src="${contextPath}/static/js/app.js"></script>
 </head>
 <script>
+	var latestTop;
+	
 	$(function(){
 		setInterval(doSearch, 1000);
+		
+		latestTop = $('#logBox').scrollTop();
+		
+		$('#logBox').scroll(function(){
+			var top = $('#logBox').scrollTop();
+			if(latestTop != top){
+				if(latestTop > top){
+					scrollState = 'up';
+				}else{
+					scrollState = 'down';
+				}
+				latestTop = top;
+			}
+		});
 	});
 </script>
 <body>

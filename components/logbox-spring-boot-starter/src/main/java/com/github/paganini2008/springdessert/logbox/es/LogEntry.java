@@ -20,7 +20,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@Document(indexName = "log_entry_0", type = "resource", shards = 3, replicas = 1)
+@Document(indexName = "log_entry_0", type = "log", replicas = 0, refreshInterval = "10s")
 public class LogEntry {
 
 	@Id

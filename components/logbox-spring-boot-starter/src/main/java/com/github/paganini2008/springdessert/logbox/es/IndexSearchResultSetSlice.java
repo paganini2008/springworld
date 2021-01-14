@@ -6,6 +6,7 @@ import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARC
 import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SORTED_FIELD_CREATE_TIME;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.elasticsearch.index.query.QueryBuilder;
@@ -49,7 +50,7 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 	public List<SearchResult> list(int maxResults, int firstResult) {
 		QueryBuilder filterBuilder = buildFilter();
 		QueryBuilder queryBuilder = buildQuery();
-		FieldSortBuilder sortBuilder = buildFieldSort();
+		FieldSortBuilder sortBuilder = SortBuilders.fieldSort(SORTED_FIELD_CREATE_TIME).order(SortOrder.DESC);
 		NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
 		if (filterBuilder != null) {
 			searchQueryBuilder.withFilter(filterBuilder);
@@ -67,8 +68,11 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 				new HighlightResultMapper(elasticsearchTemplate.getElasticsearchConverter().getMappingContext()));
 		List<LogEntry> content = page.getContent();
 		List<SearchResult> dataList = new ArrayList<SearchResult>();
-		for (LogEntry resource : content) {
-			dataList.add(BeanUtils.copy(resource, SearchResult.class, null));
+		for (LogEntry logEntry : content) {
+			dataList.add(BeanUtils.copy(logEntry, SearchResult.class, null));
+		}
+		if (tailLog()) {
+			Collections.reverse(dataList);
 		}
 		return dataList;
 	}
@@ -79,8 +83,8 @@ public abstract class IndexSearchResultSetSlice extends PageableResultSetSlice<S
 
 	protected abstract QueryBuilder buildQuery();
 
-	protected FieldSortBuilder buildFieldSort() {
-		return SortBuilders.fieldSort(SORTED_FIELD_CREATE_TIME).order(SortOrder.ASC);
+	protected boolean tailLog() {
+		return true;
 	}
 
 }

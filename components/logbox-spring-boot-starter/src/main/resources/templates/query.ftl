@@ -17,6 +17,7 @@
 <script type="text/javascript" src="${contextPath}/static/js/app.js"></script>
 </head>
 <script>
+
 	$(function(){
 		$('#startDate').datetimepicker({
 		  	dateFormat: 'yy-mm-dd',
@@ -26,6 +27,15 @@
 		$('#endDate').datetimepicker({
 		    dateFormat: 'yy-mm-dd',
 	        timeFormat: 'HH:mm:ss'
+		});
+		
+		$('#logBox').scroll(function(){
+			var viewH = $(this).height();
+            var contentH = $(this)[0].scrollHeight;
+            var scrollTop = $(this).scrollTop();
+            if(scrollTop / (contentH - viewH) >= 0.98){
+            	doSearchAndAppend();
+            }
 		});
 	});
 </script>
@@ -74,8 +84,8 @@
 						<input type="text" value="" name="keyword" id="keyword"/>
 					</span>
 					<span style="width: 25%">
-						<b>升序</b><input type="radio" value="true" name="asc" checked="true"/>
-						<b>降序</b><input type="radio" value="false" name="asc"/>
+						<b>ASC</b><input type="radio" value="true" name="asc" checked="true"/>
+						<b>DESC</b><input type="radio" value="false" name="asc"/>
 						<input type="button" id="searchBtn" value="Search It"/>
 					</span>
 				</div>
@@ -91,6 +101,7 @@
 					<span style="width: 50%">
 					</span>
 				</div>
+				<input type="hidden" value="1" name="page" id="page" />
 			</form>
 		</div>
 		<div id="logBox" style="height: calc(100% - 150px);">
