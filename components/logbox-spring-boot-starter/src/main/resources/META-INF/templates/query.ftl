@@ -19,6 +19,7 @@
 <script>
 
 	$(function(){
+	
 		$('#startDate').datetimepicker({
 		  	dateFormat: 'yy-mm-dd',
 	        timeFormat: 'HH:mm:ss'
@@ -29,14 +30,6 @@
 	        timeFormat: 'HH:mm:ss'
 		});
 		
-		$('#logBox').scroll(function(){
-			var viewH = $(this).height();
-            var contentH = $(this)[0].scrollHeight;
-            var scrollTop = $(this).scrollTop();
-            if(scrollTop / (contentH - viewH) >= 0.98){
-            	doSearchAndAppend();
-            }
-		});
 	});
 </script>
 <body>
@@ -86,7 +79,7 @@
 					<span style="width: 25%">
 						<b>ASC</b><input type="radio" value="true" name="asc" checked="true"/>
 						<b>DESC</b><input type="radio" value="false" name="asc"/>
-						<input type="button" id="searchBtn" value="Search It"/>
+						<input type="button" id="searchHistoryBtn" value="Search It"/>
 					</span>
 				</div>
 				<div class="searchCondition">
@@ -102,6 +95,7 @@
 					</span>
 				</div>
 				<input type="hidden" value="1" name="page" id="page" />
+				<input type="hidden" value="" name="totalPages" id="totalPages" />
 			</form>
 		</div>
 		<div id="logBox" style="height: calc(100% - 150px);">

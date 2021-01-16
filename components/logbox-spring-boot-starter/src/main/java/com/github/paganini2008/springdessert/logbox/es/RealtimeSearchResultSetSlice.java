@@ -4,6 +4,9 @@ import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARC
 import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_MESSAGE;
 import static com.github.paganini2008.springdessert.logbox.ui.SearchResult.SEARCH_FIELD_REASON;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -11,6 +14,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.springdessert.logbox.ui.SearchQuery;
+import com.github.paganini2008.springdessert.logbox.ui.SearchResult;
 
 /**
  * 
@@ -26,6 +30,15 @@ public class RealtimeSearchResultSetSlice extends IndexSearchResultSetSlice {
 	public RealtimeSearchResultSetSlice(ElasticsearchTemplate elasticsearchTemplate, SearchQuery searchQuery) {
 		super(elasticsearchTemplate);
 		this.searchQuery = searchQuery;
+	}
+
+	@Override
+	public List<SearchResult> list(int maxResults, int firstResult) {
+		List<SearchResult> dataList = super.list(maxResults, firstResult);
+		if (searchQuery.getAsc()) {
+			Collections.reverse(dataList);
+		}
+		return dataList;
 	}
 
 	@Override
@@ -65,11 +78,6 @@ public class RealtimeSearchResultSetSlice extends IndexSearchResultSetSlice {
 					.should(QueryBuilders.matchQuery(SEARCH_FIELD_MDC, keyword));
 		}
 		return queryBuilder;
-	}
-
-	@Override
-	protected boolean tailLog() {
-		return searchQuery.getAsc() != null ? searchQuery.getAsc().booleanValue() : false;
 	}
 
 }

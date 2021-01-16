@@ -22,6 +22,17 @@ $(function(){
 		doSearch();
 		return false;
 	});
+	
+	$('#searchHistoryBtn').click(function(){
+		doSearchAndAppend();
+		return false;
+	});
+	
+	$('#loadMore').live('click', function(){
+		var nextPage =  $(this).attr('next-page');
+		$('#page').val(nextPage);
+		doSearchAndAppend();
+	});
 
 });
 
@@ -75,19 +86,20 @@ function doSearchAndAppend(){
 		paging = true;
 		var obj = $('#searchFrm');
 		var url = obj.attr('action');
-		var page = parseInt($('#page').val());
-		$('#page').val(page + 1);
+		var pageNo = parseInt($('#page').val());
 		var param = $('#searchFrm').parseForm();
 		$.ajax({
-			    url: url + '?page=' + $('#page').val(),
+			    url: url + '?page=' + pageNo,
 				type:'post',
 				contentType: 'application/json;charset=UTF-8',
 				dataType:'json',
 				data: JSON.stringify(param),
 				success: function(data){
+					var page = data.data;
+					var rowData = page.results;
 					var log = '';
-				    if(data.data.results!=null && data.data.results.length > 0){
-				    	$.each(data.data.results, function(i, item){
+				    if(rowData != null && rowData.length > 0){
+				    	$.each(rowData, function(i, item){
 							var logEntry = '<div class="logEntry"><pre>';
 							logEntry += '<font color="#FF0000"><b>[' + item.clusterName + '-' + item.applicationName + '[host=' + item.host + ', identifier=' + item.identifier + ']]: </b></font>';
 							logEntry += item.datetime + ' <b class="' + item.level.toLowerCase() + '">[' + item.level.toUpperCase() + ' ]</b> ' + item.loggerName + ' - ' + item.message;
@@ -102,6 +114,8 @@ function doSearchAndAppend(){
 						});
 				    }
 				    if(log.length > 0){
+				    	$('#loadMore').remove();
+				    	log += '<div id="loadMore" next-page="' + (page.page < page.totalPages ? page.nextPage:page.totalPages + 1) + '">&lt;click and load more&gt;</div>';
 				    	$('#logBox').append(log);
 				    }
 				    paging = false;
