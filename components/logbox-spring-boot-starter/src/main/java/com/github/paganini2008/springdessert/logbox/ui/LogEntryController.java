@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.jdbc.PageResponse;
-import com.github.paganini2008.springdessert.logbox.es.LogEntryService;
+import com.github.paganini2008.springdessert.logbox.es.LogEntrySearchService;
 
 /**
  * 
@@ -24,12 +24,12 @@ import com.github.paganini2008.springdessert.logbox.es.LogEntryService;
 public class LogEntryController {
 
 	@Autowired
-	private LogEntryService logEntryService;
+	private LogEntrySearchService logEntrySearchService;
 
 	@GetMapping("/")
 	public Response search(@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@CookieValue(value = "PAGE_FETCH_SIZE", required = false, defaultValue = "100") int size) {
-		PageResponse<SearchResult> pageResponse = logEntryService.search(page, size);
+		PageResponse<SearchResult> pageResponse = logEntrySearchService.search(page, size);
 		return Response.success(PageBean.wrap(pageResponse));
 	}
 
@@ -37,7 +37,7 @@ public class LogEntryController {
 	public Response search(@RequestBody SearchQuery searchQuery,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@CookieValue(value = "PAGE_FETCH_SIZE", required = false, defaultValue = "100") int size) {
-		PageResponse<SearchResult> pageResponse = logEntryService.search(searchQuery, page, size);
+		PageResponse<SearchResult> pageResponse = logEntrySearchService.search(searchQuery, page, size);
 		return Response.success(PageBean.wrap(pageResponse));
 	}
 
@@ -45,7 +45,7 @@ public class LogEntryController {
 	public Response searchHistory(@RequestBody HistoryQuery searchQuery,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@CookieValue(value = "PAGE_FETCH_SIZE", required = false, defaultValue = "100") int size) {
-		PageResponse<SearchResult> pageResponse = logEntryService.search(searchQuery, page, size);
+		PageResponse<SearchResult> pageResponse = logEntrySearchService.search(searchQuery, page, size);
 		return Response.success(PageBean.wrap(pageResponse));
 	}
 

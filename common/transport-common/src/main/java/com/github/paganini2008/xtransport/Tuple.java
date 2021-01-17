@@ -2,6 +2,8 @@ package com.github.paganini2008.xtransport;
 
 import java.util.Map;
 
+import com.github.paganini2008.devtools.beans.BeanUtils;
+
 /**
  * 
  * Tuple
@@ -36,6 +38,12 @@ public interface Tuple {
 	void append(Map<String, ?> m);
 
 	void fill(Object object);
+
+	default <T> T toBean(Class<T> requiredType) {
+		final T object = BeanUtils.instantiate(requiredType);
+		fill(object);
+		return object;
+	}
 
 	Map<String, Object> toMap();
 

@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
+import com.github.paganini2008.springdessert.logbox.es.LogEntrySearchService;
 import com.github.paganini2008.springdessert.logbox.es.LogEntryService;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
@@ -37,14 +39,20 @@ public class LogBoxAutoConfiguration {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
+	@ConditionalOnProperty(name = "spring.application.cluster.logbox.adapter", havingValue = "logback", matchIfMissing = true)
 	@Bean
-	public LogHandler logHandler() {
-		return new LogHandler();
+	public LogbackHandler logHandler() {
+		return new LogbackHandler();
 	}
 
 	@Bean
 	public LogEntryService logEntryService() {
 		return new LogEntryService();
+	}
+
+	@Bean
+	public LogEntrySearchService logEntrySearchService() {
+		return new LogEntrySearchService();
 	}
 
 	@ConditionalOnMissingBean(name = "logIdGenerator")

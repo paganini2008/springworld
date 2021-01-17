@@ -28,11 +28,16 @@ public class SearchResult implements Serializable {
 	private String applicationName;
 	private String host;
 	private String identifier;
+	private String mdc;
+	private String marker;
 	private String loggerName;
 	private String message;
 	private String level;
 	private String[] stackTraces;
-	private String mdc;
-	private String marker;
 	private String datetime;
+
+	public String getId() {
+		return String.valueOf(id);
+	}
+
 }

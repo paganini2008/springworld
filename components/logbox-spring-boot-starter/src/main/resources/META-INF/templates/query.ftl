@@ -30,6 +30,11 @@
 	        timeFormat: 'HH:mm:ss'
 		});
 		
+		$('input[type="radio"][name="asc"]').change(function(){
+			$('#logBox').html('');
+			$('#page').val('1');
+		});
+		
 	});
 </script>
 <body>
@@ -98,7 +103,7 @@
 				<input type="hidden" value="" name="totalPages" id="totalPages" />
 			</form>
 		</div>
-		<div id="logBox" style="height: calc(100% - 150px);">
+		<div id="logBox">
 		</div>
 	</div>
 	<div id="foot">

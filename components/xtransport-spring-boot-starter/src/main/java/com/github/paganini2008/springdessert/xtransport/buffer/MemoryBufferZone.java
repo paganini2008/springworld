@@ -3,13 +3,20 @@ package com.github.paganini2008.springdessert.xtransport.buffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.github.paganini2008.devtools.collection.BoundedMapSupplier;
 import com.github.paganini2008.devtools.collection.CollectionUtils;
+import com.github.paganini2008.devtools.collection.EvictionListener;
 import com.github.paganini2008.devtools.collection.LruQueue;
 import com.github.paganini2008.xtransport.Tuple;
+import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
+import com.googlecode.concurrentlinkedhashmap.Weighers;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -18,6 +25,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * @author Jimmy Hoff
  * @version 1.0
  */
+@Slf4j
 public class MemoryBufferZone implements BufferZone {
 
 	private final ConcurrentMap<String, LruQueue<Tuple>> cache = new ConcurrentHashMap<String, LruQueue<Tuple>>();
@@ -25,7 +33,7 @@ public class MemoryBufferZone implements BufferZone {
 	private final int maxSize;
 
 	public MemoryBufferZone() {
-		this(1024);
+		this(100);
 	}
 
 	public MemoryBufferZone(int maxSize) {
@@ -36,7 +44,7 @@ public class MemoryBufferZone implements BufferZone {
 	public void set(String collectionName, Tuple tuple) {
 		LruQueue<Tuple> q = cache.get(collectionName);
 		if (q == null) {
-			cache.putIfAbsent(collectionName, new LruQueue<Tuple>(maxSize));
+			cache.putIfAbsent(collectionName, new LruQueue<Tuple>(maxSize, new ConcurrentLruBoundedMapSupplier()));
 			q = cache.get(collectionName);
 		}
 		q.offer(tuple);
@@ -66,6 +74,31 @@ public class MemoryBufferZone implements BufferZone {
 	public long size(String collectionName) {
 		LruQueue<Tuple> q = cache.get(collectionName);
 		return q != null ? q.size() : 0;
+	}
+
+	/**
+	 * 
+	 * ConcurrentLruBoundedMapSupplier
+	 *
+	 * @author Jimmy Hoff
+	 * @version 1.0
+	 */
+	private static class ConcurrentLruBoundedMapSupplier implements BoundedMapSupplier<Integer, Tuple> {
+
+		@Override
+		public Map<Integer, Tuple> get(final int maxSize, final EvictionListener<Integer, Tuple> evictionListener) {
+			if (maxSize < 1) {
+				throw new IllegalArgumentException("MaxSize must greater then zero");
+			}
+			return new ConcurrentLinkedHashMap.Builder<Integer, Tuple>().maximumWeightedCapacity(maxSize).weigher(Weighers.singleton())
+					.listener((key, value) -> {
+						if (log.isWarnEnabled()) {
+							log.warn("Discard tuple: {}", value.toString());
+						}
+						evictionListener.onEviction(key, value);
+					}).build();
+		}
+
 	}
 
 }

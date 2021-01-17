@@ -1,13 +1,21 @@
 package com.github.paganini2008.springdessert.logbox.es;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
 
-import com.github.paganini2008.devtools.jdbc.PageRequest;
-import com.github.paganini2008.devtools.jdbc.PageResponse;
-import com.github.paganini2008.springdessert.logbox.ui.HistoryQuery;
-import com.github.paganini2008.springdessert.logbox.ui.SearchQuery;
-import com.github.paganini2008.springdessert.logbox.ui.SearchResult;
+import com.github.paganini2008.devtools.multithreads.Executable;
+import com.github.paganini2008.devtools.multithreads.ThreadUtils;
+import com.github.paganini2008.springdessert.cluster.utils.BeanLifeCycle;
+import com.github.paganini2008.springdessert.xtransport.JacksonUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -16,7 +24,8 @@ import com.github.paganini2008.springdessert.logbox.ui.SearchResult;
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class LogEntryService {
+@Slf4j
+public class LogEntryService implements Executable, BeanLifeCycle {
 
 	@Autowired
 	private LogEntryRepository logEntryRepository;
@@ -24,20 +33,58 @@ public class LogEntryService {
 	@Autowired
 	private ElasticsearchTemplate elasticsearchTemplate;
 
+	private Timer timer;
+	private final List<LogEntry> logEntries = new CopyOnWriteArrayList<LogEntry>();
+
+	public void configure() {
+		timer = ThreadUtils.scheduleWithFixedDelay(this, 3, TimeUnit.SECONDS);
+	}
+
 	public void saveLogEntry(LogEntry logEntry) {
-		logEntryRepository.save(logEntry);
+		if (logEntry != null) {
+			logEntryRepository.save(logEntry);
+		}
 	}
 
-	public PageResponse<SearchResult> search(int page, int size) {
-		return new MatchAllSearchResultSetSlice(elasticsearchTemplate).list(PageRequest.of(page, size));
+	public void bulkSaveLogEntry(LogEntry logEntry) {
+		if (logEntry != null) {
+			logEntries.add(logEntry);
+		}
 	}
 
-	public PageResponse<SearchResult> search(HistoryQuery searchQuery, int page, int size) {
-		return new HistorySearchResultSetSlice(elasticsearchTemplate, searchQuery).list(PageRequest.of(page, size));
+	@Override
+	public boolean execute() {
+		if (logEntries.isEmpty()) {
+			return true;
+		}
+		List<IndexQuery> queries = new ArrayList<IndexQuery>();
+		try {
+			for (LogEntry logEntry : logEntries) {
+				IndexQuery indexQuery = new IndexQuery();
+				indexQuery.setId(String.valueOf(logEntry.getId()));
+				indexQuery.setIndexName(LogEntry.INDEX_NAME);
+				indexQuery.setType(LogEntry.INDEX_TYPE);
+				indexQuery.setSource(JacksonUtils.toJsonString(logEntry));
+				queries.add(indexQuery);
+				logEntries.remove(logEntry);
+			}
+			elasticsearchTemplate.bulkIndex(queries);
+			elasticsearchTemplate.refresh(LogEntry.INDEX_NAME);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			log.info("Batch save {} logEntries.", queries.size());
+			queries.clear();
+			queries = null;
+		}
+		return true;
 	}
 
-	public PageResponse<SearchResult> search(SearchQuery searchQuery, int page, int size) {
-		return new RealtimeSearchResultSetSlice(elasticsearchTemplate, searchQuery).list(PageRequest.of(page, size));
+	@Override
+	public void destroy() {
+		if (timer != null) {
+			timer.cancel();
+		}
 	}
 
 }

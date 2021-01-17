@@ -53,7 +53,7 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 	@Value("${spring.application.cluster.transport.bufferzone.pullSize:1}")
 	private int pullSize;
 
-	private final List<BatchHandler> batchHandlers = new CopyOnWriteArrayList<BatchHandler>();
+	private final List<BulkHandler> bulkHandlers = new CopyOnWriteArrayList<BulkHandler>();
 	private final Map<String, List<Handler>> topicHandlers = new ConcurrentHashMap<String, List<Handler>>();
 	private final AtomicBoolean running = new AtomicBoolean(false);
 	private Thread runner;
@@ -78,14 +78,14 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 		}
 	}
 
-	public void addHandler(BatchHandler handler) {
+	public void addHandler(BulkHandler handler) {
 		Assert.isNull(handler, "Nullable handler");
-		batchHandlers.add(handler);
+		bulkHandlers.add(handler);
 	}
 
-	public void removeHandler(BatchHandler handler) {
+	public void removeHandler(BulkHandler handler) {
 		Assert.isNull(handler, "Nullable handler");
-		batchHandlers.remove(handler);
+		bulkHandlers.remove(handler);
 	}
 
 	public int countOfHandlers() {
@@ -142,20 +142,24 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 				}
 			}
 			if (CollectionUtils.isNotEmpty(tuples)) {
-				for (BatchHandler handler : batchHandlers) {
-					handler.onBatch(tuples);
+				if (bulkHandlers.size() > 0) {
+					for (BulkHandler handler : bulkHandlers) {
+						handler.onBatch(tuples);
+					}
 				}
-				for (Tuple tuple : tuples) {
-					List<Handler> handlers = topicHandlers.get(tuple.getTopic());
-					if (CollectionUtils.isNotEmpty(handlers)) {
-						for (Handler handler : handlers) {
-							Tuple copy = tuple.copy();
-							if (threadPool != null) {
-								threadPool.execute(() -> {
+				if (topicHandlers.size() > 0) {
+					for (Tuple tuple : tuples) {
+						List<Handler> handlers = topicHandlers.get(tuple.getTopic());
+						if (CollectionUtils.isNotEmpty(handlers)) {
+							for (Handler handler : handlers) {
+								Tuple copy = tuple.copy();
+								if (threadPool != null) {
+									threadPool.execute(() -> {
+										handler.onData(copy);
+									});
+								} else {
 									handler.onData(copy);
-								});
-							} else {
-								handler.onData(copy);
+								}
 							}
 						}
 					}
@@ -173,8 +177,8 @@ public class TupleLoopProcessor implements Runnable, ApplicationListener<Context
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof Handler) {
 			addHandler((Handler) bean);
-		} else if (bean instanceof BatchHandler) {
-			addHandler((BatchHandler) bean);
+		} else if (bean instanceof BulkHandler) {
+			addHandler((BulkHandler) bean);
 		}
 		return bean;
 	}

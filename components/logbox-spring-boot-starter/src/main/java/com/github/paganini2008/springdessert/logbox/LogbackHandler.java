@@ -4,21 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
+import com.github.paganini2008.logbox.logback.TransportClientAppenderBase;
 import com.github.paganini2008.springdessert.logbox.es.LogEntry;
 import com.github.paganini2008.springdessert.logbox.es.LogEntryService;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.xtransport.Handler;
 import com.github.paganini2008.xtransport.Tuple;
-import com.github.paganini2008.xtransport.logback.TransportClientAppenderBase;
 
 /**
  * 
- * LogHandler
+ * LogbackHandler
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class LogHandler implements Handler {
+public class LogbackHandler implements Handler {
 
 	@Autowired
 	private IdGenerator idGenerator;
@@ -48,7 +48,7 @@ public class LogHandler implements Handler {
 			logEntry.setMessage(logEntry.getMessage().replaceAll(interferedCharacterRegex, ""));
 			logEntry.setReason(logEntry.getReason().replaceAll(interferedCharacterRegex, ""));
 		}
-		logEntryService.saveLogEntry(logEntry);
+		logEntryService.bulkSaveLogEntry(logEntry);
 	}
 
 	@Override

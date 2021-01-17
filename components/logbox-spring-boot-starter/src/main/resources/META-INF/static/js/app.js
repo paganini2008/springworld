@@ -54,8 +54,15 @@ function doSearch(){
 				    if(data.data.results!=null && data.data.results.length > 0){
 				    	log = '';
 				    	$.each(data.data.results, function(i, item){
+				    		var str = 'clusterName=' + item.clusterName + ', applicationName=' + item.applicationName + ', host=' + item.host + ', identifier=' + item.identifier;
+				    		if(item.marker && item.marker.length > 0){
+				    			str += ', marker=' + item.marker;
+				    		}
+				    		if(item.mdc && item.mdc.length > 0){
+				    			str += ', mdc=' + item.mdc;
+				    		}
 							var logEntry = '<div class="logEntry"><pre>';
-							logEntry += '<font color="#FF0000"><b>[' + item.clusterName + '-' + item.applicationName + '[host=' + item.host + ', identifier=' + item.identifier + ']]: </b></font>';
+							logEntry += '<font color="#FF0000"><b>[logEntry[' + str + ']]: </b></font>';
 							logEntry += item.datetime + ' <b class="' + item.level.toLowerCase() + '">[' + item.level.toUpperCase() + ' ]</b> ' + item.loggerName + ' - ' + item.message;
 							if(item.stackTraces.length > 0){
 								logEntry += '<br />';
@@ -100,8 +107,15 @@ function doSearchAndAppend(){
 					var log = '';
 				    if(rowData != null && rowData.length > 0){
 				    	$.each(rowData, function(i, item){
+				    		var str = 'clusterName=' + item.clusterName + ', applicationName=' + item.applicationName + ', host=' + item.host + ', identifier=' + item.identifier;
+				    		if(item.marker && item.marker.length > 0){
+				    			str += ', marker=' + item.marker;
+				    		}
+				    		if(item.mdc && item.mdc.length > 0){
+				    			str += ', mdc=' + item.mdc;
+				    		}
 							var logEntry = '<div class="logEntry"><pre>';
-							logEntry += '<font color="#FF0000"><b>[' + item.clusterName + '-' + item.applicationName + '[host=' + item.host + ', identifier=' + item.identifier + ']]: </b></font>';
+							logEntry += '<font color="#FF0000"><b>[logEntry[' + str + ']]: </b></font>';
 							logEntry += item.datetime + ' <b class="' + item.level.toLowerCase() + '">[' + item.level.toUpperCase() + ' ]</b> ' + item.loggerName + ' - ' + item.message;
 							if(item.stackTraces.length > 0){
 								logEntry += '<br />';

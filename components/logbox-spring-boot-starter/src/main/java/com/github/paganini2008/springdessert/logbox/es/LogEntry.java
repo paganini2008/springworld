@@ -5,6 +5,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.paganini2008.devtools.StringUtils;
 import com.github.paganini2008.devtools.date.DateUtils;
 
@@ -20,8 +21,12 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@Document(indexName = "log_entry_0", type = "log", replicas = 0, refreshInterval = "10s")
+@Document(indexName = LogEntry.INDEX_NAME, type = LogEntry.INDEX_TYPE, replicas = 0, refreshInterval = "10s")
 public class LogEntry {
+
+	public static final String INDEX_NAME = "log_entry_0";
+
+	public static final String INDEX_TYPE = "log";
 
 	@Id
 	@Field(type = FieldType.Long, store = true)
@@ -60,6 +65,7 @@ public class LogEntry {
 	@Field(type = FieldType.Long, store = true)
 	private long createTime;
 
+	@JsonIgnore
 	public String[] getStackTraces() {
 		if (StringUtils.isEmpty(reason)) {
 			return StringUtils.EMPTY_ARRAY;
@@ -67,6 +73,7 @@ public class LogEntry {
 		return StringUtils.split(reason, "\r\n", false).toArray(new String[0]);
 	}
 
+	@JsonIgnore
 	public String getDatetime() {
 		return createTime > 0 ? DateUtils.format(createTime) : "";
 	}

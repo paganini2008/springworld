@@ -6,13 +6,13 @@ import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 
- * BatchHandler
+ * BulkHandler
  * 
  * @author Jimmy Hoff
  *
  * @since 1.0
  */
-public interface BatchHandler {
+public interface BulkHandler {
 
 	void onBatch(List<Tuple> list);
 
