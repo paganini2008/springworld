@@ -12,12 +12,12 @@ import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 
- * Slf4jHandler
+ * LogboxHandler
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class Slf4jHandler implements Handler {
+public class LogboxHandler implements Handler {
 
 	private static final String TOPIC_NAME = "slf4j";
 
@@ -27,7 +27,7 @@ public class Slf4jHandler implements Handler {
 	@Autowired
 	private LogEntryService logEntryService;
 
-	@Value("${spring.application.cluster.logbox.interferedCharacter:}")
+	@Value("${spring.application.cluster.jellyfish.logbox.interferedCharacter:}")
 	private String interferedCharacterRegex;
 
 	@Override

@@ -33,7 +33,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * @author Jimmy Hoff
  * @version 1.0
  */
-@EnableElasticsearchRepositories("com.github.paganini2008.springdessert.logbox.es")
+@EnableElasticsearchRepositories("com.github.paganini2008.springdessert.jellyfish.es")
 @Configuration(proxyBeanMethods = false)
 public class JellyfishAutoConfiguration {
 
@@ -42,10 +42,10 @@ public class JellyfishAutoConfiguration {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@ConditionalOnProperty(name = "spring.application.cluster.logbox.adapter", havingValue = "logback", matchIfMissing = true)
+	@ConditionalOnProperty(name = "spring.application.cluster.jellyfish.logbox.adapter", havingValue = "logback", matchIfMissing = true)
 	@Bean
-	public Slf4jHandler slf4jHandler() {
-		return new Slf4jHandler();
+	public LogboxHandler slf4jHandler() {
+		return new LogboxHandler();
 	}
 
 	@Bean
