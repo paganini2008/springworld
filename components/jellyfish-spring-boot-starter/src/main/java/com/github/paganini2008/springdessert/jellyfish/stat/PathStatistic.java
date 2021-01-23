@@ -4,6 +4,7 @@ import com.github.paganini2008.xtransport.Tuple;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -14,6 +15,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@ToString
 public class PathStatistic {
 
 	private final String clusterName;

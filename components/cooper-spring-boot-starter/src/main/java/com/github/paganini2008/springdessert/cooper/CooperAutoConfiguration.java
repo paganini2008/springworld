@@ -32,7 +32,7 @@ public class CooperAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public TransportClient transportClient(@Value("${spring.application.cluster.logbox.brokerUrl}") String brokerUrl) {
+	public TransportClient transportClient(@Value("${spring.application.cluster.jellyfish.brokerUrl}") String brokerUrl) {
 		return new HttpTransportClient(brokerUrl);
 	}
 
