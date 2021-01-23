@@ -53,8 +53,12 @@ public interface Tuple {
 		try {
 			return (String) getField(KEYWORD_TOPIC, DEFAULT_TOPIC);
 		} catch (RuntimeException e) {
-			throw new TransportClientException("Don't use topic as key to put into Tuple because it is a keyword.");
+			throw new TransportClientException("Don't use topic as key to put into Tuple because it is a keyword.", e);
 		}
+	}
+
+	default long getTimestamp() {
+		return (Long) getField("timestamp");
 	}
 
 	default boolean isPing() {
