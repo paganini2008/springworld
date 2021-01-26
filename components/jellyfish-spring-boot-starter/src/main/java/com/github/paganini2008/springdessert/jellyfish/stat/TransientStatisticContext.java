@@ -59,26 +59,30 @@ public class TransientStatisticContext implements Runnable, InitializingBean {
 		String key;
 		Catalog catalog;
 		PathStatistic pathStatistic;
-		for (Map.Entry<Catalog, PathStatistic> entry : totalStatistic.entrySet()) {
-			catalog = entry.getKey();
-			pathStatistic = entry.getValue();
-			key = String.format(KEY_TOTAL_SUMMARY, catalog.getClusterName(), catalog.getApplicationName(), catalog.getHost(),
-					catalog.getPath());
-			redisTemplate.opsForHash().put(key, "totalExecutionCount", pathStatistic.getTotalExecutionCount());
-			redisTemplate.opsForHash().put(key, "failedExecutionCount", pathStatistic.getFailedExecutionCount());
-			redisTemplate.opsForHash().put(key, "timeoutExecutionCount", pathStatistic.getTimeoutExecutionCount());
-			redisTemplate.opsForHash().put(key, "failedExecutionRatio", pathStatistic.getFailedExectionRatio());
-			redisTemplate.opsForHash().put(key, "timeoutExecutionRatio", pathStatistic.getTimeoutExectionRatio());
+		if (totalStatistic.size() > 0) {
+			for (Map.Entry<Catalog, PathStatistic> entry : totalStatistic.entrySet()) {
+				catalog = entry.getKey();
+				pathStatistic = entry.getValue();
+				key = String.format(KEY_TOTAL_SUMMARY, catalog.getClusterName(), catalog.getApplicationName(), catalog.getHost(),
+						catalog.getPath());
+				redisTemplate.opsForHash().put(key, "totalExecutionCount", pathStatistic.getTotalExecutionCount());
+				redisTemplate.opsForHash().put(key, "failedExecutionCount", pathStatistic.getFailedExecutionCount());
+				redisTemplate.opsForHash().put(key, "timeoutExecutionCount", pathStatistic.getTimeoutExecutionCount());
+				redisTemplate.opsForHash().put(key, "failedExecutionRatio", pathStatistic.getFailedExectionRatio());
+				redisTemplate.opsForHash().put(key, "timeoutExecutionRatio", pathStatistic.getTimeoutExectionRatio());
+			}
+			log.info("Sync {} path statistic info.", totalStatistic.size());
 		}
-		log.info("Sync {} path statistic info.", totalStatistic.size());
 
-		SequentialMetricsCollector metricsCollector;
-		for (Map.Entry<Catalog, SequentialMetricsCollector> entry : realtimeCollectors.entrySet()) {
-			catalog = entry.getKey();
-			metricsCollector = entry.getValue();
-			sync(catalog, metricsCollector, "rt");
-			sync(catalog, metricsCollector, "cons");
-			sync(catalog, metricsCollector, "qps");
+		if (realtimeCollectors.size() > 0) {
+			SequentialMetricsCollector metricsCollector;
+			for (Map.Entry<Catalog, SequentialMetricsCollector> entry : realtimeCollectors.entrySet()) {
+				catalog = entry.getKey();
+				metricsCollector = entry.getValue();
+				sync(catalog, metricsCollector, "rt");
+				sync(catalog, metricsCollector, "cons");
+				sync(catalog, metricsCollector, "qps");
+			}
 		}
 	}
 

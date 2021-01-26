@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
  * @author Jimmy Hoff
  * @version 1.0
  */
-@Import({ PageController.class, LogEntryController.class, RealtimeStatisticController.class })
+@Import({ LogPage.class, LogEntryController.class, RealtimeStatisticController.class })
 @Configuration(proxyBeanMethods = false)
 public class JellyfishUIAutoConfiguration {
 

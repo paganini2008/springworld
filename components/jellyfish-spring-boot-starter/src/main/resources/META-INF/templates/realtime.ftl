@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>LogBox Realtime</title>
+<title>Jellyfish Realtime</title>
 <link rel="shortcut icon" href="#"/>
 <script type="text/javascript">
 	var $contextPath = '${contextPath}';
@@ -36,7 +36,7 @@
 </script>
 <body>
 	<div id="top">
-		<label id="title">LogBox (v2.0)</label>
+		<label id="title">Jellyfish (v2.0)</label>
 	</div>
 	<div id="container">
 		<div id="searchBox">

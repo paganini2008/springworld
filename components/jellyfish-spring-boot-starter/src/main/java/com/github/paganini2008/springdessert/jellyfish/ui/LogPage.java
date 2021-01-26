@@ -11,14 +11,14 @@ import com.github.paganini2008.devtools.date.DateUtils;
 
 /**
  * 
- * PageController
+ * LogPage
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
 @RequestMapping("/application/cluster/log")
 @Controller
-public class PageController {
+public class LogPage {
 
 	@GetMapping("/realtime")
 	public String realtime(Model ui) {
