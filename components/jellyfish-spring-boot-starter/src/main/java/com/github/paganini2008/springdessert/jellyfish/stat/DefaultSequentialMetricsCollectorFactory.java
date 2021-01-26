@@ -22,7 +22,7 @@ import com.github.paganini2008.devtools.date.SpanUnit;
 public class DefaultSequentialMetricsCollectorFactory implements SequentialMetricsCollectorFactory {
 
 	private static final int DEFAULT_BUFFER_SIZE = 60;
-	private static final String DEFAULT_TIME_PATTERN = "HH:mm:ss";
+	private static final String DEFAULT_TIME_PATTERN = SimpleSequentialMetricsCollector.DEFAULT_DATETIME_PATTERN;
 
 	@Override
 	public SequentialMetricsCollector createSequentialMetricsCollector() {
@@ -32,6 +32,7 @@ public class DefaultSequentialMetricsCollectorFactory implements SequentialMetri
 	@Override
 	public Map render(Map map) {
 		Map<String, MetricVO> data = (Map<String, MetricVO>) map;
+		data = new TreeMap<String, MetricVO>(data);
 		Map.Entry<String, MetricVO> entry = MapUtils.getFirstEntry(data);
 		Date startDate = getStartDate(entry.getKey(), entry.getValue());
 		Map<String, MetricVO> sequentialMap = sequentialMap(startDate);
