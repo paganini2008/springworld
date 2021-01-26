@@ -14,8 +14,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.collection.MetricUnit;
 import com.github.paganini2008.devtools.collection.SequentialMetricsCollector;
-import com.github.paganini2008.devtools.collection.SimpleSequentialMetricsCollector;
-import com.github.paganini2008.devtools.date.SpanUnit;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,9 +38,12 @@ public class TransientStatisticSynchronizer implements Runnable, InitializingBea
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
+	@Autowired
+	private SequentialMetricsCollectorFactory sequentialMetricsCollectorFactory;
+
 	public SequentialMetricsCollector getMetricsCollector(Catalog catalog) {
 		return MapUtils.get(realtimeCollectors, catalog, () -> {
-			return new SimpleSequentialMetricsCollector(60, 1, SpanUnit.MINUTE, null);
+			return sequentialMetricsCollectorFactory.createSequentialMetricsCollector();
 		});
 	}
 
@@ -92,7 +93,7 @@ public class TransientStatisticSynchronizer implements Runnable, InitializingBea
 		final String key = String.format(KEY_REALTIME_SUMMARY, metric, catalog.getClusterName(), catalog.getApplicationName(),
 				encodeString(catalog.getHost()), encodeString(catalog.getPath()));
 		redisTemplate.delete(key);
-		
+
 		Map<String, MetricUnit> metricUnits = metricsCollector.sequence(metric);
 		MetricUnit metricUnit;
 		for (Map.Entry<String, MetricUnit> entry : metricUnits.entrySet()) {
@@ -107,6 +108,7 @@ public class TransientStatisticSynchronizer implements Runnable, InitializingBea
 			vo.setTotalValue(metricUnit.getTotalValue().longValue());
 			vo.setMiddleValue(metricUnit.getMiddleValue(0).longValue());
 			vo.setCount(metricUnit.getCount());
+			vo.setTimestamp(metricUnit.getTimestamp());
 			redisTemplate.opsForHash().put(key, entry.getKey(), vo);
 		}
 		log.info("Sync {} metric units", redisTemplate.opsForHash().size(key));

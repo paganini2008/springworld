@@ -39,12 +39,12 @@ public class PathStatistic {
 	private long failedExecutionCount;
 
 	public double getTimeoutExectionRatio() {
-		double value = totalExecutionCount < 0 ? (double) (timeoutExecutionCount / totalExecutionCount) : 0;
+		double value = totalExecutionCount < 0 ? (double) timeoutExecutionCount / totalExecutionCount : 0;
 		return Doubles.toFixed(value, 4);
 	}
 
 	public double getFailedExectionRatio() {
-		double value = failedExecutionCount < 0 ? (double) (failedExecutionCount / totalExecutionCount) : 0;
+		double value = failedExecutionCount < 0 ? (double) failedExecutionCount / totalExecutionCount : 0;
 		return Doubles.toFixed(value, 4);
 	}
 

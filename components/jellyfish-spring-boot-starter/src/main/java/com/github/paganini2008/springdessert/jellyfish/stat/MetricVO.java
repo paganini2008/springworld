@@ -25,5 +25,6 @@ public class MetricVO {
 	private long totalValue;
 	private int count;
 	private double middleValue;
+	private long timestamp;
 
 }

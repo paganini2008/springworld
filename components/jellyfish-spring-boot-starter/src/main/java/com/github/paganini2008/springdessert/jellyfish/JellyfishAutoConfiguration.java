@@ -19,7 +19,9 @@ import com.github.paganini2008.springdessert.jellyfish.log.LogEntrySearchService
 import com.github.paganini2008.springdessert.jellyfish.log.LogEntryService;
 import com.github.paganini2008.springdessert.jellyfish.log.Slf4jHandler;
 import com.github.paganini2008.springdessert.jellyfish.stat.BulkStatisticHandler;
+import com.github.paganini2008.springdessert.jellyfish.stat.DefaultSequentialMetricsCollectorFactory;
 import com.github.paganini2008.springdessert.jellyfish.stat.RealtimeStatisticHandler;
+import com.github.paganini2008.springdessert.jellyfish.stat.SequentialMetricsCollectorFactory;
 import com.github.paganini2008.springdessert.jellyfish.stat.TransientStatisticSynchronizer;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
@@ -62,6 +64,12 @@ public class JellyfishAutoConfiguration {
 	@Bean
 	public TransientStatisticSynchronizer transientStatisticSynchronizer() {
 		return new TransientStatisticSynchronizer();
+	}
+
+	@ConditionalOnMissingBean
+	@Bean
+	public SequentialMetricsCollectorFactory sequentialMetricsCollectorFactory() {
+		return new DefaultSequentialMetricsCollectorFactory();
 	}
 
 	@Bean
