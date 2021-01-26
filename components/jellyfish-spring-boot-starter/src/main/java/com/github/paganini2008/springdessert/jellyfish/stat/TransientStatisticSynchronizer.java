@@ -1,5 +1,7 @@
 package com.github.paganini2008.springdessert.jellyfish.stat;
 
+import static com.github.paganini2008.springdessert.jellyfish.Utils.encodeString;
+
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,13 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * TransientStatisticContext
+ * TransientStatisticSynchronizer
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
 @Slf4j
-public class TransientStatisticContext implements Runnable, InitializingBean {
+public class TransientStatisticSynchronizer implements Runnable, InitializingBean {
 
 	public static final String KEY_TOTAL_SUMMARY = "jellyfish:%s:%s:%s:%s";
 	public static final String KEY_REALTIME_SUMMARY = "jellyfish:%s:%s:%s:%s:%s";
@@ -63,8 +65,8 @@ public class TransientStatisticContext implements Runnable, InitializingBean {
 			for (Map.Entry<Catalog, PathStatistic> entry : totalStatistic.entrySet()) {
 				catalog = entry.getKey();
 				pathStatistic = entry.getValue();
-				key = String.format(KEY_TOTAL_SUMMARY, catalog.getClusterName(), catalog.getApplicationName(), catalog.getHost(),
-						catalog.getPath());
+				key = String.format(KEY_TOTAL_SUMMARY, catalog.getClusterName(), catalog.getApplicationName(),
+						encodeString(catalog.getHost()), encodeString(catalog.getPath()));
 				redisTemplate.opsForHash().put(key, "totalExecutionCount", pathStatistic.getTotalExecutionCount());
 				redisTemplate.opsForHash().put(key, "failedExecutionCount", pathStatistic.getFailedExecutionCount());
 				redisTemplate.opsForHash().put(key, "timeoutExecutionCount", pathStatistic.getTimeoutExecutionCount());
@@ -88,8 +90,9 @@ public class TransientStatisticContext implements Runnable, InitializingBean {
 
 	private void sync(Catalog catalog, SequentialMetricsCollector metricsCollector, String metric) {
 		final String key = String.format(KEY_REALTIME_SUMMARY, metric, catalog.getClusterName(), catalog.getApplicationName(),
-				catalog.getHost(), catalog.getPath());
+				encodeString(catalog.getHost()), encodeString(catalog.getPath()));
 		redisTemplate.delete(key);
+		
 		Map<String, MetricUnit> metricUnits = metricsCollector.sequence(metric);
 		MetricUnit metricUnit;
 		for (Map.Entry<String, MetricUnit> entry : metricUnits.entrySet()) {
@@ -101,16 +104,17 @@ public class TransientStatisticContext implements Runnable, InitializingBean {
 			vo.setPath(catalog.getPath());
 			vo.setHighestValue(metricUnit.getHighestValue().longValue());
 			vo.setLowestValue(metricUnit.getLowestValue().longValue());
+			vo.setTotalValue(metricUnit.getTotalValue().longValue());
 			vo.setMiddleValue(metricUnit.getMiddleValue(0).longValue());
 			vo.setCount(metricUnit.getCount());
 			redisTemplate.opsForHash().put(key, entry.getKey(), vo);
 		}
-		log.info("Sync {} metric units", metricUnits.size());
+		log.info("Sync {} metric units", redisTemplate.opsForHash().size(key));
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		taskScheduler.scheduleWithFixedDelay(this, Duration.ofSeconds(3));
-		log.info("Start statistic synchronizer.");
+		log.info("Start TransientStatisticSynchronizer.");
 	}
 }

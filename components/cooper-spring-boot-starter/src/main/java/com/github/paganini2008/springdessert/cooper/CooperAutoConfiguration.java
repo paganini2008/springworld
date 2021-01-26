@@ -9,12 +9,16 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.github.paganini2008.devtools.collection.CollectionUtils;
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.xtransport.HttpTransportClient;
 import com.github.paganini2008.xtransport.TransportClient;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -23,20 +27,23 @@ import com.github.paganini2008.xtransport.TransportClient;
  * @author Jimmy Hoff
  * @version 1.0
  */
+@Slf4j
 @ConditionalOnWebApplication
 @Configuration
 public class CooperAutoConfiguration implements WebMvcConfigurer {
 
-	@Value("#{'${spring.application.cluster.cooper.excludedUrlPatterns:}'.split(',')}")  
+	@Value("#{'${spring.application.cluster.cooper.excludedUrlPatterns:}'.split(',')}")
 	private List<String> excludedUrlPatterns = new ArrayList<String>();
 
 	@Bean("realtimeStatisticalWriter")
 	public StatisticalWriter realtimeStatisticalWriter() {
+		log.info("Load RealtimeStatisticalWriter");
 		return new RealtimeStatisticalWriter();
 	}
 
 	@Bean("bulkStatisticalWriter")
 	public StatisticalWriter bulkStatisticalWriter() {
+		log.info("Load BulkStatisticalWriter");
 		return new BulkStatisticalWriter();
 	}
 
@@ -60,8 +67,14 @@ public class CooperAutoConfiguration implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(realtimeStatisticalWriter()).addPathPatterns("/**").excludePathPatterns(excludedUrlPatterns);
-		registry.addInterceptor(bulkStatisticalWriter()).addPathPatterns("/**").excludePathPatterns(excludedUrlPatterns);
+		InterceptorRegistration interceptorRegistration = registry.addInterceptor(realtimeStatisticalWriter()).addPathPatterns("/**");
+		if (CollectionUtils.isNotEmpty(excludedUrlPatterns)) {
+			interceptorRegistration.excludePathPatterns(excludedUrlPatterns);
+		}
+		interceptorRegistration = registry.addInterceptor(bulkStatisticalWriter()).addPathPatterns("/**");
+		if (CollectionUtils.isNotEmpty(excludedUrlPatterns)) {
+			interceptorRegistration.excludePathPatterns(excludedUrlPatterns);
+		}
 	}
 
 }

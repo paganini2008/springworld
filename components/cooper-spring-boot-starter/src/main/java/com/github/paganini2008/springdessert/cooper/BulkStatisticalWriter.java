@@ -172,16 +172,16 @@ public class BulkStatisticalWriter extends StatisticalWriter implements Initiali
 
 		public Map<String, String> checkpoint() {
 			long totalExecutionCount = totalExecution.get();
-			int tps = 0;
+			int qps = 0;
 			if (totalExecutionCount > 0) {
-				tps = (int) (totalExecutionCount - lastTotalExecutionCount);
+				qps = (int) (totalExecutionCount - lastTotalExecutionCount);
 				lastTotalExecutionCount = totalExecutionCount;
 			}
 			long timeoutExecutionCount = timeoutExecution.get();
 			long failedExecutionCount = failedExecution.get();
 			Map<String, String> data = new HashMap<String, String>();
 			data.put("totalExecutionCount", String.valueOf(totalExecutionCount));
-			data.put("tps", String.valueOf(tps));
+			data.put("qps", String.valueOf(qps));
 			data.put("timeoutExecutionCount", String.valueOf(timeoutExecutionCount));
 			data.put("failedExecutionCount", String.valueOf(failedExecutionCount));
 			return data;

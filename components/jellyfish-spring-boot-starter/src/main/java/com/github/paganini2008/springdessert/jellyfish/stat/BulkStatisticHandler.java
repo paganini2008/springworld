@@ -17,7 +17,7 @@ import com.github.paganini2008.xtransport.Tuple;
 public class BulkStatisticHandler implements Handler {
 
 	@Autowired
-	private TransientStatisticContext transientStatisticalContext;
+	private TransientStatisticSynchronizer statisticSynchronizer;
 
 	@Override
 	public void onData(Tuple tuple) {
@@ -26,14 +26,14 @@ public class BulkStatisticHandler implements Handler {
 		long timeoutExecutionCount = tuple.getField("timeoutExecutionCount", Long.class);
 		long failedExecutionCount = tuple.getField("failedExecutionCount", Long.class);
 
-		PathStatistic pathStatistic = transientStatisticalContext.getPathStatistic(Catalog.of(tuple));
+		PathStatistic pathStatistic = statisticSynchronizer.getPathStatistic(Catalog.of(tuple));
 		pathStatistic.setTotalExecutionCount(totalExecutionCount);
 		pathStatistic.setTimeoutExecutionCount(timeoutExecutionCount);
 		pathStatistic.setFailedExecutionCount(failedExecutionCount);
 
-		int tps = tuple.getField("tps", Integer.class);
-		SequentialMetricsCollector sequentialMetricsCollector = transientStatisticalContext.getMetricsCollector(Catalog.of(tuple));
-		sequentialMetricsCollector.set("tps", timestamp, MetricUnits.valueOf(tps));
+		int tps = tuple.getField("qps", Integer.class);
+		SequentialMetricsCollector sequentialMetricsCollector = statisticSynchronizer.getMetricsCollector(Catalog.of(tuple));
+		sequentialMetricsCollector.set("qps", timestamp, MetricUnits.valueOf(tps));
 	}
 
 	@Override

@@ -20,7 +20,7 @@ import com.github.paganini2008.springdessert.jellyfish.log.LogEntryService;
 import com.github.paganini2008.springdessert.jellyfish.log.Slf4jHandler;
 import com.github.paganini2008.springdessert.jellyfish.stat.BulkStatisticHandler;
 import com.github.paganini2008.springdessert.jellyfish.stat.RealtimeStatisticHandler;
-import com.github.paganini2008.springdessert.jellyfish.stat.TransientStatisticContext;
+import com.github.paganini2008.springdessert.jellyfish.stat.TransientStatisticSynchronizer;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 
@@ -60,8 +60,8 @@ public class JellyfishAutoConfiguration {
 	}
 
 	@Bean
-	public TransientStatisticContext transientStatisticalContext() {
-		return new TransientStatisticContext();
+	public TransientStatisticSynchronizer transientStatisticSynchronizer() {
+		return new TransientStatisticSynchronizer();
 	}
 
 	@Bean
