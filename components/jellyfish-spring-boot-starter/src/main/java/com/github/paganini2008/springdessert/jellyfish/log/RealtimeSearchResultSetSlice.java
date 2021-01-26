@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.jellyfish.es;
+package com.github.paganini2008.springdessert.jellyfish.log;
 
 import static com.github.paganini2008.springdessert.jellyfish.ui.SearchResult.SEARCH_FIELD_MESSAGE;
 import static com.github.paganini2008.springdessert.jellyfish.ui.SearchResult.SEARCH_FIELD_REASON;

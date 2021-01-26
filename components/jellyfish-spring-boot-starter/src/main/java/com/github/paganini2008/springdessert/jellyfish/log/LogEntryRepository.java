@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.jellyfish.es;
+package com.github.paganini2008.springdessert.jellyfish.log;
 
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Component;

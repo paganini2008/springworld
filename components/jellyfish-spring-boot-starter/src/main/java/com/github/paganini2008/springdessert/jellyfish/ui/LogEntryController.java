@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.paganini2008.devtools.jdbc.PageResponse;
-import com.github.paganini2008.springdessert.jellyfish.es.LogEntrySearchService;
+import com.github.paganini2008.springdessert.jellyfish.log.LogEntrySearchService;
 
 /**
  * 

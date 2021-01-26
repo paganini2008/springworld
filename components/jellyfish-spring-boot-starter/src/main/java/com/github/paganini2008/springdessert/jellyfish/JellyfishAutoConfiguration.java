@@ -15,11 +15,12 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
-import com.github.paganini2008.springdessert.jellyfish.es.LogEntrySearchService;
-import com.github.paganini2008.springdessert.jellyfish.es.LogEntryService;
-import com.github.paganini2008.springdessert.jellyfish.stat.BulkStatisticalHandler;
-import com.github.paganini2008.springdessert.jellyfish.stat.RealtimeStatisticalHandler;
-import com.github.paganini2008.springdessert.jellyfish.stat.TransientStatisticalContext;
+import com.github.paganini2008.springdessert.jellyfish.log.LogEntrySearchService;
+import com.github.paganini2008.springdessert.jellyfish.log.LogEntryService;
+import com.github.paganini2008.springdessert.jellyfish.log.Slf4jHandler;
+import com.github.paganini2008.springdessert.jellyfish.stat.BulkStatisticHandler;
+import com.github.paganini2008.springdessert.jellyfish.stat.RealtimeStatisticHandler;
+import com.github.paganini2008.springdessert.jellyfish.stat.TransientStatisticContext;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 
@@ -33,7 +34,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * @author Jimmy Hoff
  * @version 1.0
  */
-@EnableElasticsearchRepositories("com.github.paganini2008.springdessert.jellyfish.es")
+@EnableElasticsearchRepositories("com.github.paganini2008.springdessert.jellyfish.log")
 @Configuration(proxyBeanMethods = false)
 public class JellyfishAutoConfiguration {
 
@@ -44,23 +45,23 @@ public class JellyfishAutoConfiguration {
 
 	@ConditionalOnProperty(name = "spring.application.cluster.jellyfish.logbox.adapter", havingValue = "logback", matchIfMissing = true)
 	@Bean
-	public LogboxHandler slf4jHandler() {
-		return new LogboxHandler();
+	public Slf4jHandler slf4jHandler() {
+		return new Slf4jHandler();
 	}
 
 	@Bean
-	public RealtimeStatisticalHandler realtimeStatisticalHandler() {
-		return new RealtimeStatisticalHandler();
+	public RealtimeStatisticHandler realtimeStatisticalHandler() {
+		return new RealtimeStatisticHandler();
 	}
 
 	@Bean
-	public BulkStatisticalHandler bulkStatisticalHandler() {
-		return new BulkStatisticalHandler();
+	public BulkStatisticHandler bulkStatisticalHandler() {
+		return new BulkStatisticHandler();
 	}
 
 	@Bean
-	public TransientStatisticalContext transientStatisticalContext() {
-		return new TransientStatisticalContext();
+	public TransientStatisticContext transientStatisticalContext() {
+		return new TransientStatisticContext();
 	}
 
 	@Bean

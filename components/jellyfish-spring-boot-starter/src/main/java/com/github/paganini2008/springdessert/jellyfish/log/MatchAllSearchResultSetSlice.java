@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.jellyfish.es;
+package com.github.paganini2008.springdessert.jellyfish.log;
 
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;

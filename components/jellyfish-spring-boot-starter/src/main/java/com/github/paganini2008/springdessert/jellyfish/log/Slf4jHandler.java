@@ -1,11 +1,9 @@
-package com.github.paganini2008.springdessert.jellyfish;
+package com.github.paganini2008.springdessert.jellyfish.log;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.paganini2008.devtools.StringUtils;
-import com.github.paganini2008.springdessert.jellyfish.es.LogEntry;
-import com.github.paganini2008.springdessert.jellyfish.es.LogEntryService;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.xtransport.Handler;
 import com.github.paganini2008.xtransport.Tuple;
@@ -17,7 +15,7 @@ import com.github.paganini2008.xtransport.Tuple;
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class LogboxHandler implements Handler {
+public class Slf4jHandler implements Handler {
 
 	private static final String TOPIC_NAME = "slf4j";
 

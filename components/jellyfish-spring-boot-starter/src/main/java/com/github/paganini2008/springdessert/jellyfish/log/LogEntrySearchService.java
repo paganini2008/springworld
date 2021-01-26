@@ -1,4 +1,4 @@
-package com.github.paganini2008.springdessert.jellyfish.es;
+package com.github.paganini2008.springdessert.jellyfish.log;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;

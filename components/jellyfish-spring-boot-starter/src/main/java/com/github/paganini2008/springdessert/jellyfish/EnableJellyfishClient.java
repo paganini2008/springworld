@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 import com.github.paganini2008.springdessert.cluster.EnableApplicationCluster;
-import com.github.paganini2008.springdessert.jellyfish.ui.LogBoxUIAutoConfiguration;
+import com.github.paganini2008.springdessert.jellyfish.ui.JellyfishUIAutoConfiguration;
 import com.github.paganini2008.springdessert.xtransport.EnableXTransport;
 
 /**
@@ -24,6 +24,6 @@ import com.github.paganini2008.springdessert.xtransport.EnableXTransport;
 @Documented
 @EnableXTransport
 @EnableApplicationCluster(enableLeaderElection = true, enableMonitor = true)
-@Import({ JellyfishAutoConfiguration.class, LogBoxUIAutoConfiguration.class })
+@Import({ JellyfishAutoConfiguration.class, JellyfishUIAutoConfiguration.class })
 public @interface EnableJellyfishClient {
 }

@@ -2,36 +2,36 @@ package com.github.paganini2008.springdessert.jellyfish.stat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.github.paganini2008.devtools.collection.MetricUnits;
 import com.github.paganini2008.devtools.collection.SequentialMetricsCollector;
 import com.github.paganini2008.springdessert.xtransport.Handler;
 import com.github.paganini2008.xtransport.Tuple;
 
 /**
  * 
- * RealtimeStatisticalHandler
+ * RealtimeStatisticHandler
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-public class RealtimeStatisticalHandler implements Handler {
+public class RealtimeStatisticHandler implements Handler {
 
 	@Autowired
-	private TransientStatisticalContext transientStatisticalContext;
+	private TransientStatisticContext transientStatisticalContext;
 
 	@Override
 	public void onData(Tuple tuple) {
 		long elapsed = tuple.getField("elapsed", Long.class);
 		long concurrency = tuple.getField("concurrency", Long.class);
 		long timestamp = tuple.getField("requestTime", Long.class);
-		SequentialMetricsCollector sequentialMetricsCollector = transientStatisticalContext
-				.getMetricsCollector(MetricCollectorKey.of(tuple));
-		sequentialMetricsCollector.set("elapsed", timestamp, new StatisticalLongMetricUnit(tuple, elapsed));
-		sequentialMetricsCollector.set("concurrency", timestamp, new StatisticalLongMetricUnit(tuple, concurrency));
+		SequentialMetricsCollector sequentialMetricsCollector = transientStatisticalContext.getMetricsCollector(Catalog.of(tuple));
+		sequentialMetricsCollector.set("elapsed", timestamp, MetricUnits.valueOf(elapsed));
+		sequentialMetricsCollector.set("concurrency", timestamp, MetricUnits.valueOf(concurrency));
 	}
 
 	@Override
 	public String getTopic() {
-		return "com.github.paganini2008.springdessert.logstat.RealtimeStatisticalWriter";
+		return "com.github.paganini2008.springdessert.cooper.RealtimeStatisticalWriter";
 	}
 
 }

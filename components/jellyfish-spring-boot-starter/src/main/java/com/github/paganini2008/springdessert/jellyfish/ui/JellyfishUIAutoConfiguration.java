@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Import;
 
 /**
  * 
- * LogBoxUIAutoConfiguration
+ * JellyfishUIAutoConfiguration
  *
  * @author Jimmy Hoff
  * @version 1.0
  */
-@Import({ PageController.class, LogEntryController.class })
+@Import({ PageController.class, LogEntryController.class, RealtimeStatisticController.class })
 @Configuration(proxyBeanMethods = false)
-public class LogBoxUIAutoConfiguration {
+public class JellyfishUIAutoConfiguration {
 
 	@Bean
 	public WebMvcConfig webMvcConfig() {
