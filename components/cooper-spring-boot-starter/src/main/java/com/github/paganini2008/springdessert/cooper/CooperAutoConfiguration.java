@@ -1,10 +1,16 @@
 package com.github.paganini2008.springdessert.cooper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.github.paganini2008.devtools.multithreads.PooledThreadFactory;
 import com.github.paganini2008.xtransport.HttpTransportClient;
@@ -17,8 +23,12 @@ import com.github.paganini2008.xtransport.TransportClient;
  * @author Jimmy Hoff
  * @version 1.0
  */
+@ConditionalOnWebApplication
 @Configuration
-public class CooperAutoConfiguration {
+public class CooperAutoConfiguration implements WebMvcConfigurer {
+
+	@Value("#{'${spring.application.cluster.cooper.excludedUrlPatterns:}'.split(',')}")  
+	private List<String> excludedUrlPatterns = new ArrayList<String>();
 
 	@Bean("realtimeStatisticalWriter")
 	public StatisticalWriter realtimeStatisticalWriter() {
@@ -46,6 +56,12 @@ public class CooperAutoConfiguration {
 		threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
 		threadPoolTaskScheduler.setAwaitTerminationSeconds(60);
 		return threadPoolTaskScheduler;
+	}
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(realtimeStatisticalWriter()).addPathPatterns("/**").excludePathPatterns(excludedUrlPatterns);
+		registry.addInterceptor(bulkStatisticalWriter()).addPathPatterns("/**").excludePathPatterns(excludedUrlPatterns);
 	}
 
 }

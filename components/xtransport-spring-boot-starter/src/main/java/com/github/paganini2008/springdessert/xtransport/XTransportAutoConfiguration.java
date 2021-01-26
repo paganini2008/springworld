@@ -21,7 +21,7 @@ import com.github.paganini2008.springdessert.xmemcached.serializer.FstMemcachedS
 import com.github.paganini2008.springdessert.xmemcached.serializer.MemcachedSerializer;
 import com.github.paganini2008.springdessert.xtransport.buffer.BufferZone;
 import com.github.paganini2008.springdessert.xtransport.buffer.MemcachedBufferZone;
-import com.github.paganini2008.springdessert.xtransport.buffer.MemoryBufferZone;
+import com.github.paganini2008.springdessert.xtransport.buffer.RedisBufferZone;
 import com.github.paganini2008.springdessert.xtransport.transport.EmbeddedChannelEventListener;
 import com.github.paganini2008.springdessert.xtransport.transport.EmbeddedServer;
 import com.github.paganini2008.springdessert.xtransport.transport.EmbeddedServerHandler;
@@ -130,7 +130,7 @@ public class XTransportAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public BufferZone bufferZone() {
-		return new MemoryBufferZone(10000);
+		return new RedisBufferZone();
 	}
 
 	/**

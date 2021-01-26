@@ -33,7 +33,7 @@ public class MemoryBufferZone implements BufferZone {
 	private final int maxSize;
 
 	public MemoryBufferZone() {
-		this(100);
+		this(Integer.MAX_VALUE);
 	}
 
 	public MemoryBufferZone(int maxSize) {
