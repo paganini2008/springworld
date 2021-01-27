@@ -43,7 +43,7 @@ public class TransientStatisticSynchronizer implements Runnable, InitializingBea
 
 	public SequentialMetricsCollector getMetricsCollector(Catalog catalog) {
 		return MapUtils.get(realtimeCollectors, catalog, () -> {
-			return sequentialMetricsCollectorFactory.createSequentialMetricsCollector();
+			return sequentialMetricsCollectorFactory.createSequentialMetricsCollector(catalog);
 		});
 	}
 

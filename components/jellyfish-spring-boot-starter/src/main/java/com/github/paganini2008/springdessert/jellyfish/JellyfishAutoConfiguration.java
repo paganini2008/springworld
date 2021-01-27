@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
@@ -25,13 +26,16 @@ import com.github.paganini2008.springdessert.jellyfish.stat.SequentialMetricsCol
 import com.github.paganini2008.springdessert.jellyfish.stat.TransientStatisticSynchronizer;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
+import com.github.paganini2008.xtransport.HashPartitioner;
+import com.github.paganini2008.xtransport.MultipleSelectionPartitioner;
+import com.github.paganini2008.xtransport.Partitioner;
 
 import lombok.Setter;
 import redis.clients.jedis.JedisPoolConfig;
 
 /**
  * 
- * LogBoxAutoConfiguration
+ * JellyfishAutoConfiguration
  *
  * @author Jimmy Hoff
  * @version 1.0
@@ -40,7 +44,7 @@ import redis.clients.jedis.JedisPoolConfig;
 @Configuration(proxyBeanMethods = false)
 public class JellyfishAutoConfiguration {
 
-	private static final String keyPattern = "spring:application:cluster:%s:logtracker:id";
+	private static final String keyPattern = "spring:application:cluster:jellyfish:%s:id";
 
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
@@ -59,6 +63,16 @@ public class JellyfishAutoConfiguration {
 	@Bean
 	public BulkStatisticHandler bulkStatisticalHandler() {
 		return new BulkStatisticHandler();
+	}
+
+	@Primary
+	@Bean
+	public Partitioner partitioner() {
+		final String[] fieldNames = { "clusterName", "applicationName", "host", "path" };
+		MultipleSelectionPartitioner partitioner = new MultipleSelectionPartitioner();
+		HashPartitioner hashPartitioner = new HashPartitioner(fieldNames);
+		partitioner.addPartitioner("hash", hashPartitioner);
+		return partitioner;
 	}
 
 	@Bean

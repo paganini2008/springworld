@@ -17,14 +17,14 @@ import com.github.paganini2008.xtransport.Tuple;
 public class RealtimeStatisticHandler implements Handler {
 
 	@Autowired
-	private TransientStatisticSynchronizer transientStatisticalContext;
+	private TransientStatisticSynchronizer transientStatisticSynchronizer;
 
 	@Override
 	public void onData(Tuple tuple) {
 		long elapsed = tuple.getField("elapsed", Long.class);
 		long concurrency = tuple.getField("concurrency", Long.class);
 		long timestamp = tuple.getField("requestTime", Long.class);
-		SequentialMetricsCollector sequentialMetricsCollector = transientStatisticalContext.getMetricsCollector(Catalog.of(tuple));
+		SequentialMetricsCollector sequentialMetricsCollector = transientStatisticSynchronizer.getMetricsCollector(Catalog.of(tuple));
 		sequentialMetricsCollector.set("rt", timestamp, MetricUnits.valueOf(elapsed));
 		sequentialMetricsCollector.set("cons", timestamp, MetricUnits.valueOf(concurrency));
 	}

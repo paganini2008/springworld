@@ -13,7 +13,7 @@ import com.github.paganini2008.devtools.collection.SequentialMetricsCollector;
  */
 public interface SequentialMetricsCollectorFactory {
 
-	SequentialMetricsCollector createSequentialMetricsCollector();
+	SequentialMetricsCollector createSequentialMetricsCollector(Catalog catalog);
 
 	@SuppressWarnings("rawtypes")
 	Map render(Map data);

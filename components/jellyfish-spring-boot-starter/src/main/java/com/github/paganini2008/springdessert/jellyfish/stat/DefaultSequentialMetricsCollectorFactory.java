@@ -21,18 +21,38 @@ import com.github.paganini2008.devtools.date.SpanUnit;
 @SuppressWarnings("all")
 public class DefaultSequentialMetricsCollectorFactory implements SequentialMetricsCollectorFactory {
 
-	private static final int DEFAULT_BUFFER_SIZE = 60;
-	private static final String DEFAULT_TIME_PATTERN = SimpleSequentialMetricsCollector.DEFAULT_DATETIME_PATTERN;
+	private String datetimePattern = SimpleSequentialMetricsCollector.DEFAULT_DATETIME_PATTERN;
+	private int span = 1;
+	private SpanUnit spanUnit = SpanUnit.MINUTE;
+	private int bufferSize = 60;
+
+	public void setDatetimePattern(String datetimePattern) {
+		this.datetimePattern = datetimePattern;
+	}
+
+	public void setSpan(int span) {
+		this.span = span;
+	}
+
+	public void setSpanUnit(SpanUnit spanUnit) {
+		this.spanUnit = spanUnit;
+	}
+
+	public void setBufferSize(int bufferSize) {
+		this.bufferSize = bufferSize;
+	}
 
 	@Override
-	public SequentialMetricsCollector createSequentialMetricsCollector() {
-		return new SimpleSequentialMetricsCollector(DEFAULT_BUFFER_SIZE, 1, SpanUnit.MINUTE, null);
+	public SequentialMetricsCollector createSequentialMetricsCollector(Catalog catalog) {
+		return new SimpleSequentialMetricsCollector(bufferSize, span, spanUnit, null);
 	}
 
 	@Override
 	public Map render(Map map) {
 		Map<String, MetricVO> data = (Map<String, MetricVO>) map;
-		data = new TreeMap<String, MetricVO>(data);
+		if (!(data instanceof TreeMap)) {
+			data = new TreeMap<String, MetricVO>(data);
+		}
 		Map.Entry<String, MetricVO> entry = MapUtils.getFirstEntry(data);
 		Date startDate = getStartDate(entry.getKey(), entry.getValue());
 		Map<String, MetricVO> sequentialMap = sequentialMap(startDate);
@@ -46,7 +66,7 @@ public class DefaultSequentialMetricsCollectorFactory implements SequentialMetri
 		int year = copy.get(Calendar.YEAR);
 		int month = copy.get(Calendar.MONTH);
 		int date = copy.get(Calendar.DATE);
-		Date startDate = DateUtils.parse(time, DEFAULT_TIME_PATTERN);
+		Date startDate = DateUtils.parse(time, datetimePattern);
 		Calendar c = Calendar.getInstance();
 		c.setTime(startDate);
 		c.set(Calendar.YEAR, year);
@@ -59,9 +79,9 @@ public class DefaultSequentialMetricsCollectorFactory implements SequentialMetri
 		Map<String, MetricVO> map = new TreeMap<String, MetricVO>();
 		Calendar c = Calendar.getInstance();
 		c.setTime(startDate);
-		for (int i = 0; i < DEFAULT_BUFFER_SIZE; i++) {
+		for (int i = 0; i < bufferSize; i++) {
 			c.add(Calendar.MINUTE, 1);
-			map.put(DateUtils.format(c.getTime(), DEFAULT_TIME_PATTERN), new MetricVO());
+			map.put(DateUtils.format(c.getTime(), datetimePattern), new MetricVO());
 		}
 		return map;
 	}

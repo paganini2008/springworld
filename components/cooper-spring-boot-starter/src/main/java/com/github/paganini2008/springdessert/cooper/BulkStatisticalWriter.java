@@ -123,7 +123,8 @@ public class BulkStatisticalWriter extends StatisticalWriter implements Initiali
 
 		private Map<String, String> getContextMap(Stat stat) {
 			Map<String, String> contextMap = new HashMap<String, String>();
-			contextMap.put("topic", TOPIC_NAME);
+			contextMap.put(Tuple.KEYWORD_TOPIC, TOPIC_NAME);
+			contextMap.put(Tuple.KEYWORD_PARTITIONER, "hash");
 			contextMap.put("clusterName", clusterName);
 			contextMap.put("applicationName", applicationName);
 			contextMap.put("host", host + ":" + port);

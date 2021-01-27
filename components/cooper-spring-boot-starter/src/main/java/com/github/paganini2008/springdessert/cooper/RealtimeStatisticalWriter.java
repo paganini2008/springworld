@@ -62,7 +62,8 @@ public class RealtimeStatisticalWriter extends StatisticalWriter {
 		long elapsed = System.currentTimeMillis() - begin.longValue();
 		int concurrency = getConcurrency(path).decrementAndGet();
 		Map<String, Object> contextMap = new HashMap<String, Object>();
-		contextMap.put("topic", TOPIC_NAME);
+		contextMap.put(Tuple.KEYWORD_TOPIC, TOPIC_NAME);
+		contextMap.put(Tuple.KEYWORD_PARTITIONER, "hash");
 		contextMap.put("requestId", requestId);
 		contextMap.put("clusterName", clusterName);
 		contextMap.put("applicationName", applicationName);

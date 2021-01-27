@@ -16,6 +16,8 @@ public interface Tuple {
 	static final String DEFAULT_TOPIC = "default";
 	static final String KEYWORD_CONTENT = "content";
 	static final String KEYWORD_TOPIC = "topic";
+	static final String KEYWORD_PARTITIONER = "partitioner";
+	
 	static final Tuple PING = Tuple.byString("PING");
 	static final Tuple PONG = Tuple.byString("PONG");
 
@@ -57,16 +59,24 @@ public interface Tuple {
 		}
 	}
 
+	default String getContent() {
+		return getField(KEYWORD_CONTENT, String.class);
+	}
+
 	default long getTimestamp() {
-		return (Long) getField("timestamp");
+		return getField("timestamp", Long.class);
+	}
+
+	default String getPartitionerType() {
+		return getField(KEYWORD_PARTITIONER, String.class);
 	}
 
 	default boolean isPing() {
-		return "PING".equals(getField(KEYWORD_CONTENT));
+		return "PING".equalsIgnoreCase(getContent());
 	}
 
 	default boolean isPong() {
-		return "PONG".equals(getField(KEYWORD_CONTENT));
+		return "PONG".equalsIgnoreCase(getContent());
 	}
 
 	public static Tuple newOne() {
@@ -80,13 +90,13 @@ public interface Tuple {
 	}
 
 	public static Tuple byString(String content) {
-		Tuple tuple = new TupleImpl();
+		Tuple tuple = newOne();
 		tuple.setField(KEYWORD_CONTENT, content);
 		return tuple;
 	}
 
 	public static Tuple wrap(Map<String, ?> kwargs) {
-		Tuple tuple = new TupleImpl();
+		Tuple tuple = newOne();
 		tuple.append(kwargs);
 		return tuple;
 	}
