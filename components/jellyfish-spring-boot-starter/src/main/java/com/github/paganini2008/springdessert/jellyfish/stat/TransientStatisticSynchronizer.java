@@ -109,6 +109,11 @@ public class TransientStatisticSynchronizer implements Runnable, InitializingBea
 			vo.setMiddleValue(metricUnit.getMiddleValue(0).longValue());
 			vo.setCount(metricUnit.getCount());
 			vo.setTimestamp(metricUnit.getTimestamp());
+			if (metricUnit instanceof RealtimeMetricUnit) {
+				RealtimeMetricUnit realtimeMetricUnit = (RealtimeMetricUnit) metricUnit;
+				vo.setFailedCount(realtimeMetricUnit.getFailedCount());
+				vo.setTimeoutCount(realtimeMetricUnit.getTimeoutCount());
+			}
 			redisTemplate.opsForHash().put(key, entry.getKey(), vo);
 		}
 		log.info("Sync {} metric units", redisTemplate.opsForHash().size(key));

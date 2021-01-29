@@ -31,9 +31,9 @@ public class BulkStatisticHandler implements Handler {
 		pathStatistic.setTimeoutExecutionCount(timeoutExecutionCount);
 		pathStatistic.setFailedExecutionCount(failedExecutionCount);
 
-		int tps = tuple.getField("qps", Integer.class);
+		int qps = tuple.getField("qps", Integer.class);
 		SequentialMetricsCollector sequentialMetricsCollector = statisticSynchronizer.getMetricsCollector(Catalog.of(tuple));
-		sequentialMetricsCollector.set("qps", timestamp, MetricUnits.valueOf(tps));
+		sequentialMetricsCollector.set("qps", timestamp, MetricUnits.valueOf(qps));
 	}
 
 	@Override

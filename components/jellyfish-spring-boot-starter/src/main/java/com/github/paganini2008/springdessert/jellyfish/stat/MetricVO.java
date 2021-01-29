@@ -23,8 +23,10 @@ public class MetricVO {
 	private long highestValue;
 	private long lowestValue;
 	private long totalValue;
-	private int count;
 	private double middleValue;
+	private int count;
+	private int failedCount;
+	private int timeoutCount;
 	private long timestamp;
 
 }

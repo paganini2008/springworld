@@ -40,6 +40,9 @@ public class RealtimeStatisticalWriter extends StatisticalWriter {
 	private int port;
 
 	@Autowired
+	private PathMatchedMap timeouts;
+
+	@Autowired
 	private TransportClient transportClient;
 
 	private String host = NetUtils.getLocalHost();
@@ -71,9 +74,20 @@ public class RealtimeStatisticalWriter extends StatisticalWriter {
 		contextMap.put("path", path);
 		contextMap.put("requestTime", begin.longValue());
 		contextMap.put("elapsed", elapsed);
+		contextMap.put("timeout", isTimeout(path, (Long) request.getAttribute(REQUEST_TIMESTAMP)));
+		contextMap.put("failed", e != null);
 		contextMap.put("concurrency", concurrency);
 		transportClient.send(Tuple.wrap(contextMap));
 
+	}
+
+	private boolean isTimeout(String path, long requestTime) {
+		boolean timeout = false;
+		if (timeouts.containsKey(path)) {
+			long elapsed = System.currentTimeMillis() - requestTime;
+			timeout = elapsed > timeouts.get(path);
+		}
+		return timeout;
 	}
 
 	private AtomicInteger getConcurrency(String path) {

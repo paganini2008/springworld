@@ -11,10 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 
-import com.github.paganini2008.devtools.collection.KeyMatchedMap;
 import com.github.paganini2008.devtools.collection.MapUtils;
 import com.github.paganini2008.devtools.multithreads.AtomicLongSequence;
 import com.github.paganini2008.devtools.net.NetUtils;
@@ -35,7 +32,6 @@ public class BulkStatisticalWriter extends StatisticalWriter implements Initiali
 
 	private static final String TOPIC_NAME = BulkStatisticalWriter.class.getName();
 	private final Map<String, Stat> stats = new ConcurrentHashMap<String, BulkStatisticalWriter.Stat>();
-	private final PathMatchedMap timeouts = new PathMatchedMap();
 
 	@Value("${spring.application.cluster.name:default}")
 	private String clusterName;
@@ -45,6 +41,9 @@ public class BulkStatisticalWriter extends StatisticalWriter implements Initiali
 
 	@Value("${server.port}")
 	private int port;
+
+	@Autowired
+	private PathMatchedMap timeouts;
 
 	@Autowired
 	private TransportClient transportClient;
@@ -192,30 +191,6 @@ public class BulkStatisticalWriter extends StatisticalWriter implements Initiali
 			totalExecution.getAndSet(0);
 			timeoutExecution.getAndSet(0);
 			failedExecution.getAndSet(0);
-		}
-
-	}
-
-	/**
-	 * 
-	 * PathMatchedMap
-	 *
-	 * @author Jimmy Hoff
-	 * @version 1.0
-	 */
-	private static class PathMatchedMap extends KeyMatchedMap<String, Long> {
-
-		private static final long serialVersionUID = 1L;
-
-		PathMatchedMap() {
-			super(new ConcurrentHashMap<String, Long>(), false);
-		}
-
-		private final PathMatcher pathMatcher = new AntPathMatcher();
-
-		@Override
-		protected boolean apply(String pattern, Object inputKey) {
-			return pathMatcher.match(pattern, (String) inputKey);
 		}
 
 	}

@@ -35,6 +35,12 @@ public class CooperAutoConfiguration implements WebMvcConfigurer {
 	@Value("#{'${spring.application.cluster.cooper.excludedUrlPatterns:}'.split(',')}")
 	private List<String> excludedUrlPatterns = new ArrayList<String>();
 
+	@ConditionalOnMissingBean
+	@Bean
+	public PathMatchedMap pathMatchedMap() {
+		return new PathMatchedMap();
+	}
+
 	@Bean("realtimeStatisticalWriter")
 	public StatisticalWriter realtimeStatisticalWriter() {
 		log.info("Load RealtimeStatisticalWriter");

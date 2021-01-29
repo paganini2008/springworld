@@ -24,8 +24,10 @@ public class RealtimeStatisticHandler implements Handler {
 		long elapsed = tuple.getField("elapsed", Long.class);
 		long concurrency = tuple.getField("concurrency", Long.class);
 		long timestamp = tuple.getField("requestTime", Long.class);
+		boolean failed = tuple.getField("failed", Boolean.class);
+		boolean timeout = tuple.getField("timeout", Boolean.class);
 		SequentialMetricsCollector sequentialMetricsCollector = transientStatisticSynchronizer.getMetricsCollector(Catalog.of(tuple));
-		sequentialMetricsCollector.set("rt", timestamp, MetricUnits.valueOf(elapsed));
+		sequentialMetricsCollector.set("rt", timestamp, RealtimeMetricUnit.valueOf(elapsed, failed, timeout));
 		sequentialMetricsCollector.set("cons", timestamp, MetricUnits.valueOf(concurrency));
 	}
 
