@@ -38,9 +38,9 @@ import com.github.paganini2008.springdessert.xtransport.transport.NettyServerKee
 import com.github.paganini2008.springdessert.xtransport.transport.NioServer;
 import com.github.paganini2008.springdessert.xtransport.transport.NioServerStarter;
 import com.github.paganini2008.xtransport.ChannelEventListener;
+import com.github.paganini2008.xtransport.MultipleSelectionPartitioner;
 import com.github.paganini2008.xtransport.NioClient;
 import com.github.paganini2008.xtransport.Partitioner;
-import com.github.paganini2008.xtransport.RoundRobinPartitioner;
 import com.github.paganini2008.xtransport.embeddedio.EmbeddedClient;
 import com.github.paganini2008.xtransport.embeddedio.EmbeddedSerializationFactory;
 import com.github.paganini2008.xtransport.embeddedio.SerializationFactory;
@@ -109,7 +109,7 @@ public class XTransportAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public Partitioner partitioner() {
-		return new RoundRobinPartitioner();
+		return new MultipleSelectionPartitioner();
 	}
 
 	@Bean

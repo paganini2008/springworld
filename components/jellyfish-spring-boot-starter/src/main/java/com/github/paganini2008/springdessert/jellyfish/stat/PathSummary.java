@@ -1,6 +1,5 @@
 package com.github.paganini2008.springdessert.jellyfish.stat;
 
-import com.github.paganini2008.devtools.primitives.Doubles;
 import com.github.paganini2008.xtransport.Tuple;
 
 import lombok.Getter;
@@ -9,7 +8,7 @@ import lombok.ToString;
 
 /**
  * 
- * PathStatistical
+ * PathSummary
  *
  * @author Jimmy Hoff
  * @version 1.0
@@ -17,43 +16,37 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class PathStatistic {
+public class PathSummary {
 
 	private String clusterName;
 	private String applicationName;
 	private String host;
 	private String path;
 
-	public PathStatistic(String clusterName, String applicationName, String host, String path) {
+	public PathSummary(String clusterName, String applicationName, String host, String path) {
 		this.clusterName = clusterName;
 		this.applicationName = applicationName;
 		this.host = host;
 		this.path = path;
 	}
 
-	public PathStatistic() {
+	public PathSummary() {
 	}
 
 	private long totalExecutionCount;
 	private long timeoutExecutionCount;
 	private long failedExecutionCount;
 
-	public double getTimeoutExectionRatio() {
-		double value = totalExecutionCount < 0 ? (double) timeoutExecutionCount / totalExecutionCount : 0;
-		return Doubles.toFixed(value, 4);
+	public long getSuccessExecutionCount() {
+		return totalExecutionCount - failedExecutionCount - timeoutExecutionCount;
 	}
 
-	public double getFailedExectionRatio() {
-		double value = failedExecutionCount < 0 ? (double) failedExecutionCount / totalExecutionCount : 0;
-		return Doubles.toFixed(value, 4);
-	}
-
-	public static PathStatistic of(Tuple tuple) {
+	public static PathSummary of(Tuple tuple) {
 		String clusterName = tuple.getField("clusterName", String.class);
 		String applicationName = tuple.getField("applicationName", String.class);
 		String host = tuple.getField("host", String.class);
 		String path = tuple.getField("path", String.class);
-		return new PathStatistic(clusterName, applicationName, host, path);
+		return new PathSummary(clusterName, applicationName, host, path);
 	}
 
 }

@@ -2,13 +2,12 @@ package com.github.paganini2008.springdessert.jellyfish;
 
 import java.time.Duration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
@@ -20,15 +19,14 @@ import com.github.paganini2008.springdessert.jellyfish.log.LogEntrySearchService
 import com.github.paganini2008.springdessert.jellyfish.log.LogEntryService;
 import com.github.paganini2008.springdessert.jellyfish.log.Slf4jHandler;
 import com.github.paganini2008.springdessert.jellyfish.stat.BulkStatisticHandler;
-import com.github.paganini2008.springdessert.jellyfish.stat.DefaultSequentialMetricsCollectorFactory;
+import com.github.paganini2008.springdessert.jellyfish.stat.DefaultMetricsCollectorCustomizer;
+import com.github.paganini2008.springdessert.jellyfish.stat.MetricsCollectorCustomizer;
 import com.github.paganini2008.springdessert.jellyfish.stat.RealtimeStatisticHandler;
-import com.github.paganini2008.springdessert.jellyfish.stat.SequentialMetricsCollectorFactory;
 import com.github.paganini2008.springdessert.jellyfish.stat.TransientStatisticSynchronizer;
 import com.github.paganini2008.springdessert.reditools.common.IdGenerator;
 import com.github.paganini2008.springdessert.reditools.common.TimestampIdGenerator;
 import com.github.paganini2008.xtransport.HashPartitioner;
 import com.github.paganini2008.xtransport.MultipleSelectionPartitioner;
-import com.github.paganini2008.xtransport.Partitioner;
 
 import lombok.Setter;
 import redis.clients.jedis.JedisPoolConfig;
@@ -49,7 +47,6 @@ public class JellyfishAutoConfiguration {
 	@Value("${spring.application.cluster.name}")
 	private String clusterName;
 
-	@ConditionalOnProperty(name = "spring.application.cluster.jellyfish.logbox.adapter", havingValue = "logback", matchIfMissing = true)
 	@Bean
 	public Slf4jHandler slf4jHandler() {
 		return new Slf4jHandler();
@@ -65,14 +62,11 @@ public class JellyfishAutoConfiguration {
 		return new BulkStatisticHandler();
 	}
 
-	@Primary
-	@Bean
-	public Partitioner partitioner() {
+	@Autowired
+	public void addHashPartitioner(MultipleSelectionPartitioner partitioner) {
 		final String[] fieldNames = { "clusterName", "applicationName", "host", "path" };
-		MultipleSelectionPartitioner partitioner = new MultipleSelectionPartitioner();
 		HashPartitioner hashPartitioner = new HashPartitioner(fieldNames);
 		partitioner.addPartitioner("hash", hashPartitioner);
-		return partitioner;
 	}
 
 	@Bean
@@ -82,8 +76,8 @@ public class JellyfishAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public SequentialMetricsCollectorFactory sequentialMetricsCollectorFactory() {
-		return new DefaultSequentialMetricsCollectorFactory();
+	public MetricsCollectorCustomizer metricsCollectorCustomizer() {
+		return new DefaultMetricsCollectorCustomizer();
 	}
 
 	@Bean

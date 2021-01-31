@@ -42,7 +42,7 @@ public class RealtimeMetricUnit extends LongMetricUnit {
 		long totalValue = getTotalValue().longValue() + anotherUnit.getTotalValue().longValue();
 		int count = getCount() + anotherUnit.getCount();
 		long timestamp = anotherUnit.getTimestamp();
-		
+
 		RealtimeMetricUnit realtimeMetricUnit = (RealtimeMetricUnit) anotherUnit;
 		int failedCount = getFailedCount() + realtimeMetricUnit.getFailedCount();
 		int timeoutCount = getTimeoutCount() + realtimeMetricUnit.getTimeoutCount();

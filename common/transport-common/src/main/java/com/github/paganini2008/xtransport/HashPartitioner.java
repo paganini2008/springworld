@@ -44,7 +44,7 @@ public class HashPartitioner implements Partitioner {
 	}
 
 	protected Object getFieldValue(Tuple tuple, String fieldName) {
-		return tuple.getField(fieldName, null);
+		return tuple.getField(fieldName);
 	}
 
 	private static int indexFor(Object[] data, int length) {

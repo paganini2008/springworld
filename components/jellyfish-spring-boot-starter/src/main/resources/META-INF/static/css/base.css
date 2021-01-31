@@ -12,7 +12,7 @@ body {
 	background-color: #F0F0F0;
 	font-style: normal;
 	font-size: 12px;
-	font-family: Open Sans,sans-serif;
+	font-family: 'Unica One', sans-serif;
 	color: #000;
 }
 
@@ -164,6 +164,18 @@ body {
 .searchKeyword{
 	color: #FF0000;
 	font-weight: bold;
+}
+
+#chartBox{
+	width: 100%;
+	height: calc(100% - 100px);
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+#totalBox{
+	width: 100%;
+	clear: both;
 }
 
 img {

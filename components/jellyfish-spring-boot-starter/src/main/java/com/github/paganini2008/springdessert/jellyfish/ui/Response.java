@@ -52,6 +52,10 @@ public class Response extends HashMap<String, Object> {
 		return success("ok", data);
 	}
 
+	public static Response success() {
+		return success("ok", null);
+	}
+
 	public static Response success(String msg, Object data) {
 		return new Response(true, msg, data);
 	}

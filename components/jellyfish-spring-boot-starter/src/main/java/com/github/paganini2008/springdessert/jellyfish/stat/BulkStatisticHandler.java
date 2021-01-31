@@ -26,7 +26,7 @@ public class BulkStatisticHandler implements Handler {
 		long timeoutExecutionCount = tuple.getField("timeoutExecutionCount", Long.class);
 		long failedExecutionCount = tuple.getField("failedExecutionCount", Long.class);
 
-		PathStatistic pathStatistic = statisticSynchronizer.getPathStatistic(Catalog.of(tuple));
+		PathSummary pathStatistic = statisticSynchronizer.getPathSummary(Catalog.of(tuple));
 		pathStatistic.setTotalExecutionCount(totalExecutionCount);
 		pathStatistic.setTimeoutExecutionCount(timeoutExecutionCount);
 		pathStatistic.setFailedExecutionCount(failedExecutionCount);
